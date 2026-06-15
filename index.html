@@ -243,8 +243,8 @@ async function gerarPix(desconto=false){
 
 function showPixBubble(data, desconto=false){
   if(!data){addBubble('Ops, tive um probleminha pra gerar o PIX 😅 Tenta de novo daqui a pouco!','received');return;}
-  const valor = desconto ? 990 : 1990;
-  const valorStr = desconto ? 'R$ 9,90' : 'R$ 19,90';
+  const valor = desconto ? 1000 : 2000;   // valores arredondados: 10 e 20 reais
+  const valorStr = desconto ? 'R$ 10' : 'R$ 20';
   const pixCopia = data.pix?.pix_qr_code||'';
   const qrImg = data.pix?.qr_code_base64 ? `data:image/png;base64,${data.pix.qr_code_base64}` : '';
   const txHash = data.hash||'';
@@ -277,7 +277,7 @@ function iniciarPoll(txHash, valorPago){
   if(s==='paid'||s==='approved'||s==='completed'){
     clearInterval(iv);
     if(el()){el().textContent='✅ Pagamento confirmado!';el().style.color='#25d366';el().style.fontWeight='600';}
-    pixelPurchase(valorPago || 1990);
+    pixelPurchase(valorPago || 2000);   // fallback também arredondado
     await sleep(800);
     showBotaoEntregavel();
     aiHistory.push({role:'assistant',content:'te esperando'});
