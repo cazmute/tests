@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>WhatsApp</title>
+
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '981136621185086');
+fbq('track', 'PageView');
+</script>
+<noscript>
+  <img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=981136621185086&ev=PageView&noscript=1"/>
+</noscript>
+<!-- Fim Meta Pixel -->
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%; font-family: -apple-system, 'Segoe UI', Helvetica, sans-serif;
+    background: #111b21; overflow: hidden; position: fixed; width: 100%;
+  }
+  body { display: flex; align-items: stretch; justify-content: center; }
+  .wa-wrapper {
+    width: 100%; max-width: 480px;
+    border-left: 1px solid #2a3942; border-right: 1px solid #2a3942;
+    background: #ece5dd; height: 100vh; height: 100dvh;
+    display: flex; flex-direction: column;
+  }
+  .wa-header {
+    background: #075e54; color: #fff;
+    padding: 10px 16px; display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+  }
+  .wa-avatar { width: 42px; height: 42px; border-radius: 50%; overflow: hidden; flex-shrink: 0; border: 2px solid #128c7e; }
+  .wa-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .wa-header-info .name { font-weight: 600; font-size: 15px; }
+  .wa-header-info .status { font-size: 12px; opacity: 0.8; }
+  .wa-messages {
+    flex: 1; padding: 10px; display: flex; flex-direction: column; gap: 4px;
+    overflow-y: auto;
+    background: #ece5dd url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23c8bfb0' fill-opacity='0.18'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .bubble {
+    max-width: 78%; padding: 7px 11px; border-radius: 10px;
+    font-size: 13.5px; line-height: 1.5; position: relative; word-break: break-word;
+  }
+  .bubble .time { display: block; text-align: right; font-size: 10px; opacity: 0.55; margin-top: 4px; white-space: nowrap; }
+  .bubble.sent { background: #dcf8c6; align-self: flex-end; border-bottom-right-radius: 3px; color: #111; }
+  .bubble.received { background: #fff; align-self: flex-start; border-bottom-left-radius: 3px; color: #111; }
+  .tick { color: #53bdeb; margin-left: 2px; font-size: 11px; }
+  .typing { display: flex; align-items: center; gap: 4px; padding: 8px 12px; background: #fff; border-radius: 10px; align-self: flex-start; width: 54px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #aaa; animation: bounce 1.2s infinite; }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-5px)} }
+  .fade-in { animation: fadeIn 0.25s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1} }
+  .cta-btn {
+    display: block; background: #25d366; color: #fff; border: none;
+    border-radius: 10px; padding: 9px 14px; font-size: 13.5px; font-weight: 600;
+    cursor: pointer; text-align: center; text-decoration: none; margin-top: 8px;
+  }
+  .cta-btn:hover { background: #1da851; }
+  .input-area-wrap { flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom, 0px); background: #f0f0f0; }
+  .input-area {
+    background: #f0f0f0; padding: 8px 10px;
+    display: flex; gap: 8px; align-items: center; border-top: 1px solid #ddd;
+  }
+  .input-area input {
+    flex: 1; background: #fff; border-radius: 20px;
+    padding: 8px 14px; font-size: 16px; color: #111; border: none; outline: none; font-family: inherit;
+  }
+  .send-btn {
+    background: #25d366; border: none; border-radius: 50%;
+    width: 38px; height: 38px; cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; color: #fff; transition: background 0.15s;
+  }
+  .send-btn:hover { background: #1da851; }
+
+  /* Modal chamada de vídeo */
+  .vcall-overlay {
+    position: fixed; inset: 0; z-index: 999;
+    background: #1a1a2e;
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    padding: 60px 20px 60px;
+    animation: fadeIn 0.3s ease;
+  }
+  .vcall-top { text-align: center; }
+  .vcall-avatar {
+    width: 100px; height: 100px; border-radius: 50%; overflow: hidden;
+    margin: 0 auto 18px;
+    border: 3px solid rgba(255,255,255,0.2);
+    box-shadow: 0 0 0 10px rgba(255,255,255,0.06);
+  }
+  .vcall-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .vcall-name { color: #fff; font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+  .vcall-status { color: rgba(255,255,255,0.6); font-size: 14px; letter-spacing: 0.3px; }
+  .vcall-pulse {
+    width: 100px; height: 100px; border-radius: 50%; position: relative; margin: 0 auto;
+  }
+  .vcall-pulse::before, .vcall-pulse::after {
+    content: ''; position: absolute; inset: -14px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.15);
+    animation: pulse 2s ease-out infinite;
+  }
+  .vcall-pulse::after { animation-delay: 1s; }
+  @keyframes pulse { 0%{transform:scale(0.85);opacity:1} 100%{transform:scale(1.4);opacity:0} }
+  .vcall-buttons { display: flex; gap: 48px; align-items: center; }
+  .vcall-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    background: none; border: none; cursor: pointer; color: #fff; font-size: 12px;
+  }
+  .vcall-btn-icon {
+    width: 62px; height: 62px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 26px;
+  }
+  .vcall-btn-icon.decline { background: #e53935; }
+  .vcall-btn-icon.answer  { background: #25d366; animation: ringShake 0.5s ease infinite alternate; }
+  @keyframes ringShake { from{transform:rotate(-8deg)} to{transform:rotate(8deg)} }
+</style>
+</head>
+<body>
+<div class="wa-wrapper">
+  <div class="wa-header">
+    <div class="wa-avatar">
+      <img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" alt="Vanessa Macedo">
+    </div>
+    <div class="wa-header-info">
+      <div class="name">Vanessa Macedo</div>
+      <div class="status" id="header-status">online</div>
+    </div>
+  </div>
+  <div class="wa-messages" id="messages"></div>
+  <div class="input-area-wrap">
+    <div class="input-area">
+      <input type="text" id="user-input" placeholder="Mensagem" />
+      <button class="send-btn" id="send-btn">&#10148;</button>
+    </div>
+  </div>
+</div>
+<script>
+const msgs = document.getElementById('messages');
+const userInput = document.getElementById('user-input');
+const sendBtn = document.getElementById('send-btn');
+const headerStatus = document.getElementById('header-status');
+
+const MENSAGEM_INICIAL = "Oi! Tudo bem com você? 😏";
+const PRODUCT_HASH = "7p8h95hghd";
+const LINK_ENTREGAVEL = "https://chamadadevideo-wa.netlify.app";
+const CIDADES_FALLBACK = ['Goiânia','Recife','Salvador','Belo Horizonte','Curitiba','Manaus','Belém','Porto Alegre','Fortaleza','Campinas'];
+
+let aiHistory = [], leadId = null, clicouCta = false, leadCity = null;
+const SESSION_ID = crypto.randomUUID();
+
+// ── Meta Pixel helpers ──────────────────────────────────────────────────────
+let initiateCheckoutFired = false;
+
+function pixelInitiateCheckout(valor) {
+  if (initiateCheckoutFired) return;
+  initiateCheckoutFired = true;
+  if (typeof fbq !== 'undefined') {
+    fbq('track', 'InitiateCheckout', {
+      value: (valor / 100).toFixed(2), currency: 'BRL',
+      num_items: 1, content_ids: [PRODUCT_HASH], content_type: 'product',
+    });
+  }
+}
+
+function pixelPurchase(valor) {
+  if (typeof fbq !== 'undefined') {
+    fbq('track', 'Purchase', {
+      value: (valor / 100).toFixed(2), currency: 'BRL',
+      num_items: 1, content_ids: [PRODUCT_HASH], content_type: 'product',
+    });
+  }
+}
+// ───────────────────────────────────────────────────────────────────────────
+
+async function fetchLeadCity() {
+  try {
+    const r = await fetch('/api/city');
+    const d = await r.json();
+    if (d.city) { leadCity = d.city; return; }
+  } catch(e) {}
+  leadCity = CIDADES_FALLBACK[Math.floor(Math.random()*CIDADES_FALLBACK.length)];
+}
+
+async function salvarLead(clicou=false) {
+  clicouCta = clicou||clicouCta;
+  const payload = {
+    session_id: SESSION_ID,
+    mensagens: aiHistory.map(m=>({role:m.role,text:m.content})),
+    clicou_cta: clicouCta,
+    ultima_mensagem: new Date().toISOString(),
+    lead_id: leadId,
+  };
+  try {
+    const res = await fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const d = await res.json();
+    if (!leadId && d?.lead_id) leadId = d.lead_id;
+  } catch(e){}
+}
+
+const getTime=()=>{const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const scrollBottom=()=>{msgs.scrollTop=msgs.scrollHeight;};
+
+function addBubble(text,side,animate=true){
+  const b=document.createElement('div'); b.className='bubble '+side+(animate?' fade-in':'');
+  const ticks=side==='sent'?' <span class="tick">✓✓</span>':'';
+  b.innerHTML=text.replace(/\n/g,'<br>')+`<span class="time">${getTime()}${ticks}</span>`;
+  if(typingEl){msgs.insertBefore(b,typingEl);}else{msgs.appendChild(b);}
+  scrollBottom(); return b;
+}
+
+let pixAtivo=null, pixNormalGerado=false, pixDescontoGerado=false;
+
+async function gerarPix(desconto=false){
+  try {
+    const res = await fetch('/api/pix', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ desconto }),
+    });
+    return await res.json();
+  } catch(e) { return null; }
+}
+
+function showPixBubble(data, desconto=false){
+  if(!data){addBubble('Ops, tive um probleminha pra gerar o PIX 😅 Tenta de novo daqui a pouco!','received');return;}
+  const valor = desconto ? 1000 : 2000;
+  const valorStr = desconto ? 'R$ 10' : 'R$ 20';
+  const pixCopia = data.pix?.pix_qr_code||'';
+  const qrImg = data.pix?.qr_code_base64 ? `data:image/png;base64,${data.pix.qr_code_base64}` : '';
+  const txHash = data.hash||'';
+  const b=document.createElement('div'); b.className='bubble received fade-in'; b.style.maxWidth='92%';
+  b.innerHTML=`${pixCopia?`<button onclick="copiarPix(this,'${pixCopia.replace(/'/g,"\\'")}');" class="cta-btn" style="margin-top:0;">Copiar chave pix</button>`:''}<div id="pix-status-${txHash}"></div><span class="time">${getTime()}</span>`;
+  msgs.appendChild(b); scrollBottom();
+  pixelInitiateCheckout(valor);
+  salvarLead(true);
+  if(txHash) iniciarPoll(txHash, valor);
+}
+
+window.copiarPix=function(btn,codigo){
+  const doCopy=()=>{btn.textContent='✅ PIX copiado!';btn.style.background='#128c7e';setTimeout(()=>{btn.textContent='Copiar chave pix';btn.style.background='';},3000);};
+  navigator.clipboard.writeText(codigo).then(doCopy).catch(()=>{const ta=document.createElement('textarea');ta.value=codigo;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);doCopy();});
+};
+
+async function checarStatus(txHash){
+  try {
+    const res = await fetch(`/api/status?hash=${txHash}`);
+    const d = await res.json();
+    return d.payment_status || null;
+  } catch(e){ return null; }
+}
+
+function iniciarPoll(txHash, valorPago){
+  if(pixAtivo?.pollInterval)clearInterval(pixAtivo.pollInterval);
+  const el=()=>document.getElementById('pix-status-'+txHash); let t=0;
+  const iv=setInterval(async()=>{t++;if(t>60){clearInterval(iv);if(el())el().textContent='⏰ PIX expirado.';return;}
+  const s=await checarStatus(txHash);
+  if(s==='paid'||s==='approved'||s==='completed'){
+    clearInterval(iv);
+    if(el()){el().textContent='✅ Pagamento confirmado!';el().style.color='#25d366';el().style.fontWeight='600';}
+    pixelPurchase(valorPago || 2000);
+    await sleep(800);
+    showBotaoEntregavel();
+    aiHistory.push({role:'assistant',content:'te esperando'});
+    salvarLead(true);
+  }},5000);
+  pixAtivo={txHash,pollInterval:iv};
+}
+
+function showFotoLead(){
+  const b=document.createElement('div'); b.className='bubble received fade-in'; b.style.maxWidth='92%';
+  b.innerHTML=`<img src="https://i.ibb.co/B2ML9kzf/Img-jpg.jpg" style="width:220px;display:block;border-radius:8px;" alt="foto"><span class="time">${getTime()}</span>`;
+  msgs.appendChild(b); scrollBottom();
+}
+
+function showBotaoEntregavel(){
+  if(!LINK_ENTREGAVEL)return;
+  let ring = null;
+  try {
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    function beep(){ const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=480;g.gain.setValueAtTime(0.3,ctx.currentTime);o.start();o.stop(ctx.currentTime+0.4); }
+    beep(); ring=setInterval(beep,1400);
+  } catch(e){}
+  const overlay=document.createElement('div'); overlay.className='vcall-overlay';
+  overlay.innerHTML=`<div class="vcall-top"><div class="vcall-pulse"><div class="vcall-avatar"><img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" alt="Vanessa Macedo"></div></div><div class="vcall-name" style="margin-top:22px;">Vanessa Macedo</div><div class="vcall-status">Chamada de vídeo…</div></div><div class="vcall-buttons"><button class="vcall-btn" id="vcall-decline"><div class="vcall-btn-icon decline">📵</div><span>Recusar</span></button><button class="vcall-btn" id="vcall-answer"><div class="vcall-btn-icon answer">📹</div><span>Atender</span></button></div>`;
+  document.body.appendChild(overlay);
+  function fechar(){ if(ring)clearInterval(ring); overlay.remove(); }
+  document.getElementById('vcall-answer').onclick=()=>{ fechar(); window.open(LINK_ENTREGAVEL,'_blank'); };
+  document.getElementById('vcall-decline').onclick=async()=>{
+    fechar();
+    const b=document.createElement('div'); b.className='bubble received fade-in';
+    b.innerHTML=`<span style="color:#e53935;font-size:13px;">📵 Chamada de vídeo perdida</span><span class="time">${getTime()}</span>`;
+    msgs.appendChild(b); scrollBottom();
+    await sleep(1500);
+    const br=document.createElement('div'); br.className='bubble received fade-in'; br.style.maxWidth='92%';
+    br.innerHTML=`<a href="${LINK_ENTREGAVEL}" target="_blank" class="cta-btn" style="margin-top:0;">📹 Retornar chamada</a><span class="time">${getTime()}</span>`;
+    msgs.appendChild(br); scrollBottom();
+  };
+}
+
+async function showCta(_,desconto=false){
+  if(desconto){if(pixDescontoGerado)return;pixDescontoGerado=true;}else{if(pixNormalGerado)return;pixNormalGerado=true;}
+  showTyping(); await sleep(1000); hideTyping();
+  const data = await gerarPix(desconto);
+  showPixBubble(data, desconto);
+}
+
+let typingEl=null;
+function showTyping(){if(typingEl){msgs.appendChild(typingEl);scrollBottom();return;}headerStatus.textContent='digitando...';typingEl=document.createElement('div');typingEl.className='typing fade-in';typingEl.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>';msgs.appendChild(typingEl);scrollBottom();}
+function hideTyping(){if(typingEl){typingEl.remove();typingEl=null;}headerStatus.textContent='online';}
+function enableInput(){userInput.focus();}
+
+function typingDelay(text){
+  const chars=text.length, charsPerSec=2.5+Math.random()*1.0;
+  const base=(chars/charsPerSec)*1000, thinkPause=500+Math.random()*1000, jitter=(Math.random()-0.5)*800;
+  return Math.min(Math.max(base+thinkPause+jitter,2000),14000);
+}
+
+async function askAI(userMsg){
+  aiHistory.push({role:'user', content:userMsg});
+  showTyping();
+  try{
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ history: aiHistory, city: leadCity }),
+    });
+    const data = await res.json();
+    hideTyping();
+    const reply = data?.reply || null;
+    if(!reply){addBubble('Oi! Tô com muita mensagem agora 😅 Tenta de novo!','received');enableInput();return;}
+    aiHistory.push({role:'assistant', content:reply});
+    if(reply.includes('[FIM]')){
+      const msgFinal=reply.replace('[FIM]','').trim();
+      let partesFim=msgFinal.split('|').map(p=>p.trim()).filter(Boolean);
+      for(let i=0;i<partesFim.length;i++){
+        showTyping();await sleep(typingDelay(partesFim[i]));hideTyping();
+        addBubble(partesFim[i],'received');
+      }
+      userInput.disabled=true;sendBtn.disabled=true;
+      userInput.placeholder='Conversa encerrada';
+      return;
+    }
+    let partes=reply.split('|').map(p=>p.trim()).filter(Boolean);
+    if(partes.length<=1&&reply.includes('\n\n')){ partes=reply.split('\n\n').map(p=>p.trim()).filter(Boolean); }
+    for(let i=0;i<partes.length;i++){
+      showTyping(); await sleep(typingDelay(partes[i])); hideTyping();
+      addBubble(partes[i],'received');
+    }
+    const GATILHO_NORMAL="aqui o pix", GATILHO_DESCONTO="um desconto", GATILHO_FOTO="olha eu aqui";
+    const temLink=new RegExp(GATILHO_NORMAL+'|'+GATILHO_DESCONTO,'i').test(reply);
+    const temDesconto=new RegExp(GATILHO_DESCONTO,'i').test(reply);
+    const temFoto=new RegExp(GATILHO_FOTO,'i').test(reply);
+    if(temLink){await sleep(600);showCta(null,temDesconto);}
+    if(temFoto){await sleep(500);showFotoLead();}
+    salvarLead(temLink);
+  }catch(e){hideTyping();addBubble('Ops, tive um probleminha. Pode repetir? 😊','received');aiHistory.pop();}
+  enableInput();
+}
+
+function submit(){const text=userInput.value.trim();if(!text)return;userInput.value='';addBubble(text,'sent');if(!leadId)salvarLead();askAI(text);}
+sendBtn.onclick=submit;
+userInput.onkeydown=e=>{if(e.key==='Enter')submit();};
+
+async function start(){await fetchLeadCity();await sleep(800);showTyping();await sleep(1200);hideTyping();addBubble(MENSAGEM_INICIAL,'received');aiHistory.push({role:'assistant',content:MENSAGEM_INICIAL});}
+start();
+</script>
+</body>
+</html>
