@@ -162,7 +162,6 @@ const CIDADES_FALLBACK = ['Goiânia','Recife','Salvador','Belo Horizonte','Curit
 
 let aiHistory = [], leadId = null, clicouCta = false, leadCity = null;
 const SESSION_ID = crypto.randomUUID();
-let typingEl = null; // Elemento de "digitando"
 
 // ── Meta Pixel helpers ──────────────────────────────────────────────────────
 let initiateCheckoutFired = false;
@@ -244,12 +243,13 @@ async function gerarPix(desconto=false){
 
 function showPixBubble(data, desconto=false){
   if(!data){addBubble('Ops, tive um probleminha pra gerar o PIX 😅 Tenta de novo daqui a pouco!','received');return;}
-  const valor = desconto ? 1000 : 2000;   // R$10 e R$20
+  const valor = desconto ? 1000 : 2000;
   const valorStr = desconto ? 'R$ 10' : 'R$ 20';
   const pixCopia = data.pix?.pix_qr_code||'';
+  const qrImg = data.pix?.qr_code_base64 ? `data:image/png;base64,${data.pix.qr_code_base64}` : '';
   const txHash = data.hash||'';
   const b=document.createElement('div'); b.className='bubble received fade-in'; b.style.maxWidth='92%';
-  b.innerHTML=`<div style="font-size:13px;margin-bottom:8px;">Copie o Pix — <strong>${valorStr}</strong></div>${pixCopia?`<button onclick="copiarPix(this,'${pixCopia.replace(/'/g,"\\'")}');" class="cta-btn" style="margin-top:0;">Copiar chave pix</button>`:''}<div id="pix-status-${txHash}" style="text-align:center;font-size:12px;color:#888;margin-top:8px;">⏳ Aguardando pagamento…</div><span class="time">${getTime()}</span>`;
+  b.innerHTML=`${pixCopia?`<button onclick="copiarPix(this,'${pixCopia.replace(/'/g,"\\'")}');" class="cta-btn" style="margin-top:0;">Copiar chave pix</button>`:''}<div id="pix-status-${txHash}"></div><span class="time">${getTime()}</span>`;
   msgs.appendChild(b); scrollBottom();
   pixelInitiateCheckout(valor);
   salvarLead(true);
@@ -324,21 +324,10 @@ async function showCta(_,desconto=false){
   showPixBubble(data, desconto);
 }
 
-// ─── Funções de UI (typing, etc.) ──────────────────────────────────────────
-function showTyping(){
-  if(typingEl){ msgs.appendChild(typingEl); scrollBottom(); return; }
-  headerStatus.textContent='digitando...';
-  typingEl=document.createElement('div');
-  typingEl.className='typing fade-in';
-  typingEl.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
-  msgs.appendChild(typingEl);
-  scrollBottom();
-}
-function hideTyping(){
-  if(typingEl){ typingEl.remove(); typingEl=null; }
-  headerStatus.textContent='online';
-}
-function enableInput(){ userInput.focus(); }
+let typingEl=null;
+function showTyping(){if(typingEl){msgs.appendChild(typingEl);scrollBottom();return;}headerStatus.textContent='digitando...';typingEl=document.createElement('div');typingEl.className='typing fade-in';typingEl.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>';msgs.appendChild(typingEl);scrollBottom();}
+function hideTyping(){if(typingEl){typingEl.remove();typingEl=null;}headerStatus.textContent='online';}
+function enableInput(){userInput.focus();}
 
 function typingDelay(text){
   const chars=text.length, charsPerSec=2.5+Math.random()*1.0;
@@ -346,7 +335,6 @@ function typingDelay(text){
   return Math.min(Math.max(base+thinkPause+jitter,2000),14000);
 }
 
-// ─── IA e envio de mensagens ──────────────────────────────────────────────
 async function askAI(userMsg){
   aiHistory.push({role:'user', content:userMsg});
   showTyping();
