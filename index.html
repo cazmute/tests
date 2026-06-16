@@ -95,11 +95,31 @@ html,body{
   font-size:14.5px;line-height:1.5;position:relative;word-break:break-word;
   color:var(--wa-text);
 }
-.bbl.in{background:var(--wa-msg-in);align-self:flex-start;border-bottom-left-radius:2px;box-shadow:0 1px 0.5px rgba(11,20,26,.13)}
-.bbl.out{background:var(--wa-msg-out);align-self:flex-end;border-bottom-right-radius:2px;box-shadow:0 1px 0.5px rgba(11,20,26,.13)}
-.bbl-tail-in,.bbl-tail-out{position:absolute;top:0;width:8px;height:13px}
-.bbl-tail-in{left:-8px}
-.bbl-tail-out{right:-8px}
+.bbl.in{
+  background:var(--wa-msg-in);align-self:flex-start;
+  border-top-left-radius:0;
+  box-shadow:0 1px 0.5px rgba(11,20,26,.13);
+  margin-left:6px;
+}
+.bbl.in::before{
+  content:'';position:absolute;top:0;left:-6px;
+  width:0;height:0;
+  border-top:6px solid var(--wa-msg-in);
+  border-left:6px solid transparent;
+}
+.bbl.out{
+  background:var(--wa-msg-out);align-self:flex-end;
+  border-top-right-radius:0;
+  box-shadow:0 1px 0.5px rgba(11,20,26,.13);
+  margin-right:6px;
+}
+.bbl.out::before{
+  content:'';position:absolute;top:0;right:-6px;
+  width:0;height:0;
+  border-top:6px solid var(--wa-msg-out);
+  border-right:6px solid transparent;
+}
+.bbl-tail-in,.bbl-tail-out{display:none}
 .bbl-meta{display:flex;align-items:center;justify-content:flex-end;gap:3px;margin-top:2px;float:right;margin-left:10px;margin-bottom:-2px}
 .bbl-time{font-size:11px;color:var(--wa-text2);white-space:nowrap}
 .bbl.out .bbl-time{color:#667781}
@@ -227,11 +247,7 @@ html,body{
           <rect x="3" y="7" width="12.5" height="10" rx="2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
-      <button class="hdr-btn" aria-label="Chamada de voz">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24 11.47 11.47 0 003.58.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.58a1 1 0 01-.24 1.01L6.62 10.79z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
+
       <button class="hdr-btn" aria-label="Mais opções">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
           <circle cx="12" cy="5" r="1.6"/>
@@ -250,20 +266,20 @@ html,body{
   <!-- INPUT BAR -->
   <div class="input-wrap">
     <div class="input-pill">
-      <button class="emoji-btn" aria-label="Emoji">
+      <label for="inp" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0" aria-label="Emoji">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="12" r="9" stroke="#8696a0" stroke-width="1.75"/>
           <path d="M8.5 14s.875 1.5 3.5 1.5 3.5-1.5 3.5-1.5" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round"/>
           <circle cx="9" cy="10" r="1" fill="#8696a0"/>
           <circle cx="15" cy="10" r="1" fill="#8696a0"/>
         </svg>
-      </button>
+      </label>
       <input type="text" id="inp" placeholder="Mensagem" autocomplete="off"/>
-      <button class="attach-btn" aria-label="Anexar">
+      <label for="inp" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0" aria-label="Anexar">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
           <path d="M21 10.41V18a5 5 0 01-10 0V7a3 3 0 016 0v10.5a1 1 0 01-2 0V8" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-      </button>
+      </label>
     </div>
     <button class="send-btn" id="send-btn" aria-label="Enviar mensagem">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" id="mic-icon">
@@ -328,6 +344,117 @@ const sendBtn=document.getElementById('send-btn');
 const hdrStatus=document.getElementById('hdr-status');
 const micIcon=document.getElementById('mic-icon');
 const sendIcon=document.getElementById('send-icon');
+
+/* ── Gravação de áudio ── */
+let mediaRecorder=null, audioChunks=[], isRecording=false, recTimer=null, recSeconds=0;
+
+function formatRecTime(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+
+function startRecording(){
+  if(isRecording)return;
+  navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
+    isRecording=true;
+    audioChunks=[];
+    mediaRecorder=new MediaRecorder(stream);
+    mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data);};
+    mediaRecorder.onstop=()=>{
+      stream.getTracks().forEach(t=>t.stop());
+      const blob=new Blob(audioChunks,{type:'audio/webm'});
+      sendAudioBubble(blob);
+    };
+    mediaRecorder.start();
+    recSeconds=0;
+    sendBtn.style.background='#e53935';
+    micIcon.style.display='';sendIcon.style.display='none';
+    recTimer=setInterval(()=>{
+      recSeconds++;
+      const lbl=document.getElementById('rec-label');
+      if(lbl)lbl.textContent='🔴 '+formatRecTime(recSeconds);
+    },1000);
+    // show timer label inside pill
+    let lbl=document.getElementById('rec-label');
+    if(!lbl){lbl=document.createElement('span');lbl.id='rec-label';lbl.style.cssText='flex:1;font-size:14px;color:#e53935;font-weight:500';document.querySelector('.input-pill').insertBefore(lbl,inpEl);}
+    inpEl.style.display='none';
+    lbl.textContent='🔴 00:00';
+  }).catch(()=>{});
+}
+
+function stopRecording(){
+  if(!isRecording)return;
+  isRecording=false;
+  clearInterval(recTimer);
+  sendBtn.style.background='';
+  const lbl=document.getElementById('rec-label');
+  if(lbl)lbl.remove();
+  inpEl.style.display='';
+  if(mediaRecorder&&mediaRecorder.state!=='inactive')mediaRecorder.stop();
+}
+
+function cancelRecording(){
+  if(!isRecording)return;
+  isRecording=false;
+  clearInterval(recTimer);
+  sendBtn.style.background='';
+  const lbl=document.getElementById('rec-label');
+  if(lbl)lbl.remove();
+  inpEl.style.display='';
+  if(mediaRecorder&&mediaRecorder.state!=='inactive'){
+    mediaRecorder.onstop=()=>{mediaRecorder.stream&&mediaRecorder.stream.getTracks().forEach(t=>t.stop());};
+    mediaRecorder.stop();
+  }
+  audioChunks=[];
+}
+
+function sendAudioBubble(blob){
+  const url=URL.createObjectURL(blob);
+  const dur=formatRecTime(recSeconds||1);
+  const b=document.createElement('div');b.className='bbl out fade-in';b.style.maxWidth='75%';
+  b.innerHTML=`<div style="display:flex;align-items:center;gap:10px;padding:2px 0;min-width:180px">
+    <button onclick="toggleAudio(this)" style="width:38px;height:38px;border-radius:50%;background:#25d366;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,.2)">
+      <svg class="play-svg" width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M5 3l14 9-14 9V3z"/></svg>
+    </button>
+    <div style="flex:1">
+      <div style="height:3px;background:rgba(0,0,0,0.15);border-radius:2px;margin-bottom:5px">
+        <div class="audio-prog" style="height:100%;width:0%;background:#128c7e;border-radius:2px;transition:width .1s linear"></div>
+      </div>
+      <span style="font-size:11px;color:#667781">${dur}</span>
+    </div>
+    <audio style="display:none" src="${url}"></audio>
+  </div>
+  <div class="bbl-meta"><span class="bbl-time">${getTime()}</span>${DOUBLE_TICK}</div>`;
+  msgsEl.appendChild(b);scroll();
+
+  // Erro genérico após breve pausa
+  setTimeout(async()=>{
+    const errB=document.createElement('div');errB.className='bbl in fade-in';
+    errB.innerHTML=`<span style="font-size:13.5px">😕</span><div class="bbl-meta"><span class="bbl-time">${getTime()}</span></div>`;
+    msgsEl.appendChild(errB);scroll();
+  },1800);
+}
+
+window.toggleAudio=function(btn){
+  const wrap=btn.closest('.bbl');
+  const audio=wrap.querySelector('audio');
+  const prog=wrap.querySelector('.audio-prog');
+  const ico=btn.querySelector('.play-svg');
+  if(audio.paused){
+    // Para todos os outros áudios
+    document.querySelectorAll('.bbl audio').forEach(a=>{
+      if(a!==audio&&!a.paused){
+        a.pause();
+        const ob=a.closest('.bbl').querySelector('.play-svg');
+        if(ob)ob.innerHTML='<path d="M5 3l14 9-14 9V3z"/>';
+      }
+    });
+    audio.play();
+    ico.innerHTML='<path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>';
+    audio.ontimeupdate=()=>{if(audio.duration)prog.style.width=(audio.currentTime/audio.duration*100)+'%';};
+    audio.onended=()=>{ico.innerHTML='<path d="M5 3l14 9-14 9V3z"/>';prog.style.width='0%';};
+  }else{
+    audio.pause();
+    ico.innerHTML='<path d="M5 3l14 9-14 9V3z"/>';
+  }
+};
 
 const MENSAGEM_INICIAL="Oi, Tudo bem?";
 const PRODUCT_HASH="7p8h95hghd";
@@ -566,7 +693,34 @@ function submit(){
   if(!leadId)salvarLead();
   askAI(text);
 }
-sendBtn.onclick=submit;
+let holdTimer=null, holdTriggered=false;
+
+function onPressStart(e){
+  e.preventDefault();
+  holdTriggered=false;
+  // Se ícone de envio visível = tem texto = envia
+  if(sendIcon.style.display!=='none'){submit();return;}
+  // Senão segura 300ms pra gravar
+  holdTimer=setTimeout(()=>{
+    holdTriggered=true;
+    startRecording();
+  },300);
+}
+
+function onPressEnd(e){
+  e.preventDefault();
+  clearTimeout(holdTimer);
+  holdTimer=null;
+  if(isRecording){stopRecording();}
+  holdTriggered=false;
+}
+
+sendBtn.addEventListener('mousedown', onPressStart);
+sendBtn.addEventListener('mouseup', onPressEnd);
+sendBtn.addEventListener('mouseleave', ()=>{if(isRecording)stopRecording();clearTimeout(holdTimer);});
+sendBtn.addEventListener('touchstart', onPressStart, {passive:false});
+sendBtn.addEventListener('touchend', onPressEnd, {passive:false});
+
 inpEl.onkeydown=e=>{if(e.key==='Enter')submit();};
 
 /* ── Init ── */
