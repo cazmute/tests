@@ -424,11 +424,17 @@ function sendAudioBubble(blob){
   <div class="bbl-meta"><span class="bbl-time">${getTime()}</span>${DOUBLE_TICK}</div>`;
   msgsEl.appendChild(b);scroll();
 
-  // Erro genérico após breve pausa
-  setTimeout(async()=>{
-    const errB=document.createElement('div');errB.className='bbl in fade-in';
-    errB.innerHTML=`<span style="font-size:13.5px">😕</span><div class="bbl-meta"><span class="bbl-time">${getTime()}</span></div>`;
-    msgsEl.appendChild(errB);scroll();
+  // Erro visual no balão enviado, sem notificar a IA
+  setTimeout(()=>{
+    // Marca o balão como erro (X vermelho)
+    const meta=b.querySelector('.bbl-meta');
+    if(meta){
+      const errIco=document.createElement('span');
+      errIco.title='Falha no envio';
+      errIco.style.cssText='color:#e53935;font-size:13px;margin-right:2px';
+      errIco.textContent='!';
+      meta.prepend(errIco);
+    }
   },1800);
 }
 
