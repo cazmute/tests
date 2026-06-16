@@ -248,7 +248,7 @@ html,body{
         </svg>
       </button>
 
-      <button class="hdr-btn" aria-label="Mais opções">
+      <button class="hdr-btn" aria-label="Mais opções" onclick="openInfoSheet()">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
           <circle cx="12" cy="5" r="1.6"/>
           <circle cx="12" cy="12" r="1.6"/>
@@ -287,6 +287,49 @@ html,body{
         <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </button>
+  </div>
+
+  <!-- BOTTOM SHEET: info conta -->
+  <div class="sheet-overlay" id="info-sheet">
+    <div class="sheet" style="border-radius:20px 20px 0 0">
+      <div class="sheet-handle"></div>
+      <div style="padding:20px 18px 0;text-align:center;border-bottom:0.5px solid rgba(255,255,255,0.08);padding-bottom:18px">
+        <div style="width:64px;height:64px;border-radius:50%;overflow:hidden;margin:0 auto 10px;border:2.5px solid rgba(0,168,132,0.4)">
+          <img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" style="width:100%;height:100%;object-fit:cover" alt="Vanessa">
+        </div>
+        <div style="color:#e9edef;font-size:16px;font-weight:600">Vanessa Macedo</div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:5px;margin-top:4px">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="#00a884"><path d="M9 12l2 2 4-4m5 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span style="color:#00a884;font-size:12px;font-weight:500">Conta verificada</span>
+        </div>
+      </div>
+      <div style="padding:18px 18px 22px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.04);border-radius:12px;padding:13px 14px">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(0,168,132,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="4" width="18" height="18" rx="2" stroke="#00a884" stroke-width="2"/>
+              <path d="M16 2v4M8 2v4M3 10h18" stroke="#00a884" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <div style="color:#8696a0;font-size:11.5px;margin-bottom:2px">Membro desde</div>
+            <div style="color:#e9edef;font-size:14px;font-weight:500">2019</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.04);border-radius:12px;padding:13px 14px">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(0,168,132,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#00a884" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <div style="color:#8696a0;font-size:11.5px;margin-bottom:2px">Status</div>
+            <div style="color:#e9edef;font-size:14px;font-weight:500">Conta ativa e segura</div>
+          </div>
+        </div>
+        <button class="sheet-ok" onclick="closeInfoSheet()" style="margin-top:4px">Fechar</button>
+      </div>
+    </div>
   </div>
 
   <!-- BOTTOM SHEET: chamada de vídeo bloqueada -->
@@ -360,6 +403,10 @@ function scroll(){msgsEl.scrollTop=msgsEl.scrollHeight}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
 
 
+
+function openInfoSheet(){document.getElementById('info-sheet').classList.add('open')}
+function closeInfoSheet(){document.getElementById('info-sheet').classList.remove('open')}
+document.getElementById('info-sheet').addEventListener('click',function(e){if(e.target===this)closeInfoSheet()});
 
 /* ── Sheet ── */
 function openSheet(){document.getElementById('sheet').classList.add('open')}
