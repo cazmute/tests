@@ -25,512 +25,558 @@ fbq('track', 'PageView');
 <!-- Fim Meta Pixel -->
 
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body {
-    height: 100%; font-family: -apple-system, 'Segoe UI', Helvetica, sans-serif;
-    background: #111b21; overflow: hidden; position: fixed; width: 100%;
-  }
-  body { display: flex; align-items: stretch; justify-content: center; }
-  .wa-wrapper {
-    width: 100%; max-width: 480px;
-    border-left: 1px solid #2a3942; border-right: 1px solid #2a3942;
-    background: #ece5dd; height: 100vh; height: 100dvh;
-    display: flex; flex-direction: column;
-  }
-  .wa-header {
-    background: #075e54; color: #fff;
-    padding: 10px 16px; display: flex; align-items: center; gap: 12px; flex-shrink: 0;
-  }
-  .wa-avatar { width: 42px; height: 42px; border-radius: 50%; overflow: hidden; flex-shrink: 0; border: 2px solid #128c7e; }
-  .wa-avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .wa-header-info { flex: 1; }
-  .wa-header-info .name { font-weight: 600; font-size: 15px; }
-  .wa-header-info .status { font-size: 12px; opacity: 0.8; }
-  .wa-header-icons { display: flex; gap: 20px; align-items: center; }
-  .wa-header-icons button {
-    background: none; border: none; cursor: pointer;
-    padding: 4px; color: #fff; opacity: 0.9;
-    display: flex; align-items: center; justify-content: center;
-    transition: opacity 0.15s;
-  }
-  .wa-header-icons button:hover { opacity: 1; }
-  .wa-messages {
-    flex: 1; padding: 10px; display: flex; flex-direction: column; gap: 4px;
-    overflow-y: auto;
-    background: #ece5dd url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23c8bfb0' fill-opacity='0.18'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  }
-  .bubble {
-    max-width: 78%; padding: 7px 11px; border-radius: 10px;
-    font-size: 13.5px; line-height: 1.5; position: relative; word-break: break-word;
-  }
-  .bubble .time { display: block; text-align: right; font-size: 10px; opacity: 0.55; margin-top: 4px; white-space: nowrap; }
-  .bubble.sent { background: #dcf8c6; align-self: flex-end; border-bottom-right-radius: 3px; color: #111; }
-  .bubble.received { background: #fff; align-self: flex-start; border-bottom-left-radius: 3px; color: #111; }
-  .tick { color: #53bdeb; margin-left: 2px; font-size: 11px; }
-  .typing { display: flex; align-items: center; gap: 4px; padding: 8px 12px; background: #fff; border-radius: 10px; align-self: flex-start; width: 54px; }
-  .dot { width: 7px; height: 7px; border-radius: 50%; background: #aaa; animation: bounce 1.2s infinite; }
-  .dot:nth-child(2) { animation-delay: 0.2s; }
-  .dot:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-5px)} }
-  .fade-in { animation: fadeIn 0.25s ease; }
-  @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1} }
-  .cta-btn {
-    display: block; background: #25d366; color: #fff; border: none;
-    border-radius: 10px; padding: 9px 14px; font-size: 13.5px; font-weight: 600;
-    cursor: pointer; text-align: center; text-decoration: none; margin-top: 8px;
-  }
-  .cta-btn:hover { background: #1da851; }
-  .input-area-wrap { flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom, 0px); background: #f0f0f0; }
-  .input-area {
-    background: #f0f0f0; padding: 8px 10px;
-    display: flex; gap: 8px; align-items: center; border-top: 1px solid #ddd;
-  }
-  .input-area input {
-    flex: 1; background: #fff; border-radius: 20px;
-    padding: 8px 14px; font-size: 16px; color: #111; border: none; outline: none; font-family: inherit;
-  }
-  .send-btn {
-    background: #25d366; border: none; border-radius: 50%;
-    width: 38px; height: 38px; cursor: pointer; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 15px; color: #fff; transition: background 0.15s;
-  }
-  .send-btn:hover { background: #1da851; }
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --wa-green:#25d366;--wa-teal:#075e54;--wa-teal2:#128c7e;
+  --wa-bg:#ece5dd;--wa-msg-in:#ffffff;--wa-msg-out:#d9fdd3;
+  --wa-header:#1f2c34;--wa-text:#111b21;--wa-text2:#667781;
+  --wa-tick:#53bdeb;--wa-border:#e9edef;--wa-input:#f0f2f5;
+  --wa-surface:#ffffff;--wa-icon:#8696a0;
+}
+html,body{
+  height:100%;height:100dvh;background:#111b21;overflow:hidden;
+  font-family:-apple-system,'Roboto','Segoe UI',sans-serif;
+  position:fixed;width:100%;top:0;left:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.phone{
+  width:100%;max-width:480px;
+  height:100%;height:100dvh;
+  background:var(--wa-bg);display:flex;flex-direction:column;
+  position:relative;overflow:hidden;
+  border-left:1px solid #2a3942;border-right:1px solid #2a3942;
+}
 
-  /* Modal chamada de vídeo (entregável pós-pix) */
-  .vcall-overlay {
-    position: fixed; inset: 0; z-index: 999;
-    background: #1a1a2e;
-    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-    padding: 60px 20px 60px;
-    animation: fadeIn 0.3s ease;
-  }
-  .vcall-top { text-align: center; }
-  .vcall-avatar {
-    width: 100px; height: 100px; border-radius: 50%; overflow: hidden;
-    margin: 0 auto 18px;
-    border: 3px solid rgba(255,255,255,0.2);
-    box-shadow: 0 0 0 10px rgba(255,255,255,0.06);
-  }
-  .vcall-avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .vcall-name { color: #fff; font-size: 22px; font-weight: 600; margin-bottom: 8px; }
-  .vcall-status { color: rgba(255,255,255,0.6); font-size: 14px; letter-spacing: 0.3px; }
-  .vcall-pulse {
-    width: 100px; height: 100px; border-radius: 50%; position: relative; margin: 0 auto;
-  }
-  .vcall-pulse::before, .vcall-pulse::after {
-    content: ''; position: absolute; inset: -14px; border-radius: 50%;
-    border: 2px solid rgba(255,255,255,0.15);
-    animation: pulse 2s ease-out infinite;
-  }
-  .vcall-pulse::after { animation-delay: 1s; }
-  @keyframes pulse { 0%{transform:scale(0.85);opacity:1} 100%{transform:scale(1.4);opacity:0} }
-  .vcall-buttons { display: flex; gap: 48px; align-items: center; }
-  .vcall-btn {
-    display: flex; flex-direction: column; align-items: center; gap: 10px;
-    background: none; border: none; cursor: pointer; color: #fff; font-size: 12px;
-  }
-  .vcall-btn-icon {
-    width: 62px; height: 62px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center; font-size: 26px;
-  }
-  .vcall-btn-icon.decline { background: #e53935; }
-  .vcall-btn-icon.answer  { background: #25d366; animation: ringShake 0.5s ease infinite alternate; }
-  @keyframes ringShake { from{transform:rotate(-8deg)} to{transform:rotate(8deg)} }
+/* HEADER */
+.hdr{
+  background:var(--wa-header);display:flex;align-items:center;
+  padding:10px 4px 10px 8px;gap:10px;flex-shrink:0;min-height:58px;
+}
+.hdr-back{background:none;border:none;cursor:pointer;padding:4px 2px;color:#e9edef;display:flex;align-items:center;flex-shrink:0}
+.hdr-avatar{
+  width:40px;height:40px;border-radius:50%;overflow:hidden;
+  flex-shrink:0;cursor:pointer;background:#374248;
+}
+.hdr-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.hdr-info{flex:1;min-width:0;cursor:pointer}
+.hdr-name{color:#e9edef;font-size:16px;font-weight:500;letter-spacing:0.1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hdr-status{color:#8696a0;font-size:13px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hdr-status.typing{color:#25d366}
+.hdr-actions{display:flex;gap:0;align-items:center;flex-shrink:0}
+.hdr-btn{
+  background:none;border:none;cursor:pointer;color:#e9edef;
+  width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;transition:background 0.15s;
+}
+.hdr-btn:hover{background:rgba(255,255,255,0.08)}
+.hdr-btn:active{background:rgba(255,255,255,0.15)}
 
-  /* Modal bloqueio de chamada (header) */
-  .vcall-locked-overlay {
-    display: none; position: fixed; inset: 0; z-index: 9999;
-    background: rgba(0,0,0,0.6);
-    align-items: flex-end; justify-content: center;
-  }
-  .vcall-locked-overlay.active { display: flex; }
-  .vcall-locked-box {
-    background: #1f2c34;
-    border-radius: 16px 16px 0 0;
-    width: 100%; max-width: 480px;
-    padding: 0 0 env(safe-area-inset-bottom, 0px);
-    animation: slideUp 0.22s ease;
-  }
-  @keyframes slideUp { from{opacity:0;transform:translateY(40px)} to{opacity:1;transform:translateY(0)} }
+/* MESSAGES AREA */
+.msgs{
+  flex:1;overflow-y:auto;padding:6px 8px 8px;display:flex;flex-direction:column;gap:2px;
+  background-color:#e5ddd5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  scroll-behavior:smooth;
+  -webkit-overflow-scrolling:touch;
+}
+.msgs::-webkit-scrollbar{width:3px}
+.msgs::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.18);border-radius:2px}
 
-  .vcall-locked-handle {
-    width: 36px; height: 4px; border-radius: 2px;
-    background: rgba(255,255,255,0.15);
-    margin: 12px auto 0;
-  }
-  .vcall-locked-header {
-    display: flex; align-items: center; gap: 14px;
-    padding: 18px 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.07);
-  }
-  .vcall-locked-pulse {
-    position: relative; width: 52px; height: 52px; flex-shrink: 0;
-  }
-  .vcall-locked-pulse::before {
-    content: ''; position: absolute; inset: -6px; border-radius: 50%;
-    border: 1.5px solid rgba(255,255,255,0.12);
-    animation: vcPulse 2.4s ease-out infinite;
-  }
-  @keyframes vcPulse { 0%{transform:scale(0.9);opacity:1} 100%{transform:scale(1.45);opacity:0} }
-  .vcall-locked-avatar {
-    width: 52px; height: 52px; border-radius: 50%; overflow: hidden;
-    position: relative; z-index: 1;
-  }
-  .vcall-locked-avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .vcall-locked-meta { flex: 1; }
-  .vcall-locked-name { color: #e9edef; font-size: 15px; font-weight: 600; margin-bottom: 2px; }
-  .vcall-locked-sub {
-    display: flex; align-items: center; gap: 5px;
-    font-size: 12px; color: rgba(255,255,255,0.45);
-  }
-  .vcall-locked-sub svg { opacity: 0.5; }
+/* DATE PILL */
+.date-pill{
+  align-self:center;background:rgba(11,20,26,0.56);color:#fff;
+  font-size:12px;padding:4px 10px;border-radius:100px;
+  margin:6px 0 4px;letter-spacing:0.2px;
+}
 
-  .vcall-locked-body { padding: 18px 20px 20px; }
-  .vcall-locked-notice {
-    display: flex; gap: 13px; align-items: flex-start;
-    background: rgba(255,255,255,0.05);
-    border-left: 3px solid #128c7e;
-    border-radius: 0 8px 8px 0;
-    padding: 13px 14px; margin-bottom: 20px;
-  }
-  .vcall-locked-notice-icon {
-    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
-    background: rgba(18,140,126,0.2);
-    display: flex; align-items: center; justify-content: center;
-  }
-  .vcall-locked-notice-icon svg { display: block; }
-  .vcall-locked-notice-text p {
-    color: #e9edef; font-size: 13.5px; line-height: 1.55; margin: 0 0 4px;
-  }
-  .vcall-locked-notice-text small {
-    color: rgba(255,255,255,0.38); font-size: 11.5px;
-  }
-  .vcall-locked-btn {
-    width: 100%; background: #00a884; color: #fff; border: none;
-    border-radius: 10px; padding: 13px; font-size: 14px; font-weight: 600;
-    cursor: pointer; font-family: inherit; letter-spacing: 0.2px;
-    transition: background 0.15s;
-  }
-  .vcall-locked-btn:hover { background: #017f64; }
+/* BUBBLES */
+.bbl{
+  max-width:75%;padding:6px 10px 4px;border-radius:8px;
+  font-size:14.5px;line-height:1.5;position:relative;word-break:break-word;
+  color:var(--wa-text);
+}
+.bbl.in{background:var(--wa-msg-in);align-self:flex-start;border-bottom-left-radius:2px;box-shadow:0 1px 0.5px rgba(11,20,26,.13)}
+.bbl.out{background:var(--wa-msg-out);align-self:flex-end;border-bottom-right-radius:2px;box-shadow:0 1px 0.5px rgba(11,20,26,.13)}
+.bbl-tail-in,.bbl-tail-out{position:absolute;top:0;width:8px;height:13px}
+.bbl-tail-in{left:-8px}
+.bbl-tail-out{right:-8px}
+.bbl-meta{display:flex;align-items:center;justify-content:flex-end;gap:3px;margin-top:2px;float:right;margin-left:10px;margin-bottom:-2px}
+.bbl-time{font-size:11px;color:var(--wa-text2);white-space:nowrap}
+.bbl.out .bbl-time{color:#667781}
+.ticks{display:flex;align-items:center}
+
+/* TYPING */
+.typing-bbl{
+  background:var(--wa-msg-in);align-self:flex-start;border-radius:8px;border-bottom-left-radius:2px;
+  padding:10px 14px;box-shadow:0 1px 0.5px rgba(11,20,26,.13);
+  display:none;
+}
+.typing-bbl.show{display:flex;align-items:center;gap:4px}
+.dot{width:8px;height:8px;border-radius:50%;background:#8696a0;animation:bop 1.4s ease-in-out infinite}
+.dot:nth-child(2){animation-delay:.2s}
+.dot:nth-child(3){animation-delay:.4s}
+@keyframes bop{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+.fade-in{animation:fi .2s ease}
+@keyframes fi{from{opacity:0;transform:translateY(3px)}to{opacity:1}}
+
+/* CTA */
+.cta-btn{
+  display:block;background:var(--wa-green);color:#fff;border:none;
+  border-radius:8px;padding:9px 14px;font-size:14px;font-weight:500;
+  cursor:pointer;text-align:center;text-decoration:none;margin-top:6px;
+  letter-spacing:0.1px;transition:background 0.15s;
+}
+.cta-btn:hover{background:#1da851}
+
+/* INPUT BAR */
+.input-wrap{
+  flex-shrink:0;background:var(--wa-input);
+  padding:6px 8px;
+  padding-bottom:max(6px, env(safe-area-inset-bottom));
+  display:flex;align-items:flex-end;gap:8px;
+}
+.input-pill{
+  flex:1;display:flex;align-items:center;background:#fff;
+  border-radius:24px;padding:0 14px;gap:8px;min-height:44px;
+}
+.input-pill input{
+  flex:1;border:none;outline:none;font-size:15px;color:var(--wa-text);
+  background:transparent;padding:10px 0;font-family:inherit;
+}
+.input-pill input::placeholder{color:#8696a0}
+.emoji-btn,.attach-btn{background:none;border:none;cursor:pointer;color:#8696a0;padding:2px;display:flex;align-items:center}
+.emoji-btn:hover,.attach-btn:hover{color:#3b4a54}
+.send-btn{
+  width:48px;height:48px;border-radius:50%;background:var(--wa-teal2);
+  border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:background 0.15s;box-shadow:0 1px 3px rgba(0,0,0,0.25);
+}
+.send-btn:hover{background:var(--wa-teal)}
+.send-btn:active{transform:scale(0.94)}
+
+/* BOTTOM SHEET */
+.sheet-overlay{
+  position:absolute;inset:0;background:rgba(11,20,26,0.55);
+  z-index:200;display:flex;flex-direction:column;justify-content:flex-end;
+  opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.sheet-overlay.open{opacity:1;pointer-events:all}
+.sheet{
+  background:#1f2c34;border-radius:16px 16px 0 0;
+  transform:translateY(40px);transition:transform .22s cubic-bezier(.4,0,.2,1);
+}
+.sheet-overlay.open .sheet{transform:translateY(0)}
+.sheet-handle{width:36px;height:4px;background:rgba(255,255,255,0.18);border-radius:2px;margin:12px auto 0}
+.sheet-hdr{display:flex;align-items:center;gap:12px;padding:16px 18px 14px;border-bottom:0.5px solid rgba(255,255,255,0.08)}
+.sheet-av-wrap{position:relative;width:48px;height:48px;flex-shrink:0}
+.sheet-av-ring{
+  position:absolute;inset:-5px;border-radius:50%;
+  border:1.5px solid rgba(255,255,255,0.14);
+  animation:pulse 2.4s ease-out infinite;
+}
+@keyframes pulse{0%{transform:scale(.88);opacity:1}100%{transform:scale(1.42);opacity:0}}
+.sheet-av{width:48px;height:48px;border-radius:50%;overflow:hidden;position:relative;z-index:1}
+.sheet-av img{width:100%;height:100%;object-fit:cover;display:block}
+.sheet-name{color:#e9edef;font-size:15px;font-weight:500;margin-bottom:2px}
+.sheet-sub{color:#8696a0;font-size:12.5px;display:flex;align-items:center;gap:5px}
+.sheet-body{padding:16px 18px 20px}
+.sheet-notice{
+  display:flex;align-items:flex-start;gap:12px;
+  background:rgba(255,255,255,0.05);border-left:3px solid #128c7e;
+  border-radius:0 8px 8px 0;padding:13px 14px;margin-bottom:18px;
+}
+.sheet-notice-icon{
+  width:30px;height:30px;border-radius:50%;background:rgba(18,140,126,0.2);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.sheet-notice p{color:#e9edef;font-size:13.5px;line-height:1.55;margin-bottom:3px}
+.sheet-notice small{color:rgba(255,255,255,0.38);font-size:11.5px}
+.sheet-ok{
+  width:100%;background:#00a884;color:#fff;border:none;border-radius:10px;
+  padding:13px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;
+  transition:background .15s;letter-spacing:0.1px;
+}
+.sheet-ok:hover{background:#017f64}
+
+/* VIDEO CALL OVERLAY */
+@keyframes ringShake{from{transform:rotate(-10deg)}to{transform:rotate(10deg)}}
 </style>
 </head>
 <body>
-<div class="wa-wrapper">
-  <div class="wa-header">
-    <div class="wa-avatar">
-      <img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" alt="Vanessa Macedo">
-    </div>
-    <div class="wa-header-info">
-      <div class="name">Vanessa Macedo</div>
-      <div class="status" id="header-status">online</div>
-    </div>
-    <div class="wa-header-icons">
-      <button onclick="showVcallLocked()" title="Chamada de vídeo" aria-label="Chamada de vídeo">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M15 10l4.553-2.276A1 1 0 0121 8.723v6.554a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-      <button title="Mais opções" aria-label="Mais opções">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-          <circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/>
-        </svg>
-      </button>
-    </div>
-  </div>
-  <div class="wa-messages" id="messages"></div>
-  <div class="input-area-wrap">
-    <div class="input-area">
-      <input type="text" id="user-input" placeholder="Mensagem" />
-      <button class="send-btn" id="send-btn">&#10148;</button>
-    </div>
-  </div>
-</div>
 
-<!-- Modal: bloqueio de chamada de vídeo (header) -->
-<div class="vcall-locked-overlay" id="vcall-locked-overlay">
-  <div class="vcall-locked-box">
-    <div class="vcall-locked-handle"></div>
-    <div class="vcall-locked-header">
-      <div class="vcall-locked-pulse">
-        <div class="vcall-locked-avatar">
-          <img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" alt="Vanessa Macedo">
-        </div>
-      </div>
-      <div class="vcall-locked-meta">
-        <div class="vcall-locked-name">Vanessa Macedo</div>
-        <div class="vcall-locked-sub">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-            <path d="M15 10l4.553-2.276A1 1 0 0121 8.723v6.554a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          Videochamada WhatsApp
-        </div>
-      </div>
+<div class="phone">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <button class="hdr-back" aria-label="Voltar">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M20 12H4M4 12L10 6M4 12L10 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <div class="hdr-avatar">
+      <img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" alt="Vanessa Macedo" onerror="this.style.display='none'">
     </div>
-    <div class="vcall-locked-body">
-      <div class="vcall-locked-notice">
-        <div class="vcall-locked-notice-icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <rect x="5" y="11" width="14" height="10" rx="2" stroke="#00a884" stroke-width="2"/>
-            <path d="M8 11V7a4 4 0 018 0v4" stroke="#00a884" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <div class="vcall-locked-notice-text">
-          <p>Apenas <strong>Vanessa</strong> pode iniciar chamadas de vídeo nesta conversa.</p>
-          <small>Aguarde ela entrar em contato com você.</small>
-        </div>
-      </div>
-      <button class="vcall-locked-btn" onclick="hideVcallLocked()">OK</button>
+    <div class="hdr-info">
+      <div class="hdr-name">Vanessa Macedo</div>
+      <div class="hdr-status" id="hdr-status">online</div>
+    </div>
+    <div class="hdr-actions">
+      <button class="hdr-btn" onclick="openSheet()" aria-label="Chamada de vídeo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="3" y="7" width="12.5" height="10" rx="2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="hdr-btn" aria-label="Chamada de voz">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24 11.47 11.47 0 003.58.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.58a1 1 0 01-.24 1.01L6.62 10.79z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="hdr-btn" aria-label="Mais opções">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="12" cy="5" r="1.6"/>
+          <circle cx="12" cy="12" r="1.6"/>
+          <circle cx="12" cy="19" r="1.6"/>
+        </svg>
+      </button>
     </div>
   </div>
-</div>
+
+  <!-- MESSAGES -->
+  <div class="msgs" id="msgs">
+    <div class="date-pill">Hoje</div>
+  </div>
+
+  <!-- INPUT BAR -->
+  <div class="input-wrap">
+    <div class="input-pill">
+      <button class="emoji-btn" aria-label="Emoji">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="9" stroke="#8696a0" stroke-width="1.75"/>
+          <path d="M8.5 14s.875 1.5 3.5 1.5 3.5-1.5 3.5-1.5" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round"/>
+          <circle cx="9" cy="10" r="1" fill="#8696a0"/>
+          <circle cx="15" cy="10" r="1" fill="#8696a0"/>
+        </svg>
+      </button>
+      <input type="text" id="inp" placeholder="Mensagem" autocomplete="off"/>
+      <button class="attach-btn" aria-label="Anexar">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M21 10.41V18a5 5 0 01-10 0V7a3 3 0 016 0v10.5a1 1 0 01-2 0V8" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+    <button class="send-btn" id="send-btn" aria-label="Enviar mensagem">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" id="mic-icon">
+        <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M19 10v1a7 7 0 01-14 0v-1" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="12" y1="19" x2="12" y2="23" stroke="#fff" stroke-width="1.75" stroke-linecap="round"/>
+        <line x1="8" y1="23" x2="16" y2="23" stroke="#fff" stroke-width="1.75" stroke-linecap="round"/>
+      </svg>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" id="send-icon" style="display:none">
+        <path d="M22 2L11 13" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- BOTTOM SHEET: chamada de vídeo bloqueada -->
+  <div class="sheet-overlay" id="sheet">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-hdr">
+        <div class="sheet-av-wrap">
+          <div class="sheet-av-ring"></div>
+          <div class="sheet-av">
+            <img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" alt="Vanessa Macedo">
+          </div>
+        </div>
+        <div>
+          <div class="sheet-name">Vanessa Macedo</div>
+          <div class="sheet-sub">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+              <path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Videochamada WhatsApp
+          </div>
+        </div>
+      </div>
+      <div class="sheet-body">
+        <div class="sheet-notice">
+          <div class="sheet-notice-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+              <rect x="5" y="11" width="14" height="10" rx="2" stroke="#00a884" stroke-width="2"/>
+              <path d="M8 11V7a4 4 0 018 0v4" stroke="#00a884" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <p>Apenas <strong>Vanessa</strong> pode iniciar chamadas de vídeo nesta conversa.</p>
+            <small>Aguarde ela entrar em contato com você.</small>
+          </div>
+        </div>
+        <button class="sheet-ok" onclick="closeSheet()">OK</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /phone -->
 
 <script>
-const msgs = document.getElementById('messages');
-const userInput = document.getElementById('user-input');
-const sendBtn = document.getElementById('send-btn');
-const headerStatus = document.getElementById('header-status');
+const msgsEl=document.getElementById('msgs');
+const inpEl=document.getElementById('inp');
+const sendBtn=document.getElementById('send-btn');
+const hdrStatus=document.getElementById('hdr-status');
+const micIcon=document.getElementById('mic-icon');
+const sendIcon=document.getElementById('send-icon');
 
-const MENSAGEM_INICIAL = "Oi, Tudo bem?";
-const PRODUCT_HASH = "7p8h95hghd";
-const LINK_ENTREGAVEL = "https://chamadadevideo-wa.netlify.app";
-const CIDADES_FALLBACK = ['Goiânia','Recife','Salvador','Belo Horizonte','Curitiba','Manaus','Belém','Porto Alegre','Fortaleza','Campinas'];
+const MENSAGEM_INICIAL="Oi, Tudo bem?";
+const PRODUCT_HASH="7p8h95hghd";
+const LINK_ENTREGAVEL="https://chamadadevideo-wa.netlify.app";
+const CIDADES_FB=['Fortaleza','Recife','Salvador','Belo Horizonte','Curitiba','Manaus','Belém','Porto Alegre','Campinas'];
 
-let aiHistory = [], leadId = null, clicouCta = false, leadCity = null;
-const SESSION_ID = crypto.randomUUID();
+const TAIL_IN=`<svg class="bbl-tail-in" viewBox="0 0 8 13" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 0C8 0 1 0 1 7.5C1 9.17 2 10.5 4 12.5L8 13V0Z" fill="#ffffff"/></svg>`;
+const TAIL_OUT=`<svg class="bbl-tail-out" viewBox="0 0 8 13" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 0C0 0 7 0 7 7.5C7 9.17 6 10.5 4 12.5L0 13V0Z" fill="#d9fdd3"/></svg>`;
+const DOUBLE_TICK=`<svg class="ticks" width="16" height="11" viewBox="0 0 16 11" fill="none"><path d="M11.0714 1L4.5 7.57143L1 4.14286" stroke="#53bdeb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 1L8.42857 7.57143" stroke="#53bdeb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
-// ── Modal bloqueio de chamada ───────────────────────────────────────────────
-function showVcallLocked() {
-  const o = document.getElementById('vcall-locked-overlay');
-  o.classList.add('active');
-}
-function hideVcallLocked() {
-  document.getElementById('vcall-locked-overlay').classList.remove('active');
-}
-document.getElementById('vcall-locked-overlay').addEventListener('click', function(e) {
-  if (e.target === this) hideVcallLocked();
-});
-// ───────────────────────────────────────────────────────────────────────────
-
-// ── Meta Pixel helpers ──────────────────────────────────────────────────────
-let initiateCheckoutFired = false;
-
-function pixelInitiateCheckout(valor) {
-  if (initiateCheckoutFired) return;
-  initiateCheckoutFired = true;
-  if (typeof fbq !== 'undefined') {
-    fbq('track', 'InitiateCheckout', {
-      value: (valor / 100).toFixed(2), currency: 'BRL',
-      num_items: 1, content_ids: [PRODUCT_HASH], content_type: 'product',
-    });
-  }
-}
-
-function pixelPurchase(valor) {
-  if (typeof fbq !== 'undefined') {
-    fbq('track', 'Purchase', {
-      value: (valor / 100).toFixed(2), currency: 'BRL',
-      num_items: 1, content_ids: [PRODUCT_HASH], content_type: 'product',
-    });
-  }
-}
-// ───────────────────────────────────────────────────────────────────────────
-
-async function fetchLeadCity() {
-  try {
-    const r = await fetch('/api/city');
-    const d = await r.json();
-    if (d.city) { leadCity = d.city; return; }
-  } catch(e) {}
-  leadCity = CIDADES_FALLBACK[Math.floor(Math.random()*CIDADES_FALLBACK.length)];
-}
-
-async function salvarLead(clicou=false) {
-  clicouCta = clicou||clicouCta;
-  const payload = {
-    session_id: SESSION_ID,
-    mensagens: aiHistory.map(m=>({role:m.role,text:m.content})),
-    clicou_cta: clicouCta,
-    ultima_mensagem: new Date().toISOString(),
-    lead_id: leadId,
-  };
-  try {
-    const res = await fetch('/api/lead', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    const d = await res.json();
-    if (!leadId && d?.lead_id) leadId = d.lead_id;
-  } catch(e){}
-}
-
-const getTime=()=>{const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');};
-const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-const scrollBottom=()=>{msgs.scrollTop=msgs.scrollHeight;};
-
-function addBubble(text,side,animate=true){
-  const b=document.createElement('div'); b.className='bubble '+side+(animate?' fade-in':'');
-  const ticks=side==='sent'?' <span class="tick">✓✓</span>':'';
-  b.innerHTML=text.replace(/\n/g,'<br>')+`<span class="time">${getTime()}${ticks}</span>`;
-  if(typingEl){msgs.insertBefore(b,typingEl);}else{msgs.appendChild(b);}
-  scrollBottom(); return b;
-}
-
-let pixAtivo=null, pixNormalGerado=false, pixGerado=false;
-
-async function gerarPix(desconto=false){
-  try {
-    const res = await fetch('/api/pix', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ desconto }),
-    });
-    return await res.json();
-  } catch(e) { return null; }
-}
-
-function showPixBubble(data, desconto=false){
-  if(!data){addBubble('Ops, tive um probleminha pra gerar o PIX 😅 Tenta de novo daqui a pouco!','received');return;}
-  const valor = desconto ? 1000 : 2000;
-  const valorStr = desconto ? 'R$ 10' : 'R$ 20';
-  const pixCopia = data.pix?.pix_qr_code||'';
-  const qrImg = data.pix?.qr_code_base64 ? `data:image/png;base64,${data.pix.qr_code_base64}` : '';
-  const txHash = data.hash||'';
-  const b=document.createElement('div'); b.className='bubble received fade-in'; b.style.maxWidth='92%';
-  b.innerHTML=`${pixCopia?`<button onclick="copiarPix(this,'${pixCopia.replace(/'/g,"\\'")}');" class="cta-btn" style="margin-top:0;">Copiar chave pix</button>`:''}<div id="pix-status-${txHash}"></div><span class="time">${getTime()}</span>`;
-  msgs.appendChild(b); scrollBottom();
-  pixelInitiateCheckout(valor);
-  salvarLead(true);
-  if(txHash) iniciarPoll(txHash, valor);
-}
-
-window.copiarPix=function(btn,codigo){
-  const doCopy=()=>{btn.textContent='✅ PIX copiado!';btn.style.background='#128c7e';setTimeout(()=>{btn.textContent='Copiar chave pix';btn.style.background='';},3000);};
-  navigator.clipboard.writeText(codigo).then(doCopy).catch(()=>{const ta=document.createElement('textarea');ta.value=codigo;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);doCopy();});
-};
-
-async function checarStatus(txHash){
-  try {
-    const res = await fetch(`/api/status?hash=${txHash}`);
-    const d = await res.json();
-    return d.payment_status || null;
-  } catch(e){ return null; }
-}
-
-function iniciarPoll(txHash, valorPago){
-  if(pixAtivo?.pollInterval)clearInterval(pixAtivo.pollInterval);
-  const el=()=>document.getElementById('pix-status-'+txHash); let t=0;
-  const iv=setInterval(async()=>{t++;if(t>60){clearInterval(iv);if(el())el().textContent='⏰ PIX expirado.';return;}
-  const s=await checarStatus(txHash);
-  if(s==='paid'||s==='approved'||s==='completed'){
-    clearInterval(iv);
-    if(el()){el().textContent='✅ Pagamento confirmado!';el().style.color='#25d366';el().style.fontWeight='600';}
-    pixelPurchase(valorPago || 2000);
-    await sleep(800);
-    showBotaoEntregavel();
-    aiHistory.push({role:'assistant',content:'te esperando'});
-    salvarLead(true);
-  }},5000);
-  pixAtivo={txHash,pollInterval:iv};
-}
-
-function showFotoLead(){
-  const b=document.createElement('div'); b.className='bubble received fade-in'; b.style.maxWidth='92%';
-  b.innerHTML=`<img src="https://i.ibb.co/B2ML9kzf/Img-jpg.jpg" style="width:220px;display:block;border-radius:8px;" alt="foto"><span class="time">${getTime()}</span>`;
-  msgs.appendChild(b); scrollBottom();
-}
-
-function showBotaoEntregavel(){
-  if(!LINK_ENTREGAVEL)return;
-  let ring = null;
-  try {
-    const ctx = new (window.AudioContext||window.webkitAudioContext)();
-    function beep(){ const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=480;g.gain.setValueAtTime(0.3,ctx.currentTime);o.start();o.stop(ctx.currentTime+0.4); }
-    beep(); ring=setInterval(beep,1400);
-  } catch(e){}
-  const overlay=document.createElement('div'); overlay.className='vcall-overlay';
-  overlay.innerHTML=`<div class="vcall-top"><div class="vcall-pulse"><div class="vcall-avatar"><img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" alt="Vanessa Macedo"></div></div><div class="vcall-name" style="margin-top:22px;">Vanessa Macedo</div><div class="vcall-status">Chamada de vídeo…</div></div><div class="vcall-buttons"><button class="vcall-btn" id="vcall-decline"><div class="vcall-btn-icon decline">📵</div><span>Recusar</span></button><button class="vcall-btn" id="vcall-answer"><div class="vcall-btn-icon answer">📹</div><span>Atender</span></button></div>`;
-  document.body.appendChild(overlay);
-  function fechar(){ if(ring)clearInterval(ring); overlay.remove(); }
-  document.getElementById('vcall-answer').onclick=()=>{ fechar(); window.open(LINK_ENTREGAVEL,'_blank'); };
-  document.getElementById('vcall-decline').onclick=async()=>{
-    fechar();
-    const b=document.createElement('div'); b.className='bubble received fade-in';
-    b.innerHTML=`<span style="color:#e53935;font-size:13px;">📵 Chamada de vídeo perdida</span><span class="time">${getTime()}</span>`;
-    msgs.appendChild(b); scrollBottom();
-    await sleep(1500);
-    const br=document.createElement('div'); br.className='bubble received fade-in'; br.style.maxWidth='92%';
-    br.innerHTML=`<a href="${LINK_ENTREGAVEL}" target="_blank" class="cta-btn" style="margin-top:0;">📹 Retornar chamada</a><span class="time">${getTime()}</span>`;
-    msgs.appendChild(br); scrollBottom();
-  };
-}
-
-let pixDescontoGerado=false;
-async function showCta(_,desconto=false){
-  if(desconto){if(pixDescontoGerado)return;pixDescontoGerado=true;}else{if(pixNormalGerado)return;pixNormalGerado=true;}
-  showTyping(); await sleep(1000); hideTyping();
-  const data = await gerarPix(desconto);
-  showPixBubble(data, desconto);
-}
-
+let aiHistory=[], leadId=null, clicouCta=false, leadCityVal=null;
+let pixNormalGerado=false, pixDescontoGerado=false;
+let initiateCheckoutFired=false;
 let typingEl=null;
-function showTyping(){if(typingEl){msgs.appendChild(typingEl);scrollBottom();return;}headerStatus.textContent='digitando...';typingEl=document.createElement('div');typingEl.className='typing fade-in';typingEl.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>';msgs.appendChild(typingEl);scrollBottom();}
-function hideTyping(){if(typingEl){typingEl.remove();typingEl=null;}headerStatus.textContent='online';}
-function enableInput(){userInput.focus();}
+const SESSION_ID=Math.random().toString(36).slice(2);
 
-function typingDelay(text){
-  const chars=text.length, charsPerSec=2.5+Math.random()*1.0;
-  const base=(chars/charsPerSec)*1000, thinkPause=500+Math.random()*1000, jitter=(Math.random()-0.5)*800;
-  return Math.min(Math.max(base+thinkPause+jitter,2000),14000);
+function getTime(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+function scroll(){msgsEl.scrollTop=msgsEl.scrollHeight}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+
+inpEl.addEventListener('input',()=>{
+  const has=inpEl.value.trim().length>0;
+  micIcon.style.display=has?'none':'';
+  sendIcon.style.display=has?'':'none';
+});
+
+/* ── Sheet ── */
+function openSheet(){document.getElementById('sheet').classList.add('open')}
+function closeSheet(){document.getElementById('sheet').classList.remove('open')}
+document.getElementById('sheet').addEventListener('click',function(e){if(e.target===this)closeSheet()});
+
+/* ── Meta Pixel ── */
+function pixelIniCheckout(v){
+  if(initiateCheckoutFired)return;initiateCheckoutFired=true;
+  if(typeof fbq!=='undefined')fbq('track','InitiateCheckout',{value:(v/100).toFixed(2),currency:'BRL',num_items:1,content_ids:[PRODUCT_HASH],content_type:'product'});
+}
+function pixelPurchase(v){
+  if(typeof fbq!=='undefined')fbq('track','Purchase',{value:(v/100).toFixed(2),currency:'BRL',num_items:1,content_ids:[PRODUCT_HASH],content_type:'product'});
 }
 
+/* ── Lead & City ── */
+async function fetchLeadCity(){
+  try{const r=await fetch('/api/city');const d=await r.json();if(d.city)return d.city;}catch(e){}
+  return CIDADES_FB[Math.floor(Math.random()*CIDADES_FB.length)];
+}
+async function salvarLead(clicou=false){
+  clicouCta=clicou||clicouCta;
+  try{
+    const res=await fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({session_id:SESSION_ID,mensagens:aiHistory.map(m=>({role:m.role,text:m.content})),clicou_cta:clicouCta,ultima_mensagem:new Date().toISOString(),lead_id:leadId})});
+    const d=await res.json();if(!leadId&&d?.lead_id)leadId=d.lead_id;
+  }catch(e){}
+}
+
+/* ── Typing ── */
+function showTyping(){
+  hideTyping();
+  hdrStatus.textContent='digitando...';hdrStatus.className='hdr-status typing';
+  typingEl=document.createElement('div');
+  typingEl.className='typing-bbl show fade-in';
+  typingEl.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+  msgsEl.appendChild(typingEl);scroll();
+}
+function hideTyping(){
+  if(typingEl){typingEl.remove();typingEl=null;}
+  hdrStatus.textContent='online';hdrStatus.className='hdr-status';
+}
+
+/* ── Bubbles ── */
+function addBubble(html,side,isHTML=false){
+  const b=document.createElement('div');b.className=`bbl ${side} fade-in`;
+  const tail=side==='in'?TAIL_IN:TAIL_OUT;
+  const ticks=side==='out'?DOUBLE_TICK:'';
+  if(isHTML){
+    b.innerHTML=tail+html+`<div class="bbl-meta"><span class="bbl-time">${getTime()}</span>${ticks}</div>`;
+  }else{
+    b.innerHTML=tail+html.replace(/\n/g,'<br>')+`<div class="bbl-meta"><span class="bbl-time">${getTime()}</span>${ticks}</div>`;
+  }
+  if(typingEl){msgsEl.insertBefore(b,typingEl);}else{msgsEl.appendChild(b);}
+  scroll();return b;
+}
+
+/* ── PIX ── */
+async function gerarPix(desconto=false){
+  try{const res=await fetch('/api/pix',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({desconto})});return await res.json();}
+  catch(e){return null;}
+}
+async function checarStatus(txHash){
+  try{const r=await fetch(`/api/status?hash=${txHash}`);const d=await r.json();return d.payment_status||null;}catch(e){return null;}
+}
+function iniciarPoll(txHash,valorPago){
+  let t=0;
+  const iv=setInterval(async()=>{
+    t++;if(t>60){clearInterval(iv);const el=document.getElementById('ps-'+txHash);if(el)el.textContent='⏰ PIX expirado.';return;}
+    const s=await checarStatus(txHash);
+    if(s==='paid'||s==='approved'||s==='completed'){
+      clearInterval(iv);
+      const el=document.getElementById('ps-'+txHash);
+      if(el){el.textContent='✅ Pagamento confirmado!';el.style.color='#25d366';el.style.fontWeight='500';}
+      pixelPurchase(valorPago);
+      await sleep(800);showBotaoEntregavel();
+      aiHistory.push({role:'assistant',content:'te esperando'});
+      salvarLead(true);
+    }
+  },5000);
+}
+function showPixBubble(data,desconto=false){
+  if(!data){addBubble('Ops, tive um probleminha 😅 Tenta de novo!','in');return;}
+  const valor=desconto?1000:2000;
+  const pixCopia=data.pix?.pix_qr_code||'';
+  const txHash=data.hash||'';
+  const htmlContent=`${pixCopia?`<button onclick="copiarPix(this,'${pixCopia.replace(/'/g,"\\'")}');" class="cta-btn" style="margin-top:0;margin-bottom:4px">Copiar chave pix</button>`:''}<div id="ps-${txHash}" style="font-size:12.5px;color:#667781;margin-top:2px"></div>`;
+  const b=document.createElement('div');b.className='bbl in fade-in';b.style.maxWidth='88%';
+  b.innerHTML=TAIL_IN+htmlContent+`<div class="bbl-meta"><span class="bbl-time">${getTime()}</span></div>`;
+  msgsEl.appendChild(b);scroll();
+  pixelIniCheckout(valor);salvarLead(true);
+  if(txHash)iniciarPoll(txHash,valor);
+}
+window.copiarPix=function(btn,codigo){
+  const ok=()=>{btn.textContent='✅ PIX copiado!';btn.style.background='#128c7e';setTimeout(()=>{btn.textContent='Copiar chave pix';btn.style.background='';},3000);};
+  navigator.clipboard.writeText(codigo).then(ok).catch(()=>{const ta=document.createElement('textarea');ta.value=codigo;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);ok();});
+};
+async function showCta(desconto=false){
+  if(desconto){if(pixDescontoGerado)return;pixDescontoGerado=true;}
+  else{if(pixNormalGerado)return;pixNormalGerado=true;}
+  showTyping();await sleep(1000);hideTyping();
+  const data=await gerarPix(desconto);
+  showPixBubble(data,desconto);
+}
+
+/* ── Foto lead ── */
+function showFotoLead(){
+  const b=document.createElement('div');b.className='bbl in fade-in';b.style.maxWidth='85%';b.style.padding='4px 4px 4px';
+  b.innerHTML=TAIL_IN+`<img src="https://i.ibb.co/B2ML9kzf/Img-jpg.jpg" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">${getTime()}</span></div>`;
+  msgsEl.appendChild(b);scroll();
+}
+
+/* ── Entregável (chamada de vídeo) ── */
+function showBotaoEntregavel(){
+  let ring=null;
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    function beep(){const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=480;g.gain.setValueAtTime(0.28,ctx.currentTime);o.start();o.stop(ctx.currentTime+0.35);}
+    beep();ring=setInterval(beep,1400);
+  }catch(e){}
+  const ov=document.createElement('div');
+  ov.style.cssText='position:absolute;inset:0;background:#1a1a2e;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:60px 20px;animation:fi .3s ease';
+  ov.innerHTML=`
+    <div style="text-align:center">
+      <div style="position:relative;width:100px;height:100px;margin:0 auto">
+        <div style="position:absolute;inset:-14px;border-radius:50%;border:2px solid rgba(255,255,255,0.12);animation:pulse 2s ease-out infinite"></div>
+        <div style="position:absolute;inset:-7px;border-radius:50%;border:2px solid rgba(255,255,255,0.08);animation:pulse 2s ease-out infinite 1s"></div>
+        <div style="width:100px;height:100px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,0.18)">
+          <img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" style="width:100%;height:100%;object-fit:cover" alt="Vanessa">
+        </div>
+      </div>
+      <div style="color:#fff;font-size:22px;font-weight:500;margin-top:22px">Vanessa Macedo</div>
+      <div style="color:rgba(255,255,255,0.55);font-size:14px;margin-top:6px">Chamada de vídeo WhatsApp…</div>
+    </div>
+    <div style="display:flex;gap:52px;align-items:center">
+      <button id="vc-decline" style="display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.8);font-size:12.5px;font-family:inherit">
+        <div style="width:64px;height:64px;border-radius:50%;background:#e53935;display:flex;align-items:center;justify-content:center">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>
+        </div>
+        Recusar
+      </button>
+      <button id="vc-answer" style="display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.8);font-size:12.5px;font-family:inherit">
+        <div style="width:64px;height:64px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;animation:ringShake .6s ease infinite alternate">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="3" y="7" width="12.5" height="10" rx="2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        Atender
+      </button>
+    </div>`;
+  document.querySelector('.phone').appendChild(ov);
+  document.getElementById('vc-answer').onclick=()=>{if(ring)clearInterval(ring);ov.remove();window.open(LINK_ENTREGAVEL,'_blank');};
+  document.getElementById('vc-decline').onclick=async()=>{
+    if(ring)clearInterval(ring);ov.remove();
+    const b=document.createElement('div');b.className='bbl in fade-in';
+    b.innerHTML=TAIL_IN+`<span style="color:#e53935;font-size:13px">📵 Chamada de vídeo perdida</span><div class="bbl-meta"><span class="bbl-time">${getTime()}</span></div>`;
+    msgsEl.appendChild(b);scroll();
+    await sleep(1400);
+    const br=document.createElement('div');br.className='bbl in fade-in';br.style.maxWidth='88%';
+    br.innerHTML=TAIL_IN+`<a href="${LINK_ENTREGAVEL}" target="_blank" class="cta-btn" style="margin:0">📹 Retornar chamada</a><div class="bbl-meta"><span class="bbl-time">${getTime()}</span></div>`;
+    msgsEl.appendChild(br);scroll();
+  };
+}
+
+/* ── Typing delay ── */
+function typingDelay(text){
+  const chars=text.length,cps=2.5+Math.random();
+  return Math.min(Math.max((chars/cps)*1000+600+Math.random()*900,1800),12000);
+}
+
+/* ── AI ── */
 async function askAI(userMsg){
-  aiHistory.push({role:'user', content:userMsg});
+  aiHistory.push({role:'user',content:userMsg});
   showTyping();
   try{
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ history: aiHistory, city: leadCity }),
-    });
-    const data = await res.json();
+    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({history:aiHistory,city:leadCityVal})});
+    const data=await res.json();
     hideTyping();
-    const reply = data?.reply || null;
-    if(!reply){addBubble('Oi! Tô com muita mensagem agora 😅 Tenta de novo!','received');enableInput();return;}
-    aiHistory.push({role:'assistant', content:reply});
+    const reply=data?.reply||null;
+    if(!reply){addBubble('Oi! Tô com muita mensagem agora 😅 Tenta de novo!','in');enableInput();return;}
+    aiHistory.push({role:'assistant',content:reply});
     if(reply.includes('[FIM]')){
       const msgFinal=reply.replace('[FIM]','').trim();
-      let partesFim=msgFinal.split('|').map(p=>p.trim()).filter(Boolean);
-      for(let i=0;i<partesFim.length;i++){
-        showTyping();await sleep(typingDelay(partesFim[i]));hideTyping();
-        addBubble(partesFim[i],'received');
-      }
-      userInput.disabled=true;sendBtn.disabled=true;
-      userInput.placeholder='Conversa encerrada';
-      return;
+      const pts=msgFinal.split('|').map(p=>p.trim()).filter(Boolean);
+      for(let i=0;i<pts.length;i++){showTyping();await sleep(typingDelay(pts[i]));hideTyping();addBubble(pts[i],'in');}
+      inpEl.disabled=true;sendBtn.disabled=true;inpEl.placeholder='Conversa encerrada';return;
     }
-    let partes=reply.split('|').map(p=>p.trim()).filter(Boolean);
-    if(partes.length<=1&&reply.includes('\n\n')){ partes=reply.split('\n\n').map(p=>p.trim()).filter(Boolean); }
-    for(let i=0;i<partes.length;i++){
-      showTyping(); await sleep(typingDelay(partes[i])); hideTyping();
-      addBubble(partes[i],'received');
-    }
-    const GATILHO_NORMAL="aqui o pix", GATILHO_DESCONTO="um desconto", GATILHO_FOTO="olha eu aqui";
-    const temLink=new RegExp(GATILHO_NORMAL+'|'+GATILHO_DESCONTO,'i').test(reply);
-    const temDesconto=new RegExp(GATILHO_DESCONTO,'i').test(reply);
-    const temFoto=new RegExp(GATILHO_FOTO,'i').test(reply);
-    if(temLink){await sleep(600);showCta(null,temDesconto);}
+    let parts=reply.split('|').map(p=>p.trim()).filter(Boolean);
+    if(parts.length<=1&&reply.includes('\n\n'))parts=reply.split('\n\n').map(p=>p.trim()).filter(Boolean);
+    for(let i=0;i<parts.length;i++){showTyping();await sleep(typingDelay(parts[i]));hideTyping();addBubble(parts[i],'in');}
+    const GA_NORMAL=/aqui o pix/i,GA_DESC=/um desconto/i,GA_FOTO=/olha eu aqui/i;
+    const temLink=GA_NORMAL.test(reply)||GA_DESC.test(reply);
+    const temDesc=GA_DESC.test(reply);
+    const temFoto=GA_FOTO.test(reply);
+    if(temLink){await sleep(600);showCta(temDesc);}
     if(temFoto){await sleep(500);showFotoLead();}
     salvarLead(temLink);
-  }catch(e){hideTyping();addBubble('Ops, tive um probleminha. Pode repetir? 😊','received');aiHistory.pop();}
+  }catch(e){hideTyping();addBubble('Ops, tive um probleminha. Pode repetir? 😊','in');aiHistory.pop();}
   enableInput();
 }
 
-function submit(){const text=userInput.value.trim();if(!text)return;userInput.value='';addBubble(text,'sent');if(!leadId)salvarLead();askAI(text);}
-sendBtn.onclick=submit;
-userInput.onkeydown=e=>{if(e.key==='Enter')submit();};
+function enableInput(){inpEl.disabled=false;inpEl.focus();}
 
-async function start(){await fetchLeadCity();await sleep(800);showTyping();await sleep(1200);hideTyping();addBubble(MENSAGEM_INICIAL,'received');aiHistory.push({role:'assistant',content:MENSAGEM_INICIAL});}
+function submit(){
+  const text=inpEl.value.trim();if(!text)return;
+  inpEl.value='';
+  micIcon.style.display='';sendIcon.style.display='none';
+  addBubble(text,'out');
+  if(!leadId)salvarLead();
+  askAI(text);
+}
+sendBtn.onclick=submit;
+inpEl.onkeydown=e=>{if(e.key==='Enter')submit();};
+
+/* ── Init ── */
+async function start(){
+  leadCityVal=await fetchLeadCity();
+  await sleep(700);showTyping();
+  await sleep(1100);hideTyping();
+  addBubble(MENSAGEM_INICIAL,'in');
+  aiHistory.push({role:'assistant',content:MENSAGEM_INICIAL});
+}
 start();
 </script>
 </body>
