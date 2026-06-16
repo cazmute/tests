@@ -525,6 +525,7 @@ function showPixBubble(data,desconto=false){
   pixelIniCheckout(valor);salvarLead(true);
   if(txHash)iniciarPoll(txHash,valor);
 }
+window.showPixBubble=showPixBubble;
 window.copiarPix=function(btn,codigo){
   const ok=()=>{
     btn.innerHTML=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#00a884" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Copiado!`;
