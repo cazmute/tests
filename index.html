@@ -609,7 +609,6 @@ function showAudioBubble(){
 
   // Áudio via URL externa (Cloudinary)
   window._audioEl = new Audio(AUDIO_SRC);
-  window._audioEl.crossOrigin = 'anonymous';
 
   window._audioEl.addEventListener('timeupdate', function(){
     const pct=(window._audioEl.currentTime/window._audioEl.duration)*100||0;
