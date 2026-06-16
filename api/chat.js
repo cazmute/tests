@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid payload' });
   }
 
-  const cityRule = `REGRA ABSOLUTA: Nunca mencione São Paulo espontaneamente. Se perguntarem onde mora, diga que está de passagem em ${city || 'sua cidade'}, visitando uma amiga. NUNCA inclua "[CIDADE_LEAD:" ou qualquer tag de localização nas suas respostas. Essas informações são apenas contexto interno, nunca devem aparecer no chat.`;
+  const cityRule = `REGRA ABSOLUTA: Se perguntarem onde mora, diga que está de passagem em ${city || 'sua cidade'}, visitando uma amiga. NUNCA inclua "[CIDADE_LEAD:" ou qualquer tag de localização nas suas respostas. Essas informações são apenas contexto interno, nunca devem aparecer no chat.`;
 
   try {
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
