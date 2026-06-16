@@ -282,13 +282,7 @@ html,body{
       </label>
     </div>
     <button class="send-btn" id="send-btn" aria-label="Enviar mensagem">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" id="mic-icon">
-        <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M19 10v1a7 7 0 01-14 0v-1" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-        <line x1="12" y1="19" x2="12" y2="23" stroke="#fff" stroke-width="1.75" stroke-linecap="round"/>
-        <line x1="8" y1="23" x2="16" y2="23" stroke="#fff" stroke-width="1.75" stroke-linecap="round"/>
-      </svg>
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" id="send-icon" style="display:none">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" id="send-icon">
         <path d="M22 2L11 13" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
@@ -345,122 +339,7 @@ const hdrStatus=document.getElementById('hdr-status');
 const micIcon=document.getElementById('mic-icon');
 const sendIcon=document.getElementById('send-icon');
 
-/* ── Gravação de áudio ── */
-let mediaRecorder=null, audioChunks=[], isRecording=false, recTimer=null, recSeconds=0;
-
-function formatRecTime(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
-
-function startRecording(){
-  if(isRecording)return;
-  navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
-    isRecording=true;
-    audioChunks=[];
-    mediaRecorder=new MediaRecorder(stream);
-    mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data);};
-    mediaRecorder.onstop=()=>{
-      stream.getTracks().forEach(t=>t.stop());
-      const blob=new Blob(audioChunks,{type:'audio/webm'});
-      sendAudioBubble(blob);
-    };
-    mediaRecorder.start();
-    recSeconds=0;
-    sendBtn.style.background='#e53935';
-    micIcon.style.display='';sendIcon.style.display='none';
-    recTimer=setInterval(()=>{
-      recSeconds++;
-      const lbl=document.getElementById('rec-label');
-      if(lbl)lbl.textContent='🔴 '+formatRecTime(recSeconds);
-    },1000);
-    // show timer label inside pill
-    let lbl=document.getElementById('rec-label');
-    if(!lbl){lbl=document.createElement('span');lbl.id='rec-label';lbl.style.cssText='flex:1;font-size:14px;color:#e53935;font-weight:500';document.querySelector('.input-pill').insertBefore(lbl,inpEl);}
-    inpEl.style.display='none';
-    lbl.textContent='🔴 00:00';
-  }).catch(()=>{});
-}
-
-function stopRecording(){
-  if(!isRecording)return;
-  isRecording=false;
-  clearInterval(recTimer);
-  sendBtn.style.background='';
-  const lbl=document.getElementById('rec-label');
-  if(lbl)lbl.remove();
-  inpEl.style.display='';
-  if(mediaRecorder&&mediaRecorder.state!=='inactive')mediaRecorder.stop();
-}
-
-function cancelRecording(){
-  if(!isRecording)return;
-  isRecording=false;
-  clearInterval(recTimer);
-  sendBtn.style.background='';
-  const lbl=document.getElementById('rec-label');
-  if(lbl)lbl.remove();
-  inpEl.style.display='';
-  if(mediaRecorder&&mediaRecorder.state!=='inactive'){
-    mediaRecorder.onstop=()=>{mediaRecorder.stream&&mediaRecorder.stream.getTracks().forEach(t=>t.stop());};
-    mediaRecorder.stop();
-  }
-  audioChunks=[];
-}
-
-function sendAudioBubble(blob){
-  const url=URL.createObjectURL(blob);
-  const dur=formatRecTime(recSeconds||1);
-  const b=document.createElement('div');b.className='bbl out fade-in';b.style.maxWidth='75%';
-  b.innerHTML=`<div style="display:flex;align-items:center;gap:10px;padding:2px 0;min-width:180px">
-    <button onclick="toggleAudio(this)" style="width:38px;height:38px;border-radius:50%;background:#25d366;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,.2)">
-      <svg class="play-svg" width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M5 3l14 9-14 9V3z"/></svg>
-    </button>
-    <div style="flex:1">
-      <div style="height:3px;background:rgba(0,0,0,0.15);border-radius:2px;margin-bottom:5px">
-        <div class="audio-prog" style="height:100%;width:0%;background:#128c7e;border-radius:2px;transition:width .1s linear"></div>
-      </div>
-      <span style="font-size:11px;color:#667781">${dur}</span>
-    </div>
-    <audio style="display:none" src="${url}"></audio>
-  </div>
-  <div class="bbl-meta"><span class="bbl-time">${getTime()}</span>${DOUBLE_TICK}</div>`;
-  msgsEl.appendChild(b);scroll();
-
-  // Erro visual no balão enviado, sem notificar a IA
-  setTimeout(()=>{
-    // Marca o balão como erro (X vermelho)
-    const meta=b.querySelector('.bbl-meta');
-    if(meta){
-      const errIco=document.createElement('span');
-      errIco.title='Falha no envio';
-      errIco.style.cssText='color:#e53935;font-size:13px;margin-right:2px';
-      errIco.textContent='!';
-      meta.prepend(errIco);
-    }
-  },1800);
-}
-
-window.toggleAudio=function(btn){
-  const wrap=btn.closest('.bbl');
-  const audio=wrap.querySelector('audio');
-  const prog=wrap.querySelector('.audio-prog');
-  const ico=btn.querySelector('.play-svg');
-  if(audio.paused){
-    // Para todos os outros áudios
-    document.querySelectorAll('.bbl audio').forEach(a=>{
-      if(a!==audio&&!a.paused){
-        a.pause();
-        const ob=a.closest('.bbl').querySelector('.play-svg');
-        if(ob)ob.innerHTML='<path d="M5 3l14 9-14 9V3z"/>';
-      }
-    });
-    audio.play();
-    ico.innerHTML='<path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>';
-    audio.ontimeupdate=()=>{if(audio.duration)prog.style.width=(audio.currentTime/audio.duration*100)+'%';};
-    audio.onended=()=>{ico.innerHTML='<path d="M5 3l14 9-14 9V3z"/>';prog.style.width='0%';};
-  }else{
-    audio.pause();
-    ico.innerHTML='<path d="M5 3l14 9-14 9V3z"/>';
-  }
-};
+  
 
 const MENSAGEM_INICIAL="Oi, Tudo bem?";
 const PRODUCT_HASH="7p8h95hghd";
@@ -481,11 +360,7 @@ function getTime(){const d=new Date();return String(d.getHours()).padStart(2,'0'
 function scroll(){msgsEl.scrollTop=msgsEl.scrollHeight}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
 
-inpEl.addEventListener('input',()=>{
-  const has=inpEl.value.trim().length>0;
-  micIcon.style.display=has?'none':'';
-  sendIcon.style.display=has?'':'none';
-});
+
 
 /* ── Sheet ── */
 function openSheet(){document.getElementById('sheet').classList.add('open')}
@@ -699,34 +574,7 @@ function submit(){
   if(!leadId)salvarLead();
   askAI(text);
 }
-let holdTimer=null, holdTriggered=false;
-
-function onPressStart(e){
-  e.preventDefault();
-  holdTriggered=false;
-  // Se ícone de envio visível = tem texto = envia
-  if(sendIcon.style.display!=='none'){submit();return;}
-  // Senão segura 300ms pra gravar
-  holdTimer=setTimeout(()=>{
-    holdTriggered=true;
-    startRecording();
-  },300);
-}
-
-function onPressEnd(e){
-  e.preventDefault();
-  clearTimeout(holdTimer);
-  holdTimer=null;
-  if(isRecording){stopRecording();}
-  holdTriggered=false;
-}
-
-sendBtn.addEventListener('mousedown', onPressStart);
-sendBtn.addEventListener('mouseup', onPressEnd);
-sendBtn.addEventListener('mouseleave', ()=>{if(isRecording)stopRecording();clearTimeout(holdTimer);});
-sendBtn.addEventListener('touchstart', onPressStart, {passive:false});
-sendBtn.addEventListener('touchend', onPressEnd, {passive:false});
-
+sendBtn.onclick=submit;
 inpEl.onkeydown=e=>{if(e.key==='Enter')submit();};
 
 /* ── Init ── */
