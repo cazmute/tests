@@ -298,6 +298,8 @@ const DOUBLE_TICK=`<svg class="ticks" width="16" height="11" viewBox="0 0 16 11"
 
 // URL do áudio hospedado no Cloudinary
 const AUDIO_SRC = 'https://res.cloudinary.com/do59kzkec/video/upload/v1781646818/Apresenta%C3%A7%C3%A3o_kgfag3.mp3';
+const AUDIO_PIX_SRC = 'https://res.cloudinary.com/do59kzkec/video/upload/v1781647915/depois_de_mandar_o_pix_kxclc4.mp3';
+let audioPIxJaTocou = false;
 
 let aiHistory=[], leadId=null, clicouCta=false, leadCityVal=null;
 let pixNormalGerado=false, pixDescontoGerado=false;
@@ -568,7 +570,15 @@ async function askAI(userMsg){
     const temLink=/aqui o pix/i.test(reply)||/um desconto/i.test(reply);
     const temDesc=/um desconto/i.test(reply);
     const temFoto=/olha eu aqui/i.test(reply);
-    if(temLink){await sleep(600);showCta(temDesc);}
+    if(temLink){
+      await sleep(600);
+      showCta(temDesc);
+      if(!audioPIxJaTocou){
+        audioPIxJaTocou=true;
+        const ap=new Audio(AUDIO_PIX_SRC);
+        ap.play().catch(function(){});
+      }
+    }
     if(temFoto){await sleep(500);showFotoLead();}
     salvarLead(temLink);
   }catch(e){hideTyping();addBubble('Ops, tive um probleminha. Pode repetir? 😊','in');aiHistory.pop();}
@@ -629,8 +639,11 @@ function showAudioBubble(){
     if(pau)pau.style.display='none';
     const prog=document.getElementById('audio-progress-0');
     const thumb=document.getElementById('audio-thumb-0');
-    if(prog)prog.style.width='100%';
-    if(thumb)thumb.style.left='100%';
+    if(prog)prog.style.width='0%';
+    if(thumb)thumb.style.left='0%';
+    const dur=document.getElementById('audio-dur-0');
+    if(dur)dur.textContent='0:00';
+    window._audioEl.currentTime=0;
 
     if(imgJaEnviada) return;
     imgJaEnviada = true;
