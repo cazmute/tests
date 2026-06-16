@@ -518,9 +518,9 @@ function showPixBubble(data,desconto=false){
       </button>`:''}
       <div id="ps-${txHash}" style="font-size:11.5px;color:#667781;text-align:center;padding:0 13px 8px;margin-top:-4px"></div>
     </div>`;
-  const b=document.createElement('div');b.className='bbl in fade-in';
-  b.style.cssText='align-self:flex-start;margin-left:6px;background:transparent;box-shadow:none;padding:0;max-width:88%';
-  b.innerHTML=TAIL_IN+htmlContent+`<div class="bbl-meta" style="padding:0 4px"><span class="bbl-time">${getTime()}</span></div>`;
+  const b=document.createElement('div');b.className='fade-in';
+  b.style.cssText='align-self:flex-start;margin-left:6px;max-width:88%;';
+  b.innerHTML=htmlContent+`<div style="display:flex;justify-content:flex-end;padding:2px 4px 0"><span style="font-size:11px;color:#667781">${getTime()}</span></div>`;
   msgsEl.appendChild(b);scroll();
   pixelIniCheckout(valor);salvarLead(true);
   if(txHash)iniciarPoll(txHash,valor);
