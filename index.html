@@ -336,7 +336,6 @@ const msgsEl=document.getElementById('msgs');
 const inpEl=document.getElementById('inp');
 const sendBtn=document.getElementById('send-btn');
 const hdrStatus=document.getElementById('hdr-status');
-const micIcon=document.getElementById('mic-icon');
 const sendIcon=document.getElementById('send-icon');
 
   
@@ -569,7 +568,7 @@ function enableInput(){inpEl.disabled=false;inpEl.focus();}
 function submit(){
   const text=inpEl.value.trim();if(!text)return;
   inpEl.value='';
-  micIcon.style.display='';sendIcon.style.display='none';
+
   addBubble(text,'out');
   if(!leadId)salvarLead();
   askAI(text);
