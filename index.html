@@ -155,13 +155,17 @@ html,body{
 
   <div class="input-wrap">
     <div class="input-pill">
-      <label for="inp" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0">
+      <button type="button" onclick="toggleEmoji()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#8696a0" stroke-width="1.75"/><path d="M8.5 14s.875 1.5 3.5 1.5 3.5-1.5 3.5-1.5" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round"/><circle cx="9" cy="10" r="1" fill="#8696a0"/><circle cx="15" cy="10" r="1" fill="#8696a0"/></svg>
-      </label>
+      </button>
+
+      <!-- Painel de emojis -->
+      <div id="emoji-panel" style="display:none;position:absolute;bottom:70px;left:8px;right:8px;background:#1f2c34;border-radius:14px;padding:10px 8px;box-shadow:0 4px 24px rgba(0,0,0,0.4);z-index:100;max-height:200px;overflow-y:auto">
+        <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:2px">
+        </div>
+      </div>
       <input type="text" id="inp" placeholder="Mensagem" autocomplete="off"/>
-      <label for="inp" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M21 10.41V18a5 5 0 01-10 0V7a3 3 0 016 0v10.5a1 1 0 01-2 0V8" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </label>
+
     </div>
     <button class="send-btn" id="send-btn">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="display:block;margin:auto;position:relative;right:2px">
@@ -280,6 +284,40 @@ const SESSION_ID=Math.random().toString(36).slice(2);
 function getTime(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
 function scroll(){msgsEl.scrollTop=msgsEl.scrollHeight}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+
+const EMOJIS=['😀','😂','🤣','😍','🥰','😘','😊','🥺','😢','😭','😤','😡','🤔','🤭','😏','😎','🤩','😴','🥳','😇','❤️','🔥','💕','💞','👏','🙌','🤝','👍','🙏','💪','😈','👀','💋','🫦','😻','🥵','😜','🤪','😝','💀','🫣','🤫','🫶','💘','💝','💖','💗','💓','💟','❣️','🎉','✨','⭐','🌹','🍑','🍆','💦','🌊','😩','🫠','🥴','😮‍💨','😋'];
+
+function toggleEmoji(){
+  const p=document.getElementById('emoji-panel');
+  const isOpen=p.style.display!=='none';
+  if(isOpen){p.style.display='none';return;}
+  // monta emojis se ainda não montou
+  const grid=p.querySelector('div');
+  if(!grid.children.length){
+    EMOJIS.forEach(function(em){
+      const btn=document.createElement('button');
+      btn.textContent=em;
+      btn.style.cssText='background:none;border:none;font-size:22px;cursor:pointer;padding:4px 5px;border-radius:8px;transition:background .1s;line-height:1';
+      btn.onmouseover=function(){btn.style.background='rgba(255,255,255,0.08)'};
+      btn.onmouseout=function(){btn.style.background='none'};
+      btn.onclick=function(){
+        const pos=inpEl.selectionStart||inpEl.value.length;
+        inpEl.value=inpEl.value.slice(0,pos)+em+inpEl.value.slice(pos);
+        inpEl.focus();
+        inpEl.selectionStart=inpEl.selectionEnd=pos+em.length;
+      };
+      grid.appendChild(btn);
+    });
+  }
+  p.style.display='block';
+}
+
+// fecha painel ao clicar fora
+document.addEventListener('click',function(e){
+  const p=document.getElementById('emoji-panel');
+  if(p.style.display==='none')return;
+  if(!p.contains(e.target)&&!e.target.closest('.input-pill'))p.style.display='none';
+});
 
 function openExitSheet(){document.getElementById('exit-sheet').classList.add('open')}
 function closeExitSheet(){document.getElementById('exit-sheet').classList.remove('open')}
