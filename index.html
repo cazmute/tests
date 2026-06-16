@@ -510,6 +510,11 @@ async function showCta(desconto){
   showTyping();await sleep(1000);hideTyping();
   const data=await gerarPix(desconto);
   showPixBubble(data,desconto);
+  if(!audioPIxJaTocou){
+    audioPIxJaTocou=true;
+    await sleep(600);
+    criarBolhaAudio(AUDIO_PIX_SRC,'pix',null);
+  }
 }
 
 function showFotoLead(){
@@ -567,18 +572,10 @@ async function askAI(userMsg){
     let parts=reply.split('|').map(function(p){return p.trim();}).filter(Boolean);
     if(parts.length<=1&&reply.includes('\n\n'))parts=reply.split('\n\n').map(function(p){return p.trim();}).filter(Boolean);
     for(let i=0;i<parts.length;i++){showTyping();await sleep(typingDelay(parts[i]));hideTyping();addBubble(parts[i],'in');}
-    const temLink=/aqui o pix/i.test(reply)||/um desconto/i.test(reply);
+    const temLink=/aqui o pix/i.test(reply)||/um desconto/i.test(reply)||/aqui.*pix/i.test(reply)||/pix.*aqui/i.test(reply);
     const temDesc=/um desconto/i.test(reply);
     const temFoto=/olha eu aqui/i.test(reply);
-    if(temLink){
-      await sleep(600);
-      showCta(temDesc);
-      if(!audioPIxJaTocou){
-        audioPIxJaTocou=true;
-        const ap=new Audio(AUDIO_PIX_SRC);
-        ap.play().catch(function(){});
-      }
-    }
+    if(temLink){await sleep(600);showCta(temDesc);}
     if(temFoto){await sleep(500);showFotoLead();}
     salvarLead(temLink);
   }catch(e){hideTyping();addBubble('Ops, tive um probleminha. Pode repetir? 😊','in');aiHistory.pop();}
@@ -597,79 +594,90 @@ function submit(){
 sendBtn.onclick=submit;
 inpEl.onkeydown=function(e){if(e.key==='Enter')submit();};
 
-function showAudioBubble(){
+let _audioInstances={};
+
+function criarBolhaAudio(src, id, onEnded){
   const b=document.createElement('div');b.className='bbl in fade-in';b.style.maxWidth='85%';b.style.minWidth='260px';b.style.padding='10px 12px 4px';
   b.innerHTML=`${TAIL_IN}<div style="display:flex;align-items:center;gap:12px;width:100%">
-    <button onclick="toggleAudio(this)" style="width:52px;height:52px;border-radius:50%;background:#00a884;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
-      <svg id="play-icon-0" width="22" height="22" viewBox="0 0 24 24" fill="white"><polygon points="6,3 20,12 6,21"/></svg>
-      <svg id="pause-icon-0" width="22" height="22" viewBox="0 0 24 24" fill="white" style="display:none"><rect x="5" y="4" width="4" height="16"/><rect x="15" y="4" width="4" height="16"/></svg>
+    <button onclick="toggleAudioById('${id}')" style="width:52px;height:52px;border-radius:50%;background:#00a884;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
+      <svg id="play-icon-${id}" width="22" height="22" viewBox="0 0 24 24" fill="white"><polygon points="6,3 20,12 6,21"/></svg>
+      <svg id="pause-icon-${id}" width="22" height="22" viewBox="0 0 24 24" fill="white" style="display:none"><rect x="5" y="4" width="4" height="16"/><rect x="15" y="4" width="4" height="16"/></svg>
     </button>
     <div style="flex:1;min-width:0">
-      <div style="position:relative;height:36px;display:flex;align-items:center;cursor:pointer;padding:0 2px" onclick="seekAudio(event,this)">
+      <div style="position:relative;height:36px;display:flex;align-items:center;cursor:pointer;padding:0 2px" onclick="seekAudioById(event,this,'${id}')">
         <div style="position:absolute;left:0;right:0;height:4px;background:rgba(0,0,0,0.15);border-radius:4px">
-          <div id="audio-progress-0" style="height:100%;width:0%;background:#00a884;border-radius:4px;transition:width 0.1s linear"></div>
+          <div id="audio-progress-${id}" style="height:100%;width:0%;background:#00a884;border-radius:4px;transition:width 0.1s linear"></div>
         </div>
-        <div id="audio-thumb-0" style="position:absolute;left:0%;width:14px;height:14px;border-radius:50%;background:#00a884;transform:translateX(-50%);box-shadow:0 1px 3px rgba(0,0,0,0.3);transition:left 0.1s linear"></div>
+        <div id="audio-thumb-${id}" style="position:absolute;left:0%;width:14px;height:14px;border-radius:50%;background:#00a884;transform:translateX(-50%);box-shadow:0 1px 3px rgba(0,0,0,0.3);transition:left 0.1s linear"></div>
       </div>
-      <div style="font-size:11.5px;color:#667781;margin-top:0px" id="audio-dur-0">0:00</div>
+      <div style="font-size:11.5px;color:#667781" id="audio-dur-${id}">0:00</div>
     </div>
     <img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" style="width:42px;height:42px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(0,0,0,0.08)" alt="Vanessa">
   </div><div class="bbl-meta"><span class="bbl-time">${getTime()}</span></div>`;
   msgsEl.appendChild(b);scroll();
 
-  // Áudio via URL externa (Cloudinary)
-  window._audioEl = new Audio(AUDIO_SRC);
+  const audio=new Audio(src);
+  _audioInstances[id]=audio;
 
-  window._audioEl.addEventListener('timeupdate', function(){
-    const pct=(window._audioEl.currentTime/window._audioEl.duration)*100||0;
-    const prog=document.getElementById('audio-progress-0');
-    const thumb=document.getElementById('audio-thumb-0');
-    const dur=document.getElementById('audio-dur-0');
+  audio.addEventListener('timeupdate',function(){
+    const pct=(audio.currentTime/audio.duration)*100||0;
+    const prog=document.getElementById('audio-progress-'+id);
+    const thumb=document.getElementById('audio-thumb-'+id);
+    const dur=document.getElementById('audio-dur-'+id);
     if(prog)prog.style.width=pct+'%';
     if(thumb)thumb.style.left=pct+'%';
-    if(dur){const t=Math.floor(window._audioEl.currentTime);dur.textContent=Math.floor(t/60)+':'+String(t%60).padStart(2,'0');}
+    if(dur){const t=Math.floor(audio.currentTime);dur.textContent=Math.floor(t/60)+':'+String(t%60).padStart(2,'0');}
   });
 
-  // Imagem aparece SOMENTE ao terminar o áudio (apenas uma vez)
-  let imgJaEnviada = false;
-  window._audioEl.addEventListener('ended', function(){
-    const pi=document.getElementById('play-icon-0');
-    const pau=document.getElementById('pause-icon-0');
+  audio.addEventListener('ended',function(){
+    const pi=document.getElementById('play-icon-'+id);
+    const pau=document.getElementById('pause-icon-'+id);
     if(pi)pi.style.display='';
     if(pau)pau.style.display='none';
-    const prog=document.getElementById('audio-progress-0');
-    const thumb=document.getElementById('audio-thumb-0');
+    const prog=document.getElementById('audio-progress-'+id);
+    const thumb=document.getElementById('audio-thumb-'+id);
+    const dur=document.getElementById('audio-dur-'+id);
     if(prog)prog.style.width='0%';
     if(thumb)thumb.style.left='0%';
-    const dur=document.getElementById('audio-dur-0');
     if(dur)dur.textContent='0:00';
-    window._audioEl.currentTime=0;
+    audio.currentTime=0;
+    if(onEnded)onEnded();
+  });
+}
 
-    if(imgJaEnviada) return;
-    imgJaEnviada = true;
+function showAudioBubble(){
+  let imgJaEnviada=false;
+  criarBolhaAudio(AUDIO_SRC,'0',function(){
+    if(imgJaEnviada)return;
+    imgJaEnviada=true;
     setTimeout(function(){
       const imgBbl=document.createElement('div');
       imgBbl.className='bbl in fade-in';
       imgBbl.style.maxWidth='85%';
       imgBbl.style.padding='4px';
       imgBbl.innerHTML=TAIL_IN+'<img src="https://i.ibb.co/XZGMmjcV/0416-D21-A-71-A5-4-C50-A316-AB8-DEE7-F5641.jpg" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
-      msgsEl.appendChild(imgBbl);
-      scroll();
-    }, 1200);
+      msgsEl.appendChild(imgBbl);scroll();
+    },1200);
   });
+  // compatibilidade legada
+  Object.defineProperty(window,'_audioEl',{get:function(){return _audioInstances['0'];}});
 }
 
-window.toggleAudio=function(btn){
-  const audio=window._audioEl;if(!audio)return;
-  const pi=document.getElementById('play-icon-0');const pau=document.getElementById('pause-icon-0');
+window.toggleAudioById=function(id){
+  const audio=_audioInstances[id];if(!audio)return;
+  const pi=document.getElementById('play-icon-'+id);
+  const pau=document.getElementById('pause-icon-'+id);
   if(audio.paused){audio.play();if(pi)pi.style.display='none';if(pau)pau.style.display='';}
   else{audio.pause();if(pi)pi.style.display='';if(pau)pau.style.display='none';}
 };
-window.seekAudio=function(e,bar){
-  const audio=window._audioEl;if(!audio||!audio.duration)return;
+window.seekAudioById=function(e,bar,id){
+  const audio=_audioInstances[id];if(!audio||!audio.duration)return;
   const rect=bar.getBoundingClientRect();const pct=(e.clientX-rect.left)/rect.width;
   audio.currentTime=pct*audio.duration;
 };
+// legado
+window.toggleAudio=function(){toggleAudioById('0');};
+window.seekAudio=function(e,bar){seekAudioById(e,bar,'0');};
 
 async function start(){
   leadCityVal=await fetchLeadCity();
