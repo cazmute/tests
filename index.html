@@ -620,7 +620,8 @@ function showAudioBubble(){
     if(dur){const t=Math.floor(window._audioEl.currentTime);dur.textContent=Math.floor(t/60)+':'+String(t%60).padStart(2,'0');}
   });
 
-  // Imagem aparece SOMENTE ao terminar o áudio
+  // Imagem aparece SOMENTE ao terminar o áudio (apenas uma vez)
+  let imgJaEnviada = false;
   window._audioEl.addEventListener('ended', function(){
     const pi=document.getElementById('play-icon-0');
     const pau=document.getElementById('pause-icon-0');
@@ -631,7 +632,8 @@ function showAudioBubble(){
     if(prog)prog.style.width='100%';
     if(thumb)thumb.style.left='100%';
 
-    // Pequeno delay para parecer natural — como se ela estivesse enviando a foto logo depois
+    if(imgJaEnviada) return;
+    imgJaEnviada = true;
     setTimeout(function(){
       const imgBbl=document.createElement('div');
       imgBbl.className='bbl in fade-in';
