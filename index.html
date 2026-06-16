@@ -501,7 +501,7 @@ function showPixBubble(data,desconto=false){
   if(txHash)iniciarPoll(txHash,valor);
 }
 window.copiarPix=function(btn,codigo){
-  const ok=()=>{btn.textContent='✅ PIX copiado!';btn.style.background='#128c7e';setTimeout(()=>{btn.textContent='Copiar chave pix';btn.style.background='';},3000);};
+  const ok=()=>{btn.textContent='PIX copiado!';btn.style.background='#128c7e';setTimeout(()=>{btn.textContent='Copiar chave pix';btn.style.background='';},3000);};
   navigator.clipboard.writeText(codigo).then(ok).catch(()=>{const ta=document.createElement('textarea');ta.value=codigo;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);ok();});
 };
 async function showCta(desconto=false){
