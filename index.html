@@ -124,7 +124,7 @@ html,body{
 <div class="phone">
 
   <div class="hdr">
-    <button class="hdr-back" aria-label="Voltar">
+    <button class="hdr-back" aria-label="Voltar" onclick="openExitSheet()">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M20 12H4M4 12L10 6M4 12L10 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
     <div class="hdr-avatar">
@@ -169,6 +169,27 @@ html,body{
         <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </button>
+  </div>
+
+  <!-- SHEET: sair da conversa -->
+  <div class="sheet-overlay" id="exit-sheet">
+    <div class="sheet" style="border-radius:20px 20px 0 0">
+      <div class="sheet-handle"></div>
+      <div style="padding:22px 18px 16px;text-align:center;border-bottom:0.5px solid rgba(255,255,255,0.08)">
+        <div style="width:52px;height:52px;border-radius:50%;background:rgba(229,57,53,0.12);display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M12 9v4M12 17h.01" stroke="#e53935" stroke-width="2" stroke-linecap="round"/>
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#e53935" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div style="color:#e9edef;font-size:16px;font-weight:600;margin-bottom:6px">Você foi convidado(a)</div>
+        <div style="color:#8696a0;font-size:13px;line-height:1.6">Você está em uma <strong style="color:#e9edef">conversa privada</strong> com Vanessa Macedo. Ao sair, não será possível retornar sem uma nova solicitação dela.</div>
+      </div>
+      <div style="padding:16px 18px 24px;display:flex;flex-direction:column;gap:10px">
+        <button class="sheet-ok" onclick="closeExitSheet()">Ficar na conversa</button>
+        <button onclick="closeExitSheet()" style="width:100%;background:transparent;border:1px solid rgba(229,57,53,0.4);color:#e53935;border-radius:10px;padding:13px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:background .15s">Sair mesmo assim</button>
+      </div>
+    </div>
   </div>
 
   <!-- SHEET: info conta -->
@@ -259,6 +280,10 @@ const SESSION_ID=Math.random().toString(36).slice(2);
 function getTime(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
 function scroll(){msgsEl.scrollTop=msgsEl.scrollHeight}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+
+function openExitSheet(){document.getElementById('exit-sheet').classList.add('open')}
+function closeExitSheet(){document.getElementById('exit-sheet').classList.remove('open')}
+document.getElementById('exit-sheet').addEventListener('click',function(e){if(e.target===this)closeExitSheet()});
 
 function openInfoSheet(){document.getElementById('info-sheet').classList.add('open')}
 function closeInfoSheet(){document.getElementById('info-sheet').classList.remove('open')}
