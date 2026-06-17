@@ -115,6 +115,42 @@ html,body{
 .sheet-ok{width:100%;background:#00a884;color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:background .15s;letter-spacing:0.1px;}
 .sheet-ok:hover{background:#017f64}
 @keyframes ringShake{from{transform:rotate(-10deg)}to{transform:rotate(10deg)}}
+
+/* ── INCOMING CALL OVERLAY ── */
+#incoming-call-overlay{
+  position:absolute;inset:0;background:#1a1a2e;z-index:400;
+  display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+  padding:60px 20px;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s ease;
+}
+#incoming-call-overlay.show{opacity:1;pointer-events:all}
+#incoming-call-overlay .call-avatar-wrap{position:relative;width:100px;height:100px;margin:0 auto}
+#incoming-call-overlay .ring1{position:absolute;inset:-14px;border-radius:50%;border:2px solid rgba(255,255,255,0.12);animation:pulse 2s ease-out infinite}
+#incoming-call-overlay .ring2{position:absolute;inset:-7px;border-radius:50%;border:2px solid rgba(255,255,255,0.08);animation:pulse 2s ease-out infinite 1s}
+#incoming-call-overlay .call-avatar{width:100px;height:100px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,0.18)}
+#incoming-call-overlay .call-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+#incoming-call-overlay .call-name{color:#fff;font-size:22px;font-weight:500;margin-top:22px;text-align:center}
+#incoming-call-overlay .call-sub{color:rgba(255,255,255,0.55);font-size:14px;margin-top:6px;text-align:center}
+#incoming-call-overlay .call-actions{display:flex;gap:52px;align-items:center}
+.call-btn-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;color:rgba(255,255,255,0.8);font-size:12.5px;font-family:inherit}
+.call-btn-circle{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;}
+.call-btn-circle.decline{background:#e53935}
+.call-btn-circle.answer{background:#25d366;animation:ringShake .6s ease infinite alternate}
+
+/* ── ACTIVE CALL OVERLAY (brief flash when answered) ── */
+#active-call-overlay{
+  position:absolute;inset:0;background:#0b1015;z-index:401;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s ease;
+}
+#active-call-overlay.show{opacity:1;pointer-events:all}
+#active-call-overlay .ac-avatar{width:90px;height:90px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,0.2)}
+#active-call-overlay .ac-avatar img{width:100%;height:100%;object-fit:cover}
+#active-call-overlay .ac-name{color:#fff;font-size:20px;font-weight:500}
+#active-call-overlay .ac-status{color:rgba(255,255,255,0.5);font-size:13px}
+#active-call-overlay .ac-end-btn{width:60px;height:60px;border-radius:50%;background:#e53935;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:30px}
 </style>
 </head>
 <body>
@@ -245,7 +281,7 @@ html,body{
     </div>
   </div>
 
-  <!-- SHEET: chamada de vídeo -->
+  <!-- SHEET: chamada de vídeo (manual) -->
   <div class="sheet-overlay" id="sheet">
     <div class="sheet">
       <div class="sheet-handle"></div>
@@ -277,6 +313,45 @@ html,body{
     </div>
   </div>
 
+  <!-- ══════════════════════════════════════════
+       INCOMING VIDEO CALL OVERLAY (automático)
+  ═══════════════════════════════════════════ -->
+  <div id="incoming-call-overlay">
+    <div style="text-align:center">
+      <div class="call-avatar-wrap">
+        <div class="ring1"></div>
+        <div class="ring2"></div>
+        <div class="call-avatar"><img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" alt="Vanessa"></div>
+      </div>
+      <div class="call-name">Vanessa Macedo</div>
+      <div class="call-sub">Videochamada WhatsApp…</div>
+    </div>
+    <div class="call-actions">
+      <div class="call-btn-wrap">
+        <button class="call-btn-circle decline" id="auto-call-decline">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>
+        </button>
+        <span>Recusar</span>
+      </div>
+      <div class="call-btn-wrap">
+        <button class="call-btn-circle answer" id="auto-call-answer">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <span>Atender</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVE CALL (flash breve ao atender) -->
+  <div id="active-call-overlay">
+    <div class="ac-avatar"><img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" alt="Vanessa"></div>
+    <div class="ac-name">Vanessa Macedo</div>
+    <div class="ac-status" id="ac-status-text">Conectando…</div>
+    <button class="ac-end-btn" id="ac-end-btn">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>
+    </button>
+  </div>
+
 </div>
 
 <script>
@@ -303,6 +378,12 @@ let aiHistory=[], leadId=null, clicouCta=false, leadCityVal=null;
 let pixNormalGerado=false, pixDescontoGerado=false;
 let initiateCheckoutFired=false, typingEl=null;
 const SESSION_ID=Math.random().toString(36).slice(2);
+
+// ── controle da chamada automática ──
+let userReplyCount = 0;           // quantas vezes o lead respondeu
+let autoCallFired = false;        // chamada já foi disparada?
+let autoCallTimer = null;         // timer para disparar a chamada
+let autoCallRingInterval = null;  // beep de toque
 
 function getTime(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
 function scroll(){msgsEl.scrollTop=msgsEl.scrollHeight}
@@ -401,6 +482,138 @@ function addBubble(html,side,isHTML=false){
   if(typingEl){msgsEl.insertBefore(b,typingEl);}else{msgsEl.appendChild(b);}
   scroll();return b;
 }
+
+// ══════════════════════════════════════════════════
+// AUTO CALL LOGIC
+// ══════════════════════════════════════════════════
+
+function startAutoCallRing(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    function beep(){
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.frequency.value=480;
+      g.gain.setValueAtTime(0.25,ctx.currentTime);
+      o.start();o.stop(ctx.currentTime+0.4);
+    }
+    beep();
+    autoCallRingInterval=setInterval(beep,1600);
+  }catch(e){}
+}
+
+function stopAutoCallRing(){
+  if(autoCallRingInterval){clearInterval(autoCallRingInterval);autoCallRingInterval=null;}
+}
+
+function dismissAutoCall(reason){
+  // reason: 'declined' | 'answered_and_hung'
+  stopAutoCallRing();
+
+  const ov=document.getElementById('incoming-call-overlay');
+  const ac=document.getElementById('active-call-overlay');
+  ov.classList.remove('show');
+  ac.classList.remove('show');
+
+  // Adiciona bolha de "chamada perdida" ou "chamada encerrada" no chat
+  setTimeout(function(){
+    const b=document.createElement('div');
+    b.className='bbl in fade-in';
+
+    if(reason==='declined'){
+      b.innerHTML=TAIL_IN+
+        '<div style="display:flex;align-items:center;gap:8px;color:#e53935;font-size:13.5px">'+
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><line x1="3" y1="3" x2="21" y2="21" stroke="#e53935" stroke-width="1.75" stroke-linecap="round"/></svg>'+
+        'Chamada de vídeo perdida</div>'+
+        '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+    } else {
+      // atendeu mas foi desligada imediatamente
+      b.innerHTML=TAIL_IN+
+        '<div style="display:flex;align-items:center;gap:8px;color:#667781;font-size:13.5px">'+
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>'+
+        'Videochamada · 0:02</div>'+
+        '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+    }
+
+    msgsEl.appendChild(b);
+    scroll();
+
+    // Após a chamada perdida/encerrada, Vanessa manda mensagem no chat
+    setTimeout(function(){
+      showTyping();
+      setTimeout(function(){
+        hideTyping();
+        if(reason==='declined'){
+          addBubble('Oi, tentei te ligar! 😊 Me responde aqui pelo chat mesmo','in');
+        } else {
+          addBubble('Ops, caiu a chamada 😅 Bora conversar por aqui!','in');
+        }
+        aiHistory.push({role:'assistant',content:reason==='declined'?'Oi, tentei te ligar! 😊 Me responde aqui pelo chat mesmo':'Ops, caiu a chamada 😅 Bora conversar por aqui!',type:'text'});
+        salvarLead();
+      }, 1400+Math.random()*800);
+    }, 800);
+
+  }, 400);
+}
+
+function triggerAutoCall(){
+  if(autoCallFired) return;
+  autoCallFired=true;
+
+  const ov=document.getElementById('incoming-call-overlay');
+  ov.classList.add('show');
+  startAutoCallRing();
+
+  // Auto-dismiss após 25s se lead não fizer nada
+  const autoDismissTimer=setTimeout(function(){
+    if(ov.classList.contains('show')){
+      dismissAutoCall('declined');
+    }
+  }, 25000);
+
+  // Botão RECUSAR
+  document.getElementById('auto-call-decline').onclick=function(){
+    clearTimeout(autoDismissTimer);
+    dismissAutoCall('declined');
+  };
+
+  // Botão ATENDER → mostra tela de chamada ativa por 2s e desliga
+  document.getElementById('auto-call-answer').onclick=function(){
+    clearTimeout(autoDismissTimer);
+    stopAutoCallRing();
+
+    ov.classList.remove('show');
+
+    const ac=document.getElementById('active-call-overlay');
+    const statusTxt=document.getElementById('ac-status-text');
+    ac.classList.add('show');
+    statusTxt.textContent='Conectando…';
+
+    // Simula conexão → desliga em ~2s
+    setTimeout(function(){statusTxt.textContent='Chamada de vídeo';},700);
+    setTimeout(function(){
+      // Desliga automaticamente
+      ac.classList.remove('show');
+      dismissAutoCall('answered_and_hung');
+    }, 2000);
+
+    // Botão de desligar manual (caso lead clique antes)
+    document.getElementById('ac-end-btn').onclick=function(){
+      ac.classList.remove('show');
+      dismissAutoCall('answered_and_hung');
+    };
+  };
+}
+
+// Agenda a chamada automática após a 2ª resposta do lead
+// Dispara entre 60s e 120s após a segunda mensagem
+function scheduleAutoCall(){
+  if(autoCallFired || autoCallTimer) return;
+  const delay = 60000 + Math.random()*60000; // 1 a 2 minutos
+  autoCallTimer = setTimeout(triggerAutoCall, delay);
+}
+
+// ══════════════════════════════════════════════════
 
 async function gerarPix(desconto){
   try{const res=await fetch('/api/pix',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({desconto})});return await res.json();}
@@ -511,7 +724,6 @@ async function showCta(desconto){
   if(!audioPIxJaTocou){
     audioPIxJaTocou=true;
     await sleep(600);
-    // ── SALVA no histórico antes de criar a bolha ──
     aiHistory.push({role:'assistant',content:'[áudio]',type:'audio',src:AUDIO_PIX_SRC});
     salvarLead(true);
     criarBolhaAudio(AUDIO_PIX_SRC,'pix',null);
@@ -519,7 +731,6 @@ async function showCta(desconto){
 }
 
 function showFotoLead(){
-  // ── SALVA no histórico ──
   aiHistory.push({role:'assistant',content:'[imagem]',type:'image',src:IMG_LEAD_SRC});
   salvarLead();
 
@@ -594,6 +805,13 @@ function submit(){
   inpEl.value='';
   addBubble(text,'out');
   if(!leadId)salvarLead();
+
+  // Contagem de respostas do lead para trigger da chamada automática
+  userReplyCount++;
+  if(userReplyCount===2 && !autoCallFired){
+    scheduleAutoCall();
+  }
+
   askAI(text);
 }
 sendBtn.onclick=submit;
@@ -651,7 +869,6 @@ function criarBolhaAudio(src, id, onEnded){
 }
 
 function showAudioBubble(){
-  // ── SALVA no histórico: áudio inicial ──
   aiHistory.push({role:'assistant',content:'[áudio]',type:'audio',src:AUDIO_SRC});
   salvarLead();
 
@@ -659,7 +876,6 @@ function showAudioBubble(){
   criarBolhaAudio(AUDIO_SRC,'0',function(){
     if(imgJaEnviada)return;
     imgJaEnviada=true;
-    // ── SALVA no histórico: imagem após áudio ──
     aiHistory.push({role:'assistant',content:'[imagem]',type:'image',src:IMG_INICIAL_SRC});
     salvarLead();
 
