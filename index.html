@@ -909,7 +909,7 @@ async function start(){
   await sleep(700);showTyping();
   await sleep(1100);hideTyping();
   showAudioBubble();
-  aiHistory.push({role:'assistant',content:MENSAGEM_INICIAL,type:'text'});
+  // A mensagem inicial não é mais adicionada ao histórico para não poluir o CRM
 }
 start();
 </script>
