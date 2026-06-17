@@ -428,33 +428,40 @@ function loadState() {
 
 // Reconstroi a UI a partir do histórico
 async function rebuildUI() {
-  // Remove apenas a "date-pill" inicial (mantém o container limpo)
   msgsEl.innerHTML = '<div class="date-pill">Hoje</div>';
-  
+
   for (const msg of aiHistory) {
     if (msg.role === 'user') {
-      addBubble(msg.content, 'out');
-    } else if (msg.role === 'assistant') {
-      if (msg.type === 'text') {
-        addBubble(msg.content, 'in');
-      } else if (msg.type === 'audio') {
-        criarBolhaAudio(msg.src, msg.src, null); // ID baseado no src
-      } else if (msg.type === 'image') {
-        const b = document.createElement('div');
-        b.className = 'bbl in fade-in';
-        b.style.maxWidth = '85%';
-        b.style.padding = '4px';
-        b.innerHTML = TAIL_IN + '<img src="' + msg.src + '" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">' + getTime() + '</span></div>';
-        msgsEl.appendChild(b);
-      } else if (msg.type === 'pix' || msg.type === 'system') {
-        // Para Pix e sistema, não recriamos elementos complexos automaticamente;
-        // o fluxo normal do chat cuida disso. Apenas pulamos.
+      addBubble(msg.content, 'out', false, msg.timestamp || getTime());
+    } else if (msg.role === 'assistant' && msg.type === 'text') {
+      const parts = msg.content.split('|').map(p => p.trim()).filter(Boolean);
+      if (parts.length === 0) parts = [msg.content];
+
+      for (let i = 0; i < parts.length; i++) {
+        let timeToShow = msg.timestamp || getTime();
+        if (i > 0 && msg.timestamp) {
+          const [h, m] = msg.timestamp.split(':').map(Number);
+          const totalMin = h * 60 + m + i;
+          const hh = String(Math.floor(totalMin / 60) % 24).padStart(2, '0');
+          const mm = String(totalMin % 60).padStart(2, '0');
+          timeToShow = hh + ':' + mm;
+        }
+        addBubble(parts[i], 'in', false, timeToShow);
+        await sleep(30);
       }
+    } else if (msg.role === 'assistant' && msg.type === 'audio') {
+      criarBolhaAudio(msg.src, msg.src, null);
+    } else if (msg.role === 'assistant' && msg.type === 'image') {
+      const b = document.createElement('div');
+      b.className = 'bbl in fade-in';
+      b.style.maxWidth = '85%';
+      b.style.padding = '4px';
+      b.innerHTML = TAIL_IN + '<img src="' + msg.src + '" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">' + (msg.timestamp || getTime()) + '</span></div>';
+      msgsEl.appendChild(b);
     } else if (msg.role === 'system') {
-      // Mensagens de sistema (ex.: "Ligação Isca - Recusada") não são exibidas, apenas registradas
       continue;
     }
-    await sleep(50); // pequena pausa para não travar a UI
+    await sleep(50);
   }
   scroll();
 }
@@ -526,7 +533,7 @@ async function salvarLead(clicou=false){
   clicouCta=clicou||clicouCta;
   try{
     const res=await fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({session_id:SESSION_ID,mensagens:aiHistory.map(m=>({role:m.role,text:m.content,type:m.type||'text',src:m.src||null})),clicou_cta:clicouCta,ultima_mensagem:new Date().toISOString(),lead_id:leadId})});
+      body:JSON.stringify({session_id:SESSION_ID,mensagens:aiHistory.map(m=>({role:m.role,text:m.content,type:m.type||'text',src:m.src||null, timestamp:m.timestamp||null})),clicou_cta:clicouCta,ultima_mensagem:new Date().toISOString(),lead_id:leadId})});
     const d=await res.json();if(!leadId&&d&&d.lead_id)leadId=d.lead_id;
   }catch(e){}
   saveState(); // salva sempre que envia ao servidor
@@ -545,17 +552,21 @@ function hideTyping(){
   hdrStatus.textContent='online';hdrStatus.className='hdr-status';
 }
 
-function addBubble(html,side,isHTML=false){
-  const b=document.createElement('div');b.className='bbl '+side+' fade-in';
-  const tail=side==='in'?TAIL_IN:TAIL_OUT;
-  const ticks=side==='out'?DOUBLE_TICK:'';
-  if(isHTML){
-    b.innerHTML=tail+html+'<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span>'+ticks+'</div>';
-  }else{
-    b.innerHTML=tail+html.replace(/\n/g,'<br>')+'<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span>'+ticks+'</div>';
+function addBubble(html, side, isHTML = false, customTime = null) {
+  const b = document.createElement('div');
+  b.className = 'bbl ' + side + ' fade-in';
+  const tail = side === 'in' ? TAIL_IN : TAIL_OUT;
+  const ticks = side === 'out' ? DOUBLE_TICK : '';
+  const timeStr = customTime || getTime();
+
+  if (isHTML) {
+    b.innerHTML = tail + html + '<div class="bbl-meta"><span class="bbl-time">' + timeStr + '</span>' + ticks + '</div>';
+  } else {
+    b.innerHTML = tail + html.replace(/\n/g, '<br>') + '<div class="bbl-meta"><span class="bbl-time">' + timeStr + '</span>' + ticks + '</div>';
   }
-  if(typingEl){msgsEl.insertBefore(b,typingEl);}else{msgsEl.appendChild(b);}
-  scroll();return b;
+  if (typingEl) { msgsEl.insertBefore(b, typingEl); } else { msgsEl.appendChild(b); }
+  scroll();
+  return b;
 }
 
 // ══════════════════════════════════════════════════
@@ -776,18 +787,20 @@ async function showCta(desconto){
     audioPIxJaTocou=true;
     saveState(); // salva imediatamente para não repetir o áudio
     await sleep(600);
-    aiHistory.push({role:'assistant',content:'[áudio]',type:'audio',src:AUDIO_PIX_SRC});
+    const now = getTime();
+    aiHistory.push({role:'assistant',content:'[áudio]',type:'audio',src:AUDIO_PIX_SRC, timestamp: now});
     salvarLead(true);
     criarBolhaAudio(AUDIO_PIX_SRC,'pix',null);
   }
 }
 
 function showFotoLead(){
-  aiHistory.push({role:'assistant',content:'[imagem]',type:'image',src:IMG_LEAD_SRC});
+  const now = getTime();
+  aiHistory.push({ role:'assistant', content:'[imagem]', type:'image', src:IMG_LEAD_SRC, timestamp: now });
   salvarLead();
 
   const b=document.createElement('div');b.className='bbl in fade-in';b.style.maxWidth='85%';b.style.padding='4px';
-  b.innerHTML=TAIL_IN+'<img src="'+IMG_LEAD_SRC+'" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+  b.innerHTML=TAIL_IN+'<img src="'+IMG_LEAD_SRC+'" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">'+now+'</span></div>';
   msgsEl.appendChild(b);scroll();
 }
 
@@ -814,8 +827,9 @@ function showBotaoEntregavel(){
   document.getElementById('vc-decline').onclick=async function(){
     if(ring)clearInterval(ring);
     ov.remove();
+    const now = getTime();
     const b=document.createElement('div');b.className='bbl in fade-in';
-    b.innerHTML=TAIL_IN+'<span style="color:#e53935;font-size:13px">📵 Chamada de vídeo perdida</span><div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+    b.innerHTML=TAIL_IN+'<span style="color:#e53935;font-size:13px">📵 Chamada de vídeo perdida</span><div class="bbl-meta"><span class="bbl-time">'+now+'</span></div>';
     msgsEl.appendChild(b);scroll();
     aiHistory.push({role:'system', content:'Entregável - Recusado', type:'system'});
     salvarLead(true);
@@ -837,7 +851,7 @@ function typingDelay(text){
 }
 
 async function askAI(userMsg){
-  aiHistory.push({role:'user',content:userMsg,type:'text'});
+  aiHistory.push({role:'user',content:userMsg,type:'text', timestamp: getTime()});
   saveState(); // salva imediatamente a mensagem do lead
   showTyping();
   try{
@@ -847,20 +861,33 @@ async function askAI(userMsg){
     hideTyping();
     const reply=(data&&data.reply)||null;
     if(!reply){addBubble('Oi! Tô com muita mensagem agora 😅 Tenta de novo!','in');enableInput();return;}
-    aiHistory.push({role:'assistant',content:reply,type:'text'});
+    // salva a resposta completa (com os separadores) no histórico, mas também dividimos para exibição
+    const replyContent = reply;
+    aiHistory.push({role:'assistant',content:replyContent,type:'text', timestamp: getTime()});
     saveState(); // salva após resposta da IA
-    if(reply.includes('[FIM]')){
-      const msgFinal=reply.replace('[FIM]','').trim();
-      const pts=msgFinal.split('|').map(function(p){return p.trim();}).filter(Boolean);
-      for(let i=0;i<pts.length;i++){showTyping();await sleep(typingDelay(pts[i]));hideTyping();addBubble(pts[i],'in');}
+
+    if(replyContent.includes('[FIM]')){
+      const msgFinal=replyContent.replace('[FIM]','').trim();
+      const pts=msgFinal.split('|').map(p=>p.trim()).filter(Boolean);
+      for(let i=0;i<pts.length;i++){showTyping();await sleep(typingDelay(pts[i]));hideTyping();const now = getTime(); addBubble(pts[i],'in',false,now);}
       inpEl.disabled=true;sendBtn.disabled=true;inpEl.placeholder='Conversa encerrada';return;
     }
-    let parts=reply.split('|').map(function(p){return p.trim();}).filter(Boolean);
-    if(parts.length<=1&&reply.includes('\n\n'))parts=reply.split('\n\n').map(function(p){return p.trim();}).filter(Boolean);
-    for(let i=0;i<parts.length;i++){showTyping();await sleep(typingDelay(parts[i]));hideTyping();addBubble(parts[i],'in');}
-    const temLink=/aqui o pix/i.test(reply)||/um desconto/i.test(reply)||/aqui.*pix/i.test(reply)||/pix.*aqui/i.test(reply);
-    const temDesc=/um desconto/i.test(reply);
-    const temFoto=/olha eu aqui/i.test(reply);
+    let parts = replyContent.split('|').map(p=>p.trim()).filter(Boolean);
+    if(parts.length<=1 && replyContent.includes('\n\n')) parts = replyContent.split('\n\n').map(p=>p.trim()).filter(Boolean);
+
+    for(let i=0;i<parts.length;i++){
+      const part = parts[i];
+      const now = getTime();
+      showTyping();
+      await sleep(typingDelay(part));
+      hideTyping();
+      addBubble(part, 'in', false, now);
+      // Armazenamos cada parte separadamente com o mesmo timestamp (ou poderia incrementar, mas mantemos igual)
+      // O conteúdo original já está salvo com os separadores, então não precisamos duplicar.
+    }
+    const temLink=/aqui o pix/i.test(replyContent)||/um desconto/i.test(replyContent)||/aqui.*pix/i.test(replyContent)||/pix.*aqui/i.test(replyContent);
+    const temDesc=/um desconto/i.test(replyContent);
+    const temFoto=/olha eu aqui/i.test(replyContent);
     if(temLink){await sleep(600);showCta(temDesc);}
     if(temFoto){await sleep(500);showFotoLead();}
     salvarLead(temLink);
@@ -873,12 +900,13 @@ function enableInput(){inpEl.disabled=false;inpEl.focus();}
 function submit(){
   const text=inpEl.value.trim();if(!text)return;
   inpEl.value='';
-  addBubble(text,'out');
+  const now = getTime();
+  addBubble(text,'out',false,now);
+  aiHistory.push({ role: 'user', content: text, type: 'text', timestamp: now });
   if(!leadId)salvarLead();
 
-  // Contagem de respostas do lead para trigger da chamada automática
   userReplyCount++;
-  saveState(); // atualiza contagem
+  saveState();
   if(userReplyCount===2 && !autoCallFired){
     scheduleAutoCall();
   }
@@ -891,6 +919,7 @@ inpEl.onkeydown=function(e){if(e.key==='Enter')submit();};
 let _audioInstances={};
 
 function criarBolhaAudio(src, id, onEnded){
+  const now = getTime();
   const b=document.createElement('div');b.className='bbl in fade-in';b.style.maxWidth='85%';b.style.minWidth='260px';b.style.padding='10px 12px 4px';
   b.innerHTML=`${TAIL_IN}<div style="display:flex;align-items:center;gap:12px;width:100%">
     <button onclick="toggleAudioById('${id}')" style="width:52px;height:52px;border-radius:50%;background:#00a884;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
@@ -907,7 +936,7 @@ function criarBolhaAudio(src, id, onEnded){
       <div style="font-size:11.5px;color:#667781" id="audio-dur-${id}">0:00</div>
     </div>
     <img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" style="width:42px;height:42px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(0,0,0,0.08)" alt="Vanessa">
-  </div><div class="bbl-meta"><span class="bbl-time">${getTime()}</span></div>`;
+  </div><div class="bbl-meta"><span class="bbl-time">${now}</span></div>`;
   msgsEl.appendChild(b);scroll();
 
   const audio=new Audio(src);
@@ -940,14 +969,16 @@ function criarBolhaAudio(src, id, onEnded){
 }
 
 function showAudioBubble(){
-  aiHistory.push({role:'assistant',content:'[áudio]',type:'audio',src:AUDIO_SRC});
+  const now = getTime();
+  aiHistory.push({role:'assistant',content:'[áudio]',type:'audio',src:AUDIO_SRC, timestamp: now});
   salvarLead();
 
   let imgJaEnviada=false;
   criarBolhaAudio(AUDIO_SRC,'0',function(){
     if(imgJaEnviada)return;
     imgJaEnviada=true;
-    aiHistory.push({role:'assistant',content:'[imagem]',type:'image',src:IMG_INICIAL_SRC});
+    const imgNow = getTime();
+    aiHistory.push({role:'assistant',content:'[imagem]',type:'image',src:IMG_INICIAL_SRC, timestamp: imgNow});
     salvarLead();
 
     setTimeout(function(){
@@ -955,7 +986,7 @@ function showAudioBubble(){
       imgBbl.className='bbl in fade-in';
       imgBbl.style.maxWidth='85%';
       imgBbl.style.padding='4px';
-      imgBbl.innerHTML=TAIL_IN+'<img src="'+IMG_INICIAL_SRC+'" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+      imgBbl.innerHTML=TAIL_IN+'<img src="'+IMG_INICIAL_SRC+'" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">'+imgNow+'</span></div>';
       msgsEl.appendChild(imgBbl);scroll();
     },1200);
   });
@@ -981,22 +1012,17 @@ window.seekAudio=function(e,bar){seekAudioById(e,bar,'0');};
 async function start(){
   const restored = loadState(); // tenta carregar estado anterior
   if (restored && aiHistory.length > 0) {
-    // Conversa já existia: reconstroi a UI e não exibe o áudio inicial
     leadCityVal = leadCityVal || await fetchLeadCity();
     await rebuildUI();
-    // Se a chamada automática ainda não foi disparada e já temos 2 respostas, agenda
     if (userReplyCount >= 2 && !autoCallFired) {
       scheduleAutoCall();
     }
-    // Se a chamada já disparou, não fazemos nada (overlay não será restaurado, mas estado fica salvo)
     enableInput();
   } else {
-    // Primeira visita: fluxo normal de boas-vindas
     leadCityVal = await fetchLeadCity();
     await sleep(700);showTyping();
     await sleep(1100);hideTyping();
     showAudioBubble();
-    // A mensagem inicial NÃO é adicionada ao histórico (como antes)
   }
 }
 start();
