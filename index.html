@@ -22,7 +22,6 @@ fbq('track', 'PageView');
   <img height="1" width="1" style="display:none"
   src="https://www.facebook.com/tr?id=981136621185086&ev=PageView&noscript=1"/>
 </noscript>
-<!-- Fim Meta Pixel -->
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -56,7 +55,6 @@ html,body{
 .hdr-info{flex:1;min-width:0;cursor:pointer}
 .hdr-name{color:#e9edef;font-size:16px;font-weight:500;letter-spacing:0.1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hdr-status{color:#8696a0;font-size:13px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hdr-status.typing{color:#8696a0}
 .hdr-actions{display:flex;gap:0;align-items:center;flex-shrink:0}
 .hdr-btn{background:none;border:none;cursor:pointer;color:#e9edef;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:background 0.15s;}
 .hdr-btn:hover{background:rgba(255,255,255,0.08)}
@@ -75,7 +73,6 @@ html,body{
 .bbl.in::before{content:'';position:absolute;top:0;left:-6px;width:0;height:0;border-top:6px solid var(--wa-msg-in);border-left:6px solid transparent;}
 .bbl.out{background:var(--wa-msg-out);align-self:flex-end;border-top-right-radius:0;box-shadow:0 1px 0.5px rgba(11,20,26,.13);margin-right:6px;}
 .bbl.out::before{content:'';position:absolute;top:0;right:-6px;width:0;height:0;border-top:6px solid var(--wa-msg-out);border-right:6px solid transparent;}
-.bbl-tail-in,.bbl-tail-out{display:none}
 .bbl-meta{display:flex;align-items:center;justify-content:flex-end;gap:3px;margin-top:2px;float:right;margin-left:10px;margin-bottom:-2px}
 .bbl-time{font-size:11px;color:var(--wa-text2);white-space:nowrap}
 .bbl.out .bbl-time{color:#667781}
@@ -195,7 +192,7 @@ html,body{
     </div>
   </div>
 
-  <!-- SHEET: sair da conversa -->
+  <!-- SHEET: sair -->
   <div class="sheet-overlay" id="exit-sheet">
     <div class="sheet" style="border-radius:20px 20px 0 0">
       <div class="sheet-handle"></div>
@@ -296,11 +293,12 @@ const TAIL_IN=`<svg class="bbl-tail-in" viewBox="0 0 8 13" fill="none" xmlns="ht
 const TAIL_OUT=`<svg class="bbl-tail-out" viewBox="0 0 8 13" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 0C0 0 7 0 7 7.5C7 9.17 6 10.5 4 12.5L0 13V0Z" fill="#d9fdd3"/></svg>`;
 const DOUBLE_TICK=`<svg class="ticks" width="16" height="11" viewBox="0 0 16 11" fill="none"><path d="M11.0714 1L4.5 7.57143L1 4.14286" stroke="#53bdeb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 1L8.42857 7.57143" stroke="#53bdeb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
-// URL do áudio hospedado no Cloudinary
 const AUDIO_SRC = 'https://res.cloudinary.com/do59kzkec/video/upload/v1781646818/Apresenta%C3%A7%C3%A3o_kgfag3.mp3';
 const AUDIO_PIX_SRC = 'https://res.cloudinary.com/do59kzkec/video/upload/v1781647915/depois_de_mandar_o_pix_kxclc4.mp3';
-let audioPIxJaTocou = false;
+const IMG_INICIAL_SRC = 'https://i.ibb.co/XZGMmjcV/0416-D21-A-71-A5-4-C50-A316-AB8-DEE7-F5641.jpg';
+const IMG_LEAD_SRC = 'https://i.ibb.co/B2ML9kzf/Img-jpg.jpg';
 
+let audioPIxJaTocou = false;
 let aiHistory=[], leadId=null, clicouCta=false, leadCityVal=null;
 let pixNormalGerado=false, pixDescontoGerado=false;
 let initiateCheckoutFired=false, typingEl=null;
@@ -373,7 +371,7 @@ async function salvarLead(clicou=false){
   clicouCta=clicou||clicouCta;
   try{
     const res=await fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({session_id:SESSION_ID,mensagens:aiHistory.map(m=>({role:m.role,text:m.content})),clicou_cta:clicouCta,ultima_mensagem:new Date().toISOString(),lead_id:leadId})});
+      body:JSON.stringify({session_id:SESSION_ID,mensagens:aiHistory.map(m=>({role:m.role,text:m.content,type:m.type||'text',src:m.src||null})),clicou_cta:clicouCta,ultima_mensagem:new Date().toISOString(),lead_id:leadId})});
     const d=await res.json();if(!leadId&&d&&d.lead_id)leadId=d.lead_id;
   }catch(e){}
 }
@@ -422,7 +420,7 @@ function iniciarPoll(txHash,valorPago){
       if(el){el.textContent='✅ Pagamento confirmado!';el.style.color='#25d366';el.style.fontWeight='500';}
       pixelPurchase(valorPago);
       await sleep(800);showBotaoEntregavel();
-      aiHistory.push({role:'assistant',content:'te esperando'});
+      aiHistory.push({role:'assistant',content:'te esperando',type:'text'});
       salvarLead(true);
     }
   },5000);
@@ -513,13 +511,20 @@ async function showCta(desconto){
   if(!audioPIxJaTocou){
     audioPIxJaTocou=true;
     await sleep(600);
+    // ── SALVA no histórico antes de criar a bolha ──
+    aiHistory.push({role:'assistant',content:'[áudio]',type:'audio',src:AUDIO_PIX_SRC});
+    salvarLead(true);
     criarBolhaAudio(AUDIO_PIX_SRC,'pix',null);
   }
 }
 
 function showFotoLead(){
+  // ── SALVA no histórico ──
+  aiHistory.push({role:'assistant',content:'[imagem]',type:'image',src:IMG_LEAD_SRC});
+  salvarLead();
+
   const b=document.createElement('div');b.className='bbl in fade-in';b.style.maxWidth='85%';b.style.padding='4px';
-  b.innerHTML=TAIL_IN+'<img src="https://i.ibb.co/B2ML9kzf/Img-jpg.jpg" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+  b.innerHTML=TAIL_IN+'<img src="'+IMG_LEAD_SRC+'" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
   msgsEl.appendChild(b);scroll();
 }
 
@@ -553,7 +558,7 @@ function typingDelay(text){
 }
 
 async function askAI(userMsg){
-  aiHistory.push({role:'user',content:userMsg});
+  aiHistory.push({role:'user',content:userMsg,type:'text'});
   showTyping();
   try{
     const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},
@@ -562,7 +567,7 @@ async function askAI(userMsg){
     hideTyping();
     const reply=(data&&data.reply)||null;
     if(!reply){addBubble('Oi! Tô com muita mensagem agora 😅 Tenta de novo!','in');enableInput();return;}
-    aiHistory.push({role:'assistant',content:reply});
+    aiHistory.push({role:'assistant',content:reply,type:'text'});
     if(reply.includes('[FIM]')){
       const msgFinal=reply.replace('[FIM]','').trim();
       const pts=msgFinal.split('|').map(function(p){return p.trim();}).filter(Boolean);
@@ -646,20 +651,27 @@ function criarBolhaAudio(src, id, onEnded){
 }
 
 function showAudioBubble(){
+  // ── SALVA no histórico: áudio inicial ──
+  aiHistory.push({role:'assistant',content:'[áudio]',type:'audio',src:AUDIO_SRC});
+  salvarLead();
+
   let imgJaEnviada=false;
   criarBolhaAudio(AUDIO_SRC,'0',function(){
     if(imgJaEnviada)return;
     imgJaEnviada=true;
+    // ── SALVA no histórico: imagem após áudio ──
+    aiHistory.push({role:'assistant',content:'[imagem]',type:'image',src:IMG_INICIAL_SRC});
+    salvarLead();
+
     setTimeout(function(){
       const imgBbl=document.createElement('div');
       imgBbl.className='bbl in fade-in';
       imgBbl.style.maxWidth='85%';
       imgBbl.style.padding='4px';
-      imgBbl.innerHTML=TAIL_IN+'<img src="https://i.ibb.co/XZGMmjcV/0416-D21-A-71-A5-4-C50-A316-AB8-DEE7-F5641.jpg" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+      imgBbl.innerHTML=TAIL_IN+'<img src="'+IMG_INICIAL_SRC+'" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
       msgsEl.appendChild(imgBbl);scroll();
     },1200);
   });
-  // compatibilidade legada
   Object.defineProperty(window,'_audioEl',{get:function(){return _audioInstances['0'];}});
 }
 
@@ -675,7 +687,6 @@ window.seekAudioById=function(e,bar,id){
   const rect=bar.getBoundingClientRect();const pct=(e.clientX-rect.left)/rect.width;
   audio.currentTime=pct*audio.duration;
 };
-// legado
 window.toggleAudio=function(){toggleAudioById('0');};
 window.seekAudio=function(e,bar){seekAudioById(e,bar,'0');};
 
@@ -684,7 +695,7 @@ async function start(){
   await sleep(700);showTyping();
   await sleep(1100);hideTyping();
   showAudioBubble();
-  aiHistory.push({role:'assistant',content:MENSAGEM_INICIAL});
+  aiHistory.push({role:'assistant',content:MENSAGEM_INICIAL,type:'text'});
 }
 start();
 </script>
