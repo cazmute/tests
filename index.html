@@ -311,9 +311,7 @@ html,body{
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════
-       INCOMING VIDEO CALL OVERLAY (automático)
-  ═══════════════════════════════════════════ -->
+  <!-- INCOMING VIDEO CALL OVERLAY (automático) -->
   <div id="incoming-call-overlay">
     <div style="text-align:center">
       <div class="call-avatar-wrap">
@@ -802,7 +800,6 @@ function showFotoLead() {
 }
 
 function showBotaoEntregavel() {
-  // (mesmo código anterior, sem alterações)
   let ring=null;
   try{
     const ctx=new (window.AudioContext||window.webkitAudioContext)();
@@ -850,6 +847,7 @@ function typingDelay(text) {
 }
 
 async function askAI(userMsg) {
+  // Adiciona a mensagem do lead ao histórico (apenas uma vez)
   aiHistory.push({role:'user', content:userMsg, type:'text', timestamp: getTime()});
   saveState();
   showTyping();
@@ -895,23 +893,24 @@ async function askAI(userMsg) {
   } catch (e) {
     hideTyping();
     addBubble('Ops, tive um probleminha. Pode repetir? 😊','in');
-    aiHistory.pop();
+    aiHistory.pop(); // remove a mensagem do lead que causou erro
   }
   enableInput();
 }
+
+function enableInput(){inpEl.disabled=false;inpEl.focus();}
 
 function submit() {
   const text = inpEl.value.trim();
   if (!text) return;
   inpEl.value = '';
   const now = getTime();
-  addBubble(text, 'out', false, now);
-  aiHistory.push({ role: 'user', content: text, type: 'text', timestamp: now });
+  addBubble(text, 'out', false, now); // exibe a mensagem visualmente
   if (!leadId) salvarLead();
   userReplyCount++;
   saveState();
   if (userReplyCount===2 && !autoCallFired) scheduleAutoCall();
-  askAI(text);
+  askAI(text); // o askAI adiciona ao histórico e processa a resposta
 }
 sendBtn.onclick = submit;
 inpEl.onkeydown = function(e) { if (e.key==='Enter') submit(); };
@@ -1047,7 +1046,6 @@ function toggleEmoji() {
     panel.style.display = 'none';
     return;
   }
-  // Preencher com emojis se ainda não estiver populado
   const grid = panel.querySelector('div');
   if (grid.children.length === 0) {
     const emojis = ['😀','😂','🤣','😍','🥰','😘','😊','🥺','😢','😭','😤','😡','🤔','🤭','😏','😎','🤩','😴','🥳','😇','❤️','🔥','💕','💞','👏','🙌','🤝','👍','🙏','💪','😈','👀','💋','🫦','😻','🥵','😜','🤪','😝','💀','🫣','🤫','🫶','💘','💝','💖','💗','💓','💟','❣️','🎉','✨','⭐','🌹','🍑','🍆','💦','🌊','😩','🫠','🥴','😮‍💨','😋'];
@@ -1063,7 +1061,6 @@ function toggleEmoji() {
         inp.value = inp.value.slice(0, pos) + em + inp.value.slice(pos);
         inp.focus();
         inp.selectionStart = inp.selectionEnd = pos + em.length;
-        // Fecha o painel após selecionar um emoji
         panel.style.display = 'none';
       };
       grid.appendChild(btn);
