@@ -515,7 +515,7 @@ function dismissAutoCall(reason){
   ov.classList.remove('show');
   ac.classList.remove('show');
 
-  // Adiciona bolha de "chamada perdida" ou "chamada encerrada" no chat
+  // Adiciona bolha de "chamada perdida" ou "Vanessa desligou" no chat
   setTimeout(function(){
     const b=document.createElement('div');
     b.className='bbl in fade-in';
@@ -527,32 +527,30 @@ function dismissAutoCall(reason){
         'Chamada de vídeo perdida</div>'+
         '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
     } else {
-      // atendeu mas foi desligada imediatamente
+      // atendeu mas foi desligada pela Vanessa
       b.innerHTML=TAIL_IN+
         '<div style="display:flex;align-items:center;gap:8px;color:#667781;font-size:13.5px">'+
         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>'+
-        'Videochamada · 0:02</div>'+
+        'Vanessa desligou · 0:02</div>'+
         '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
     }
 
     msgsEl.appendChild(b);
     scroll();
 
-    // Após a chamada perdida/encerrada, Vanessa manda mensagem no chat
-    setTimeout(function(){
-      showTyping();
+    // Só envia mensagem de follow-up se o lead recusou
+    if(reason === 'declined'){
       setTimeout(function(){
-        hideTyping();
-        if(reason==='declined'){
+        showTyping();
+        setTimeout(function(){
+          hideTyping();
           addBubble('Oi, tentei te ligar! 😊 Me responde aqui pelo chat mesmo','in');
-        } else {
-          addBubble('Ops, caiu a chamada 😅 Bora conversar por aqui!','in');
-        }
-        aiHistory.push({role:'assistant',content:reason==='declined'?'Oi, tentei te ligar! 😊 Me responde aqui pelo chat mesmo':'Ops, caiu a chamada 😅 Bora conversar por aqui!',type:'text'});
-        salvarLead();
-      }, 1400+Math.random()*800);
-    }, 800);
-
+          aiHistory.push({role:'assistant',content:'Oi, tentei te ligar! 😊 Me responde aqui pelo chat mesmo',type:'text'});
+          salvarLead();
+        }, 1400+Math.random()*800);
+      }, 800);
+    }
+    // Quando reason === 'answered_and_hung', NÃO envia mensagem adicional
   }, 400);
 }
 
