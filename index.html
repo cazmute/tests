@@ -1040,7 +1040,37 @@ async function start() {
 start();
 
 // ═══ FUNÇÕES DOS SHEETS ═══
-function toggleEmoji(){ /* ... */ }
+function toggleEmoji() {
+  const panel = document.getElementById('emoji-panel');
+  const isOpen = panel.style.display !== 'none';
+  if (isOpen) {
+    panel.style.display = 'none';
+    return;
+  }
+  // Preencher com emojis se ainda não estiver populado
+  const grid = panel.querySelector('div');
+  if (grid.children.length === 0) {
+    const emojis = ['😀','😂','🤣','😍','🥰','😘','😊','🥺','😢','😭','😤','😡','🤔','🤭','😏','😎','🤩','😴','🥳','😇','❤️','🔥','💕','💞','👏','🙌','🤝','👍','🙏','💪','😈','👀','💋','🫦','😻','🥵','😜','🤪','😝','💀','🫣','🤫','🫶','💘','💝','💖','💗','💓','💟','❣️','🎉','✨','⭐','🌹','🍑','🍆','💦','🌊','😩','🫠','🥴','😮‍💨','😋'];
+    emojis.forEach(function(em) {
+      const btn = document.createElement('button');
+      btn.textContent = em;
+      btn.style.cssText = 'background:none;border:none;font-size:22px;cursor:pointer;padding:4px 5px;border-radius:8px;transition:background .1s;line-height:1';
+      btn.onmouseover = function() { btn.style.background = 'rgba(255,255,255,0.08)'; };
+      btn.onmouseout = function() { btn.style.background = 'none'; };
+      btn.onclick = function() {
+        const inp = document.getElementById('inp');
+        const pos = inp.selectionStart || inp.value.length;
+        inp.value = inp.value.slice(0, pos) + em + inp.value.slice(pos);
+        inp.focus();
+        inp.selectionStart = inp.selectionEnd = pos + em.length;
+        // Fecha o painel após selecionar um emoji
+        panel.style.display = 'none';
+      };
+      grid.appendChild(btn);
+    });
+  }
+  panel.style.display = 'block';
+}
 function openAttachSheet(){ document.getElementById('attach-sheet').classList.add('open'); }
 function closeAttachSheet(){ document.getElementById('attach-sheet').classList.remove('open'); }
 document.getElementById('attach-sheet').addEventListener('click', function(e){ if(e.target===this) closeAttachSheet(); });
