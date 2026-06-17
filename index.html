@@ -526,6 +526,9 @@ function dismissAutoCall(reason){
         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><line x1="3" y1="3" x2="21" y2="21" stroke="#e53935" stroke-width="1.75" stroke-linecap="round"/></svg>'+
         'Chamada de vídeo perdida</div>'+
         '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+      // Aviso no histórico: Ligação Isca - Recusada
+      aiHistory.push({role:'system', content:'Ligação Isca - Recusada', type:'system'});
+      salvarLead();
     } else {
       // atendeu mas foi desligada pela Vanessa
       b.innerHTML=TAIL_IN+
@@ -533,24 +536,15 @@ function dismissAutoCall(reason){
         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>'+
         'Vanessa desligou · 0:02</div>'+
         '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+      // Aviso no histórico: Ligação Isca - Aceita
+      aiHistory.push({role:'system', content:'Ligação Isca - Aceita', type:'system'});
+      salvarLead();
     }
 
     msgsEl.appendChild(b);
     scroll();
 
-    // Só envia mensagem de follow-up se o lead recusou
-    if(reason === 'declined'){
-      setTimeout(function(){
-        showTyping();
-        setTimeout(function(){
-          hideTyping();
-          addBubble('Oi, tentei te ligar! 😊 Me responde aqui pelo chat mesmo','in');
-          aiHistory.push({role:'assistant',content:'Oi, tentei te ligar! 😊 Me responde aqui pelo chat mesmo',type:'text'});
-          salvarLead();
-        }, 1400+Math.random()*800);
-      }, 800);
-    }
-    // Quando reason === 'answered_and_hung', NÃO envia mensagem adicional
+    // NENHUMA mensagem de follow-up é enviada
   }, 400);
 }
 
@@ -748,16 +742,37 @@ function showBotaoEntregavel(){
   ov.style.cssText='position:absolute;inset:0;background:#1a1a2e;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:60px 20px;animation:fi .3s ease';
   ov.innerHTML='<div style="text-align:center"><div style="position:relative;width:100px;height:100px;margin:0 auto"><div style="position:absolute;inset:-14px;border-radius:50%;border:2px solid rgba(255,255,255,0.12);animation:pulse 2s ease-out infinite"></div><div style="position:absolute;inset:-7px;border-radius:50%;border:2px solid rgba(255,255,255,0.08);animation:pulse 2s ease-out infinite 1s"></div><div style="width:100px;height:100px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,0.18)"><img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" style="width:100%;height:100%;object-fit:cover" alt="Vanessa"></div></div><div style="color:#fff;font-size:22px;font-weight:500;margin-top:22px">Vanessa Macedo</div><div style="color:rgba(255,255,255,0.55);font-size:14px;margin-top:6px">Chamada de vídeo WhatsApp…</div></div><div style="display:flex;gap:52px;align-items:center"><button id="vc-decline" style="display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.8);font-size:12.5px;font-family:inherit"><div style="width:64px;height:64px;border-radius:50%;background:#e53935;display:flex;align-items:center;justify-content:center"><svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg></div>Recusar</button><button id="vc-answer" style="display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.8);font-size:12.5px;font-family:inherit"><div style="width:64px;height:64px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;animation:ringShake .6s ease infinite alternate"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Atender</button></div>';
   document.querySelector('.phone').appendChild(ov);
-  document.getElementById('vc-answer').onclick=function(){if(ring)clearInterval(ring);ov.remove();window.open(LINK_ENTREGAVEL,'_blank');};
+
+  // Botão ATENDER (entregável aceito)
+  document.getElementById('vc-answer').onclick=function(){
+    if(ring)clearInterval(ring);
+    ov.remove();
+    window.open(LINK_ENTREGAVEL,'_blank');
+    // Aviso no histórico: Entregável - Aceito
+    aiHistory.push({role:'system', content:'Entregável - Aceito', type:'system'});
+    salvarLead(true);
+  };
+
+  // Botão RECUSAR (entregável recusado)
   document.getElementById('vc-decline').onclick=async function(){
-    if(ring)clearInterval(ring);ov.remove();
+    if(ring)clearInterval(ring);
+    ov.remove();
     const b=document.createElement('div');b.className='bbl in fade-in';
     b.innerHTML=TAIL_IN+'<span style="color:#e53935;font-size:13px">📵 Chamada de vídeo perdida</span><div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
     msgsEl.appendChild(b);scroll();
+    // Aviso no histórico: Entregável - Recusado
+    aiHistory.push({role:'system', content:'Entregável - Recusado', type:'system'});
+    salvarLead(true);
     await sleep(1400);
     const br=document.createElement('div');br.className='bbl in fade-in';br.style.maxWidth='88%';
-    br.innerHTML=TAIL_IN+'<a href="'+LINK_ENTREGAVEL+'" target="_blank" class="cta-btn" style="margin:0">📹 Retornar chamada</a><div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+    br.innerHTML=TAIL_IN+'<a href="'+LINK_ENTREGAVEL+'" target="_blank" class="cta-btn" style="margin:0" id="btn-retornar">📹 Retornar chamada</a><div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
     msgsEl.appendChild(br);scroll();
+
+    // Captura clique no botão "Retornar chamada" (Retorno feito)
+    document.getElementById('btn-retornar').addEventListener('click', function(){
+      aiHistory.push({role:'system', content:'Retorno feito', type:'system'});
+      salvarLead(true);
+    });
   };
 }
 
