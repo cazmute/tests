@@ -25,11 +25,8 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash-lite',
         
-        // Temperatura 0.3 (variação natural, sem alucinação)
+        // MUDANÇA: Só a temperatura em 0.3. O resto fica PADRÃO da API (não envio top_p nem penalties)
         temperature: 0.3,
-        top_p: 1.0,
-        frequency_penalty: 0.0,
-        presence_penalty: 0.0,
 
         messages: [
           { role: 'system', content: fullSystem },
