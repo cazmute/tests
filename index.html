@@ -22,7 +22,6 @@ fbq('track', 'PageView');
   <img height="1" width="1" style="display:none"
   src="https://www.facebook.com/tr?id=981136621185086&ev=PageView&noscript=1"/>
 </noscript>
-<!-- Fim Meta Pixel -->
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -56,7 +55,6 @@ html,body{
 .hdr-info{flex:1;min-width:0;cursor:pointer}
 .hdr-name{color:#e9edef;font-size:16px;font-weight:500;letter-spacing:0.1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hdr-status{color:#8696a0;font-size:13px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hdr-status.typing{color:#8696a0}
 .hdr-actions{display:flex;gap:0;align-items:center;flex-shrink:0}
 .hdr-btn{background:none;border:none;cursor:pointer;color:#e9edef;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:background 0.15s;}
 .hdr-btn:hover{background:rgba(255,255,255,0.08)}
@@ -75,7 +73,6 @@ html,body{
 .bbl.in::before{content:'';position:absolute;top:0;left:-6px;width:0;height:0;border-top:6px solid var(--wa-msg-in);border-left:6px solid transparent;}
 .bbl.out{background:var(--wa-msg-out);align-self:flex-end;border-top-right-radius:0;box-shadow:0 1px 0.5px rgba(11,20,26,.13);margin-right:6px;}
 .bbl.out::before{content:'';position:absolute;top:0;right:-6px;width:0;height:0;border-top:6px solid var(--wa-msg-out);border-right:6px solid transparent;}
-.bbl-tail-in,.bbl-tail-out{display:none}
 .bbl-meta{display:flex;align-items:center;justify-content:flex-end;gap:3px;margin-top:2px;float:right;margin-left:10px;margin-bottom:-2px}
 .bbl-time{font-size:11px;color:var(--wa-text2);white-space:nowrap}
 .bbl.out .bbl-time{color:#667781}
@@ -118,6 +115,42 @@ html,body{
 .sheet-ok{width:100%;background:#00a884;color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:background .15s;letter-spacing:0.1px;}
 .sheet-ok:hover{background:#017f64}
 @keyframes ringShake{from{transform:rotate(-10deg)}to{transform:rotate(10deg)}}
+
+/* ── INCOMING CALL OVERLAY ── */
+#incoming-call-overlay{
+  position:absolute;inset:0;background:#1a1a2e;z-index:400;
+  display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+  padding:60px 20px;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s ease;
+}
+#incoming-call-overlay.show{opacity:1;pointer-events:all}
+#incoming-call-overlay .call-avatar-wrap{position:relative;width:100px;height:100px;margin:0 auto}
+#incoming-call-overlay .ring1{position:absolute;inset:-14px;border-radius:50%;border:2px solid rgba(255,255,255,0.12);animation:pulse 2s ease-out infinite}
+#incoming-call-overlay .ring2{position:absolute;inset:-7px;border-radius:50%;border:2px solid rgba(255,255,255,0.08);animation:pulse 2s ease-out infinite 1s}
+#incoming-call-overlay .call-avatar{width:100px;height:100px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,0.18)}
+#incoming-call-overlay .call-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+#incoming-call-overlay .call-name{color:#fff;font-size:22px;font-weight:500;margin-top:22px;text-align:center}
+#incoming-call-overlay .call-sub{color:rgba(255,255,255,0.55);font-size:14px;margin-top:6px;text-align:center}
+#incoming-call-overlay .call-actions{display:flex;gap:52px;align-items:center}
+.call-btn-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;color:rgba(255,255,255,0.8);font-size:12.5px;font-family:inherit}
+.call-btn-circle{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;}
+.call-btn-circle.decline{background:#e53935}
+.call-btn-circle.answer{background:#25d366;animation:ringShake .6s ease infinite alternate}
+
+/* ── ACTIVE CALL OVERLAY (brief flash when answered) ── */
+#active-call-overlay{
+  position:absolute;inset:0;background:#0b1015;z-index:401;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s ease;
+}
+#active-call-overlay.show{opacity:1;pointer-events:all}
+#active-call-overlay .ac-avatar{width:90px;height:90px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,0.2)}
+#active-call-overlay .ac-avatar img{width:100%;height:100%;object-fit:cover}
+#active-call-overlay .ac-name{color:#fff;font-size:20px;font-weight:500}
+#active-call-overlay .ac-status{color:rgba(255,255,255,0.5);font-size:13px}
+#active-call-overlay .ac-end-btn{width:60px;height:60px;border-radius:50%;background:#e53935;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:30px}
 </style>
 </head>
 <body>
@@ -158,18 +191,14 @@ html,body{
       <button type="button" onclick="toggleEmoji()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#8696a0" stroke-width="1.75"/><path d="M8.5 14s.875 1.5 3.5 1.5 3.5-1.5 3.5-1.5" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round"/><circle cx="9" cy="10" r="1" fill="#8696a0"/><circle cx="15" cy="10" r="1" fill="#8696a0"/></svg>
       </button>
-
-      <!-- Painel de emojis -->
       <div id="emoji-panel" style="display:none;position:absolute;bottom:70px;left:8px;right:8px;background:#1f2c34;border-radius:14px;padding:10px 8px;box-shadow:0 4px 24px rgba(0,0,0,0.4);z-index:100;max-height:200px;overflow-y:auto">
-        <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:2px">
-        </div>
+        <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:2px"></div>
       </div>
       <button type="button" onclick="openAttachSheet()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
           <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66L9.41 17.41a2 2 0 01-2.83-2.83l8.49-8.48" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
-
       <input id="inp" type="text" placeholder="Mensagem">
     </div>
     <button class="send-btn" id="send-btn">
@@ -199,7 +228,7 @@ html,body{
     </div>
   </div>
 
-  <!-- SHEET: sair da conversa -->
+  <!-- SHEET: sair -->
   <div class="sheet-overlay" id="exit-sheet">
     <div class="sheet" style="border-radius:20px 20px 0 0">
       <div class="sheet-handle"></div>
@@ -252,7 +281,7 @@ html,body{
     </div>
   </div>
 
-  <!-- SHEET: chamada de vídeo -->
+  <!-- SHEET: chamada de vídeo (manual) -->
   <div class="sheet-overlay" id="sheet">
     <div class="sheet">
       <div class="sheet-handle"></div>
@@ -284,6 +313,45 @@ html,body{
     </div>
   </div>
 
+  <!-- ══════════════════════════════════════════
+       INCOMING VIDEO CALL OVERLAY (automático)
+  ═══════════════════════════════════════════ -->
+  <div id="incoming-call-overlay">
+    <div style="text-align:center">
+      <div class="call-avatar-wrap">
+        <div class="ring1"></div>
+        <div class="ring2"></div>
+        <div class="call-avatar"><img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" alt="Vanessa"></div>
+      </div>
+      <div class="call-name">Vanessa Macedo</div>
+      <div class="call-sub">Videochamada WhatsApp…</div>
+    </div>
+    <div class="call-actions">
+      <div class="call-btn-wrap">
+        <button class="call-btn-circle decline" id="auto-call-decline">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>
+        </button>
+        <span>Recusar</span>
+      </div>
+      <div class="call-btn-wrap">
+        <button class="call-btn-circle answer" id="auto-call-answer">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <span>Atender</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVE CALL (flash breve ao atender) -->
+  <div id="active-call-overlay">
+    <div class="ac-avatar"><img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" alt="Vanessa"></div>
+    <div class="ac-name">Vanessa Macedo</div>
+    <div class="ac-status" id="ac-status-text">Conectando…</div>
+    <button class="ac-end-btn" id="ac-end-btn">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>
+    </button>
+  </div>
+
 </div>
 
 <script>
@@ -296,14 +364,26 @@ const MENSAGEM_INICIAL="Oi, Tudo bem?";
 const PRODUCT_HASH="7p8h95hghd";
 const LINK_ENTREGAVEL="https://chamadadevideo-wa.netlify.app";
 const CIDADES_FB=['Fortaleza','Recife','Salvador','Belo Horizonte','Curitiba','Manaus','Belém','Porto Alegre','Campinas'];
-const TAIL_IN=`<svg class="bbl-tail-in" viewBox="0 0 8 13" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 0C8 0 1 0 1 7.5C1 9.17 2 10.5 4 12.5L8 13V0Z" fill="#ffffff"/></svg>`;
-const TAIL_OUT=`<svg class="bbl-tail-out" viewBox="0 0 8 13" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 0C0 0 7 0 7 7.5C7 9.17 6 10.5 4 12.5L0 13V0Z" fill="#d9fdd3"/></svg>`;
+const TAIL_IN='';
+const TAIL_OUT='';
 const DOUBLE_TICK=`<svg class="ticks" width="16" height="11" viewBox="0 0 16 11" fill="none"><path d="M11.0714 1L4.5 7.57143L1 4.14286" stroke="#53bdeb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 1L8.42857 7.57143" stroke="#53bdeb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
+const AUDIO_SRC = 'https://res.cloudinary.com/do59kzkec/video/upload/v1781646818/Apresenta%C3%A7%C3%A3o_kgfag3.mp3';
+const AUDIO_PIX_SRC = 'https://res.cloudinary.com/do59kzkec/video/upload/v1781647915/depois_de_mandar_o_pix_kxclc4.mp3';
+const IMG_INICIAL_SRC = 'https://i.ibb.co/XZGMmjcV/0416-D21-A-71-A5-4-C50-A316-AB8-DEE7-F5641.jpg';
+const IMG_LEAD_SRC = 'https://i.ibb.co/B2ML9kzf/Img-jpg.jpg';
+
+let audioPIxJaTocou = false;
 let aiHistory=[], leadId=null, clicouCta=false, leadCityVal=null;
 let pixNormalGerado=false, pixDescontoGerado=false;
 let initiateCheckoutFired=false, typingEl=null;
 const SESSION_ID=Math.random().toString(36).slice(2);
+
+// ── controle da chamada automática ──
+let userReplyCount = 0;           // quantas vezes o lead respondeu
+let autoCallFired = false;        // chamada já foi disparada?
+let autoCallTimer = null;         // timer para disparar a chamada
+let autoCallRingInterval = null;  // beep de toque
 
 function getTime(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
 function scroll(){msgsEl.scrollTop=msgsEl.scrollHeight}
@@ -372,7 +452,7 @@ async function salvarLead(clicou=false){
   clicouCta=clicou||clicouCta;
   try{
     const res=await fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({session_id:SESSION_ID,mensagens:aiHistory.map(m=>({role:m.role,text:m.content})),clicou_cta:clicouCta,ultima_mensagem:new Date().toISOString(),lead_id:leadId})});
+      body:JSON.stringify({session_id:SESSION_ID,mensagens:aiHistory.map(m=>({role:m.role,text:m.content,type:m.type||'text',src:m.src||null})),clicou_cta:clicouCta,ultima_mensagem:new Date().toISOString(),lead_id:leadId})});
     const d=await res.json();if(!leadId&&d&&d.lead_id)leadId=d.lead_id;
   }catch(e){}
 }
@@ -403,6 +483,138 @@ function addBubble(html,side,isHTML=false){
   scroll();return b;
 }
 
+// ══════════════════════════════════════════════════
+// AUTO CALL LOGIC
+// ══════════════════════════════════════════════════
+
+function startAutoCallRing(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    function beep(){
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.frequency.value=480;
+      g.gain.setValueAtTime(0.25,ctx.currentTime);
+      o.start();o.stop(ctx.currentTime+0.4);
+    }
+    beep();
+    autoCallRingInterval=setInterval(beep,1600);
+  }catch(e){}
+}
+
+function stopAutoCallRing(){
+  if(autoCallRingInterval){clearInterval(autoCallRingInterval);autoCallRingInterval=null;}
+}
+
+function dismissAutoCall(reason){
+  // reason: 'declined' | 'answered_and_hung'
+  stopAutoCallRing();
+
+  const ov=document.getElementById('incoming-call-overlay');
+  const ac=document.getElementById('active-call-overlay');
+  ov.classList.remove('show');
+  ac.classList.remove('show');
+
+  // Adiciona bolha de "chamada perdida" ou "chamada encerrada" no chat
+  setTimeout(function(){
+    const b=document.createElement('div');
+    b.className='bbl in fade-in';
+
+    if(reason==='declined'){
+      b.innerHTML=TAIL_IN+
+        '<div style="display:flex;align-items:center;gap:8px;color:#e53935;font-size:13.5px">'+
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><line x1="3" y1="3" x2="21" y2="21" stroke="#e53935" stroke-width="1.75" stroke-linecap="round"/></svg>'+
+        'Chamada de vídeo perdida</div>'+
+        '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+    } else {
+      // atendeu mas foi desligada imediatamente
+      b.innerHTML=TAIL_IN+
+        '<div style="display:flex;align-items:center;gap:8px;color:#667781;font-size:13.5px">'+
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>'+
+        'Videochamada · 0:02</div>'+
+        '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+    }
+
+    msgsEl.appendChild(b);
+    scroll();
+
+    // Após a chamada perdida/encerrada, Vanessa manda mensagem no chat
+    setTimeout(function(){
+      showTyping();
+      setTimeout(function(){
+        hideTyping();
+        if(reason==='declined'){
+          addBubble('Oi, tentei te ligar! 😊 Me responde aqui pelo chat mesmo','in');
+        } else {
+          addBubble('Ops, caiu a chamada 😅 Bora conversar por aqui!','in');
+        }
+        aiHistory.push({role:'assistant',content:reason==='declined'?'Oi, tentei te ligar! 😊 Me responde aqui pelo chat mesmo':'Ops, caiu a chamada 😅 Bora conversar por aqui!',type:'text'});
+        salvarLead();
+      }, 1400+Math.random()*800);
+    }, 800);
+
+  }, 400);
+}
+
+function triggerAutoCall(){
+  if(autoCallFired) return;
+  autoCallFired=true;
+
+  const ov=document.getElementById('incoming-call-overlay');
+  ov.classList.add('show');
+  startAutoCallRing();
+
+  // Auto-dismiss após 25s se lead não fizer nada
+  const autoDismissTimer=setTimeout(function(){
+    if(ov.classList.contains('show')){
+      dismissAutoCall('declined');
+    }
+  }, 25000);
+
+  // Botão RECUSAR
+  document.getElementById('auto-call-decline').onclick=function(){
+    clearTimeout(autoDismissTimer);
+    dismissAutoCall('declined');
+  };
+
+  // Botão ATENDER → mostra tela de chamada ativa por 2s e desliga
+  document.getElementById('auto-call-answer').onclick=function(){
+    clearTimeout(autoDismissTimer);
+    stopAutoCallRing();
+
+    ov.classList.remove('show');
+
+    const ac=document.getElementById('active-call-overlay');
+    const statusTxt=document.getElementById('ac-status-text');
+    ac.classList.add('show');
+    statusTxt.textContent='Conectando…';
+
+    // Simula conexão → desliga em ~2s
+    setTimeout(function(){statusTxt.textContent='Chamada de vídeo';},700);
+    setTimeout(function(){
+      // Desliga automaticamente
+      ac.classList.remove('show');
+      dismissAutoCall('answered_and_hung');
+    }, 2000);
+
+    // Botão de desligar manual (caso lead clique antes)
+    document.getElementById('ac-end-btn').onclick=function(){
+      ac.classList.remove('show');
+      dismissAutoCall('answered_and_hung');
+    };
+  };
+}
+
+// Agenda a chamada automática após a 2ª resposta do lead
+// Dispara entre 60s e 120s após a segunda mensagem
+function scheduleAutoCall(){
+  if(autoCallFired || autoCallTimer) return;
+  const delay = 60000 + Math.random()*60000; // 1 a 2 minutos
+  autoCallTimer = setTimeout(triggerAutoCall, delay);
+}
+
+// ══════════════════════════════════════════════════
+
 async function gerarPix(desconto){
   try{const res=await fetch('/api/pix',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({desconto})});return await res.json();}
   catch(e){return null;}
@@ -421,7 +633,7 @@ function iniciarPoll(txHash,valorPago){
       if(el){el.textContent='✅ Pagamento confirmado!';el.style.color='#25d366';el.style.fontWeight='500';}
       pixelPurchase(valorPago);
       await sleep(800);showBotaoEntregavel();
-      aiHistory.push({role:'assistant',content:'te esperando'});
+      aiHistory.push({role:'assistant',content:'te esperando',type:'text'});
       salvarLead(true);
     }
   },5000);
@@ -509,11 +721,21 @@ async function showCta(desconto){
   showTyping();await sleep(1000);hideTyping();
   const data=await gerarPix(desconto);
   showPixBubble(data,desconto);
+  if(!audioPIxJaTocou){
+    audioPIxJaTocou=true;
+    await sleep(600);
+    aiHistory.push({role:'assistant',content:'[áudio]',type:'audio',src:AUDIO_PIX_SRC});
+    salvarLead(true);
+    criarBolhaAudio(AUDIO_PIX_SRC,'pix',null);
+  }
 }
 
 function showFotoLead(){
+  aiHistory.push({role:'assistant',content:'[imagem]',type:'image',src:IMG_LEAD_SRC});
+  salvarLead();
+
   const b=document.createElement('div');b.className='bbl in fade-in';b.style.maxWidth='85%';b.style.padding='4px';
-  b.innerHTML=TAIL_IN+'<img src="https://i.ibb.co/B2ML9kzf/Img-jpg.jpg" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+  b.innerHTML=TAIL_IN+'<img src="'+IMG_LEAD_SRC+'" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
   msgsEl.appendChild(b);scroll();
 }
 
@@ -531,23 +753,13 @@ function showBotaoEntregavel(){
   document.getElementById('vc-answer').onclick=function(){if(ring)clearInterval(ring);ov.remove();window.open(LINK_ENTREGAVEL,'_blank');};
   document.getElementById('vc-decline').onclick=async function(){
     if(ring)clearInterval(ring);ov.remove();
-    // Desabilita input imediatamente para evitar loop da IA
-    inpEl.disabled=true;sendBtn.disabled=true;inpEl.placeholder='Aguardando...';
     const b=document.createElement('div');b.className='bbl in fade-in';
     b.innerHTML=TAIL_IN+'<span style="color:#e53935;font-size:13px">📵 Chamada de vídeo perdida</span><div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
     msgsEl.appendChild(b);scroll();
     await sleep(1400);
-    showTyping();await sleep(1600);hideTyping();
-    const bm=document.createElement('div');bm.className='bbl in fade-in';
-    bm.innerHTML=TAIL_IN+'te esperando 🥺<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
-    msgsEl.appendChild(bm);scroll();
-    await sleep(1200);
     const br=document.createElement('div');br.className='bbl in fade-in';br.style.maxWidth='88%';
     br.innerHTML=TAIL_IN+'<a href="'+LINK_ENTREGAVEL+'" target="_blank" class="cta-btn" style="margin:0">📹 Retornar chamada</a><div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
     msgsEl.appendChild(br);scroll();
-    inpEl.placeholder='Conversa encerrada';
-    aiHistory.push({role:'assistant',content:'te esperando'});
-    salvarLead(true);
   };
 }
 
@@ -557,7 +769,7 @@ function typingDelay(text){
 }
 
 async function askAI(userMsg){
-  aiHistory.push({role:'user',content:userMsg});
+  aiHistory.push({role:'user',content:userMsg,type:'text'});
   showTyping();
   try{
     const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},
@@ -566,7 +778,7 @@ async function askAI(userMsg){
     hideTyping();
     const reply=(data&&data.reply)||null;
     if(!reply){addBubble('Oi! Tô com muita mensagem agora 😅 Tenta de novo!','in');enableInput();return;}
-    aiHistory.push({role:'assistant',content:reply});
+    aiHistory.push({role:'assistant',content:reply,type:'text'});
     if(reply.includes('[FIM]')){
       const msgFinal=reply.replace('[FIM]','').trim();
       const pts=msgFinal.split('|').map(function(p){return p.trim();}).filter(Boolean);
@@ -576,7 +788,7 @@ async function askAI(userMsg){
     let parts=reply.split('|').map(function(p){return p.trim();}).filter(Boolean);
     if(parts.length<=1&&reply.includes('\n\n'))parts=reply.split('\n\n').map(function(p){return p.trim();}).filter(Boolean);
     for(let i=0;i<parts.length;i++){showTyping();await sleep(typingDelay(parts[i]));hideTyping();addBubble(parts[i],'in');}
-    const temLink=/aqui o pix/i.test(reply)||/um desconto/i.test(reply);
+    const temLink=/aqui o pix/i.test(reply)||/um desconto/i.test(reply)||/aqui.*pix/i.test(reply)||/pix.*aqui/i.test(reply);
     const temDesc=/um desconto/i.test(reply);
     const temFoto=/olha eu aqui/i.test(reply);
     if(temLink){await sleep(600);showCta(temDesc);}
@@ -593,17 +805,113 @@ function submit(){
   inpEl.value='';
   addBubble(text,'out');
   if(!leadId)salvarLead();
+
+  // Contagem de respostas do lead para trigger da chamada automática
+  userReplyCount++;
+  if(userReplyCount===2 && !autoCallFired){
+    scheduleAutoCall();
+  }
+
   askAI(text);
 }
 sendBtn.onclick=submit;
 inpEl.onkeydown=function(e){if(e.key==='Enter')submit();};
 
+let _audioInstances={};
+
+function criarBolhaAudio(src, id, onEnded){
+  const b=document.createElement('div');b.className='bbl in fade-in';b.style.maxWidth='85%';b.style.minWidth='260px';b.style.padding='10px 12px 4px';
+  b.innerHTML=`${TAIL_IN}<div style="display:flex;align-items:center;gap:12px;width:100%">
+    <button onclick="toggleAudioById('${id}')" style="width:52px;height:52px;border-radius:50%;background:#00a884;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
+      <svg id="play-icon-${id}" width="22" height="22" viewBox="0 0 24 24" fill="white"><polygon points="6,3 20,12 6,21"/></svg>
+      <svg id="pause-icon-${id}" width="22" height="22" viewBox="0 0 24 24" fill="white" style="display:none"><rect x="5" y="4" width="4" height="16"/><rect x="15" y="4" width="4" height="16"/></svg>
+    </button>
+    <div style="flex:1;min-width:0">
+      <div style="position:relative;height:36px;display:flex;align-items:center;cursor:pointer;padding:0 2px" onclick="seekAudioById(event,this,'${id}')">
+        <div style="position:absolute;left:0;right:0;height:4px;background:rgba(0,0,0,0.15);border-radius:4px">
+          <div id="audio-progress-${id}" style="height:100%;width:0%;background:#00a884;border-radius:4px;transition:width 0.1s linear"></div>
+        </div>
+        <div id="audio-thumb-${id}" style="position:absolute;left:0%;width:14px;height:14px;border-radius:50%;background:#00a884;transform:translateX(-50%);box-shadow:0 1px 3px rgba(0,0,0,0.3);transition:left 0.1s linear"></div>
+      </div>
+      <div style="font-size:11.5px;color:#667781" id="audio-dur-${id}">0:00</div>
+    </div>
+    <img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" style="width:42px;height:42px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(0,0,0,0.08)" alt="Vanessa">
+  </div><div class="bbl-meta"><span class="bbl-time">${getTime()}</span></div>`;
+  msgsEl.appendChild(b);scroll();
+
+  const audio=new Audio(src);
+  _audioInstances[id]=audio;
+
+  audio.addEventListener('timeupdate',function(){
+    const pct=(audio.currentTime/audio.duration)*100||0;
+    const prog=document.getElementById('audio-progress-'+id);
+    const thumb=document.getElementById('audio-thumb-'+id);
+    const dur=document.getElementById('audio-dur-'+id);
+    if(prog)prog.style.width=pct+'%';
+    if(thumb)thumb.style.left=pct+'%';
+    if(dur){const t=Math.floor(audio.currentTime);dur.textContent=Math.floor(t/60)+':'+String(t%60).padStart(2,'0');}
+  });
+
+  audio.addEventListener('ended',function(){
+    const pi=document.getElementById('play-icon-'+id);
+    const pau=document.getElementById('pause-icon-'+id);
+    if(pi)pi.style.display='';
+    if(pau)pau.style.display='none';
+    const prog=document.getElementById('audio-progress-'+id);
+    const thumb=document.getElementById('audio-thumb-'+id);
+    const dur=document.getElementById('audio-dur-'+id);
+    if(prog)prog.style.width='0%';
+    if(thumb)thumb.style.left='0%';
+    if(dur)dur.textContent='0:00';
+    audio.currentTime=0;
+    if(onEnded)onEnded();
+  });
+}
+
+function showAudioBubble(){
+  aiHistory.push({role:'assistant',content:'[áudio]',type:'audio',src:AUDIO_SRC});
+  salvarLead();
+
+  let imgJaEnviada=false;
+  criarBolhaAudio(AUDIO_SRC,'0',function(){
+    if(imgJaEnviada)return;
+    imgJaEnviada=true;
+    aiHistory.push({role:'assistant',content:'[imagem]',type:'image',src:IMG_INICIAL_SRC});
+    salvarLead();
+
+    setTimeout(function(){
+      const imgBbl=document.createElement('div');
+      imgBbl.className='bbl in fade-in';
+      imgBbl.style.maxWidth='85%';
+      imgBbl.style.padding='4px';
+      imgBbl.innerHTML=TAIL_IN+'<img src="'+IMG_INICIAL_SRC+'" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+      msgsEl.appendChild(imgBbl);scroll();
+    },1200);
+  });
+  Object.defineProperty(window,'_audioEl',{get:function(){return _audioInstances['0'];}});
+}
+
+window.toggleAudioById=function(id){
+  const audio=_audioInstances[id];if(!audio)return;
+  const pi=document.getElementById('play-icon-'+id);
+  const pau=document.getElementById('pause-icon-'+id);
+  if(audio.paused){audio.play();if(pi)pi.style.display='none';if(pau)pau.style.display='';}
+  else{audio.pause();if(pi)pi.style.display='';if(pau)pau.style.display='none';}
+};
+window.seekAudioById=function(e,bar,id){
+  const audio=_audioInstances[id];if(!audio||!audio.duration)return;
+  const rect=bar.getBoundingClientRect();const pct=(e.clientX-rect.left)/rect.width;
+  audio.currentTime=pct*audio.duration;
+};
+window.toggleAudio=function(){toggleAudioById('0');};
+window.seekAudio=function(e,bar){seekAudioById(e,bar,'0');};
+
 async function start(){
   leadCityVal=await fetchLeadCity();
   await sleep(700);showTyping();
   await sleep(1100);hideTyping();
-  addBubble(MENSAGEM_INICIAL,'in');
-  aiHistory.push({role:'assistant',content:MENSAGEM_INICIAL});
+  showAudioBubble();
+  aiHistory.push({role:'assistant',content:MENSAGEM_INICIAL,type:'text'});
 }
 start();
 </script>
