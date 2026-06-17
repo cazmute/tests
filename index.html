@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>WhatsApp</title>
-
 <!-- Meta Pixel -->
 <script>
 !function(f,b,e,v,n,t,s)
@@ -22,7 +21,6 @@ fbq('track', 'PageView');
   <img height="1" width="1" style="display:none"
   src="https://www.facebook.com/tr?id=981136621185086&ev=PageView&noscript=1"/>
 </noscript>
-
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -377,152 +375,134 @@ let audioPIxJaTocou = false;
 let aiHistory=[], leadId=null, clicouCta=false, leadCityVal=null;
 let pixNormalGerado=false, pixDescontoGerado=false;
 let initiateCheckoutFired=false, typingEl=null;
-let SESSION_ID = null;
-let userReplyCount = 0;
-let autoCallFired = false;
-let autoCallTimer = null;
-let autoCallRingInterval = null;
+const SESSION_ID=Math.random().toString(36).slice(2);
 
-// ========== PERSISTÊNCIA DE ESTADO ==========
-function getSessionId() {
-  let sid = localStorage.getItem('whatsapp_session_id');
-  if (!sid) {
-    sid = Math.random().toString(36).slice(2);
-    localStorage.setItem('whatsapp_session_id', sid);
-  }
-  return sid;
-}
+// ── controle da chamada automática ──
+let userReplyCount = 0;           // quantas vezes o lead respondeu
+let autoCallFired = false;        // chamada já foi disparada?
+let autoCallTimer = null;         // timer para disparar a chamada
+let autoCallRingInterval = null;  // beep de toque
+
+// ═══ PERSISTÊNCIA NO LOCALSTORAGE ═══
+const STATE_KEY = 'wa-conversa-state';
 
 function saveState() {
+  const state = {
+    aiHistory,
+    leadId,
+    clicouCta,
+    leadCityVal,
+    pixNormalGerado,
+    pixDescontoGerado,
+    userReplyCount,
+    autoCallFired,
+    initiateCheckoutFired,
+    audioPIxJaTocou
+  };
   try {
-    const state = {
-      aiHistory: aiHistory,
-      leadId: leadId,
-      userReplyCount: userReplyCount,
-      autoCallFired: autoCallFired,
-      pixNormalGerado: pixNormalGerado,
-      pixDescontoGerado: pixDescontoGerado,
-      audioPIxJaTocou: audioPIxJaTocou,
-      initiateCheckoutFired: initiateCheckoutFired,
-      clicouCta: clicouCta
-    };
-    localStorage.setItem('whatsapp_chat_state', JSON.stringify(state));
-  } catch (e) { /* ignore */ }
+    localStorage.setItem(STATE_KEY, JSON.stringify(state));
+  } catch(e) { /* quota excedida, ignorar */ }
 }
 
 function loadState() {
   try {
-    const raw = localStorage.getItem('whatsapp_chat_state');
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch (e) { return null; }
-}
-
-function clearState() {
-  try {
-    localStorage.removeItem('whatsapp_chat_state');
-    localStorage.removeItem('whatsapp_session_id');
-  } catch (e) {}
-}
-
-// ========== RENDERIZAÇÃO DO HISTÓRICO ==========
-function renderHistory() {
-  const datePill = document.querySelector('.date-pill');
-  msgsEl.innerHTML = '';
-  if (datePill) msgsEl.appendChild(datePill);
-  else {
-    const pill = document.createElement('div');
-    pill.className = 'date-pill';
-    pill.textContent = 'Hoje';
-    msgsEl.appendChild(pill);
+    const raw = localStorage.getItem(STATE_KEY);
+    if (!raw) return false;
+    const state = JSON.parse(raw);
+    // Restaura variáveis
+    aiHistory = state.aiHistory || [];
+    leadId = state.leadId || null;
+    clicouCta = state.clicouCta || false;
+    leadCityVal = state.leadCityVal || null;
+    pixNormalGerado = state.pixNormalGerado || false;
+    pixDescontoGerado = state.pixDescontoGerado || false;
+    userReplyCount = state.userReplyCount || 0;
+    autoCallFired = state.autoCallFired || false;
+    initiateCheckoutFired = state.initiateCheckoutFired || false;
+    audioPIxJaTocou = state.audioPIxJaTocou || false;
+    return true;
+  } catch(e) {
+    return false;
   }
+}
 
-  aiHistory.forEach(function(msg) {
+// Reconstroi a UI a partir do histórico
+async function rebuildUI() {
+  // Remove apenas a "date-pill" inicial (mantém o container limpo)
+  msgsEl.innerHTML = '<div class="date-pill">Hoje</div>';
+  
+  for (const msg of aiHistory) {
     if (msg.role === 'user') {
-      // mensagem do usuário (bolha out)
-      const b = document.createElement('div');
-      b.className = 'bbl out fade-in';
-      b.innerHTML = TAIL_OUT + (msg.content || '').replace(/\n/g, '<br>') +
-        '<div class="bbl-meta"><span class="bbl-time">' + getTime() + '</span>' + DOUBLE_TICK + '</div>';
-      msgsEl.appendChild(b);
-    } else if (msg.role === 'assistant' || msg.role === 'system') {
+      addBubble(msg.content, 'out');
+    } else if (msg.role === 'assistant') {
       if (msg.type === 'text') {
-        // mensagem de texto da assistente
-        const b = document.createElement('div');
-        b.className = 'bbl in fade-in';
-        b.innerHTML = TAIL_IN + (msg.content || '').replace(/\n/g, '<br>') +
-          '<div class="bbl-meta"><span class="bbl-time">' + getTime() + '</span></div>';
-        msgsEl.appendChild(b);
-      } else if (msg.type === 'audio' && msg.src) {
-        // áudio
-        criarBolhaAudioRender(msg.src, msg.src);
-      } else if (msg.type === 'image' && msg.src) {
-        // imagem
+        addBubble(msg.content, 'in');
+      } else if (msg.type === 'audio') {
+        criarBolhaAudio(msg.src, msg.src, null); // ID baseado no src
+      } else if (msg.type === 'image') {
         const b = document.createElement('div');
         b.className = 'bbl in fade-in';
         b.style.maxWidth = '85%';
         b.style.padding = '4px';
         b.innerHTML = TAIL_IN + '<img src="' + msg.src + '" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">' + getTime() + '</span></div>';
         msgsEl.appendChild(b);
-      } else {
-        // fallback: mostrar como texto
-        const b = document.createElement('div');
-        b.className = 'bbl in fade-in';
-        b.innerHTML = TAIL_IN + (msg.content || '[mensagem]') +
-          '<div class="bbl-meta"><span class="bbl-time">' + getTime() + '</span></div>';
-        msgsEl.appendChild(b);
+      } else if (msg.type === 'pix' || msg.type === 'system') {
+        // Para Pix e sistema, não recriamos elementos complexos automaticamente;
+        // o fluxo normal do chat cuida disso. Apenas pulamos.
       }
+    } else if (msg.role === 'system') {
+      // Mensagens de sistema (ex.: "Ligação Isca - Recusada") não são exibidas, apenas registradas
+      continue;
     }
-  });
-
+    await sleep(50); // pequena pausa para não travar a UI
+  }
   scroll();
 }
 
-function criarBolhaAudioRender(src, id) {
-  const b = document.createElement('div');
-  b.className = 'bbl in fade-in';
-  b.style.maxWidth = '85%';
-  b.style.minWidth = '260px';
-  b.style.padding = '10px 12px 4px';
-  b.innerHTML = `${TAIL_IN}<div style="display:flex;align-items:center;gap:12px;width:100%">
-    <button onclick="toggleAudioById('${id}')" style="width:52px;height:52px;border-radius:50%;background:#00a884;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
-      <svg id="play-icon-${id}" width="22" height="22" viewBox="0 0 24 24" fill="white"><polygon points="6,3 20,12 6,21"/></svg>
-      <svg id="pause-icon-${id}" width="22" height="22" viewBox="0 0 24 24" fill="white" style="display:none"><rect x="5" y="4" width="4" height="16"/><rect x="15" y="4" width="4" height="16"/></svg>
-    </button>
-    <div style="flex:1;min-width:0">
-      <div style="position:relative;height:36px;display:flex;align-items:center;cursor:pointer;padding:0 2px" onclick="seekAudioById(event,this,'${id}')">
-        <div style="position:absolute;left:0;right:0;height:4px;background:rgba(0,0,0,0.15);border-radius:4px">
-          <div id="audio-progress-${id}" style="height:100%;width:0%;background:#00a884;border-radius:4px;transition:width 0.1s linear"></div>
-        </div>
-        <div id="audio-thumb-${id}" style="position:absolute;left:0%;width:14px;height:14px;border-radius:50%;background:#00a884;transform:translateX(-50%);box-shadow:0 1px 3px rgba(0,0,0,0.3);transition:left 0.1s linear"></div>
-      </div>
-      <div style="font-size:11.5px;color:#667781" id="audio-dur-${id}">0:00</div>
-    </div>
-    <img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" style="width:42px;height:42px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(0,0,0,0.08)" alt="Vanessa">
-  </div><div class="bbl-meta"><span class="bbl-time">${getTime()}</span></div>`;
-  msgsEl.appendChild(b);
-  scroll();
-
-  const audio = new Audio(src);
-  _audioInstances[id] = audio;
-  audio.addEventListener('timeupdate', function() { /* atualiza progresso */ });
-  audio.addEventListener('ended', function() { /* reset */ });
-}
-
-// ========== FUNÇÕES EXISTENTES ==========
 function getTime(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
 function scroll(){msgsEl.scrollTop=msgsEl.scrollHeight}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
 
 const EMOJIS=['😀','😂','🤣','😍','🥰','😘','😊','🥺','😢','😭','😤','😡','🤔','🤭','😏','😎','🤩','😴','🥳','😇','❤️','🔥','💕','💞','👏','🙌','🤝','👍','🙏','💪','😈','👀','💋','🫦','😻','🥵','😜','🤪','😝','💀','🫣','🤫','🫶','💘','💝','💖','💗','💓','💟','❣️','🎉','✨','⭐','🌹','🍑','🍆','💦','🌊','😩','🫠','🥴','😮‍💨','😋'];
 
-function toggleEmoji(){ /* ... */ }
+function toggleEmoji(){
+  const p=document.getElementById('emoji-panel');
+  const isOpen=p.style.display!=='none';
+  if(isOpen){p.style.display='none';return;}
+  const grid=p.querySelector('div');
+  if(!grid.children.length){
+    EMOJIS.forEach(function(em){
+      const btn=document.createElement('button');
+      btn.textContent=em;
+      btn.style.cssText='background:none;border:none;font-size:22px;cursor:pointer;padding:4px 5px;border-radius:8px;transition:background .1s;line-height:1';
+      btn.onmouseover=function(){btn.style.background='rgba(255,255,255,0.08)'};
+      btn.onmouseout=function(){btn.style.background='none'};
+      btn.onclick=function(){
+        const pos=inpEl.selectionStart||inpEl.value.length;
+        inpEl.value=inpEl.value.slice(0,pos)+em+inpEl.value.slice(pos);
+        inpEl.focus();
+        inpEl.selectionStart=inpEl.selectionEnd=pos+em.length;
+      };
+      grid.appendChild(btn);
+    });
+  }
+  p.style.display='block';
+}
+
+document.addEventListener('click',function(e){
+  const p=document.getElementById('emoji-panel');
+  if(p.style.display==='none')return;
+  if(!p.contains(e.target)&&!e.target.closest('.input-pill'))p.style.display='none';
+});
+
 function openAttachSheet(){document.getElementById('attach-sheet').classList.add('open')}
 function closeAttachSheet(){document.getElementById('attach-sheet').classList.remove('open')}
 document.getElementById('attach-sheet').addEventListener('click',function(e){if(e.target===this)closeAttachSheet()});
+
 function openExitSheet(){document.getElementById('exit-sheet').classList.add('open')}
 function closeExitSheet(){document.getElementById('exit-sheet').classList.remove('open')}
 document.getElementById('exit-sheet').addEventListener('click',function(e){if(e.target===this)closeExitSheet()});
+
 function openInfoSheet(){document.getElementById('info-sheet').classList.add('open')}
 function closeInfoSheet(){document.getElementById('info-sheet').classList.remove('open')}
 document.getElementById('info-sheet').addEventListener('click',function(e){if(e.target===this)closeInfoSheet()});
@@ -530,14 +510,40 @@ function openSheet(){document.getElementById('sheet').classList.add('open')}
 function closeSheet(){document.getElementById('sheet').classList.remove('open')}
 document.getElementById('sheet').addEventListener('click',function(e){if(e.target===this)closeSheet()});
 
-function pixelIniCheckout(v){ /* ... */ }
-function pixelPurchase(v){ /* ... */ }
+function pixelIniCheckout(v){
+  if(initiateCheckoutFired)return;initiateCheckoutFired=true;
+  if(typeof fbq!=='undefined')fbq('track','InitiateCheckout',{value:(v/100).toFixed(2),currency:'BRL',num_items:1,content_ids:[PRODUCT_HASH],content_type:'product'});
+}
+function pixelPurchase(v){
+  if(typeof fbq!=='undefined')fbq('track','Purchase',{value:(v/100).toFixed(2),currency:'BRL',num_items:1,content_ids:[PRODUCT_HASH],content_type:'product'});
+}
 
-async function fetchLeadCity(){ /* ... */ }
-async function salvarLead(clicou=false){ /* ... */ }
+async function fetchLeadCity(){
+  try{const r=await fetch('/api/city');const d=await r.json();if(d.city)return d.city;}catch(e){}
+  return CIDADES_FB[Math.floor(Math.random()*CIDADES_FB.length)];
+}
+async function salvarLead(clicou=false){
+  clicouCta=clicou||clicouCta;
+  try{
+    const res=await fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({session_id:SESSION_ID,mensagens:aiHistory.map(m=>({role:m.role,text:m.content,type:m.type||'text',src:m.src||null})),clicou_cta:clicouCta,ultima_mensagem:new Date().toISOString(),lead_id:leadId})});
+    const d=await res.json();if(!leadId&&d&&d.lead_id)leadId=d.lead_id;
+  }catch(e){}
+  saveState(); // salva sempre que envia ao servidor
+}
 
-function showTyping(){ /* ... */ }
-function hideTyping(){ /* ... */ }
+function showTyping(){
+  hideTyping();
+  hdrStatus.textContent='digitando...';hdrStatus.className='hdr-status typing';
+  typingEl=document.createElement('div');
+  typingEl.className='typing-bbl show fade-in';
+  typingEl.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+  msgsEl.appendChild(typingEl);scroll();
+}
+function hideTyping(){
+  if(typingEl){typingEl.remove();typingEl=null;}
+  hdrStatus.textContent='online';hdrStatus.className='hdr-status';
+}
 
 function addBubble(html,side,isHTML=false){
   const b=document.createElement('div');b.className='bbl '+side+' fade-in';
@@ -552,12 +558,32 @@ function addBubble(html,side,isHTML=false){
   scroll();return b;
 }
 
-// ========== AUTO CALL ==========
-function startAutoCallRing(){ /* ... */ }
-function stopAutoCallRing(){ /* ... */ }
+// ══════════════════════════════════════════════════
+// AUTO CALL LOGIC (mantida igual, com saveState)
+// ══════════════════════════════════════════════════
+
+function startAutoCallRing(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    function beep(){
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.frequency.value=480;
+      g.gain.setValueAtTime(0.25,ctx.currentTime);
+      o.start();o.stop(ctx.currentTime+0.4);
+    }
+    beep();
+    autoCallRingInterval=setInterval(beep,1600);
+  }catch(e){}
+}
+
+function stopAutoCallRing(){
+  if(autoCallRingInterval){clearInterval(autoCallRingInterval);autoCallRingInterval=null;}
+}
 
 function dismissAutoCall(reason){
   stopAutoCallRing();
+
   const ov=document.getElementById('incoming-call-overlay');
   const ac=document.getElementById('active-call-overlay');
   ov.classList.remove('show');
@@ -566,6 +592,7 @@ function dismissAutoCall(reason){
   setTimeout(function(){
     const b=document.createElement('div');
     b.className='bbl in fade-in';
+
     if(reason==='declined'){
       b.innerHTML=TAIL_IN+
         '<div style="display:flex;align-items:center;gap:8px;color:#e53935;font-size:13.5px">'+
@@ -581,42 +608,55 @@ function dismissAutoCall(reason){
         '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
       aiHistory.push({role:'system', content:'Ligação Isca - Aceita', type:'system'});
     }
-    msgsEl.appendChild(b); scroll();
+
+    msgsEl.appendChild(b);
+    scroll();
     salvarLead();
-    saveState();
   }, 400);
 }
 
 function triggerAutoCall(){
   if(autoCallFired) return;
   autoCallFired=true;
+  saveState(); // persiste que a chamada já disparou
+
   const ov=document.getElementById('incoming-call-overlay');
   ov.classList.add('show');
   startAutoCallRing();
+
   const autoDismissTimer=setTimeout(function(){
-    if(ov.classList.contains('show')) dismissAutoCall('declined');
+    if(ov.classList.contains('show')){
+      dismissAutoCall('declined');
+    }
   }, 25000);
+
   document.getElementById('auto-call-decline').onclick=function(){
-    clearTimeout(autoDismissTimer); dismissAutoCall('declined');
+    clearTimeout(autoDismissTimer);
+    dismissAutoCall('declined');
   };
+
   document.getElementById('auto-call-answer').onclick=function(){
-    clearTimeout(autoDismissTimer); stopAutoCallRing();
+    clearTimeout(autoDismissTimer);
+    stopAutoCallRing();
+
     ov.classList.remove('show');
+
     const ac=document.getElementById('active-call-overlay');
     const statusTxt=document.getElementById('ac-status-text');
     ac.classList.add('show');
     statusTxt.textContent='Conectando…';
+
     setTimeout(function(){statusTxt.textContent='Chamada de vídeo';},700);
     setTimeout(function(){
       ac.classList.remove('show');
       dismissAutoCall('answered_and_hung');
     }, 2000);
+
     document.getElementById('ac-end-btn').onclick=function(){
       ac.classList.remove('show');
       dismissAutoCall('answered_and_hung');
     };
   };
-  saveState();
 }
 
 function scheduleAutoCall(){
@@ -625,14 +665,131 @@ function scheduleAutoCall(){
   autoCallTimer = setTimeout(triggerAutoCall, delay);
 }
 
-// ========== PIX E OUTROS ==========
-async function gerarPix(desconto){ /* ... */ }
-async function checarStatus(txHash){ /* ... */ }
-function iniciarPoll(txHash, valorPago){ /* ... */ }
-window.copiarPix=function(btn,codigo){ /* ... */ };
-function showPixBubble(data,desconto){ /* ... */ }
-async function showCta(desconto){ /* ... */ }
-function showFotoLead(){ /* ... */ }
+// ══════════════════════════════════════════════════
+
+async function gerarPix(desconto){
+  try{const res=await fetch('/api/pix',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({desconto})});return await res.json();}
+  catch(e){return null;}
+}
+async function checarStatus(txHash){
+  try{const r=await fetch('/api/status?hash='+txHash);const d=await r.json();return d.payment_status||null;}catch(e){return null;}
+}
+function iniciarPoll(txHash, valorPago){
+  let t=0;
+  const iv=setInterval(async function(){
+    t++;if(t>60){clearInterval(iv);const el=document.getElementById('ps-'+txHash);if(el)el.textContent='⏰ PIX expirado.';return;}
+    const s=await checarStatus(txHash);
+    if(s==='paid'||s==='approved'||s==='completed'){
+      clearInterval(iv);
+      const el=document.getElementById('ps-'+txHash);
+      if(el){el.textContent='✅ Pagamento confirmado!';el.style.color='#25d366';el.style.fontWeight='500';}
+      pixelPurchase(valorPago);
+      await sleep(800);
+      showBotaoEntregavel();
+    }
+  },5000);
+}
+
+window.copiarPix=function(btn,codigo){
+  const ok=function(){
+    btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#00a884" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Copiado!';
+    btn.style.color='#00a884';
+    setTimeout(function(){
+      btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="#00a884" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="#00a884" stroke-width="2" stroke-linecap="round"/></svg> Copiar chave Pix';
+      btn.style.color='#00a884';
+    },3000);
+  };
+  if(navigator.clipboard){navigator.clipboard.writeText(codigo).then(ok).catch(function(){fallbackCopy(codigo,ok);});}
+  else{fallbackCopy(codigo,ok);}
+};
+function fallbackCopy(texto,cb){
+  const ta=document.createElement('textarea');ta.value=texto;
+  ta.style.cssText='position:fixed;opacity:0';
+  document.body.appendChild(ta);ta.focus();ta.select();
+  try{document.execCommand('copy');}catch(e){}
+  document.body.removeChild(ta);cb();
+}
+
+function showPixBubble(data,desconto){
+  if(!data){addBubble('Ops, tive um probleminha 😅 Tenta de novo!','in');return;}
+  const valor=desconto?1000:2000;
+  const valorFmt='R$ '+(valor/100).toFixed(2).replace('.',',');
+  const pixCopia=(data.pix&&data.pix.pix_qr_code)||'';
+  const txHash=data.hash||('tx'+Date.now());
+
+  const wrap=document.createElement('div');
+  wrap.className='fade-in';
+  wrap.style.cssText='align-self:flex-start;margin-left:6px;max-width:88%';
+
+  const card=document.createElement('div');
+  card.style.cssText='background:#fff;border-radius:12px;overflow:hidden;min-width:220px;box-shadow:0 1px 3px rgba(0,0,0,0.15)';
+
+  const head=document.createElement('div');
+  head.style.cssText='background:#00a884;padding:12px 14px;display:flex;align-items:center;gap:10px';
+  head.innerHTML='<div style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div style="color:rgba(255,255,255,0.85);font-size:11px;margin-bottom:1px">Solicitação de pagamento</div><div style="color:#fff;font-size:19px;font-weight:700;line-height:1.2">'+valorFmt+'</div></div>';
+  card.appendChild(head);
+
+  const info=document.createElement('div');
+  info.style.cssText='padding:10px 14px;border-bottom:1px solid #f0f2f5';
+  info.innerHTML='<div style="font-size:11px;color:#8696a0;margin-bottom:2px">Para</div><div style="font-size:14px;color:#111b21;font-weight:500">Vanessa Macedo</div><div style="font-size:11.5px;color:#8696a0;margin-top:1px">via Pix</div>';
+  card.appendChild(info);
+
+  if(pixCopia){
+    const btnWrap=document.createElement('div');
+    btnWrap.style.cssText='border-bottom:1px solid #f0f2f5';
+    const btn=document.createElement('button');
+    btn.style.cssText='width:100%;background:none;border:none;padding:10px 14px;color:#00a884;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px';
+    btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="#00a884" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="#00a884" stroke-width="2" stroke-linecap="round"/></svg> Copiar chave Pix';
+    btn.onclick=function(){window.copiarPix(btn,pixCopia);};
+    btnWrap.appendChild(btn);
+    card.appendChild(btnWrap);
+  }
+
+  const footer=document.createElement('div');
+  footer.style.cssText='padding:6px 14px 8px';
+  const ps=document.createElement('div');
+  ps.id='ps-'+txHash;
+  ps.style.cssText='font-size:11.5px;color:#667781;min-height:16px';
+  const time=document.createElement('div');
+  time.style.cssText='display:flex;justify-content:flex-end;margin-top:2px';
+  time.innerHTML='<span style="font-size:11px;color:#8696a0">'+getTime()+'</span>';
+  footer.appendChild(ps);
+  footer.appendChild(time);
+  card.appendChild(footer);
+
+  wrap.appendChild(card);
+  msgsEl.appendChild(wrap);
+  scroll();
+
+  pixelIniCheckout(valor);
+  salvarLead(true);
+  if(txHash)iniciarPoll(txHash,valor);
+}
+
+async function showCta(desconto){
+  if(desconto){if(pixDescontoGerado)return;pixDescontoGerado=true;}
+  else{if(pixNormalGerado)return;pixNormalGerado=true;}
+  showTyping();await sleep(1000);hideTyping();
+  const data=await gerarPix(desconto);
+  showPixBubble(data,desconto);
+  if(!audioPIxJaTocou){
+    audioPIxJaTocou=true;
+    saveState(); // salva imediatamente para não repetir o áudio
+    await sleep(600);
+    aiHistory.push({role:'assistant',content:'[áudio]',type:'audio',src:AUDIO_PIX_SRC});
+    salvarLead(true);
+    criarBolhaAudio(AUDIO_PIX_SRC,'pix',null);
+  }
+}
+
+function showFotoLead(){
+  aiHistory.push({role:'assistant',content:'[imagem]',type:'image',src:IMG_LEAD_SRC});
+  salvarLead();
+
+  const b=document.createElement('div');b.className='bbl in fade-in';b.style.maxWidth='85%';b.style.padding='4px';
+  b.innerHTML=TAIL_IN+'<img src="'+IMG_LEAD_SRC+'" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+  msgsEl.appendChild(b);scroll();
+}
 
 function showBotaoEntregavel(){
   let ring=null;
@@ -652,7 +809,6 @@ function showBotaoEntregavel(){
     window.open(LINK_ENTREGAVEL,'_blank');
     aiHistory.push({role:'system', content:'Entregável - Aceito', type:'system'});
     salvarLead(true);
-    saveState();
   };
 
   document.getElementById('vc-decline').onclick=async function(){
@@ -663,23 +819,26 @@ function showBotaoEntregavel(){
     msgsEl.appendChild(b);scroll();
     aiHistory.push({role:'system', content:'Entregável - Recusado', type:'system'});
     salvarLead(true);
-    saveState();
     await sleep(1400);
     const br=document.createElement('div');br.className='bbl in fade-in';br.style.maxWidth='88%';
     br.innerHTML=TAIL_IN+'<a href="'+LINK_ENTREGAVEL+'" target="_blank" class="cta-btn" style="margin:0" id="btn-retornar">📹 Retornar chamada</a><div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
     msgsEl.appendChild(br);scroll();
+
     document.getElementById('btn-retornar').addEventListener('click', function(){
       aiHistory.push({role:'system', content:'Retorno feito', type:'system'});
       salvarLead(true);
-      saveState();
     });
   };
 }
 
-function typingDelay(text){ /* ... */ }
+function typingDelay(text){
+  const chars=text.length,cps=2.5+Math.random();
+  return Math.min(Math.max((chars/cps)*1000+600+Math.random()*900,1800),12000);
+}
 
 async function askAI(userMsg){
   aiHistory.push({role:'user',content:userMsg,type:'text'});
+  saveState(); // salva imediatamente a mensagem do lead
   showTyping();
   try{
     const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},
@@ -689,6 +848,7 @@ async function askAI(userMsg){
     const reply=(data&&data.reply)||null;
     if(!reply){addBubble('Oi! Tô com muita mensagem agora 😅 Tenta de novo!','in');enableInput();return;}
     aiHistory.push({role:'assistant',content:reply,type:'text'});
+    saveState(); // salva após resposta da IA
     if(reply.includes('[FIM]')){
       const msgFinal=reply.replace('[FIM]','').trim();
       const pts=msgFinal.split('|').map(function(p){return p.trim();}).filter(Boolean);
@@ -704,7 +864,6 @@ async function askAI(userMsg){
     if(temLink){await sleep(600);showCta(temDesc);}
     if(temFoto){await sleep(500);showFotoLead();}
     salvarLead(temLink);
-    saveState();
   }catch(e){hideTyping();addBubble('Ops, tive um probleminha. Pode repetir? 😊','in');aiHistory.pop();}
   enableInput();
 }
@@ -716,71 +875,130 @@ function submit(){
   inpEl.value='';
   addBubble(text,'out');
   if(!leadId)salvarLead();
+
+  // Contagem de respostas do lead para trigger da chamada automática
   userReplyCount++;
+  saveState(); // atualiza contagem
   if(userReplyCount===2 && !autoCallFired){
     scheduleAutoCall();
   }
+
   askAI(text);
-  saveState();
 }
 sendBtn.onclick=submit;
 inpEl.onkeydown=function(e){if(e.key==='Enter')submit();};
 
 let _audioInstances={};
 
-function criarBolhaAudio(src, id, onEnded){ /* ... */ }
-function showAudioBubble(){ /* ... */ }
+function criarBolhaAudio(src, id, onEnded){
+  const b=document.createElement('div');b.className='bbl in fade-in';b.style.maxWidth='85%';b.style.minWidth='260px';b.style.padding='10px 12px 4px';
+  b.innerHTML=`${TAIL_IN}<div style="display:flex;align-items:center;gap:12px;width:100%">
+    <button onclick="toggleAudioById('${id}')" style="width:52px;height:52px;border-radius:50%;background:#00a884;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
+      <svg id="play-icon-${id}" width="22" height="22" viewBox="0 0 24 24" fill="white"><polygon points="6,3 20,12 6,21"/></svg>
+      <svg id="pause-icon-${id}" width="22" height="22" viewBox="0 0 24 24" fill="white" style="display:none"><rect x="5" y="4" width="4" height="16"/><rect x="15" y="4" width="4" height="16"/></svg>
+    </button>
+    <div style="flex:1;min-width:0">
+      <div style="position:relative;height:36px;display:flex;align-items:center;cursor:pointer;padding:0 2px" onclick="seekAudioById(event,this,'${id}')">
+        <div style="position:absolute;left:0;right:0;height:4px;background:rgba(0,0,0,0.15);border-radius:4px">
+          <div id="audio-progress-${id}" style="height:100%;width:0%;background:#00a884;border-radius:4px;transition:width 0.1s linear"></div>
+        </div>
+        <div id="audio-thumb-${id}" style="position:absolute;left:0%;width:14px;height:14px;border-radius:50%;background:#00a884;transform:translateX(-50%);box-shadow:0 1px 3px rgba(0,0,0,0.3);transition:left 0.1s linear"></div>
+      </div>
+      <div style="font-size:11.5px;color:#667781" id="audio-dur-${id}">0:00</div>
+    </div>
+    <img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" style="width:42px;height:42px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(0,0,0,0.08)" alt="Vanessa">
+  </div><div class="bbl-meta"><span class="bbl-time">${getTime()}</span></div>`;
+  msgsEl.appendChild(b);scroll();
 
-window.toggleAudioById=function(id){ /* ... */ };
-window.seekAudioById=function(e,bar,id){ /* ... */ };
-window.toggleAudio=function(){ /* ... */ };
-window.seekAudio=function(e,bar){ /* ... */ };
+  const audio=new Audio(src);
+  _audioInstances[id]=audio;
 
+  audio.addEventListener('timeupdate',function(){
+    const pct=(audio.currentTime/audio.duration)*100||0;
+    const prog=document.getElementById('audio-progress-'+id);
+    const thumb=document.getElementById('audio-thumb-'+id);
+    const dur=document.getElementById('audio-dur-'+id);
+    if(prog)prog.style.width=pct+'%';
+    if(thumb)thumb.style.left=pct+'%';
+    if(dur){const t=Math.floor(audio.currentTime);dur.textContent=Math.floor(t/60)+':'+String(t%60).padStart(2,'0');}
+  });
+
+  audio.addEventListener('ended',function(){
+    const pi=document.getElementById('play-icon-'+id);
+    const pau=document.getElementById('pause-icon-'+id);
+    if(pi)pi.style.display='';
+    if(pau)pau.style.display='none';
+    const prog=document.getElementById('audio-progress-'+id);
+    const thumb=document.getElementById('audio-thumb-'+id);
+    const dur=document.getElementById('audio-dur-'+id);
+    if(prog)prog.style.width='0%';
+    if(thumb)thumb.style.left='0%';
+    if(dur)dur.textContent='0:00';
+    audio.currentTime=0;
+    if(onEnded)onEnded();
+  });
+}
+
+function showAudioBubble(){
+  aiHistory.push({role:'assistant',content:'[áudio]',type:'audio',src:AUDIO_SRC});
+  salvarLead();
+
+  let imgJaEnviada=false;
+  criarBolhaAudio(AUDIO_SRC,'0',function(){
+    if(imgJaEnviada)return;
+    imgJaEnviada=true;
+    aiHistory.push({role:'assistant',content:'[imagem]',type:'image',src:IMG_INICIAL_SRC});
+    salvarLead();
+
+    setTimeout(function(){
+      const imgBbl=document.createElement('div');
+      imgBbl.className='bbl in fade-in';
+      imgBbl.style.maxWidth='85%';
+      imgBbl.style.padding='4px';
+      imgBbl.innerHTML=TAIL_IN+'<img src="'+IMG_INICIAL_SRC+'" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+      msgsEl.appendChild(imgBbl);scroll();
+    },1200);
+  });
+  Object.defineProperty(window,'_audioEl',{get:function(){return _audioInstances['0'];}});
+}
+
+window.toggleAudioById=function(id){
+  const audio=_audioInstances[id];if(!audio)return;
+  const pi=document.getElementById('play-icon-'+id);
+  const pau=document.getElementById('pause-icon-'+id);
+  if(audio.paused){audio.play();if(pi)pi.style.display='none';if(pau)pau.style.display='';}
+  else{audio.pause();if(pi)pi.style.display='';if(pau)pau.style.display='none';}
+};
+window.seekAudioById=function(e,bar,id){
+  const audio=_audioInstances[id];if(!audio||!audio.duration)return;
+  const rect=bar.getBoundingClientRect();const pct=(e.clientX-rect.left)/rect.width;
+  audio.currentTime=pct*audio.duration;
+};
+window.toggleAudio=function(){toggleAudioById('0');};
+window.seekAudio=function(e,bar){seekAudioById(e,bar,'0');};
+
+// ═══ INÍCIO MODIFICADO ═══
 async function start(){
-  SESSION_ID = getSessionId();
-  const saved = loadState();
-  if (saved) {
-    // Restaurar estado
-    aiHistory = saved.aiHistory || [];
-    leadId = saved.leadId || null;
-    userReplyCount = saved.userReplyCount || 0;
-    autoCallFired = saved.autoCallFired || false;
-    pixNormalGerado = saved.pixNormalGerado || false;
-    pixDescontoGerado = saved.pixDescontoGerado || false;
-    audioPIxJaTocou = saved.audioPIxJaTocou || false;
-    initiateCheckoutFired = saved.initiateCheckoutFired || false;
-    clicouCta = saved.clicouCta || false;
-
-    // Se já houve chamada fake, não reagendar
-    // Renderizar histórico
-    renderHistory();
-
-    // Se já houve chamada fake e ela foi disparada, não faz nada
-    // Se userReplyCount >= 2 e autoCallFired false, talvez devêssemos reagendar?
-    // Mas para evitar duplicidade, não reagendamos automaticamente.
-    // O usuário pode continuar conversando e a chamada só será disparada se ainda não tiver sido.
-    // Se autoCallFired for false mas userReplyCount >= 2, podemos reagendar?
-    // Para simplificar, não reagendamos; a chamada só será disparada se o contador chegar a 2 após o reload.
-    // Se já tiver 2 respostas e a chamada não foi disparada, não vai disparar.
-    // Melhor: se userReplyCount >= 2 e !autoCallFired, reagendar.
+  const restored = loadState(); // tenta carregar estado anterior
+  if (restored && aiHistory.length > 0) {
+    // Conversa já existia: reconstroi a UI e não exibe o áudio inicial
+    leadCityVal = leadCityVal || await fetchLeadCity();
+    await rebuildUI();
+    // Se a chamada automática ainda não foi disparada e já temos 2 respostas, agenda
     if (userReplyCount >= 2 && !autoCallFired) {
       scheduleAutoCall();
     }
-
-    // Buscar cidade (já deve estar no leadCityVal, mas não salvamos)
+    // Se a chamada já disparou, não fazemos nada (overlay não será restaurado, mas estado fica salvo)
+    enableInput();
+  } else {
+    // Primeira visita: fluxo normal de boas-vindas
     leadCityVal = await fetchLeadCity();
-    return;
+    await sleep(700);showTyping();
+    await sleep(1100);hideTyping();
+    showAudioBubble();
+    // A mensagem inicial NÃO é adicionada ao histórico (como antes)
   }
-
-  // Estado novo: iniciar do zero
-  leadCityVal = await fetchLeadCity();
-  await sleep(700); showTyping();
-  await sleep(1100); hideTyping();
-  showAudioBubble();
-  // A mensagem inicial não é mais adicionada ao histórico
-  saveState();
 }
-
 start();
 </script>
 </body>
