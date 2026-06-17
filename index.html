@@ -799,6 +799,7 @@ function showFotoLead() {
   scroll();
 }
 
+// ═══ FUNÇÃO showBotaoEntregavel MODIFICADA (clique único) ═══
 function showBotaoEntregavel() {
   let ring=null;
   try{
@@ -829,14 +830,51 @@ function showBotaoEntregavel() {
     aiHistory.push({role:'system', content:'Entregável - Recusado', type:'system'});
     salvarLead(true);
     await sleep(1400);
-    const br=document.createElement('div');br.className='bbl in fade-in';br.style.maxWidth='88%';
-    br.innerHTML=TAIL_IN+'<a href="'+LINK_ENTREGAVEL+'" target="_blank" class="cta-btn" style="margin:0" id="btn-retornar">📹 Retornar chamada</a><div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
-    msgsEl.appendChild(br);scroll();
+    
+    // ── BOTÃO "RETORNAR CHAMADA" COM CLIQUE ÚNICO ──
+    const br = document.createElement('div');
+    br.className = 'bbl in fade-in';
+    br.style.maxWidth = '88%';
 
-    document.getElementById('btn-retornar').addEventListener('click', function(){
+    // Cria o link e adiciona a classe cta-btn
+    const link = document.createElement('a');
+    link.href = LINK_ENTREGAVEL;
+    link.target = '_blank';
+    link.className = 'cta-btn';
+    link.style.margin = '0';
+    link.id = 'btn-retornar';
+    link.textContent = '📹 Retornar chamada';
+
+    let retornarChamadaClicado = false;
+
+    link.addEventListener('click', function(e) {
+      if (retornarChamadaClicado) {
+        e.preventDefault(); // impede a abertura de nova aba
+        return;
+      }
+      // primeiro clique: permite a ação
+      retornarChamadaClicado = true;
       aiHistory.push({role:'system', content:'Retorno feito', type:'system'});
       salvarLead(true);
+      // desabilita visualmente
+      link.style.opacity = '0.5';
+      link.style.pointerEvents = 'none';
+      link.style.cursor = 'default';
     });
+
+    // Monta a bolha com a cauda e o link
+    br.innerHTML = TAIL_IN;
+    br.appendChild(link);
+    // Adiciona o horário
+    const meta = document.createElement('div');
+    meta.className = 'bbl-meta';
+    const timeSpan = document.createElement('span');
+    timeSpan.className = 'bbl-time';
+    timeSpan.textContent = getTime();
+    meta.appendChild(timeSpan);
+    br.appendChild(meta);
+    msgsEl.appendChild(br);
+    scroll();
   };
 }
 
