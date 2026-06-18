@@ -96,9 +96,33 @@ html,body{
 .input-pill{flex:1;display:flex;align-items:center;background:#fff;border-radius:24px;padding:0 14px;gap:8px;min-height:44px;}
 .input-pill input{flex:1;border:none;outline:none;font-size:16px;color:var(--wa-text);background:transparent;padding:10px 0;font-family:inherit;}
 .input-pill input::placeholder{color:#8696a0}
-.send-btn{width:48px;height:48px;border-radius:50%;background:var(--wa-teal2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.15s;box-shadow:0 1px 3px rgba(0,0,0,0.25);}
+.send-btn,.mic-btn{
+  width:48px;height:48px;border-radius:50%;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:background 0.15s, transform 0.1s;
+}
+.send-btn{
+  background:var(--wa-teal2);box-shadow:0 1px 3px rgba(0,0,0,0.25);
+}
 .send-btn:hover{background:var(--wa-teal)}
 .send-btn:active{transform:scale(0.94)}
+.mic-btn{
+  background:transparent;color:#8696a0;
+}
+.mic-btn:hover{background:rgba(0,0,0,0.05)}
+.mic-btn:active{transform:scale(0.92)}
+/* Botão de áudio gravando – verde como no WhatsApp */
+.mic-btn.recording{
+  background:var(--wa-green);
+  color:#fff;
+  animation:pulse-mic 1.2s ease-in-out infinite;
+}
+@keyframes pulse-mic{
+  0%{transform:scale(1);box-shadow:0 0 0 0 rgba(37,211,102,0.4)}
+  50%{transform:scale(1.08);box-shadow:0 0 0 8px rgba(37,211,102,0)}
+  100%{transform:scale(1);box-shadow:0 0 0 0 rgba(37,211,102,0)}
+}
+.hidden{display:none !important;}
 .sheet-overlay{position:absolute;inset:0;background:rgba(11,20,26,0.55);z-index:200;display:flex;flex-direction:column;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .2s;}
 .sheet-overlay.open{opacity:1;pointer-events:all}
 .sheet{background:#1f2c34;border-radius:16px 16px 0 0;transform:translateY(40px);transition:transform .22s cubic-bezier(.4,0,.2,1);}
@@ -205,16 +229,23 @@ html,body{
         </svg>
       </button>
       <input id="inp" type="text" placeholder="Mensagem">
-      <button type="button" id="mic-btn" onclick="toggleRecord()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none;transition:color .15s" title="Gravar áudio">
-        <svg id="mic-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 10a7 7 0 0 1-14 0" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="19" x2="12" y2="23" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round"/><line x1="8" y1="23" x2="16" y2="23" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round"/></svg>
+      <!-- Botão de enviar (aparece quando há texto) -->
+      <button class="send-btn hidden" id="send-btn" onclick="submit()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="display:block;margin:auto;position:relative;right:2px">
+          <path d="M22 2L11 13" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <!-- Botão de microfone (pressione e segure) -->
+      <button class="mic-btn" id="mic-btn" title="Pressione e segure para gravar áudio">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M19 10a7 7 0 0 1-14 0" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="12" y1="19" x2="12" y2="23" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+          <line x1="8" y1="23" x2="16" y2="23" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+        </svg>
       </button>
     </div>
-    <button class="send-btn" id="send-btn">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="display:block;margin:auto;position:relative;right:2px">
-        <path d="M22 2L11 13" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
   </div>
 
   <!-- SHEET: anexo -->
@@ -372,6 +403,7 @@ document.addEventListener('keydown', function (e) {
 const msgsEl=document.getElementById('msgs');
 const inpEl=document.getElementById('inp');
 const sendBtn=document.getElementById('send-btn');
+const micBtn=document.getElementById('mic-btn');
 const hdrStatus=document.getElementById('hdr-status');
 
 const MENSAGEM_INICIAL="Oi, Tudo bem?";
@@ -940,10 +972,14 @@ async function askAI(userMsg) {
   enableInput();
 }
 
+// ═══ FUNÇÃO DE ENVIO (texto) ═══
 function submit() {
   const text = inpEl.value.trim();
   if (!text) return;
   inpEl.value = '';
+  // Esconde o botão de enviar e mostra o microfone
+  sendBtn.classList.add('hidden');
+  micBtn.classList.remove('hidden');
   const now = getTime();
   addBubble(text, 'out', false, now);
   if (!leadId) salvarLead();
@@ -952,13 +988,11 @@ function submit() {
   if (userReplyCount===2 && !autoCallFired) scheduleAutoCall();
   askAI(text);
 }
-sendBtn.onclick = submit;
-inpEl.onkeydown = function(e) { if (e.key==='Enter') submit(); };
 
-// ═══ GRAVAÇÃO DE ÁUDIO (CORRIGIDA) ═══
+// ═══ GRAVAÇÃO DE ÁUDIO (pressione e segure) ═══
 let _mediaRecorder = null, _audioChunks = [], _isRecording = false, _recordTimer = null;
+let _isMicPressed = false; // controle para não disparar múltiplas vezes
 
-// Função para escolher um tipo MIME suportado
 function getSupportedMimeType() {
   const types = [
     'audio/webm;codecs=opus',
@@ -966,111 +1000,155 @@ function getSupportedMimeType() {
     'audio/ogg;codecs=opus',
     'audio/ogg',
     'audio/mp4',
-    'audio/mpeg'
+    'audio/mpeg',
+    'audio/wav'
   ];
-  for (const type of types) {
-    if (MediaRecorder.isTypeSupported(type)) {
-      return type;
+  if (typeof MediaRecorder !== 'undefined' && typeof MediaRecorder.isTypeSupported === 'function') {
+    for (const type of types) {
+      if (MediaRecorder.isTypeSupported(type)) {
+        return type;
+      }
     }
+  } else {
+    return 'audio/webm';
   }
-  return null; // nenhum suportado
+  return null;
 }
 
-function toggleRecord() {
-  if (_isRecording) stopRecord();
-  else startRecord();
-}
-
+// Iniciar gravação (chamado ao pressionar o botão)
 async function startRecord() {
+  if (_isRecording) return;
+  if (_isMicPressed) return; // evita múltiplos toques
+
+  _isMicPressed = true;
+  micBtn.classList.add('recording');
+
   try {
     // Verifica permissão
     let permissionState = 'prompt';
     try {
       const perm = await navigator.permissions.query({ name: 'microphone' });
       permissionState = perm.state;
-    } catch (e) { /* ignorar */ }
-
+    } catch(e) {}
     if (permissionState === 'denied') {
-      alert('Você bloqueou o microfone. Por favor, desbloqueie nas configurações do navegador e recarregue a página.');
+      showMicError('Microfone bloqueado. Desbloqueie nas configurações do navegador.');
+      _isMicPressed = false;
+      micBtn.classList.remove('recording');
       return;
     }
 
-    // Verifica se o MediaRecorder é suportado
     if (typeof MediaRecorder === 'undefined') {
-      alert('Seu navegador não suporta gravação de áudio.');
+      showMicError('Seu navegador não suporta gravação de áudio.');
+      _isMicPressed = false;
+      micBtn.classList.remove('recording');
       return;
     }
 
     const mimeType = getSupportedMimeType();
     if (!mimeType) {
-      alert('Seu navegador não suporta nenhum formato de áudio para gravação.');
+      showMicError('Nenhum formato de áudio suportado.');
+      _isMicPressed = false;
+      micBtn.classList.remove('recording');
       return;
     }
 
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+    });
+
     _mediaRecorder = new MediaRecorder(stream, { mimeType });
     _audioChunks = [];
-    _mediaRecorder.ondataavailable = e => { if (e.data.size > 0) _audioChunks.push(e.data); };
-    _mediaRecorder.onstop = () => { stream.getTracks().forEach(t => t.stop()); sendAudioMessage(mimeType); };
+    _mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) _audioChunks.push(e.data); };
+    _mediaRecorder.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      // Só envia se tiver dados e se não foi cancelado (arrastado para fora)
+      if (_audioChunks.length > 0 && !_canceledRecording) {
+        sendAudioMessage(mimeType);
+      } else {
+        // limpa chunks se cancelado
+        _audioChunks = [];
+      }
+      _canceledRecording = false;
+      _isRecording = false;
+      micBtn.classList.remove('recording');
+      _isMicPressed = false;
+    };
+
     _mediaRecorder.start();
     _isRecording = true;
+    _canceledRecording = false;
 
-    // Feedback visual
-    const micBtn = document.getElementById('mic-btn');
-    const micIcon = document.getElementById('mic-icon');
-    micIcon.querySelectorAll('[stroke]').forEach(el => el.setAttribute('stroke','#e53935'));
-    micBtn.style.color = '#e53935';
-    inpEl.placeholder = '🔴 Gravando… (toque para parar)';
-    inpEl.disabled = true;
-    sendBtn.disabled = true;
+    // Feedback: placeholder
+    inpEl.placeholder = '🔴 Gravando… (solte para enviar)';
 
-    _recordTimer = setTimeout(stopRecord, 60000);
+    // Limite de 60 segundos (para evitar gravações infinitas)
+    _recordTimer = setTimeout(() => {
+      if (_isRecording) stopRecord(false); // para e envia
+    }, 60000);
+
   } catch (err) {
     console.error(err);
     let msg = 'Não foi possível gravar áudio. ';
     if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-      msg += 'Permissão negada. Clique no ícone do cadeado na barra de endereço e permita o microfone.';
+      msg += 'Permissão negada. Clique no ícone do cadeado e permita o microfone.';
     } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-      msg += 'Nenhum microfone encontrado. Conecte um e tente novamente.';
+      msg += 'Nenhum microfone encontrado.';
     } else {
       msg += err.message;
     }
-    alert(msg);
-    // Reseta estado
+    showMicError(msg);
+    _isMicPressed = false;
+    micBtn.classList.remove('recording');
     _isRecording = false;
-    const micIcon = document.getElementById('mic-icon');
-    const micBtn = document.getElementById('mic-btn');
-    micIcon.querySelectorAll('[stroke]').forEach(el => el.setAttribute('stroke','#8696a0'));
-    micBtn.style.color = '#8696a0';
-    inpEl.placeholder = 'Mensagem';
-    inpEl.disabled = false;
-    sendBtn.disabled = false;
   }
 }
 
-function stopRecord() {
+let _canceledRecording = false;
+
+// Parar gravação (chamado ao soltar o botão ou ao arrastar para fora)
+function stopRecord(send = true) {
   if (!_isRecording || !_mediaRecorder) return;
   clearTimeout(_recordTimer);
-  _mediaRecorder.stop();
-  _isRecording = false;
-  const micIcon = document.getElementById('mic-icon');
-  const micBtn = document.getElementById('mic-btn');
-  micIcon.querySelectorAll('[stroke]').forEach(el => el.setAttribute('stroke','#8696a0'));
-  micBtn.style.color = '#8696a0';
+  if (!send) {
+    // Cancelar gravação (arrastou para fora)
+    _canceledRecording = true;
+    _audioChunks = []; // descarta
+  }
+  _mediaRecorder.stop(); // dispara onstop
   inpEl.placeholder = 'Mensagem';
-  inpEl.disabled = false;
-  sendBtn.disabled = false;
 }
 
+// Função para cancelar gravação ao arrastar para fora
+function cancelRecord() {
+  if (_isRecording) {
+    stopRecord(false);
+    // Remove a bolha de erro ou feedback, se houver
+  }
+}
+
+// Função para exibir erros do microfone (bolha no chat)
+function showMicError(message) {
+  const b = document.createElement('div');
+  b.className = 'bbl in fade-in';
+  b.style.maxWidth = '85%';
+  b.style.background = '#fde7e7';
+  b.style.color = '#b33';
+  b.innerHTML = TAIL_IN + '⚠️ ' + message + '<div class="bbl-meta"><span class="bbl-time">' + getTime() + '</span></div>';
+  msgsEl.appendChild(b);
+  scroll();
+}
+
+// Enviar áudio após gravação
 async function sendAudioMessage(mimeType) {
   if (_audioChunks.length === 0) return;
   const blob = new Blob(_audioChunks, { type: mimeType });
-  if (blob.size < 500) return;
+  if (blob.size < 500) return; // áudio muito curto
 
   const url = URL.createObjectURL(blob);
   const audioId = 'user-' + Date.now();
   const now = getTime();
 
+  // Bolha de áudio do usuário
   const b = document.createElement('div');
   b.className = 'bbl out fade-in';
   b.style.maxWidth = '85%';
@@ -1093,6 +1171,7 @@ async function sendAudioMessage(mimeType) {
   </div><div class="bbl-meta"><span class="bbl-time">${now}</span>${DOUBLE_TICK}</div>`;
   msgsEl.appendChild(b); scroll();
 
+  // Reprodução local
   const audioEl = new Audio(url);
   _audioInstances[audioId] = audioEl;
   audioEl.addEventListener('timeupdate', function() {
@@ -1111,6 +1190,7 @@ async function sendAudioMessage(mimeType) {
     audioEl.currentTime = 0;
   });
 
+  // Envia para a IA
   const reader = new FileReader();
   reader.onload = async function() {
     const base64 = reader.result.split(',')[1];
@@ -1148,6 +1228,54 @@ async function sendAudioMessage(mimeType) {
   };
   reader.readAsDataURL(blob);
 }
+
+// ═══ CONTROLE DE VISIBILIDADE DOS BOTÕES ═══
+inpEl.addEventListener('input', function() {
+  const hasText = this.value.trim().length > 0;
+  if (hasText) {
+    sendBtn.classList.remove('hidden');
+    micBtn.classList.add('hidden');
+  } else {
+    sendBtn.classList.add('hidden');
+    micBtn.classList.remove('hidden');
+  }
+});
+
+// ═══ EVENTOS DO BOTÃO DE MICROFONE (pressionar e segurar) ═══
+// Mouse
+micBtn.addEventListener('mousedown', function(e) {
+  e.preventDefault();
+  startRecord();
+});
+micBtn.addEventListener('mouseup', function(e) {
+  if (_isRecording) {
+    stopRecord(true); // envia
+  }
+});
+micBtn.addEventListener('mouseleave', function(e) {
+  // Se o mouse sair do botão enquanto grava, cancela (igual WhatsApp)
+  if (_isRecording) {
+    cancelRecord();
+  }
+});
+
+// Touch (mobile)
+micBtn.addEventListener('touchstart', function(e) {
+  e.preventDefault();
+  startRecord();
+}, { passive: false });
+micBtn.addEventListener('touchend', function(e) {
+  e.preventDefault();
+  if (_isRecording) {
+    stopRecord(true);
+  }
+}, { passive: false });
+micBtn.addEventListener('touchcancel', function(e) {
+  // Se o toque for cancelado (ex: arrastou para fora)
+  if (_isRecording) {
+    cancelRecord();
+  }
+}, { passive: false });
 
 // ═══ ENVIO DE IMAGEM ═══
 async function handleImageSelect(event) {
@@ -1301,6 +1429,11 @@ async function start() {
     await rebuildUI();
     if (userReplyCount >= 2 && !autoCallFired) scheduleAutoCall();
     enableInput();
+    // Esconde o send se não houver texto
+    if (inpEl.value.trim().length === 0) {
+      sendBtn.classList.add('hidden');
+      micBtn.classList.remove('hidden');
+    }
   } else {
     leadCityVal = await fetchLeadCity();
     await sleep(700); showTyping();
@@ -1352,6 +1485,8 @@ function toggleEmoji() {
         inp.focus();
         inp.selectionStart = inp.selectionEnd = pos + em.length;
         panel.style.display = 'none';
+        // Dispara o input para atualizar os botões
+        inp.dispatchEvent(new Event('input'));
       };
       grid.appendChild(btn);
     });
