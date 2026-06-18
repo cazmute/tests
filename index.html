@@ -465,7 +465,6 @@ let autoCallRingInterval = null;
 
 const STATE_KEY = 'wa-conversa-state';
 const AUDIO_LEAD_KEY = 'wa-audio-lead';
-const AUDIO_USER_KEY = 'wa-audio-user';
 
 // ═══ VERIFICA PERMISSÃO DO MICROFONE AO CARREGAR ═══
 if (navigator.permissions) {
@@ -722,16 +721,212 @@ async function showCta(desconto) {
   }
 }
 
+// ═══ FUNÇÃO PARA CRIAR BOLHA DE ÁUDIO DO LEAD ═══
+function criarBolhaAudio(src, id, onEnded) {
+  const now = getTime();
+  const b = document.createElement('div');
+  b.className = 'bbl in fade-in';
+  b.style.maxWidth = '85%';
+  b.style.minWidth = '260px';
+  b.style.padding = '10px 12px 4px';
+  b.innerHTML = `${TAIL_IN}<div style="display:flex;align-items:center;gap:12px;width:100%">
+    <button onclick="toggleAudioById('${id}')" style="width:52px;height:52px;border-radius:50%;background:#00a884;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
+      <svg id="play-icon-${id}" width="22" height="22" viewBox="0 0 24 24" fill="white"><polygon points="6,3 20,12 6,21"/></svg>
+      <svg id="pause-icon-${id}" width="22" height="22" viewBox="0 0 24 24" fill="white" style="display:none"><rect x="5" y="4" width="4" height="16"/><rect x="15" y="4" width="4" height="16"/></svg>
+    </button>
+    <div style="flex:1;min-width:0">
+      <div style="position:relative;height:36px;display:flex;align-items:center;cursor:pointer;padding:0 2px" onclick="seekAudioById(event,this,'${id}')">
+        <div style="position:absolute;left:0;right:0;height:4px;background:rgba(0,0,0,0.15);border-radius:4px">
+          <div id="audio-progress-${id}" style="height:100%;width:0%;background:#00a884;border-radius:4px;transition:width 0.1s linear"></div>
+        </div>
+        <div id="audio-thumb-${id}" style="position:absolute;left:0%;width:14px;height:14px;border-radius:50%;background:#00a884;transform:translateX(-50%);box-shadow:0 1px 3px rgba(0,0,0,0.3);transition:left 0.1s linear"></div>
+      </div>
+      <div style="font-size:11.5px;color:#667781" id="audio-dur-${id}">0:00</div>
+    </div>
+    <img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" style="width:42px;height:42px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(0,0,0,0.08)" alt="Vanessa">
+  </div><div class="bbl-meta"><span class="bbl-time">${now}</span></div>`;
+  msgsEl.appendChild(b);
+  scroll();
+
+  const audio = new Audio(src);
+  // Usa um ID único para cada áudio
+  const audioKey = 'audio_' + id + '_' + Date.now();
+  _audioInstances[audioKey] = audio;
+  
+  // Guarda a referência do ID para os eventos
+  audio._audioId = id;
+  audio._audioKey = audioKey;
+
+  audio.addEventListener('timeupdate', function() {
+    const pct = (this.currentTime / this.duration) * 100 || 0;
+    const prog = document.getElementById('audio-progress-'+id);
+    const thumb = document.getElementById('audio-thumb-'+id);
+    const dur = document.getElementById('audio-dur-'+id);
+    if (prog) prog.style.width = pct + '%';
+    if (thumb) thumb.style.left = pct + '%';
+    if (dur) {
+      const t = Math.floor(this.currentTime);
+      dur.textContent = Math.floor(t/60) + ':' + String(t%60).padStart(2,'0');
+    }
+  });
+
+  audio.addEventListener('play', function() {
+    const pi = document.getElementById('play-icon-'+id);
+    const pau = document.getElementById('pause-icon-'+id);
+    if(pi) pi.style.display = 'none';
+    if(pau) pau.style.display = '';
+  });
+
+  audio.addEventListener('pause', function() {
+    const pi = document.getElementById('play-icon-'+id);
+    const pau = document.getElementById('pause-icon-'+id);
+    if(pi) pi.style.display = '';
+    if(pau) pau.style.display = 'none';
+  });
+
+  audio.addEventListener('ended', function() {
+    const pi = document.getElementById('play-icon-'+id);
+    const pau = document.getElementById('pause-icon-'+id);
+    if (pi) pi.style.display = '';
+    if (pau) pau.style.display = 'none';
+    const prog = document.getElementById('audio-progress-'+id);
+    const thumb = document.getElementById('audio-thumb-'+id);
+    const dur = document.getElementById('audio-dur-'+id);
+    if (prog) prog.style.width = '0%';
+    if (thumb) thumb.style.left = '0%';
+    if (dur) dur.textContent = '0:00';
+    this.currentTime = 0;
+    if (onEnded) onEnded();
+  });
+
+  // Salva o áudio do lead no localStorage se for o primeiro áudio
+  if (id === 'lead-audio' || id === '0') {
+    salvarAudioLead(src, now);
+  }
+}
+
+// ═══ FUNÇÃO PARA CRIAR BOLHA DE ÁUDIO DO USUÁRIO ═══
+function criarBolhaAudioUsuario(url, id, timestamp) {
+  const now = timestamp || getTime();
+  const b = document.createElement('div');
+  b.className = 'bbl out fade-in';
+  b.style.maxWidth = '85%';
+  b.style.minWidth = '240px';
+  b.style.padding = '10px 12px 4px';
+  b.innerHTML = `${TAIL_OUT}<div style="display:flex;align-items:center;gap:12px;width:100%">
+    <button onclick="toggleAudioById('${id}')" style="width:48px;height:48px;border-radius:50%;background:#128c7e;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <svg id="play-icon-${id}" width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="6,3 20,12 6,21"/></svg>
+      <svg id="pause-icon-${id}" width="20" height="20" viewBox="0 0 24 24" fill="white" style="display:none"><rect x="5" y="4" width="4" height="16"/><rect x="15" y="4" width="4" height="16"/></svg>
+    </button>
+    <div style="flex:1;min-width:0">
+      <div style="position:relative;height:32px;display:flex;align-items:center;cursor:pointer;padding:0 2px" onclick="seekAudioById(event,this,'${id}')">
+        <div style="position:absolute;left:0;right:0;height:4px;background:rgba(0,0,0,0.15);border-radius:4px">
+          <div id="audio-progress-${id}" style="height:100%;width:0%;background:#128c7e;border-radius:4px;transition:width 0.1s linear"></div>
+        </div>
+        <div id="audio-thumb-${id}" style="position:absolute;left:0%;width:12px;height:12px;border-radius:50%;background:#128c7e;transform:translateX(-50%);transition:left 0.1s linear"></div>
+      </div>
+      <div style="font-size:11px;color:#667781" id="audio-dur-${id}">0:00</div>
+    </div>
+  </div><div class="bbl-meta"><span class="bbl-time">${now}</span>${DOUBLE_TICK}</div>`;
+  msgsEl.appendChild(b); scroll();
+
+  // Cria o áudio e armazena com ID único
+  const audio = new Audio(url);
+  const audioKey = 'user_audio_' + id + '_' + Date.now();
+  _audioInstances[audioKey] = audio;
+  audio._audioId = id;
+  audio._audioKey = audioKey;
+
+  audio.addEventListener('timeupdate', function() {
+    const pct = (this.currentTime / this.duration) * 100 || 0;
+    const prog = document.getElementById('audio-progress-'+id);
+    const thumb = document.getElementById('audio-thumb-'+id);
+    const dur = document.getElementById('audio-dur-'+id);
+    if (prog) prog.style.width = pct + '%';
+    if (thumb) thumb.style.left = pct + '%';
+    if (dur) { 
+      const t = Math.floor(this.currentTime); 
+      dur.textContent = Math.floor(t/60)+':'+String(t%60).padStart(2,'0'); 
+    }
+  });
+
+  audio.addEventListener('play', function() {
+    const pi = document.getElementById('play-icon-'+id);
+    const pau = document.getElementById('pause-icon-'+id);
+    if(pi) pi.style.display = 'none';
+    if(pau) pau.style.display = '';
+  });
+
+  audio.addEventListener('pause', function() {
+    const pi = document.getElementById('play-icon-'+id);
+    const pau = document.getElementById('pause-icon-'+id);
+    if(pi) pi.style.display = '';
+    if(pau) pau.style.display = 'none';
+  });
+
+  audio.addEventListener('ended', function() {
+    const pi = document.getElementById('play-icon-'+id);
+    const pau = document.getElementById('pause-icon-'+id);
+    if(pi) pi.style.display = '';
+    if(pau) pau.style.display = 'none';
+    const prog = document.getElementById('audio-progress-'+id);
+    const thumb = document.getElementById('audio-thumb-'+id);
+    const dur = document.getElementById('audio-dur-'+id);
+    if (prog) prog.style.width = '0%';
+    if (thumb) thumb.style.left = '0%';
+    if (dur) dur.textContent = '0:00';
+    this.currentTime = 0;
+  });
+}
+
+// ═══ FUNÇÃO GLOBAL PARA CONTROLAR ÁUDIO ═══
+window.toggleAudioById = function(id) {
+  // Procura o áudio que tem este ID
+  let foundAudio = null;
+  let foundKey = null;
+  for (const key in _audioInstances) {
+    if (_audioInstances[key]._audioId === id) {
+      foundAudio = _audioInstances[key];
+      foundKey = key;
+      break;
+    }
+  }
+  if (!foundAudio) {
+    console.warn('Áudio não encontrado:', id);
+    return;
+  }
+  
+  if (foundAudio.paused) {
+    foundAudio.play();
+  } else {
+    foundAudio.pause();
+  }
+};
+
+window.seekAudioById = function(e, bar, id) {
+  // Procura o áudio que tem este ID
+  let foundAudio = null;
+  for (const key in _audioInstances) {
+    if (_audioInstances[key]._audioId === id) {
+      foundAudio = _audioInstances[key];
+      break;
+    }
+  }
+  if (!foundAudio || !foundAudio.duration) return;
+  const rect = bar.getBoundingClientRect();
+  const pct = (e.clientX - rect.left) / rect.width;
+  foundAudio.currentTime = pct * foundAudio.duration;
+};
+
+// ═══ REBUILD UI ═══
 async function rebuildUI() {
   msgsEl.innerHTML = '<div class="date-pill">Hoje</div>';
 
   for (const msg of aiHistory) {
     if (msg.role === 'user') {
       if (msg.type === 'audio-user' && msg.audioData) {
-        // Recria áudio do usuário com os dados salvos
         criarBolhaAudioUsuario(msg.audioData.url, msg.audioData.id, msg.timestamp);
       } else if (msg.type === 'image-user' && msg.imageData) {
-        // Recria imagem do usuário
         const b = document.createElement('div');
         b.className = 'bbl out fade-in';
         b.style.maxWidth = '85%';
@@ -821,156 +1016,6 @@ async function rebuildUI() {
 }
 
 let _audioInstances = {};
-
-function criarBolhaAudio(src, id, onEnded) {
-  const now = getTime();
-  const b = document.createElement('div');
-  b.className = 'bbl in fade-in';
-  b.style.maxWidth = '85%';
-  b.style.minWidth = '260px';
-  b.style.padding = '10px 12px 4px';
-  b.innerHTML = `${TAIL_IN}<div style="display:flex;align-items:center;gap:12px;width:100%">
-    <button onclick="toggleAudioById('${id}')" style="width:52px;height:52px;border-radius:50%;background:#00a884;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
-      <svg id="play-icon-${id}" width="22" height="22" viewBox="0 0 24 24" fill="white"><polygon points="6,3 20,12 6,21"/></svg>
-      <svg id="pause-icon-${id}" width="22" height="22" viewBox="0 0 24 24" fill="white" style="display:none"><rect x="5" y="4" width="4" height="16"/><rect x="15" y="4" width="4" height="16"/></svg>
-    </button>
-    <div style="flex:1;min-width:0">
-      <div style="position:relative;height:36px;display:flex;align-items:center;cursor:pointer;padding:0 2px" onclick="seekAudioById(event,this,'${id}')">
-        <div style="position:absolute;left:0;right:0;height:4px;background:rgba(0,0,0,0.15);border-radius:4px">
-          <div id="audio-progress-${id}" style="height:100%;width:0%;background:#00a884;border-radius:4px;transition:width 0.1s linear"></div>
-        </div>
-        <div id="audio-thumb-${id}" style="position:absolute;left:0%;width:14px;height:14px;border-radius:50%;background:#00a884;transform:translateX(-50%);box-shadow:0 1px 3px rgba(0,0,0,0.3);transition:left 0.1s linear"></div>
-      </div>
-      <div style="font-size:11.5px;color:#667781" id="audio-dur-${id}">0:00</div>
-    </div>
-    <img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" style="width:42px;height:42px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(0,0,0,0.08)" alt="Vanessa">
-  </div><div class="bbl-meta"><span class="bbl-time">${now}</span></div>`;
-  msgsEl.appendChild(b);
-  scroll();
-
-  const audio = new Audio(src);
-  _audioInstances[id] = audio;
-
-  audio.addEventListener('timeupdate', function() {
-    const pct = (audio.currentTime / audio.duration) * 100 || 0;
-    const prog = document.getElementById('audio-progress-'+id);
-    const thumb = document.getElementById('audio-thumb-'+id);
-    const dur = document.getElementById('audio-dur-'+id);
-    if (prog) prog.style.width = pct + '%';
-    if (thumb) thumb.style.left = pct + '%';
-    if (dur) {
-      const t = Math.floor(audio.currentTime);
-      dur.textContent = Math.floor(t/60) + ':' + String(t%60).padStart(2,'0');
-    }
-  });
-
-  audio.addEventListener('ended', function() {
-    const pi = document.getElementById('play-icon-'+id);
-    const pau = document.getElementById('pause-icon-'+id);
-    if (pi) pi.style.display = '';
-    if (pau) pau.style.display = 'none';
-    const prog = document.getElementById('audio-progress-'+id);
-    const thumb = document.getElementById('audio-thumb-'+id);
-    const dur = document.getElementById('audio-dur-'+id);
-    if (prog) prog.style.width = '0%';
-    if (thumb) thumb.style.left = '0%';
-    if (dur) dur.textContent = '0:00';
-    audio.currentTime = 0;
-    if (onEnded) onEnded();
-  });
-
-  // Salva o áudio do lead no localStorage se for o primeiro áudio
-  if (id === 'lead-audio' || id === '0') {
-    salvarAudioLead(src, now);
-  }
-}
-
-function criarBolhaAudioUsuario(url, id, timestamp) {
-  const now = timestamp || getTime();
-  const b = document.createElement('div');
-  b.className = 'bbl out fade-in';
-  b.style.maxWidth = '85%';
-  b.style.minWidth = '240px';
-  b.style.padding = '10px 12px 4px';
-  b.innerHTML = `${TAIL_OUT}<div style="display:flex;align-items:center;gap:12px;width:100%">
-    <button onclick="toggleAudioById('${id}')" style="width:48px;height:48px;border-radius:50%;background:#128c7e;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-      <svg id="play-icon-${id}" width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="6,3 20,12 6,21"/></svg>
-      <svg id="pause-icon-${id}" width="20" height="20" viewBox="0 0 24 24" fill="white" style="display:none"><rect x="5" y="4" width="4" height="16"/><rect x="15" y="4" width="4" height="16"/></svg>
-    </button>
-    <div style="flex:1;min-width:0">
-      <div style="position:relative;height:32px;display:flex;align-items:center;cursor:pointer;padding:0 2px" onclick="seekAudioById(event,this,'${id}')">
-        <div style="position:absolute;left:0;right:0;height:4px;background:rgba(0,0,0,0.15);border-radius:4px">
-          <div id="audio-progress-${id}" style="height:100%;width:0%;background:#128c7e;border-radius:4px;transition:width 0.1s linear"></div>
-        </div>
-        <div id="audio-thumb-${id}" style="position:absolute;left:0%;width:12px;height:12px;border-radius:50%;background:#128c7e;transform:translateX(-50%);transition:left 0.1s linear"></div>
-      </div>
-      <div style="font-size:11px;color:#667781" id="audio-dur-${id}">0:00</div>
-    </div>
-  </div><div class="bbl-meta"><span class="bbl-time">${now}</span>${DOUBLE_TICK}</div>`;
-  msgsEl.appendChild(b); scroll();
-
-  const audio = new Audio(url);
-  _audioInstances[id] = audio;
-  
-  // Configura os eventos do áudio do usuário
-  audio.addEventListener('timeupdate', function() {
-    const pct = (audio.currentTime / audio.duration) * 100 || 0;
-    const prog = document.getElementById('audio-progress-'+id);
-    const thumb = document.getElementById('audio-thumb-'+id);
-    const dur = document.getElementById('audio-dur-'+id);
-    if (prog) prog.style.width = pct + '%';
-    if (thumb) thumb.style.left = pct + '%';
-    if (dur) { 
-      const t = Math.floor(audio.currentTime); 
-      dur.textContent = Math.floor(t/60)+':'+String(t%60).padStart(2,'0'); 
-    }
-  });
-  
-  audio.addEventListener('ended', function() {
-    const pi = document.getElementById('play-icon-'+id);
-    const pau = document.getElementById('pause-icon-'+id);
-    if(pi) pi.style.display=''; 
-    if(pau) pau.style.display='none';
-    const prog = document.getElementById('audio-progress-'+id);
-    const thumb = document.getElementById('audio-thumb-'+id);
-    const dur = document.getElementById('audio-dur-'+id);
-    if (prog) prog.style.width = '0%';
-    if (thumb) thumb.style.left = '0%';
-    if (dur) dur.textContent = '0:00';
-    audio.currentTime = 0;
-  });
-  
-  audio.addEventListener('play', function() {
-    const pi = document.getElementById('play-icon-'+id);
-    const pau = document.getElementById('pause-icon-'+id);
-    if(pi) pi.style.display='none'; 
-    if(pau) pau.style.display='';
-  });
-  
-  audio.addEventListener('pause', function() {
-    const pi = document.getElementById('play-icon-'+id);
-    const pau = document.getElementById('pause-icon-'+id);
-    if(pi) pi.style.display=''; 
-    if(pau) pau.style.display='none';
-  });
-}
-
-window.toggleAudioById = function(id) {
-  const audio = _audioInstances[id];
-  if (!audio) return;
-  if (audio.paused) { 
-    audio.play(); 
-  } else { 
-    audio.pause(); 
-  }
-};
-window.seekAudioById = function(e, bar, id) {
-  const audio = _audioInstances[id];
-  if (!audio || !audio.duration) return;
-  const rect = bar.getBoundingClientRect();
-  const pct = (e.clientX - rect.left) / rect.width;
-  audio.currentTime = pct * audio.duration;
-};
 
 function showFotoLead() {
   const now = getTime();
@@ -1327,16 +1372,13 @@ function handlePressStart(e) {
   const clientY = e.clientY || (e.touches && e.touches[0].clientY);
   if (clientX == null) return;
 
-  // Evita múltiplas ativações
   if (_pressTimer) return;
 
   _pressStartX = clientX;
   _pressStartY = clientY;
 
-  // Limpa qualquer toast anterior
   micToast.classList.remove('show');
 
-  // Inicia um timer para iniciar a gravação se segurar
   _pressTimer = setTimeout(() => {
     _pressTimer = null;
     _startRecording();
@@ -1344,18 +1386,15 @@ function handlePressStart(e) {
 }
 
 function handlePressEnd(e) {
-  // Se o timer ainda estiver ativo, foi um clique curto
   if (_pressTimer) {
     clearTimeout(_pressTimer);
     _pressTimer = null;
-    // Verifica se houve movimento significativo (arraste)
     const clientX = e.clientX || (e.changedTouches && e.changedTouches[0].clientX);
     const clientY = e.clientY || (e.changedTouches && e.changedTouches[0].clientY);
     if (clientX != null) {
       const dx = clientX - _pressStartX;
       const dy = clientY - _pressStartY;
       if (Math.sqrt(dx*dx + dy*dy) < MOVE_THRESHOLD) {
-        // Clique simples sem movimento → mostra toast
         showMicToast();
       }
     } else {
@@ -1364,7 +1403,6 @@ function handlePressEnd(e) {
     return;
   }
 
-  // Se já está gravando, para a gravação (se não foi cancelado)
   if (_isRecording) {
     if (!_cancelRecording) {
       stopRecord(true);
@@ -1373,7 +1411,6 @@ function handlePressEnd(e) {
 }
 
 function handlePressMove(e) {
-  // Se não está gravando e o timer existe, verifica se houve movimento para cancelar o timer (evita gravação acidental ao arrastar)
   if (_pressTimer) {
     const clientX = e.clientX || (e.touches && e.touches[0].clientX);
     const clientY = e.clientY || (e.touches && e.touches[0].clientY);
@@ -1383,12 +1420,10 @@ function handlePressMove(e) {
       if (Math.sqrt(dx*dx + dy*dy) > MOVE_THRESHOLD) {
         clearTimeout(_pressTimer);
         _pressTimer = null;
-        // Não mostra toast porque foi um arraste
       }
     }
   }
 
-  // Se está gravando, verifica se arrastou para cancelar
   if (_isRecording) {
     const rect = micBtn.getBoundingClientRect();
     const clientX = e.clientX || (e.touches && e.touches[0].clientX);
@@ -1398,11 +1433,9 @@ function handlePressMove(e) {
   }
 }
 
-// Registrar eventos
 micBtn.addEventListener('mousedown', handlePressStart);
 micBtn.addEventListener('mouseup', handlePressEnd);
 micBtn.addEventListener('mouseleave', function(e) {
-  // Se o mouse sair do botão enquanto pressionado, cancela qualquer timer ou gravação
   if (_pressTimer) {
     clearTimeout(_pressTimer);
     _pressTimer = null;
@@ -1413,7 +1446,6 @@ micBtn.addEventListener('mouseleave', function(e) {
 });
 micBtn.addEventListener('mousemove', handlePressMove);
 
-// Toque (mobile)
 micBtn.addEventListener('touchstart', handlePressStart, { passive: true });
 micBtn.addEventListener('touchend', handlePressEnd, { passive: true });
 micBtn.addEventListener('touchcancel', function(e) {
@@ -1427,7 +1459,6 @@ micBtn.addEventListener('touchcancel', function(e) {
 }, { passive: true });
 micBtn.addEventListener('touchmove', handlePressMove, { passive: true });
 
-// ═══ FUNÇÃO PARA EXIBIR ERRO DO MIC (BOLHA) ═══
 function showMicError(message) {
   const b = document.createElement('div');
   b.className = 'bbl in fade-in';
@@ -1449,7 +1480,6 @@ async function sendAudioMessage(mimeType) {
   const audioId = 'user-' + Date.now();
   const now = getTime();
 
-  // Guarda os dados do áudio no histórico para persistência
   const audioData = { url: url, id: audioId };
   aiHistory.push({ 
     role: 'user', 
@@ -1460,11 +1490,7 @@ async function sendAudioMessage(mimeType) {
   });
   salvarLead();
 
-  // Cria a bolha de áudio do usuário
   criarBolhaAudioUsuario(url, audioId, now);
-
-  const audioEl = new Audio(url);
-  _audioInstances[audioId] = audioEl;
 
   const reader = new FileReader();
   reader.onload = async function() {
@@ -1523,7 +1549,6 @@ async function handleImageSelect(event) {
   const now = getTime();
   const localUrl = URL.createObjectURL(file);
 
-  // Guarda a imagem no histórico para persistência
   aiHistory.push({ 
     role: 'user', 
     content: '[imagem enviada pelo usuário]', 
@@ -1672,16 +1697,12 @@ async function start() {
     leadCityVal = leadCityVal || await fetchLeadCity();
     await rebuildUI();
     
-    // Verifica se há áudio do lead salvo para restaurar
     const audioLeadSalvo = carregarAudioLead();
     if (audioLeadSalvo && audioLeadSalvo.src) {
-      // Verifica se o áudio do lead já foi adicionado ao histórico
       const audioExistente = aiHistory.some(msg => msg.type === 'audio' && msg.src === audioLeadSalvo.src);
       if (!audioExistente) {
-        // Adiciona o áudio do lead ao histórico e recria a bolha
         aiHistory.push({role:'assistant', content:'[áudio]', type:'audio', src:audioLeadSalvo.src, timestamp: audioLeadSalvo.timestamp || getTime()});
         salvarLead();
-        // Recria a bolha de áudio
         criarBolhaAudio(audioLeadSalvo.src, 'lead-audio', null);
       }
     }
@@ -1716,7 +1737,6 @@ async function start() {
       }, 1200);
     });
     
-    // Salva o áudio do lead no localStorage
     salvarAudioLead(AUDIO_SRC, now);
   }
 }
@@ -1754,7 +1774,6 @@ function toggleEmoji() {
   panel.style.display = 'block';
 }
 
-// SHEETS: sair, info, chamada
 function openExitSheet(){ document.getElementById('exit-sheet').classList.add('open'); }
 function closeExitSheet(){ document.getElementById('exit-sheet').classList.remove('open'); }
 document.getElementById('exit-sheet').addEventListener('click', function(e){ if(e.target===this) closeExitSheet(); });
