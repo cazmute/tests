@@ -42,6 +42,14 @@ html,body{
   background:var(--wa-bg);display:flex;flex-direction:column;
   position:relative;overflow:hidden;
   border-left:1px solid #2a3942;border-right:1px solid #2a3942;
+  /* Proteção contra seleção e arraste */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.phone img {
+  -webkit-user-drag: none;
+  user-drag: none;
 }
 .hdr{
   background:var(--wa-header);display:flex;align-items:center;
@@ -351,6 +359,35 @@ html,body{
 </div>
 
 <script>
+// ═══ PROTEÇÃO CONTRA CURIOSOS ═══
+// Bloqueia o menu de contexto (botão direito)
+document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+// Bloqueia atalhos do DevTools (F12, Ctrl+U, Ctrl+Shift+I, Ctrl+Shift+J)
+document.addEventListener('keydown', function (e) {
+  // F12
+  if (e.key === 'F12') {
+    e.preventDefault();
+    return false;
+  }
+  // Ctrl+Shift+I / Cmd+Option+I (Inspecionar)
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'I' || e.key === 'i')) {
+    e.preventDefault();
+    return false;
+  }
+  // Ctrl+Shift+J / Cmd+Option+J (Console)
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'J' || e.key === 'j')) {
+    e.preventDefault();
+    return false;
+  }
+  // Ctrl+U / Cmd+U (Ver código-fonte)
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'U' || e.key === 'u')) {
+    e.preventDefault();
+    return false;
+  }
+});
+
+// ═══ O RESTO DO SEU CÓDIGO (NÃO ALTERADO) ═══
 const msgsEl=document.getElementById('msgs');
 const inpEl=document.getElementById('inp');
 const sendBtn=document.getElementById('send-btn');
