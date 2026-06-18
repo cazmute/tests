@@ -228,7 +228,7 @@ html,body{
         <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:2px"></div>
       </div>
       <input id="inp" type="text" placeholder="Mensagem">
-      <!-- Botão de câmera (agora entre o input e os botões de ação) -->
+      <!-- Botão de câmera -->
       <button type="button" onclick="document.getElementById('img-input').click()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none" aria-label="Enviar foto">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
           <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
@@ -983,20 +983,6 @@ let _cancelRecording = false;
 let _recordStartTime = null;
 let _timerInterval = null;
 
-function playBeep(freq = 800, duration = 120, volume = 0.3) {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.frequency.value = freq;
-    gain.gain.setValueAtTime(volume, ctx.currentTime);
-    osc.start();
-    osc.stop(ctx.currentTime + duration / 1000);
-  } catch (_) { /* ignora silenciosamente */ }
-}
-
 function getSupportedMimeType() {
   const types = [
     'audio/webm;codecs=opus',
@@ -1087,10 +1073,9 @@ async function startRecord() {
     _mediaRecorder.start();
     _isRecording = true;
 
-    // CONTADOR E FEEDBACK SONORO
-    playBeep(880, 100);
+    // CONTADOR com dica de deslize
     _recordStartTime = Date.now();
-    inpEl.placeholder = '🔴 0:00';
+    inpEl.placeholder = '🔴 0:00 • Deslize para cancelar';
     if (_timerInterval) clearInterval(_timerInterval);
     _timerInterval = setInterval(() => {
       if (!_isRecording) {
@@ -1101,7 +1086,7 @@ async function startRecord() {
       const elapsed = Math.floor((Date.now() - _recordStartTime) / 1000);
       const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
       const secs = String(elapsed % 60).padStart(2, '0');
-      inpEl.placeholder = `🔴 ${mins}:${secs}`;
+      inpEl.placeholder = `🔴 ${mins}:${secs} • Deslize para cancelar`;
     }, 1000);
 
     _recordTimer = setTimeout(() => {
@@ -1142,11 +1127,8 @@ function stopRecord(send = true) {
   if (!send) {
     _cancelRecording = true;
     _audioChunks = [];
-    playBeep(400, 200);
     inpEl.placeholder = 'Cancelado';
     setTimeout(() => { inpEl.placeholder = 'Mensagem'; }, 500);
-  } else {
-    playBeep(1200, 100);
   }
   _mediaRecorder.stop();
 }
