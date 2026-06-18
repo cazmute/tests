@@ -213,6 +213,8 @@ html,body{
   vertical-align:middle;
   margin-right:8px;
 }
+/* Botão de câmera escondido durante gravação */
+.camera-btn.hidden-mic{display:none !important;}
 </style>
 </head>
 <body>
@@ -249,7 +251,7 @@ html,body{
   </div>
 
   <div class="input-wrap">
-    <div class="input-pill">
+    <div class="input-pill" style="position:relative;">
       <button type="button" onclick="toggleEmoji()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#8696a0" stroke-width="1.75"/><path d="M8.5 14s.875 1.5 3.5 1.5 3.5-1.5 3.5-1.5" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round"/><circle cx="9" cy="10" r="1" fill="#8696a0"/><circle cx="15" cy="10" r="1" fill="#8696a0"/></svg>
       </button>
@@ -258,27 +260,29 @@ html,body{
       </div>
       <input id="inp" type="text" placeholder="Mensagem">
       <!-- Botão de câmera -->
-      <button type="button" onclick="document.getElementById('img-input').click()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none" aria-label="Enviar foto">
+      <button type="button" id="camera-btn" class="camera-btn" onclick="document.getElementById('img-input').click()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none" aria-label="Enviar foto">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
           <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
           <circle cx="12" cy="13" r="4" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
       <input type="file" accept="image/*" id="img-input" style="display:none" onchange="handleImageSelect(event)">
-      <button class="send-btn hidden" id="send-btn" onclick="submit()">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="display:block;margin:auto;position:relative;right:2px">
-          <path d="M22 2L11 13" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-      <button class="mic-btn" id="mic-btn" title="Pressione e segure para gravar áudio">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M19 10a7 7 0 0 1-14 0" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-          <line x1="12" y1="19" x2="12" y2="23" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
-          <line x1="8" y1="23" x2="16" y2="23" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
-        </svg>
-      </button>
+      <div style="display:flex;gap:4px;align-items:center;flex-shrink:0;margin-left:auto;padding-left:4px;">
+        <button class="send-btn hidden" id="send-btn" onclick="submit()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="display:block;margin:auto;position:relative;right:2px">
+            <path d="M22 2L11 13" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="mic-btn" id="mic-btn" title="Pressione e segure para gravar áudio">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M19 10a7 7 0 0 1-14 0" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="12" y1="19" x2="12" y2="23" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+            <line x1="8" y1="23" x2="16" y2="23" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -432,6 +436,7 @@ const msgsEl=document.getElementById('msgs');
 const inpEl=document.getElementById('inp');
 const sendBtn=document.getElementById('send-btn');
 const micBtn=document.getElementById('mic-btn');
+const cameraBtn=document.getElementById('camera-btn');
 const hdrStatus=document.getElementById('hdr-status');
 const micToast=document.getElementById('mic-toast');
 
@@ -1031,6 +1036,7 @@ function submit() {
   inpEl.value = '';
   sendBtn.classList.add('hidden');
   micBtn.classList.remove('hidden');
+  cameraBtn.classList.remove('hidden-mic');
   const now = getTime();
   addBubble(text, 'out', false, now);
   if (!leadId) salvarLead();
@@ -1050,7 +1056,7 @@ let _timerInterval = null;
 // Controle do clique curto
 let _pressTimer = null;
 let _pressStartX = 0, _pressStartY = 0;
-const PRESS_THRESHOLD = 200; // ms para considerar "segurar" (ALTERADO DE 300 PARA 200)
+const PRESS_THRESHOLD = 200; // ms para considerar "segurar"
 const MOVE_THRESHOLD = 15;   // px de movimento para ignorar clique
 
 function showMicToast() {
@@ -1091,6 +1097,8 @@ async function _startRecording() {
   _isMicPressed = true;
   _cancelRecording = false;
   micBtn.classList.add('recording');
+  // Oculta o botão da câmera durante a gravação
+  cameraBtn.classList.add('hidden-mic');
 
   if (navigator.vibrate) navigator.vibrate(50);
 
@@ -1104,6 +1112,7 @@ async function _startRecording() {
       showMicError('Microfone bloqueado. Desbloqueie nas configurações do navegador.');
       _isMicPressed = false;
       micBtn.classList.remove('recording');
+      cameraBtn.classList.remove('hidden-mic');
       return;
     }
 
@@ -1111,6 +1120,7 @@ async function _startRecording() {
       showMicError('Seu navegador não suporta gravação de áudio.');
       _isMicPressed = false;
       micBtn.classList.remove('recording');
+      cameraBtn.classList.remove('hidden-mic');
       return;
     }
 
@@ -1119,6 +1129,7 @@ async function _startRecording() {
       showMicError('Nenhum formato de áudio suportado.');
       _isMicPressed = false;
       micBtn.classList.remove('recording');
+      cameraBtn.classList.remove('hidden-mic');
       return;
     }
 
@@ -1140,6 +1151,7 @@ async function _startRecording() {
       _isRecording = false;
       micBtn.classList.remove('recording');
       micBtn.classList.remove('cancel');
+      cameraBtn.classList.remove('hidden-mic');
       _isMicPressed = false;
       if (_timerInterval) {
         clearInterval(_timerInterval);
@@ -1185,6 +1197,7 @@ async function _startRecording() {
     _isMicPressed = false;
     micBtn.classList.remove('recording');
     micBtn.classList.remove('cancel');
+    cameraBtn.classList.remove('hidden-mic');
     _isRecording = false;
     if (_timerInterval) {
       clearInterval(_timerInterval);
