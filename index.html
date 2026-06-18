@@ -184,6 +184,35 @@ html,body{
 #active-call-overlay .ac-name{color:#fff;font-size:20px;font-weight:500}
 #active-call-overlay .ac-status{color:rgba(255,255,255,0.5);font-size:13px}
 #active-call-overlay .ac-end-btn{width:60px;height:60px;border-radius:50%;background:#e53935;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:30px}
+
+/* Toast de instrução do microfone */
+.mic-toast{
+  position:absolute;
+  bottom:80px;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,0.85);
+  color:#fff;
+  padding:10px 18px;
+  border-radius:30px;
+  font-size:14px;
+  font-weight:500;
+  z-index:500;
+  white-space:nowrap;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity 0.25s ease, transform 0.25s ease;
+  transform:translateX(-50%) translateY(10px);
+}
+.mic-toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+.mic-toast svg{
+  display:inline-block;
+  vertical-align:middle;
+  margin-right:8px;
+}
 </style>
 </head>
 <body>
@@ -251,6 +280,17 @@ html,body{
         </svg>
       </button>
     </div>
+  </div>
+
+  <!-- Toast de instrução do microfone -->
+  <div class="mic-toast" id="mic-toast">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
+      <path d="M19 10a7 7 0 0 1-14 0"/>
+      <line x1="12" y1="19" x2="12" y2="23"/>
+      <line x1="8" y1="23" x2="16" y2="23"/>
+    </svg>
+    Pressione e segure para gravar
   </div>
 
   <!-- SHEET: sair -->
@@ -393,6 +433,7 @@ const inpEl=document.getElementById('inp');
 const sendBtn=document.getElementById('send-btn');
 const micBtn=document.getElementById('mic-btn');
 const hdrStatus=document.getElementById('hdr-status');
+const micToast=document.getElementById('mic-toast');
 
 const MENSAGEM_INICIAL="Oi, Tudo bem?";
 const PRODUCT_HASH="7p8h95hghd";
@@ -983,6 +1024,20 @@ let _cancelRecording = false;
 let _recordStartTime = null;
 let _timerInterval = null;
 
+// Controle do clique curto
+let _pressTimer = null;
+let _pressStartX = 0, _pressStartY = 0;
+const PRESS_THRESHOLD = 300; // ms para considerar "segurar"
+const MOVE_THRESHOLD = 15;   // px de movimento para ignorar clique
+
+function showMicToast() {
+  micToast.classList.add('show');
+  clearTimeout(window._toastTimeout);
+  window._toastTimeout = setTimeout(() => {
+    micToast.classList.remove('show');
+  }, 2500);
+}
+
 function getSupportedMimeType() {
   const types = [
     'audio/webm;codecs=opus',
@@ -1005,8 +1060,8 @@ function getSupportedMimeType() {
   return null;
 }
 
-// Iniciar gravação
-async function startRecord() {
+// Iniciar gravação (chamado após o timer de pressão)
+async function _startRecording() {
   if (_isRecording) return;
   if (_isMicPressed) return;
 
@@ -1146,6 +1201,113 @@ function cancelRecord() {
   }
 }
 
+// ── Eventos de pressão no microfone ──
+function handlePressStart(e) {
+  const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+  const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+  if (clientX == null) return;
+
+  // Evita múltiplas ativações
+  if (_pressTimer) return;
+
+  _pressStartX = clientX;
+  _pressStartY = clientY;
+
+  // Limpa qualquer toast anterior
+  micToast.classList.remove('show');
+
+  // Inicia um timer para iniciar a gravação se segurar
+  _pressTimer = setTimeout(() => {
+    _pressTimer = null;
+    _startRecording();
+  }, PRESS_THRESHOLD);
+}
+
+function handlePressEnd(e) {
+  // Se o timer ainda estiver ativo, foi um clique curto
+  if (_pressTimer) {
+    clearTimeout(_pressTimer);
+    _pressTimer = null;
+    // Verifica se houve movimento significativo (arraste)
+    const clientX = e.clientX || (e.changedTouches && e.changedTouches[0].clientX);
+    const clientY = e.clientY || (e.changedTouches && e.changedTouches[0].clientY);
+    if (clientX != null) {
+      const dx = clientX - _pressStartX;
+      const dy = clientY - _pressStartY;
+      if (Math.sqrt(dx*dx + dy*dy) < MOVE_THRESHOLD) {
+        // Clique simples sem movimento → mostra toast
+        showMicToast();
+      }
+    } else {
+      showMicToast();
+    }
+    return;
+  }
+
+  // Se já está gravando, para a gravação (se não foi cancelado)
+  if (_isRecording) {
+    if (!_cancelRecording) {
+      stopRecord(true);
+    }
+  }
+}
+
+function handlePressMove(e) {
+  // Se não está gravando e o timer existe, verifica se houve movimento para cancelar o timer (evita gravação acidental ao arrastar)
+  if (_pressTimer) {
+    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+    const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+    if (clientX != null) {
+      const dx = clientX - _pressStartX;
+      const dy = clientY - _pressStartY;
+      if (Math.sqrt(dx*dx + dy*dy) > MOVE_THRESHOLD) {
+        clearTimeout(_pressTimer);
+        _pressTimer = null;
+        // Não mostra toast porque foi um arraste
+      }
+    }
+  }
+
+  // Se está gravando, verifica se arrastou para cancelar
+  if (_isRecording) {
+    const rect = micBtn.getBoundingClientRect();
+    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+    if (clientX != null && clientX < rect.left - 30) {
+      cancelRecord();
+    }
+  }
+}
+
+// Registrar eventos
+micBtn.addEventListener('mousedown', handlePressStart);
+micBtn.addEventListener('mouseup', handlePressEnd);
+micBtn.addEventListener('mouseleave', function(e) {
+  // Se o mouse sair do botão enquanto pressionado, cancela qualquer timer ou gravação
+  if (_pressTimer) {
+    clearTimeout(_pressTimer);
+    _pressTimer = null;
+  }
+  if (_isRecording) {
+    cancelRecord();
+  }
+});
+micBtn.addEventListener('mousemove', handlePressMove);
+
+// Toque (mobile)
+micBtn.addEventListener('touchstart', handlePressStart, { passive: true });
+micBtn.addEventListener('touchend', handlePressEnd, { passive: true });
+micBtn.addEventListener('touchcancel', function(e) {
+  if (_pressTimer) {
+    clearTimeout(_pressTimer);
+    _pressTimer = null;
+  }
+  if (_isRecording) {
+    cancelRecord();
+  }
+}, { passive: true });
+micBtn.addEventListener('touchmove', handlePressMove, { passive: true });
+
+// ═══ FUNÇÃO PARA EXIBIR ERRO DO MIC (BOLHA) ═══
 function showMicError(message) {
   const b = document.createElement('div');
   b.className = 'bbl in fade-in';
@@ -1157,7 +1319,7 @@ function showMicError(message) {
   scroll();
 }
 
-// Enviar áudio após gravação
+// ═══ ENVIO DE ÁUDIO (APÓS GRAVAÇÃO) ═══
 async function sendAudioMessage(mimeType) {
   if (_audioChunks.length === 0) return;
   const blob = new Blob(_audioChunks, { type: mimeType });
@@ -1256,65 +1418,6 @@ inpEl.addEventListener('input', function() {
     micBtn.classList.remove('hidden');
   }
 });
-
-// ═══ EVENTOS DO BOTÃO DE MICROFONE ═══
-let startX = 0, startY = 0;
-
-micBtn.addEventListener('mousedown', function(e) {
-  e.preventDefault();
-  startX = e.clientX;
-  startY = e.clientY;
-  startRecord();
-});
-
-micBtn.addEventListener('mouseup', function(e) {
-  if (_isRecording) {
-    stopRecord(true);
-  }
-});
-
-micBtn.addEventListener('mouseleave', function(e) {
-  if (_isRecording) {
-    const rect = micBtn.getBoundingClientRect();
-    const mouseX = e.clientX;
-    if (mouseX < rect.left - 30) {
-      cancelRecord();
-    } else {
-      cancelRecord();
-    }
-  }
-});
-
-micBtn.addEventListener('touchstart', function(e) {
-  e.preventDefault();
-  const touch = e.touches[0];
-  startX = touch.clientX;
-  startY = touch.clientY;
-  startRecord();
-}, { passive: false });
-
-micBtn.addEventListener('touchmove', function(e) {
-  if (!_isRecording) return;
-  const touch = e.touches[0];
-  const deltaX = touch.clientX - startX;
-  if (deltaX < -30) {
-    cancelRecord();
-  }
-}, { passive: false });
-
-micBtn.addEventListener('touchend', function(e) {
-  if (_isRecording) {
-    if (!_cancelRecording) {
-      stopRecord(true);
-    }
-  }
-}, { passive: false });
-
-micBtn.addEventListener('touchcancel', function(e) {
-  if (_isRecording) {
-    cancelRecord();
-  }
-}, { passive: false });
 
 // ═══ ENVIO DE IMAGEM ═══
 async function handleImageSelect(event) {
