@@ -911,6 +911,8 @@ function criarBolhaAudioUsuario(url, id, timestamp) {
 
   const audio = new Audio(url);
   _audioInstances[id] = audio;
+  
+  // Configura os eventos do áudio do usuário
   audio.addEventListener('timeupdate', function() {
     const pct = (audio.currentTime / audio.duration) * 100 || 0;
     const prog = document.getElementById('audio-progress-'+id);
@@ -918,23 +920,49 @@ function criarBolhaAudioUsuario(url, id, timestamp) {
     const dur = document.getElementById('audio-dur-'+id);
     if (prog) prog.style.width = pct + '%';
     if (thumb) thumb.style.left = pct + '%';
-    if (dur) { const t = Math.floor(audio.currentTime); dur.textContent = Math.floor(t/60)+':'+String(t%60).padStart(2,'0'); }
+    if (dur) { 
+      const t = Math.floor(audio.currentTime); 
+      dur.textContent = Math.floor(t/60)+':'+String(t%60).padStart(2,'0'); 
+    }
   });
+  
   audio.addEventListener('ended', function() {
     const pi = document.getElementById('play-icon-'+id);
     const pau = document.getElementById('pause-icon-'+id);
-    if(pi) pi.style.display=''; if(pau) pau.style.display='none';
+    if(pi) pi.style.display=''; 
+    if(pau) pau.style.display='none';
+    const prog = document.getElementById('audio-progress-'+id);
+    const thumb = document.getElementById('audio-thumb-'+id);
+    const dur = document.getElementById('audio-dur-'+id);
+    if (prog) prog.style.width = '0%';
+    if (thumb) thumb.style.left = '0%';
+    if (dur) dur.textContent = '0:00';
     audio.currentTime = 0;
+  });
+  
+  audio.addEventListener('play', function() {
+    const pi = document.getElementById('play-icon-'+id);
+    const pau = document.getElementById('pause-icon-'+id);
+    if(pi) pi.style.display='none'; 
+    if(pau) pau.style.display='';
+  });
+  
+  audio.addEventListener('pause', function() {
+    const pi = document.getElementById('play-icon-'+id);
+    const pau = document.getElementById('pause-icon-'+id);
+    if(pi) pi.style.display=''; 
+    if(pau) pau.style.display='none';
   });
 }
 
 window.toggleAudioById = function(id) {
   const audio = _audioInstances[id];
   if (!audio) return;
-  const pi = document.getElementById('play-icon-'+id);
-  const pau = document.getElementById('pause-icon-'+id);
-  if (audio.paused) { audio.play(); if(pi)pi.style.display='none'; if(pau)pau.style.display=''; }
-  else { audio.pause(); if(pi)pi.style.display=''; if(pau)pau.style.display='none'; }
+  if (audio.paused) { 
+    audio.play(); 
+  } else { 
+    audio.pause(); 
+  }
 };
 window.seekAudioById = function(e, bar, id) {
   const audio = _audioInstances[id];
