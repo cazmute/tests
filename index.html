@@ -972,9 +972,9 @@ let recordingBubble = null;
 const micBtn = document.getElementById('mic-btn');
 const micIcon = micBtn.querySelector('svg');
 
-micBtn.addEventListener('mousedown', startRecording);
-micBtn.addEventListener('mouseup', stopRecording);
-micBtn.addEventListener('mouseleave', cancelRecording);
+micBtn.addEventListener('touchstart', startRecording, { passive: false });
+micBtn.addEventListener('touchend', stopRecording, { passive: false });
+micBtn.addEventListener('touchcancel', cancelRecording, { passive: false });
 micBtn.addEventListener('touchstart', startRecording, { passive: true });
 micBtn.addEventListener('touchend', stopRecording, { passive: true });
 micBtn.addEventListener('touchcancel', cancelRecording, { passive: true });
