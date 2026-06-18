@@ -93,7 +93,7 @@ html,body{
 .cta-btn{display:block;background:var(--wa-teal2);color:#fff;border:none;border-radius:8px;padding:9px 14px;font-size:14px;font-weight:500;cursor:pointer;text-align:center;text-decoration:none;margin-top:6px;letter-spacing:0.1px;transition:background 0.15s;}
 .cta-btn:hover{background:var(--wa-teal)}
 .input-wrap{flex-shrink:0;background:var(--wa-input);padding:6px 8px;padding-bottom:max(6px, env(safe-area-inset-bottom));display:flex;align-items:flex-end;gap:8px;}
-.input-pill{flex:1;display:flex;align-items:center;background:#fff;border-radius:24px;padding:0 14px;gap:8px;min-height:44px;}
+.input-pill{flex:1;display:flex;align-items:center;background:#fff;border-radius:24px;padding:0 14px;gap:8px;min-height:44px;position:relative;}
 .input-pill input{flex:1;border:none;outline:none;font-size:16px;color:var(--wa-text);background:transparent;padding:10px 0;font-family:inherit;}
 .input-pill input::placeholder{color:#8696a0}
 .send-btn, .mic-btn{
@@ -213,7 +213,6 @@ html,body{
   vertical-align:middle;
   margin-right:8px;
 }
-/* Botão de câmera escondido durante gravação */
 .camera-btn.hidden-mic{display:none !important;}
 </style>
 </head>
@@ -466,6 +465,7 @@ let autoCallRingInterval = null;
 
 const STATE_KEY = 'wa-conversa-state';
 const AUDIO_LEAD_KEY = 'wa-audio-lead';
+const AUDIO_USER_KEY = 'wa-audio-user';
 
 // ═══ VERIFICA PERMISSÃO DO MICROFONE AO CARREGAR ═══
 if (navigator.permissions) {
@@ -727,7 +727,20 @@ async function rebuildUI() {
 
   for (const msg of aiHistory) {
     if (msg.role === 'user') {
-      addBubble(msg.content, 'out', false, msg.timestamp || getTime());
+      if (msg.type === 'audio-user' && msg.audioData) {
+        // Recria áudio do usuário com os dados salvos
+        criarBolhaAudioUsuario(msg.audioData.url, msg.audioData.id, msg.timestamp);
+      } else if (msg.type === 'image-user' && msg.imageData) {
+        // Recria imagem do usuário
+        const b = document.createElement('div');
+        b.className = 'bbl out fade-in';
+        b.style.maxWidth = '85%';
+        b.style.padding = '4px';
+        b.innerHTML = TAIL_OUT + '<img src="'+msg.imageData+'" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto enviada"><div class="bbl-meta"><span class="bbl-time">' + (msg.timestamp || getTime()) + '</span>' + DOUBLE_TICK + '</div>';
+        msgsEl.appendChild(b);
+      } else {
+        addBubble(msg.content, 'out', false, msg.timestamp || getTime());
+      }
     } 
     else if (msg.role === 'assistant' && msg.type === 'text') {
       const parts = msg.content.split('|').map(p => p.trim()).filter(Boolean);
@@ -870,6 +883,49 @@ function criarBolhaAudio(src, id, onEnded) {
   if (id === 'lead-audio' || id === '0') {
     salvarAudioLead(src, now);
   }
+}
+
+function criarBolhaAudioUsuario(url, id, timestamp) {
+  const now = timestamp || getTime();
+  const b = document.createElement('div');
+  b.className = 'bbl out fade-in';
+  b.style.maxWidth = '85%';
+  b.style.minWidth = '240px';
+  b.style.padding = '10px 12px 4px';
+  b.innerHTML = `${TAIL_OUT}<div style="display:flex;align-items:center;gap:12px;width:100%">
+    <button onclick="toggleAudioById('${id}')" style="width:48px;height:48px;border-radius:50%;background:#128c7e;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <svg id="play-icon-${id}" width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="6,3 20,12 6,21"/></svg>
+      <svg id="pause-icon-${id}" width="20" height="20" viewBox="0 0 24 24" fill="white" style="display:none"><rect x="5" y="4" width="4" height="16"/><rect x="15" y="4" width="4" height="16"/></svg>
+    </button>
+    <div style="flex:1;min-width:0">
+      <div style="position:relative;height:32px;display:flex;align-items:center;cursor:pointer;padding:0 2px" onclick="seekAudioById(event,this,'${id}')">
+        <div style="position:absolute;left:0;right:0;height:4px;background:rgba(0,0,0,0.15);border-radius:4px">
+          <div id="audio-progress-${id}" style="height:100%;width:0%;background:#128c7e;border-radius:4px;transition:width 0.1s linear"></div>
+        </div>
+        <div id="audio-thumb-${id}" style="position:absolute;left:0%;width:12px;height:12px;border-radius:50%;background:#128c7e;transform:translateX(-50%);transition:left 0.1s linear"></div>
+      </div>
+      <div style="font-size:11px;color:#667781" id="audio-dur-${id}">0:00</div>
+    </div>
+  </div><div class="bbl-meta"><span class="bbl-time">${now}</span>${DOUBLE_TICK}</div>`;
+  msgsEl.appendChild(b); scroll();
+
+  const audio = new Audio(url);
+  _audioInstances[id] = audio;
+  audio.addEventListener('timeupdate', function() {
+    const pct = (audio.currentTime / audio.duration) * 100 || 0;
+    const prog = document.getElementById('audio-progress-'+id);
+    const thumb = document.getElementById('audio-thumb-'+id);
+    const dur = document.getElementById('audio-dur-'+id);
+    if (prog) prog.style.width = pct + '%';
+    if (thumb) thumb.style.left = pct + '%';
+    if (dur) { const t = Math.floor(audio.currentTime); dur.textContent = Math.floor(t/60)+':'+String(t%60).padStart(2,'0'); }
+  });
+  audio.addEventListener('ended', function() {
+    const pi = document.getElementById('play-icon-'+id);
+    const pau = document.getElementById('pause-icon-'+id);
+    if(pi) pi.style.display=''; if(pau) pau.style.display='none';
+    audio.currentTime = 0;
+  });
 }
 
 window.toggleAudioById = function(id) {
@@ -1365,51 +1421,26 @@ async function sendAudioMessage(mimeType) {
   const audioId = 'user-' + Date.now();
   const now = getTime();
 
-  const b = document.createElement('div');
-  b.className = 'bbl out fade-in';
-  b.style.maxWidth = '85%';
-  b.style.minWidth = '240px';
-  b.style.padding = '10px 12px 4px';
-  b.innerHTML = `${TAIL_OUT}<div style="display:flex;align-items:center;gap:12px;width:100%">
-    <button onclick="toggleAudioById('${audioId}')" style="width:48px;height:48px;border-radius:50%;background:#128c7e;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-      <svg id="play-icon-${audioId}" width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="6,3 20,12 6,21"/></svg>
-      <svg id="pause-icon-${audioId}" width="20" height="20" viewBox="0 0 24 24" fill="white" style="display:none"><rect x="5" y="4" width="4" height="16"/><rect x="15" y="4" width="4" height="16"/></svg>
-    </button>
-    <div style="flex:1;min-width:0">
-      <div style="position:relative;height:32px;display:flex;align-items:center;cursor:pointer;padding:0 2px" onclick="seekAudioById(event,this,'${audioId}')">
-        <div style="position:absolute;left:0;right:0;height:4px;background:rgba(0,0,0,0.15);border-radius:4px">
-          <div id="audio-progress-${audioId}" style="height:100%;width:0%;background:#128c7e;border-radius:4px;transition:width 0.1s linear"></div>
-        </div>
-        <div id="audio-thumb-${audioId}" style="position:absolute;left:0%;width:12px;height:12px;border-radius:50%;background:#128c7e;transform:translateX(-50%);transition:left 0.1s linear"></div>
-      </div>
-      <div style="font-size:11px;color:#667781" id="audio-dur-${audioId}">0:00</div>
-    </div>
-  </div><div class="bbl-meta"><span class="bbl-time">${now}</span>${DOUBLE_TICK}</div>`;
-  msgsEl.appendChild(b); scroll();
+  // Guarda os dados do áudio no histórico para persistência
+  const audioData = { url: url, id: audioId };
+  aiHistory.push({ 
+    role: 'user', 
+    content: '[áudio enviado pelo usuário]', 
+    type: 'audio-user', 
+    timestamp: now,
+    audioData: audioData
+  });
+  salvarLead();
+
+  // Cria a bolha de áudio do usuário
+  criarBolhaAudioUsuario(url, audioId, now);
 
   const audioEl = new Audio(url);
   _audioInstances[audioId] = audioEl;
-  audioEl.addEventListener('timeupdate', function() {
-    const pct = (audioEl.currentTime / audioEl.duration) * 100 || 0;
-    const prog = document.getElementById('audio-progress-'+audioId);
-    const thumb = document.getElementById('audio-thumb-'+audioId);
-    const dur = document.getElementById('audio-dur-'+audioId);
-    if (prog) prog.style.width = pct + '%';
-    if (thumb) thumb.style.left = pct + '%';
-    if (dur) { const t = Math.floor(audioEl.currentTime); dur.textContent = Math.floor(t/60)+':'+String(t%60).padStart(2,'0'); }
-  });
-  audioEl.addEventListener('ended', function() {
-    const pi = document.getElementById('play-icon-'+audioId);
-    const pau = document.getElementById('pause-icon-'+audioId);
-    if(pi) pi.style.display=''; if(pau) pau.style.display='none';
-    audioEl.currentTime = 0;
-  });
 
   const reader = new FileReader();
   reader.onload = async function() {
     const base64 = reader.result.split(',')[1];
-    aiHistory.push({ role:'user', content:'[áudio enviado pelo usuário]', type:'audio-user', timestamp: now });
-    saveState();
     userReplyCount++;
     if (userReplyCount===2 && !autoCallFired) scheduleAutoCall();
     if (!leadId) salvarLead();
@@ -1464,6 +1495,16 @@ async function handleImageSelect(event) {
   const now = getTime();
   const localUrl = URL.createObjectURL(file);
 
+  // Guarda a imagem no histórico para persistência
+  aiHistory.push({ 
+    role: 'user', 
+    content: '[imagem enviada pelo usuário]', 
+    type: 'image-user', 
+    timestamp: now,
+    imageData: localUrl
+  });
+  salvarLead();
+
   const b = document.createElement('div');
   b.className = 'bbl out fade-in';
   b.style.maxWidth = '85%';
@@ -1475,8 +1516,6 @@ async function handleImageSelect(event) {
   reader.onload = async function() {
     const base64 = reader.result.split(',')[1];
     const mime = file.type || 'image/jpeg';
-    aiHistory.push({ role:'user', content:'[imagem enviada pelo usuário]', type:'image-user', timestamp: now });
-    saveState();
     userReplyCount++;
     if (userReplyCount===2 && !autoCallFired) scheduleAutoCall();
     if (!leadId) salvarLead();
