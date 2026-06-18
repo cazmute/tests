@@ -257,8 +257,8 @@ html,body{
         <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:2px"></div>
       </div>
       <input id="inp" type="text" placeholder="Mensagem">
-      <!-- Botão de câmera -->
-      <button type="button" onclick="document.getElementById('img-input').click()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none" aria-label="Enviar foto">
+      <!-- Botão de câmera com ID -->
+      <button id="camera-btn" type="button" onclick="document.getElementById('img-input').click()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none" aria-label="Enviar foto">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
           <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
           <circle cx="12" cy="13" r="4" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
@@ -434,6 +434,7 @@ const sendBtn=document.getElementById('send-btn');
 const micBtn=document.getElementById('mic-btn');
 const hdrStatus=document.getElementById('hdr-status');
 const micToast=document.getElementById('mic-toast');
+const cameraBtn=document.getElementById('camera-btn');
 
 const MENSAGEM_INICIAL="Oi, Tudo bem?";
 const PRODUCT_HASH="7p8h95hghd";
@@ -779,9 +780,8 @@ async function rebuildUI() {
     else if (msg.role === 'system') {
       continue;
     }
-    // ===== NOVO: mensagens de mídia enviadas pelo usuário (persistentes) =====
+    // ===== Mídias enviadas pelo usuário (persistentes) =====
     else if (msg.role === 'user' && msg.type === 'image-user') {
-      // msg.content contém o base64 da imagem
       const b = document.createElement('div');
       b.className = 'bbl out fade-in';
       b.style.maxWidth = '85%';
@@ -790,7 +790,6 @@ async function rebuildUI() {
       msgsEl.appendChild(b);
     }
     else if (msg.role === 'user' && msg.type === 'audio-user') {
-      // msg.content é o base64 do áudio
       criarBolhaAudioFromBase64(msg.content, 'user-audio-' + (msg.timestamp || Date.now()), msg.timestamp);
     }
     await sleep(50);
@@ -824,7 +823,6 @@ function criarBolhaAudioFromBase64(base64, id, timestamp) {
   msgsEl.appendChild(b);
   scroll();
 
-  // Cria o áudio a partir do base64
   const audio = new Audio(base64);
   _audioInstances[id] = audio;
   audio.addEventListener('timeupdate', function() {
@@ -1126,6 +1124,8 @@ async function _startRecording() {
   _isMicPressed = true;
   _cancelRecording = false;
   micBtn.classList.add('recording');
+  // Oculta o botão da câmera
+  cameraBtn.classList.add('hidden');
 
   if (navigator.vibrate) navigator.vibrate(50);
 
@@ -1139,6 +1139,7 @@ async function _startRecording() {
       showMicError('Microfone bloqueado. Desbloqueie nas configurações do navegador.');
       _isMicPressed = false;
       micBtn.classList.remove('recording');
+      cameraBtn.classList.remove('hidden');
       return;
     }
 
@@ -1146,6 +1147,7 @@ async function _startRecording() {
       showMicError('Seu navegador não suporta gravação de áudio.');
       _isMicPressed = false;
       micBtn.classList.remove('recording');
+      cameraBtn.classList.remove('hidden');
       return;
     }
 
@@ -1154,6 +1156,7 @@ async function _startRecording() {
       showMicError('Nenhum formato de áudio suportado.');
       _isMicPressed = false;
       micBtn.classList.remove('recording');
+      cameraBtn.classList.remove('hidden');
       return;
     }
 
@@ -1176,6 +1179,8 @@ async function _startRecording() {
       micBtn.classList.remove('recording');
       micBtn.classList.remove('cancel');
       _isMicPressed = false;
+      // Reexibe o botão da câmera
+      cameraBtn.classList.remove('hidden');
       if (_timerInterval) {
         clearInterval(_timerInterval);
         _timerInterval = null;
@@ -1221,6 +1226,7 @@ async function _startRecording() {
     micBtn.classList.remove('recording');
     micBtn.classList.remove('cancel');
     _isRecording = false;
+    cameraBtn.classList.remove('hidden');
     if (_timerInterval) {
       clearInterval(_timerInterval);
       _timerInterval = null;
@@ -1368,13 +1374,13 @@ function showMicError(message) {
   scroll();
 }
 
-// ═══ ENVIO DE ÁUDIO (APÓS GRAVAÇÃO) COM PERSISTÊNCIA ═══
+// ═══ ENVIO DE ÁUDIO (APÓS GRAVAÇÃO) COM PERSISTÊNCIA E JSON ═══
 async function sendAudioMessage(mimeType) {
   if (_audioChunks.length === 0) return;
   const blob = new Blob(_audioChunks, { type: mimeType });
   if (blob.size < 500) return;
 
-  // Converte o blob para base64 para persistir
+  // Converte o blob para base64 para persistir e enviar
   const reader = new FileReader();
   reader.readAsDataURL(blob);
   reader.onload = async function() {
@@ -1393,20 +1399,21 @@ async function sendAudioMessage(mimeType) {
     if (userReplyCount===2 && !autoCallFired) scheduleAutoCall();
     if (!leadId) salvarLead();
 
-    // Exibe a bolha de áudio do usuário (agora usando o base64)
+    // Exibe a bolha de áudio do usuário
     criarBolhaAudioFromBase64(base64, 'user-audio-' + Date.now(), now);
 
-    // Envia o áudio para a IA (usando o blob original)
-    const formData = new FormData();
-    formData.append('audio', blob);
-    formData.append('history', JSON.stringify(aiHistory));
-    formData.append('city', leadCityVal || '');
-
+    // Envia para a IA via JSON (com o base64)
     showTyping();
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
-        body: formData
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          history: aiHistory,
+          city: leadCityVal || '',
+          audio: base64,        // o base64 completo (data:audio/...;base64,...)
+          audioMime: mimeType
+        })
       });
       const data = await res.json();
       hideTyping();
@@ -1431,13 +1438,14 @@ async function sendAudioMessage(mimeType) {
   };
 }
 
-// ═══ ENVIO DE IMAGEM COM PERSISTÊNCIA ═══
+// ═══ ENVIO DE IMAGEM COM PERSISTÊNCIA E JSON ═══
 async function handleImageSelect(event) {
   const file = event.target.files && event.target.files[0];
   event.target.value = '';
   if (!file) return;
 
   const reader = new FileReader();
+  reader.readAsDataURL(file);
   reader.onload = async function() {
     const base64 = reader.result; // data:image/...;base64,...
     const now = getTime();
@@ -1463,17 +1471,18 @@ async function handleImageSelect(event) {
     msgsEl.appendChild(b);
     scroll();
 
-    // Envia para IA (usando o blob original)
-    const formData = new FormData();
-    formData.append('image', file);
-    formData.append('history', JSON.stringify(aiHistory));
-    formData.append('city', leadCityVal || '');
-
+    // Envia para a IA via JSON (com o base64)
     showTyping();
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
-        body: formData
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          history: aiHistory,
+          city: leadCityVal || '',
+          image: base64,
+          imageMime: file.type || 'image/jpeg'
+        })
       });
       const data = await res.json();
       hideTyping();
@@ -1496,7 +1505,6 @@ async function handleImageSelect(event) {
     }
     enableInput();
   };
-  reader.readAsDataURL(file);
 }
 
 // ═══ CONTROLE DE VISIBILIDADE DOS BOTÕES ═══
