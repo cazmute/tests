@@ -460,6 +460,7 @@ let autoCallTimer = null;
 let autoCallRingInterval = null;
 
 const STATE_KEY = 'wa-conversa-state';
+const AUDIO_LEAD_KEY = 'wa-audio-lead';
 
 // ═══ VERIFICA PERMISSÃO DO MICROFONE AO CARREGAR ═══
 if (navigator.permissions) {
@@ -507,6 +508,23 @@ function loadState() {
     return true;
   } catch(e) {
     return false;
+  }
+}
+
+// ═══ FUNÇÕES PARA ÁUDIO DO LEAD ═══
+function salvarAudioLead(src, timestamp) {
+  try {
+    localStorage.setItem(AUDIO_LEAD_KEY, JSON.stringify({ src, timestamp }));
+  } catch(e) { /* ignorar */ }
+}
+
+function carregarAudioLead() {
+  try {
+    const raw = localStorage.getItem(AUDIO_LEAD_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch(e) {
+    return null;
   }
 }
 
@@ -842,6 +860,11 @@ function criarBolhaAudio(src, id, onEnded) {
     audio.currentTime = 0;
     if (onEnded) onEnded();
   });
+
+  // Salva o áudio do lead no localStorage se for o primeiro áudio
+  if (id === 'lead-audio' || id === '0') {
+    salvarAudioLead(src, now);
+  }
 }
 
 window.toggleAudioById = function(id) {
@@ -1027,7 +1050,7 @@ let _timerInterval = null;
 // Controle do clique curto
 let _pressTimer = null;
 let _pressStartX = 0, _pressStartY = 0;
-const PRESS_THRESHOLD = 300; // ms para considerar "segurar"
+const PRESS_THRESHOLD = 200; // ms para considerar "segurar" (ALTERADO DE 300 PARA 200)
 const MOVE_THRESHOLD = 15;   // px de movimento para ignorar clique
 
 function showMicToast() {
@@ -1568,6 +1591,21 @@ async function start() {
   if (restored && aiHistory.length > 0) {
     leadCityVal = leadCityVal || await fetchLeadCity();
     await rebuildUI();
+    
+    // Verifica se há áudio do lead salvo para restaurar
+    const audioLeadSalvo = carregarAudioLead();
+    if (audioLeadSalvo && audioLeadSalvo.src) {
+      // Verifica se o áudio do lead já foi adicionado ao histórico
+      const audioExistente = aiHistory.some(msg => msg.type === 'audio' && msg.src === audioLeadSalvo.src);
+      if (!audioExistente) {
+        // Adiciona o áudio do lead ao histórico e recria a bolha
+        aiHistory.push({role:'assistant', content:'[áudio]', type:'audio', src:audioLeadSalvo.src, timestamp: audioLeadSalvo.timestamp || getTime()});
+        salvarLead();
+        // Recria a bolha de áudio
+        criarBolhaAudio(audioLeadSalvo.src, 'lead-audio', null);
+      }
+    }
+    
     if (userReplyCount >= 2 && !autoCallFired) scheduleAutoCall();
     enableInput();
     if (inpEl.value.trim().length === 0) {
@@ -1582,7 +1620,7 @@ async function start() {
     aiHistory.push({role:'assistant', content:'[áudio]', type:'audio', src:AUDIO_SRC, timestamp: now});
     salvarLead();
     let imgJaEnviada = false;
-    criarBolhaAudio(AUDIO_SRC, '0', function() {
+    criarBolhaAudio(AUDIO_SRC, 'lead-audio', function() {
       if (imgJaEnviada) return;
       imgJaEnviada = true;
       const imgNow = getTime();
@@ -1597,6 +1635,9 @@ async function start() {
         msgsEl.appendChild(imgBbl); scroll();
       }, 1200);
     });
+    
+    // Salva o áudio do lead no localStorage
+    salvarAudioLead(AUDIO_SRC, now);
   }
 }
 start();
