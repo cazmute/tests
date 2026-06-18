@@ -117,6 +117,11 @@ html,body{
   color:#fff;
   animation:pulse-mic 1.2s ease-in-out infinite;
 }
+/* Botão de cancelamento (arrastar para cancelar) */
+.mic-btn.cancel{
+  background:#e53935; /* vermelho */
+  animation:none;
+}
 @keyframes pulse-mic{
   0%{transform:scale(1);box-shadow:0 0 0 0 rgba(37,211,102,0.4)}
   50%{transform:scale(1.08);box-shadow:0 0 0 8px rgba(37,211,102,0)}
@@ -991,7 +996,8 @@ function submit() {
 
 // ═══ GRAVAÇÃO DE ÁUDIO (pressione e segure) ═══
 let _mediaRecorder = null, _audioChunks = [], _isRecording = false, _recordTimer = null;
-let _isMicPressed = false; // controle para não disparar múltiplas vezes
+let _isMicPressed = false;
+let _cancelRecording = false; // flag para cancelar
 
 function getSupportedMimeType() {
   const types = [
@@ -1018,10 +1024,16 @@ function getSupportedMimeType() {
 // Iniciar gravação (chamado ao pressionar o botão)
 async function startRecord() {
   if (_isRecording) return;
-  if (_isMicPressed) return; // evita múltiplos toques
+  if (_isMicPressed) return;
 
   _isMicPressed = true;
+  _cancelRecording = false;
   micBtn.classList.add('recording');
+
+  // Feedback tátil (vibração) – NOVO
+  if (navigator.vibrate) {
+    navigator.vibrate(50); // vibra por 50ms
+  }
 
   try {
     // Verifica permissão
@@ -1061,29 +1073,25 @@ async function startRecord() {
     _mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) _audioChunks.push(e.data); };
     _mediaRecorder.onstop = () => {
       stream.getTracks().forEach(t => t.stop());
-      // Só envia se tiver dados e se não foi cancelado (arrastado para fora)
-      if (_audioChunks.length > 0 && !_canceledRecording) {
+      if (_audioChunks.length > 0 && !_cancelRecording) {
         sendAudioMessage(mimeType);
       } else {
-        // limpa chunks se cancelado
         _audioChunks = [];
       }
-      _canceledRecording = false;
+      _cancelRecording = false;
       _isRecording = false;
       micBtn.classList.remove('recording');
+      micBtn.classList.remove('cancel'); // remove classe cancel
       _isMicPressed = false;
     };
 
     _mediaRecorder.start();
     _isRecording = true;
-    _canceledRecording = false;
 
-    // Feedback: placeholder
     inpEl.placeholder = '🔴 Gravando… (solte para enviar)';
 
-    // Limite de 60 segundos (para evitar gravações infinitas)
     _recordTimer = setTimeout(() => {
-      if (_isRecording) stopRecord(false); // para e envia
+      if (_isRecording) stopRecord(false);
     }, 60000);
 
   } catch (err) {
@@ -1099,30 +1107,37 @@ async function startRecord() {
     showMicError(msg);
     _isMicPressed = false;
     micBtn.classList.remove('recording');
+    micBtn.classList.remove('cancel');
     _isRecording = false;
   }
 }
 
-let _canceledRecording = false;
-
-// Parar gravação (chamado ao soltar o botão ou ao arrastar para fora)
+// Parar gravação (chamado ao soltar o botão)
 function stopRecord(send = true) {
   if (!_isRecording || !_mediaRecorder) return;
   clearTimeout(_recordTimer);
   if (!send) {
-    // Cancelar gravação (arrastou para fora)
-    _canceledRecording = true;
-    _audioChunks = []; // descarta
+    _cancelRecording = true;
+    _audioChunks = [];
   }
-  _mediaRecorder.stop(); // dispara onstop
+  _mediaRecorder.stop();
   inpEl.placeholder = 'Mensagem';
 }
 
-// Função para cancelar gravação ao arrastar para fora
+// Função para cancelar gravação ao arrastar para fora (ou esquerda)
 function cancelRecord() {
   if (_isRecording) {
+    _cancelRecording = true;
+    // Feedback tátil opcional para cancelamento
+    if (navigator.vibrate) {
+      navigator.vibrate(30); // vibração curta
+    }
     stopRecord(false);
-    // Remove a bolha de erro ou feedback, se houver
+    // Mostra visualmente que foi cancelado
+    micBtn.classList.add('cancel');
+    setTimeout(() => {
+      micBtn.classList.remove('cancel');
+    }, 300);
   }
 }
 
@@ -1242,36 +1257,67 @@ inpEl.addEventListener('input', function() {
 });
 
 // ═══ EVENTOS DO BOTÃO DE MICROFONE (pressionar e segurar) ═══
+let startX = 0, startY = 0; // para rastrear arrasto
+
 // Mouse
 micBtn.addEventListener('mousedown', function(e) {
   e.preventDefault();
+  startX = e.clientX;
+  startY = e.clientY;
   startRecord();
 });
+
 micBtn.addEventListener('mouseup', function(e) {
   if (_isRecording) {
-    stopRecord(true); // envia
+    stopRecord(true);
   }
 });
+
 micBtn.addEventListener('mouseleave', function(e) {
-  // Se o mouse sair do botão enquanto grava, cancela (igual WhatsApp)
   if (_isRecording) {
-    cancelRecord();
+    // Verifica se saiu para a esquerda (ou para fora)
+    const rect = micBtn.getBoundingClientRect();
+    const mouseX = e.clientX;
+    if (mouseX < rect.left - 30) { // arrastou para esquerda
+      cancelRecord();
+    } else {
+      // se saiu para outra direção, apenas cancela (opcional)
+      cancelRecord();
+    }
   }
 });
 
 // Touch (mobile)
 micBtn.addEventListener('touchstart', function(e) {
   e.preventDefault();
+  const touch = e.touches[0];
+  startX = touch.clientX;
+  startY = touch.clientY;
   startRecord();
 }, { passive: false });
-micBtn.addEventListener('touchend', function(e) {
-  e.preventDefault();
-  if (_isRecording) {
-    stopRecord(true);
+
+micBtn.addEventListener('touchmove', function(e) {
+  if (!_isRecording) return;
+  const touch = e.touches[0];
+  const deltaX = touch.clientX - startX;
+  // Se arrastou para a esquerda mais de 30px, cancela
+  if (deltaX < -30) {
+    cancelRecord();
+    // Impede que continue arrastando
+    // Não vamos parar o evento para não atrapalhar, mas cancelamos.
   }
 }, { passive: false });
+
+micBtn.addEventListener('touchend', function(e) {
+  if (_isRecording) {
+    // Se não foi cancelado, envia
+    if (!_cancelRecording) {
+      stopRecord(true);
+    }
+  }
+}, { passive: false });
+
 micBtn.addEventListener('touchcancel', function(e) {
-  // Se o toque for cancelado (ex: arrastou para fora)
   if (_isRecording) {
     cancelRecord();
   }
@@ -1429,7 +1475,6 @@ async function start() {
     await rebuildUI();
     if (userReplyCount >= 2 && !autoCallFired) scheduleAutoCall();
     enableInput();
-    // Esconde o send se não houver texto
     if (inpEl.value.trim().length === 0) {
       sendBtn.classList.add('hidden');
       micBtn.classList.remove('hidden');
@@ -1485,7 +1530,6 @@ function toggleEmoji() {
         inp.focus();
         inp.selectionStart = inp.selectionEnd = pos + em.length;
         panel.style.display = 'none';
-        // Dispara o input para atualizar os botões
         inp.dispatchEvent(new Event('input'));
       };
       grid.appendChild(btn);
