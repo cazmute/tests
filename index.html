@@ -779,9 +779,69 @@ async function rebuildUI() {
     else if (msg.role === 'system') {
       continue;
     }
+    // ===== NOVO: mensagens de mídia enviadas pelo usuário (persistentes) =====
+    else if (msg.role === 'user' && msg.type === 'image-user') {
+      // msg.content contém o base64 da imagem
+      const b = document.createElement('div');
+      b.className = 'bbl out fade-in';
+      b.style.maxWidth = '85%';
+      b.style.padding = '4px';
+      b.innerHTML = TAIL_OUT + '<img src="' + msg.content + '" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto enviada"><div class="bbl-meta"><span class="bbl-time">' + (msg.timestamp || getTime()) + '</span>' + DOUBLE_TICK + '</div>';
+      msgsEl.appendChild(b);
+    }
+    else if (msg.role === 'user' && msg.type === 'audio-user') {
+      // msg.content é o base64 do áudio
+      criarBolhaAudioFromBase64(msg.content, 'user-audio-' + (msg.timestamp || Date.now()), msg.timestamp);
+    }
     await sleep(50);
   }
   scroll();
+}
+
+// Função auxiliar para criar bolha de áudio a partir de base64 (persistente)
+function criarBolhaAudioFromBase64(base64, id, timestamp) {
+  const now = timestamp || getTime();
+  const b = document.createElement('div');
+  b.className = 'bbl out fade-in';
+  b.style.maxWidth = '85%';
+  b.style.minWidth = '240px';
+  b.style.padding = '10px 12px 4px';
+  b.innerHTML = `${TAIL_OUT}<div style="display:flex;align-items:center;gap:12px;width:100%">
+    <button onclick="toggleAudioById('${id}')" style="width:48px;height:48px;border-radius:50%;background:#128c7e;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <svg id="play-icon-${id}" width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="6,3 20,12 6,21"/></svg>
+      <svg id="pause-icon-${id}" width="20" height="20" viewBox="0 0 24 24" fill="white" style="display:none"><rect x="5" y="4" width="4" height="16"/><rect x="15" y="4" width="4" height="16"/></svg>
+    </button>
+    <div style="flex:1;min-width:0">
+      <div style="position:relative;height:32px;display:flex;align-items:center;cursor:pointer;padding:0 2px" onclick="seekAudioById(event,this,'${id}')">
+        <div style="position:absolute;left:0;right:0;height:4px;background:rgba(0,0,0,0.15);border-radius:4px">
+          <div id="audio-progress-${id}" style="height:100%;width:0%;background:#128c7e;border-radius:4px;transition:width 0.1s linear"></div>
+        </div>
+        <div id="audio-thumb-${id}" style="position:absolute;left:0%;width:12px;height:12px;border-radius:50%;background:#128c7e;transform:translateX(-50%);transition:left 0.1s linear"></div>
+      </div>
+      <div style="font-size:11px;color:#667781" id="audio-dur-${id}">0:00</div>
+    </div>
+  </div><div class="bbl-meta"><span class="bbl-time">${now}</span>${DOUBLE_TICK}</div>`;
+  msgsEl.appendChild(b);
+  scroll();
+
+  // Cria o áudio a partir do base64
+  const audio = new Audio(base64);
+  _audioInstances[id] = audio;
+  audio.addEventListener('timeupdate', function() {
+    const pct = (audio.currentTime / audio.duration) * 100 || 0;
+    const prog = document.getElementById('audio-progress-'+id);
+    const thumb = document.getElementById('audio-thumb-'+id);
+    const dur = document.getElementById('audio-dur-'+id);
+    if (prog) prog.style.width = pct + '%';
+    if (thumb) thumb.style.left = pct + '%';
+    if (dur) { const t = Math.floor(audio.currentTime); dur.textContent = Math.floor(t/60)+':'+String(t%60).padStart(2,'0'); }
+  });
+  audio.addEventListener('ended', function() {
+    const pi = document.getElementById('play-icon-'+id);
+    const pau = document.getElementById('pause-icon-'+id);
+    if(pi) pi.style.display=''; if(pau) pau.style.display='none';
+    audio.currentTime = 0;
+  });
 }
 
 let _audioInstances = {};
@@ -1024,11 +1084,9 @@ let _cancelRecording = false;
 let _recordStartTime = null;
 let _timerInterval = null;
 
-// Controle do clique curto
-let _pressTimer = null;
-let _pressStartX = 0, _pressStartY = 0;
-const PRESS_THRESHOLD = 300; // ms para considerar "segurar"
-const MOVE_THRESHOLD = 15;   // px de movimento para ignorar clique
+// Controle do clique curto - DELAY NATIVO WHATSAPP ~200ms
+const PRESS_THRESHOLD = 200; // ms
+const MOVE_THRESHOLD = 15;
 
 function showMicToast() {
   micToast.classList.add('show');
@@ -1060,7 +1118,7 @@ function getSupportedMimeType() {
   return null;
 }
 
-// Iniciar gravação (chamado após o timer de pressão)
+// Iniciar gravação
 async function _startRecording() {
   if (_isRecording) return;
   if (_isMicPressed) return;
@@ -1202,21 +1260,21 @@ function cancelRecord() {
 }
 
 // ── Eventos de pressão no microfone ──
+let _pressTimer = null;
+let _pressStartX = 0, _pressStartY = 0;
+
 function handlePressStart(e) {
   const clientX = e.clientX || (e.touches && e.touches[0].clientX);
   const clientY = e.clientY || (e.touches && e.touches[0].clientY);
   if (clientX == null) return;
 
-  // Evita múltiplas ativações
   if (_pressTimer) return;
 
   _pressStartX = clientX;
   _pressStartY = clientY;
 
-  // Limpa qualquer toast anterior
   micToast.classList.remove('show');
 
-  // Inicia um timer para iniciar a gravação se segurar
   _pressTimer = setTimeout(() => {
     _pressTimer = null;
     _startRecording();
@@ -1224,18 +1282,15 @@ function handlePressStart(e) {
 }
 
 function handlePressEnd(e) {
-  // Se o timer ainda estiver ativo, foi um clique curto
   if (_pressTimer) {
     clearTimeout(_pressTimer);
     _pressTimer = null;
-    // Verifica se houve movimento significativo (arraste)
     const clientX = e.clientX || (e.changedTouches && e.changedTouches[0].clientX);
     const clientY = e.clientY || (e.changedTouches && e.changedTouches[0].clientY);
     if (clientX != null) {
       const dx = clientX - _pressStartX;
       const dy = clientY - _pressStartY;
       if (Math.sqrt(dx*dx + dy*dy) < MOVE_THRESHOLD) {
-        // Clique simples sem movimento → mostra toast
         showMicToast();
       }
     } else {
@@ -1244,7 +1299,6 @@ function handlePressEnd(e) {
     return;
   }
 
-  // Se já está gravando, para a gravação (se não foi cancelado)
   if (_isRecording) {
     if (!_cancelRecording) {
       stopRecord(true);
@@ -1253,7 +1307,6 @@ function handlePressEnd(e) {
 }
 
 function handlePressMove(e) {
-  // Se não está gravando e o timer existe, verifica se houve movimento para cancelar o timer (evita gravação acidental ao arrastar)
   if (_pressTimer) {
     const clientX = e.clientX || (e.touches && e.touches[0].clientX);
     const clientY = e.clientY || (e.touches && e.touches[0].clientY);
@@ -1263,12 +1316,10 @@ function handlePressMove(e) {
       if (Math.sqrt(dx*dx + dy*dy) > MOVE_THRESHOLD) {
         clearTimeout(_pressTimer);
         _pressTimer = null;
-        // Não mostra toast porque foi um arraste
       }
     }
   }
 
-  // Se está gravando, verifica se arrastou para cancelar
   if (_isRecording) {
     const rect = micBtn.getBoundingClientRect();
     const clientX = e.clientX || (e.touches && e.touches[0].clientX);
@@ -1282,7 +1333,6 @@ function handlePressMove(e) {
 micBtn.addEventListener('mousedown', handlePressStart);
 micBtn.addEventListener('mouseup', handlePressEnd);
 micBtn.addEventListener('mouseleave', function(e) {
-  // Se o mouse sair do botão enquanto pressionado, cancela qualquer timer ou gravação
   if (_pressTimer) {
     clearTimeout(_pressTimer);
     _pressTimer = null;
@@ -1293,7 +1343,6 @@ micBtn.addEventListener('mouseleave', function(e) {
 });
 micBtn.addEventListener('mousemove', handlePressMove);
 
-// Toque (mobile)
 micBtn.addEventListener('touchstart', handlePressStart, { passive: true });
 micBtn.addEventListener('touchend', handlePressEnd, { passive: true });
 micBtn.addEventListener('touchcancel', function(e) {
@@ -1319,69 +1368,45 @@ function showMicError(message) {
   scroll();
 }
 
-// ═══ ENVIO DE ÁUDIO (APÓS GRAVAÇÃO) ═══
+// ═══ ENVIO DE ÁUDIO (APÓS GRAVAÇÃO) COM PERSISTÊNCIA ═══
 async function sendAudioMessage(mimeType) {
   if (_audioChunks.length === 0) return;
   const blob = new Blob(_audioChunks, { type: mimeType });
   if (blob.size < 500) return;
 
-  const url = URL.createObjectURL(blob);
-  const audioId = 'user-' + Date.now();
-  const now = getTime();
-
-  const b = document.createElement('div');
-  b.className = 'bbl out fade-in';
-  b.style.maxWidth = '85%';
-  b.style.minWidth = '240px';
-  b.style.padding = '10px 12px 4px';
-  b.innerHTML = `${TAIL_OUT}<div style="display:flex;align-items:center;gap:12px;width:100%">
-    <button onclick="toggleAudioById('${audioId}')" style="width:48px;height:48px;border-radius:50%;background:#128c7e;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-      <svg id="play-icon-${audioId}" width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="6,3 20,12 6,21"/></svg>
-      <svg id="pause-icon-${audioId}" width="20" height="20" viewBox="0 0 24 24" fill="white" style="display:none"><rect x="5" y="4" width="4" height="16"/><rect x="15" y="4" width="4" height="16"/></svg>
-    </button>
-    <div style="flex:1;min-width:0">
-      <div style="position:relative;height:32px;display:flex;align-items:center;cursor:pointer;padding:0 2px" onclick="seekAudioById(event,this,'${audioId}')">
-        <div style="position:absolute;left:0;right:0;height:4px;background:rgba(0,0,0,0.15);border-radius:4px">
-          <div id="audio-progress-${audioId}" style="height:100%;width:0%;background:#128c7e;border-radius:4px;transition:width 0.1s linear"></div>
-        </div>
-        <div id="audio-thumb-${audioId}" style="position:absolute;left:0%;width:12px;height:12px;border-radius:50%;background:#128c7e;transform:translateX(-50%);transition:left 0.1s linear"></div>
-      </div>
-      <div style="font-size:11px;color:#667781" id="audio-dur-${audioId}">0:00</div>
-    </div>
-  </div><div class="bbl-meta"><span class="bbl-time">${now}</span>${DOUBLE_TICK}</div>`;
-  msgsEl.appendChild(b); scroll();
-
-  const audioEl = new Audio(url);
-  _audioInstances[audioId] = audioEl;
-  audioEl.addEventListener('timeupdate', function() {
-    const pct = (audioEl.currentTime / audioEl.duration) * 100 || 0;
-    const prog = document.getElementById('audio-progress-'+audioId);
-    const thumb = document.getElementById('audio-thumb-'+audioId);
-    const dur = document.getElementById('audio-dur-'+audioId);
-    if (prog) prog.style.width = pct + '%';
-    if (thumb) thumb.style.left = pct + '%';
-    if (dur) { const t = Math.floor(audioEl.currentTime); dur.textContent = Math.floor(t/60)+':'+String(t%60).padStart(2,'0'); }
-  });
-  audioEl.addEventListener('ended', function() {
-    const pi = document.getElementById('play-icon-'+audioId);
-    const pau = document.getElementById('pause-icon-'+audioId);
-    if(pi) pi.style.display=''; if(pau) pau.style.display='none';
-    audioEl.currentTime = 0;
-  });
-
+  // Converte o blob para base64 para persistir
   const reader = new FileReader();
+  reader.readAsDataURL(blob);
   reader.onload = async function() {
-    const base64 = reader.result.split(',')[1];
-    aiHistory.push({ role:'user', content:'[áudio enviado pelo usuário]', type:'audio-user', timestamp: now });
+    const base64 = reader.result; // data:audio/...;base64,...
+    const now = getTime();
+
+    // Salva no histórico com o base64
+    aiHistory.push({
+      role: 'user',
+      content: base64,
+      type: 'audio-user',
+      timestamp: now
+    });
     saveState();
     userReplyCount++;
     if (userReplyCount===2 && !autoCallFired) scheduleAutoCall();
     if (!leadId) salvarLead();
+
+    // Exibe a bolha de áudio do usuário (agora usando o base64)
+    criarBolhaAudioFromBase64(base64, 'user-audio-' + Date.now(), now);
+
+    // Envia o áudio para a IA (usando o blob original)
+    const formData = new FormData();
+    formData.append('audio', blob);
+    formData.append('history', JSON.stringify(aiHistory));
+    formData.append('city', leadCityVal || '');
+
     showTyping();
     try {
       const res = await fetch('/api/chat', {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ history: aiHistory, city: leadCityVal, audio: base64, audioMime: mimeType })
+        method: 'POST',
+        body: formData
       });
       const data = await res.json();
       hideTyping();
@@ -1404,51 +1429,51 @@ async function sendAudioMessage(mimeType) {
     }
     enableInput();
   };
-  reader.readAsDataURL(blob);
 }
 
-// ═══ CONTROLE DE VISIBILIDADE DOS BOTÕES ═══
-inpEl.addEventListener('input', function() {
-  const hasText = this.value.trim().length > 0;
-  if (hasText) {
-    sendBtn.classList.remove('hidden');
-    micBtn.classList.add('hidden');
-  } else {
-    sendBtn.classList.add('hidden');
-    micBtn.classList.remove('hidden');
-  }
-});
-
-// ═══ ENVIO DE IMAGEM ═══
+// ═══ ENVIO DE IMAGEM COM PERSISTÊNCIA ═══
 async function handleImageSelect(event) {
   const file = event.target.files && event.target.files[0];
   event.target.value = '';
   if (!file) return;
 
-  const now = getTime();
-  const localUrl = URL.createObjectURL(file);
-
-  const b = document.createElement('div');
-  b.className = 'bbl out fade-in';
-  b.style.maxWidth = '85%';
-  b.style.padding = '4px';
-  b.innerHTML = TAIL_OUT + '<img src="'+localUrl+'" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto enviada"><div class="bbl-meta"><span class="bbl-time">'+now+'</span>'+DOUBLE_TICK+'</div>';
-  msgsEl.appendChild(b); scroll();
-
   const reader = new FileReader();
   reader.onload = async function() {
-    const base64 = reader.result.split(',')[1];
-    const mime = file.type || 'image/jpeg';
-    aiHistory.push({ role:'user', content:'[imagem enviada pelo usuário]', type:'image-user', timestamp: now });
+    const base64 = reader.result; // data:image/...;base64,...
+    const now = getTime();
+
+    // Salva no histórico com o base64
+    aiHistory.push({
+      role: 'user',
+      content: base64,
+      type: 'image-user',
+      timestamp: now
+    });
     saveState();
     userReplyCount++;
     if (userReplyCount===2 && !autoCallFired) scheduleAutoCall();
     if (!leadId) salvarLead();
+
+    // Exibe a imagem
+    const b = document.createElement('div');
+    b.className = 'bbl out fade-in';
+    b.style.maxWidth = '85%';
+    b.style.padding = '4px';
+    b.innerHTML = TAIL_OUT + '<img src="' + base64 + '" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto enviada"><div class="bbl-meta"><span class="bbl-time">' + now + '</span>' + DOUBLE_TICK + '</div>';
+    msgsEl.appendChild(b);
+    scroll();
+
+    // Envia para IA (usando o blob original)
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('history', JSON.stringify(aiHistory));
+    formData.append('city', leadCityVal || '');
+
     showTyping();
     try {
       const res = await fetch('/api/chat', {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ history: aiHistory, city: leadCityVal, image: base64, imageMime: mime })
+        method: 'POST',
+        body: formData
       });
       const data = await res.json();
       hideTyping();
@@ -1473,6 +1498,18 @@ async function handleImageSelect(event) {
   };
   reader.readAsDataURL(file);
 }
+
+// ═══ CONTROLE DE VISIBILIDADE DOS BOTÕES ═══
+inpEl.addEventListener('input', function() {
+  const hasText = this.value.trim().length > 0;
+  if (hasText) {
+    sendBtn.classList.remove('hidden');
+    micBtn.classList.add('hidden');
+  } else {
+    sendBtn.classList.add('hidden');
+    micBtn.classList.remove('hidden');
+  }
+});
 
 // ═══ AUTO CALL ═══
 function startAutoCallRing(){
