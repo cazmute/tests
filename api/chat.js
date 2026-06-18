@@ -1,9 +1,12 @@
 import busboy from 'busboy';
 
-const SYSTEM = `...`; // (use o mesmo SYSTEM que você já tem, não vou repetir)
+const SYSTEM = `...`; // (coloque o SYSTEM completo que você já usa, não vou repetir para não alongar)
 
-// Função que constrói o multipart manualmente e chama a API de transcrição
+// ===================================================================
+// FUNÇÃO QUE TRANSCREVE ÁUDIO USANDO MULTIPART MANUAL
+// ===================================================================
 async function transcribeAudio(audioBuffer, mimeType) {
+  // Gera um boundary simples (apenas letras e números)
   const boundary = '----FormBoundary' + Date.now().toString(36) + Math.random().toString(36).substring(2);
   const parts = [];
 
@@ -14,7 +17,7 @@ async function transcribeAudio(audioBuffer, mimeType) {
     `Content-Disposition: form-data; name="file"; filename="${filename}"\r\n` +
     `Content-Type: ${mimeType}\r\n\r\n`
   );
-  parts.push(audioBuffer);
+  parts.push(audioBuffer); // Buffer bruto
   parts.push(`\r\n`);
 
   // 2. Campo "model"
@@ -37,13 +40,14 @@ async function transcribeAudio(audioBuffer, mimeType) {
   // Concatena tudo em um único Buffer
   const body = Buffer.concat(parts.map(p => typeof p === 'string' ? Buffer.from(p) : p));
 
+  // Envia para a OpenRouter
   const response = await fetch('https://openrouter.ai/api/v1/audio/transcriptions', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${process.env.OR_KEY}`,
       'Content-Type': `multipart/form-data; boundary=${boundary}`,
     },
-    body,
+    body: body,
   });
 
   if (!response.ok) {
@@ -54,6 +58,9 @@ async function transcribeAudio(audioBuffer, mimeType) {
   return text.trim();
 }
 
+// ===================================================================
+// HANDLER PRINCIPAL
+// ===================================================================
 export default async function handler(req, res) {
   try {
     if (req.method !== 'POST') {
@@ -101,7 +108,7 @@ export default async function handler(req, res) {
         fileMime = result.fileData.mimeType;
       }
     } else {
-      // Modo JSON (compatibilidade)
+      // Modo JSON (compatibilidade com chamadas antigas)
       const { history: hist, city: c } = req.body;
       if (!hist || !Array.isArray(hist)) {
         return res.status(400).json({ error: 'Invalid payload' });
@@ -114,11 +121,13 @@ export default async function handler(req, res) {
       }
     }
 
+    // Monta o system prompt com a cidade
     const cityRule = "REGRA ABSOLUTA: Se perguntarem onde mora, diga que está de passagem em " + city + ", visitando uma amiga. NUNCA inclua \"[CIDADE_LEAD:\" ou qualquer tag de localização nas suas respostas. Essas informações são apenas contexto interno, nunca devem aparecer no chat. Na primeira resposta, substitua [CIDADE] por " + city + ".";
     const fullSystem = SYSTEM + "\n\n" + cityRule;
 
     const messages = [{ role: 'system', content: fullSystem }];
 
+    // Se veio arquivo, monta o conteúdo multimodal
     if (fileBuffer && fileMime) {
       let userContent = [];
       if (userText) {
@@ -149,6 +158,7 @@ export default async function handler(req, res) {
 
       messages.push({ role: 'user', content: userContent });
     } else {
+      // Sem arquivo: usa o histórico
       if (history.length > 0) {
         const last = history[history.length - 1];
         if (!last || last.role !== 'user' || last.content !== userText) {
@@ -161,8 +171,10 @@ export default async function handler(req, res) {
       }
     }
 
+    // Escolha do modelo (variável de ambiente ou fallback)
     const model = process.env.AI_MODEL || 'google/gemini-2.0-flash-exp';
 
+    // Chamada para o chat da OpenRouter
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
