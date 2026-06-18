@@ -206,6 +206,9 @@ html,body{
         </svg>
       </button>
       <input id="inp" type="text" placeholder="Mensagem">
+      <button type="button" id="mic-btn" onclick="toggleRecord()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none;transition:color .15s" title="Gravar áudio">
+        <svg id="mic-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 10a7 7 0 0 1-14 0" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="19" x2="12" y2="23" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round"/><line x1="8" y1="23" x2="16" y2="23" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round"/></svg>
+      </button>
     </div>
     <button class="send-btn" id="send-btn">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="display:block;margin:auto;position:relative;right:2px">
@@ -215,21 +218,19 @@ html,body{
     </button>
   </div>
 
-  <!-- SHEET: anexo desabilitado -->
+  <!-- SHEET: anexo -->
   <div class="sheet-overlay" id="attach-sheet">
     <div class="sheet" style="border-radius:20px 20px 0 0">
       <div class="sheet-handle"></div>
-      <div style="padding:24px 18px 16px;text-align:center;border-bottom:0.5px solid rgba(255,255,255,0.08)">
-        <div style="width:52px;height:52px;border-radius:50%;background:rgba(134,150,160,0.12);display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66L9.41 17.41a2 2 0 01-2.83-2.83l8.49-8.48" stroke="#8696a0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <div style="color:#e9edef;font-size:16px;font-weight:600;margin-bottom:8px">Envio de arquivos desativado</div>
-        <div style="color:#8696a0;font-size:13px;line-height:1.7">Esta é uma <strong style="color:#e9edef">conversa privada protegida</strong>. O envio de fotos, vídeos e arquivos está desativado por questões de <strong style="color:#e9edef">segurança e privacidade</strong> desta conversa.</div>
+      <div style="padding:20px 18px 16px;text-align:center;border-bottom:0.5px solid rgba(255,255,255,0.08)">
+        <div style="color:#e9edef;font-size:16px;font-weight:600;margin-bottom:6px">Enviar mídia</div>
       </div>
-      <div style="padding:16px 18px 24px">
-        <button class="sheet-ok" onclick="closeAttachSheet()">Entendi</button>
+      <div style="padding:16px 18px 24px;display:flex;flex-direction:column;gap:10px">
+        <label style="width:100%;background:#00a884;color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;text-align:center;display:block">
+          📷 Enviar foto
+          <input type="file" accept="image/*" id="img-input" style="display:none" onchange="handleImageSelect(event)">
+        </label>
+        <button class="sheet-ok" style="background:transparent;border:1px solid rgba(255,255,255,0.2);color:#e9edef" onclick="closeAttachSheet()">Cancelar</button>
       </div>
     </div>
   </div>
@@ -989,6 +990,204 @@ function submit() {
 }
 sendBtn.onclick = submit;
 inpEl.onkeydown = function(e) { if (e.key==='Enter') submit(); };
+
+// ═══ GRAVAÇÃO DE ÁUDIO (tipo WhatsApp) ═══
+let _mediaRecorder = null, _audioChunks = [], _isRecording = false, _recordTimer = null;
+
+function toggleRecord() {
+  if (_isRecording) stopRecord();
+  else startRecord();
+}
+
+async function startRecord() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus'
+                   : MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm'
+                   : 'audio/ogg';
+    _mediaRecorder = new MediaRecorder(stream, { mimeType });
+    _audioChunks = [];
+    _mediaRecorder.ondataavailable = e => { if (e.data.size > 0) _audioChunks.push(e.data); };
+    _mediaRecorder.onstop = () => { stream.getTracks().forEach(t => t.stop()); sendAudioMessage(mimeType); };
+    _mediaRecorder.start();
+    _isRecording = true;
+    // Feedback visual: microfone vermelho + texto no placeholder
+    const micBtn = document.getElementById('mic-btn');
+    const micIcon = document.getElementById('mic-icon');
+    micIcon.querySelector('path').setAttribute('stroke','#e53935');
+    micIcon.querySelector('path:last-child') && micIcon.querySelector('path:last-child').setAttribute('stroke','#e53935');
+    micBtn.style.color = '#e53935';
+    inpEl.placeholder = '🔴 Gravando… (toque para parar)';
+    inpEl.disabled = true;
+    sendBtn.disabled = true;
+    // Limite de 60s
+    _recordTimer = setTimeout(stopRecord, 60000);
+  } catch(e) {
+    alert('Permita o uso do microfone para gravar áudios.');
+  }
+}
+
+function stopRecord() {
+  if (!_isRecording || !_mediaRecorder) return;
+  clearTimeout(_recordTimer);
+  _mediaRecorder.stop();
+  _isRecording = false;
+  const micIcon = document.getElementById('mic-icon');
+  const micBtn = document.getElementById('mic-btn');
+  micIcon.querySelectorAll('[stroke]').forEach(el => el.setAttribute('stroke','#8696a0'));
+  micBtn.style.color = '#8696a0';
+  inpEl.placeholder = 'Mensagem';
+  inpEl.disabled = false;
+  sendBtn.disabled = false;
+}
+
+async function sendAudioMessage(mimeType) {
+  if (_audioChunks.length === 0) return;
+  const blob = new Blob(_audioChunks, { type: mimeType });
+  if (blob.size < 500) return; // áudio vazio
+
+  // Cria URL local e exibe bolha do usuário
+  const url = URL.createObjectURL(blob);
+  const audioId = 'user-' + Date.now();
+  const now = getTime();
+
+  // Bolha de áudio do usuário (lado direito)
+  const b = document.createElement('div');
+  b.className = 'bbl out fade-in';
+  b.style.maxWidth = '85%';
+  b.style.minWidth = '240px';
+  b.style.padding = '10px 12px 4px';
+  b.innerHTML = `${TAIL_OUT}<div style="display:flex;align-items:center;gap:12px;width:100%">
+    <button onclick="toggleAudioById('${audioId}')" style="width:48px;height:48px;border-radius:50%;background:#128c7e;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <svg id="play-icon-${audioId}" width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="6,3 20,12 6,21"/></svg>
+      <svg id="pause-icon-${audioId}" width="20" height="20" viewBox="0 0 24 24" fill="white" style="display:none"><rect x="5" y="4" width="4" height="16"/><rect x="15" y="4" width="4" height="16"/></svg>
+    </button>
+    <div style="flex:1;min-width:0">
+      <div style="position:relative;height:32px;display:flex;align-items:center;cursor:pointer;padding:0 2px" onclick="seekAudioById(event,this,'${audioId}')">
+        <div style="position:absolute;left:0;right:0;height:4px;background:rgba(0,0,0,0.15);border-radius:4px">
+          <div id="audio-progress-${audioId}" style="height:100%;width:0%;background:#128c7e;border-radius:4px;transition:width 0.1s linear"></div>
+        </div>
+        <div id="audio-thumb-${audioId}" style="position:absolute;left:0%;width:12px;height:12px;border-radius:50%;background:#128c7e;transform:translateX(-50%);transition:left 0.1s linear"></div>
+      </div>
+      <div style="font-size:11px;color:#667781" id="audio-dur-${audioId}">0:00</div>
+    </div>
+  </div><div class="bbl-meta"><span class="bbl-time">${now}</span>${DOUBLE_TICK}</div>`;
+  msgsEl.appendChild(b); scroll();
+
+  const audioEl = new Audio(url);
+  _audioInstances[audioId] = audioEl;
+  audioEl.addEventListener('timeupdate', function() {
+    const pct = (audioEl.currentTime / audioEl.duration) * 100 || 0;
+    const prog = document.getElementById('audio-progress-'+audioId);
+    const thumb = document.getElementById('audio-thumb-'+audioId);
+    const dur = document.getElementById('audio-dur-'+audioId);
+    if (prog) prog.style.width = pct + '%';
+    if (thumb) thumb.style.left = pct + '%';
+    if (dur) { const t = Math.floor(audioEl.currentTime); dur.textContent = Math.floor(t/60)+':'+String(t%60).padStart(2,'0'); }
+  });
+  audioEl.addEventListener('ended', function() {
+    const pi = document.getElementById('play-icon-'+audioId);
+    const pau = document.getElementById('pause-icon-'+audioId);
+    if(pi) pi.style.display=''; if(pau) pau.style.display='none';
+    audioEl.currentTime = 0;
+  });
+
+  // Converte para base64 e envia à IA
+  const reader = new FileReader();
+  reader.onload = async function() {
+    const base64 = reader.result.split(',')[1];
+    aiHistory.push({ role:'user', content:'[áudio enviado pelo usuário]', type:'audio-user', timestamp: now });
+    saveState();
+    userReplyCount++;
+    if (userReplyCount===2 && !autoCallFired) scheduleAutoCall();
+    if (!leadId) salvarLead();
+    showTyping();
+    try {
+      const res = await fetch('/api/chat', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ history: aiHistory, city: leadCityVal, audio: base64, audioMime: mimeType })
+      });
+      const data = await res.json();
+      hideTyping();
+      const reply = data && data.reply;
+      if (!reply) { addBubble('Oi! Tô com muita mensagem agora 😅 Tenta de novo!','in'); enableInput(); return; }
+      aiHistory.push({ role:'assistant', content:reply, type:'text', timestamp: getTime() });
+      saveState();
+      const parts = reply.split('|').map(p=>p.trim()).filter(Boolean);
+      for (let i=0;i<parts.length;i++) { showTyping(); await sleep(typingDelay(parts[i])); hideTyping(); addBubble(parts[i],'in',false,getTime()); }
+      const temLink = /aqui o pix/i.test(reply) || /um desconto/i.test(reply) || /aqui.*pix/i.test(reply) || /pix.*aqui/i.test(reply);
+      const temDesc = /um desconto/i.test(reply);
+      const temFoto = /olha eu aqui/i.test(reply);
+      if (temLink) { await sleep(600); showCta(temDesc); }
+      if (temFoto) { await sleep(500); showFotoLead(); }
+      salvarLead(temLink);
+    } catch(e) {
+      hideTyping();
+      addBubble('Ops, não consegui ouvir o áudio. Pode escrever? 😊','in');
+      aiHistory.pop();
+    }
+    enableInput();
+  };
+  reader.readAsDataURL(blob);
+}
+
+// ═══ ENVIO DE IMAGEM ═══
+async function handleImageSelect(event) {
+  closeAttachSheet();
+  const file = event.target.files && event.target.files[0];
+  event.target.value = '';
+  if (!file) return;
+
+  const now = getTime();
+  const localUrl = URL.createObjectURL(file);
+
+  // Bolha de imagem do usuário
+  const b = document.createElement('div');
+  b.className = 'bbl out fade-in';
+  b.style.maxWidth = '85%';
+  b.style.padding = '4px';
+  b.innerHTML = TAIL_OUT + '<img src="'+localUrl+'" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto enviada"><div class="bbl-meta"><span class="bbl-time">'+now+'</span>'+DOUBLE_TICK+'</div>';
+  msgsEl.appendChild(b); scroll();
+
+  // Converte para base64
+  const reader = new FileReader();
+  reader.onload = async function() {
+    const base64 = reader.result.split(',')[1];
+    const mime = file.type || 'image/jpeg';
+    aiHistory.push({ role:'user', content:'[imagem enviada pelo usuário]', type:'image-user', timestamp: now });
+    saveState();
+    userReplyCount++;
+    if (userReplyCount===2 && !autoCallFired) scheduleAutoCall();
+    if (!leadId) salvarLead();
+    showTyping();
+    try {
+      const res = await fetch('/api/chat', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ history: aiHistory, city: leadCityVal, image: base64, imageMime: mime })
+      });
+      const data = await res.json();
+      hideTyping();
+      const reply = data && data.reply;
+      if (!reply) { addBubble('Oi! 😊 Pode me escrever o que precisa?','in'); enableInput(); return; }
+      aiHistory.push({ role:'assistant', content:reply, type:'text', timestamp: getTime() });
+      saveState();
+      const parts = reply.split('|').map(p=>p.trim()).filter(Boolean);
+      for (let i=0;i<parts.length;i++) { showTyping(); await sleep(typingDelay(parts[i])); hideTyping(); addBubble(parts[i],'in',false,getTime()); }
+      const temLink = /aqui o pix/i.test(reply) || /um desconto/i.test(reply) || /aqui.*pix/i.test(reply) || /pix.*aqui/i.test(reply);
+      const temDesc = /um desconto/i.test(reply);
+      const temFoto = /olha eu aqui/i.test(reply);
+      if (temLink) { await sleep(600); showCta(temDesc); }
+      if (temFoto) { await sleep(500); showFotoLead(); }
+      salvarLead(temLink);
+    } catch(e) {
+      hideTyping();
+      addBubble('Ops, não consegui ver a foto. Pode escrever? 😊','in');
+      aiHistory.pop();
+    }
+    enableInput();
+  };
+  reader.readAsDataURL(file);
+}
 
 // ═══ AUTO CALL ═══
 function startAutoCallRing(){
