@@ -42,6 +42,7 @@ html,body{
   background:var(--wa-bg);display:flex;flex-direction:column;
   position:relative;overflow:hidden;
   border-left:1px solid #2a3942;border-right:1px solid #2a3942;
+  /* Proteção contra seleção e arraste */
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
@@ -193,22 +194,17 @@ html,body{
 
   <div class="input-wrap">
     <div class="input-pill">
-      <!-- Botão clipe (abre seletor de arquivos) -->
-      <button type="button" onclick="document.getElementById('file-input').click()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none">
+      <button type="button" onclick="toggleEmoji()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#8696a0" stroke-width="1.75"/><path d="M8.5 14s.875 1.5 3.5 1.5 3.5-1.5 3.5-1.5" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round"/><circle cx="9" cy="10" r="1" fill="#8696a0"/><circle cx="15" cy="10" r="1" fill="#8696a0"/></svg>
+      </button>
+      <div id="emoji-panel" style="display:none;position:absolute;bottom:70px;left:8px;right:8px;background:#1f2c34;border-radius:14px;padding:10px 8px;box-shadow:0 4px 24px rgba(0,0,0,0.4);z-index:100;max-height:200px;overflow-y:auto">
+        <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:2px"></div>
+      </div>
+      <button type="button" onclick="openAttachSheet()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
           <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66L9.41 17.41a2 2 0 01-2.83-2.83l8.49-8.48" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
-      <input type="file" id="file-input" accept="image/*,video/*" style="display:none" multiple>
-
-      <!-- Botão microfone (gravação) -->
-      <button id="mic-btn" type="button" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none;transition:color 0.2s">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2a3 3 0 00-3 3v6a3 3 0 006 0V5a3 3 0 00-3-3z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M19 10v1a7 7 0 01-14 0v-1M12 18v4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-
       <input id="inp" type="text" placeholder="Mensagem">
     </div>
     <button class="send-btn" id="send-btn">
@@ -364,15 +360,34 @@ html,body{
 
 <script>
 // ═══ PROTEÇÃO CONTRA CURIOSOS ═══
+// Bloqueia o menu de contexto (botão direito)
 document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+// Bloqueia atalhos do DevTools (F12, Ctrl+U, Ctrl+Shift+I, Ctrl+Shift+J)
 document.addEventListener('keydown', function (e) {
-  if (e.key === 'F12' || ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j')) || ((e.ctrlKey || e.metaKey) && (e.key === 'U' || e.key === 'u'))) {
+  // F12
+  if (e.key === 'F12') {
+    e.preventDefault();
+    return false;
+  }
+  // Ctrl+Shift+I / Cmd+Option+I (Inspecionar)
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'I' || e.key === 'i')) {
+    e.preventDefault();
+    return false;
+  }
+  // Ctrl+Shift+J / Cmd+Option+J (Console)
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'J' || e.key === 'j')) {
+    e.preventDefault();
+    return false;
+  }
+  // Ctrl+U / Cmd+U (Ver código-fonte)
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'U' || e.key === 'u')) {
     e.preventDefault();
     return false;
   }
 });
 
-// ═══ CONFIGURAÇÕES E CONSTANTES ═══
+// ═══ O RESTO DO SEU CÓDIGO (NÃO ALTERADO) ═══
 const msgsEl=document.getElementById('msgs');
 const inpEl=document.getElementById('inp');
 const sendBtn=document.getElementById('send-btn');
@@ -549,13 +564,14 @@ function pixelPurchase(v){
   if(typeof fbq!=='undefined')fbq('track','Purchase',{value:(v/100).toFixed(2),currency:'BRL',num_items:1,content_ids:[PRODUCT_HASH],content_type:'product'});
 }
 
-// ═══ CRIAÇÃO DO CARD PIX ═══
+// ═══ CRIAÇÃO DO CARD PIX (sem status visível) ═══
 function criarCardPix(data, desconto, timestamp) {
   const valor = desconto ? 1000 : 2000;
   const valorFmt = 'R$ ' + (valor/100).toFixed(2).replace('.',',');
   const pixCopia = (data.pix && data.pix.pix_qr_code) || '';
   const txHash = data.hash || ('tx'+Date.now());
 
+  // Salva no histórico com type 'pix'
   const pixEntry = {
     role: 'assistant',
     content: 'Solicitação de pagamento',
@@ -572,6 +588,7 @@ function criarCardPix(data, desconto, timestamp) {
   aiHistory.push(pixEntry);
   salvarLead(true);
 
+  // Constrói o card DOM (sem status)
   const wrap = document.createElement('div');
   wrap.className = 'fade-in';
   wrap.style.cssText = 'align-self:flex-start;margin-left:6px;max-width:88%';
@@ -600,6 +617,7 @@ function criarCardPix(data, desconto, timestamp) {
     card.appendChild(btnWrap);
   }
 
+  // Footer apenas com o horário (sem status)
   const footer = document.createElement('div');
   footer.style.cssText = 'padding:6px 14px 8px;display:flex;justify-content:flex-end';
   const time = document.createElement('span');
@@ -612,11 +630,12 @@ function criarCardPix(data, desconto, timestamp) {
   msgsEl.appendChild(wrap);
   scroll();
 
+  // Inicia polling (em background, sem exibir status)
   iniciarPoll(txHash, valor);
   pixelIniCheckout(valor);
 }
 
-// ═══ showCta ═══
+// ═══ FUNÇÃO showCta (chamada quando a IA fala em Pix) ═══
 async function showCta(desconto) {
   if (desconto) { if (pixDescontoGerado) return; pixDescontoGerado = true; }
   else { if (pixNormalGerado) return; pixNormalGerado = true; }
@@ -628,6 +647,7 @@ async function showCta(desconto) {
   const now = getTime();
   criarCardPix(data, desconto, now);
 
+  // Áudio de confirmação (só uma vez)
   if (!audioPIxJaTocou) {
     audioPIxJaTocou = true;
     saveState();
@@ -638,7 +658,7 @@ async function showCta(desconto) {
   }
 }
 
-// ═══ REBUILD UI ═══
+// ═══ REBUILD UI (com restauração do card PIX sem status) ═══
 async function rebuildUI() {
   msgsEl.innerHTML = '<div class="date-pill">Hoje</div>';
 
@@ -674,6 +694,7 @@ async function rebuildUI() {
       msgsEl.appendChild(b);
     }
     else if (msg.role === 'assistant' && msg.type === 'pix') {
+      // Recria o card PIX a partir dos dados salvos (sem status)
       const pixData = msg.pixData;
       if (pixData) {
         const wrap = document.createElement('div');
@@ -815,6 +836,7 @@ function showFotoLead() {
   scroll();
 }
 
+// ═══ FUNÇÃO showBotaoEntregavel MODIFICADA (clique único) ═══
 function showBotaoEntregavel() {
   let ring=null;
   try{
@@ -846,9 +868,12 @@ function showBotaoEntregavel() {
     salvarLead(true);
     await sleep(1400);
     
+    // ── BOTÃO "RETORNAR CHAMADA" COM CLIQUE ÚNICO ──
     const br = document.createElement('div');
     br.className = 'bbl in fade-in';
     br.style.maxWidth = '88%';
+
+    // Cria o link e adiciona a classe cta-btn
     const link = document.createElement('a');
     link.href = LINK_ENTREGAVEL;
     link.target = '_blank';
@@ -856,21 +881,28 @@ function showBotaoEntregavel() {
     link.style.margin = '0';
     link.id = 'btn-retornar';
     link.textContent = '📹 Retornar chamada';
+
     let retornarChamadaClicado = false;
+
     link.addEventListener('click', function(e) {
       if (retornarChamadaClicado) {
-        e.preventDefault();
+        e.preventDefault(); // impede a abertura de nova aba
         return;
       }
+      // primeiro clique: permite a ação
       retornarChamadaClicado = true;
       aiHistory.push({role:'system', content:'Retorno feito', type:'system'});
       salvarLead(true);
+      // desabilita visualmente
       link.style.opacity = '0.5';
       link.style.pointerEvents = 'none';
       link.style.cursor = 'default';
     });
+
+    // Monta a bolha com a cauda e o link
     br.innerHTML = TAIL_IN;
     br.appendChild(link);
+    // Adiciona o horário
     const meta = document.createElement('div');
     meta.className = 'bbl-meta';
     const timeSpan = document.createElement('span');
@@ -883,45 +915,14 @@ function showBotaoEntregavel() {
   };
 }
 
-// ═══ PROCESSAMENTO DA RESPOSTA DA IA (unificado) ═══
-async function processAIResponse(replyContent) {
-  if (replyContent.includes('[FIM]')) {
-    const msgFinal = replyContent.replace('[FIM]','').trim();
-    const pts = msgFinal.split('|').map(p=>p.trim()).filter(Boolean);
-    for (let i=0;i<pts.length;i++) {
-      showTyping();
-      await sleep(typingDelay(pts[i]));
-      hideTyping();
-      addBubble(pts[i], 'in', false, getTime());
-    }
-    inpEl.disabled = true;
-    sendBtn.disabled = true;
-    inpEl.placeholder = 'Conversa encerrada';
-    return;
-  }
-  let parts = replyContent.split('|').map(p=>p.trim()).filter(Boolean);
-  if (parts.length<=1 && replyContent.includes('\n\n')) parts = replyContent.split('\n\n').map(p=>p.trim()).filter(Boolean);
-  for (let i=0;i<parts.length;i++) {
-    showTyping();
-    await sleep(typingDelay(parts[i]));
-    hideTyping();
-    addBubble(parts[i], 'in', false, getTime());
-  }
-  const temLink = /aqui o pix/i.test(replyContent) || /um desconto/i.test(replyContent) || /aqui.*pix/i.test(replyContent) || /pix.*aqui/i.test(replyContent);
-  const temDesc = /um desconto/i.test(replyContent);
-  const temFoto = /olha eu aqui/i.test(replyContent);
-  if (temLink) { await sleep(600); showCta(temDesc); }
-  if (temFoto) { await sleep(500); showFotoLead(); }
-  salvarLead(temLink);
-}
-
+// ═══ ASK AI e SUBMIT ═══
 function typingDelay(text) {
   const chars = text.length, cps = 2.5 + Math.random();
   return Math.min(Math.max((chars/cps)*1000+600+Math.random()*900, 1800), 12000);
 }
 
-// ═══ ENVIO DE MENSAGEM (texto) ═══
 async function askAI(userMsg) {
+  // Adiciona a mensagem do lead ao histórico (apenas uma vez)
   aiHistory.push({role:'user', content:userMsg, type:'text', timestamp: getTime()});
   saveState();
   showTyping();
@@ -935,273 +936,59 @@ async function askAI(userMsg) {
     hideTyping();
     const reply = data && data.reply;
     if (!reply) { addBubble('Oi! Tô com muita mensagem agora 😅 Tenta de novo!','in'); enableInput(); return; }
-    aiHistory.push({role:'assistant', content:reply, type:'text', timestamp: getTime()});
+    const replyContent = reply;
+    aiHistory.push({role:'assistant', content:replyContent, type:'text', timestamp: getTime()});
     saveState();
-    await processAIResponse(reply);
+
+    if (replyContent.includes('[FIM]')) {
+      const msgFinal = replyContent.replace('[FIM]','').trim();
+      const pts = msgFinal.split('|').map(p=>p.trim()).filter(Boolean);
+      for (let i=0;i<pts.length;i++) { showTyping(); await sleep(typingDelay(pts[i])); hideTyping(); addBubble(pts[i],'in',false,getTime()); }
+      inpEl.disabled = true; sendBtn.disabled = true; inpEl.placeholder = 'Conversa encerrada';
+      return;
+    }
+
+    let parts = replyContent.split('|').map(p=>p.trim()).filter(Boolean);
+    if (parts.length<=1 && replyContent.includes('\n\n')) parts = replyContent.split('\n\n').map(p=>p.trim()).filter(Boolean);
+    for (let i=0;i<parts.length;i++) {
+      const part = parts[i];
+      const now = getTime();
+      showTyping();
+      await sleep(typingDelay(part));
+      hideTyping();
+      addBubble(part, 'in', false, now);
+    }
+
+    const temLink = /aqui o pix/i.test(replyContent) || /um desconto/i.test(replyContent) || /aqui.*pix/i.test(replyContent) || /pix.*aqui/i.test(replyContent);
+    const temDesc = /um desconto/i.test(replyContent);
+    const temFoto = /olha eu aqui/i.test(replyContent);
+    if (temLink) { await sleep(600); showCta(temDesc); }
+    if (temFoto) { await sleep(500); showFotoLead(); }
+    salvarLead(temLink);
   } catch (e) {
     hideTyping();
     addBubble('Ops, tive um probleminha. Pode repetir? 😊','in');
-    aiHistory.pop();
+    aiHistory.pop(); // remove a mensagem do lead que causou erro
   }
   enableInput();
 }
+
+function enableInput(){inpEl.disabled=false;inpEl.focus();}
 
 function submit() {
   const text = inpEl.value.trim();
   if (!text) return;
   inpEl.value = '';
   const now = getTime();
-  addBubble(text, 'out', false, now);
+  addBubble(text, 'out', false, now); // exibe a mensagem visualmente
   if (!leadId) salvarLead();
   userReplyCount++;
   saveState();
   if (userReplyCount===2 && !autoCallFired) scheduleAutoCall();
-  askAI(text);
+  askAI(text); // o askAI adiciona ao histórico e processa a resposta
 }
 sendBtn.onclick = submit;
 inpEl.onkeydown = function(e) { if (e.key==='Enter') submit(); };
-
-// ═══ GRAVAÇÃO DE ÁUDIO (Estilo WhatsApp) ═══
-let mediaRecorder = null;
-let audioChunks = [];
-let isRecording = false;
-let recordingStartTime = 0;
-let micHoldTimer = null;
-let recordingBubble = null;
-
-const micBtn = document.getElementById('mic-btn');
-const micIcon = micBtn.querySelector('svg');
-
-micBtn.addEventListener('touchstart', startRecording, { passive: false });
-micBtn.addEventListener('touchend', stopRecording, { passive: false });
-micBtn.addEventListener('touchcancel', cancelRecording, { passive: false });
-micBtn.addEventListener('touchstart', startRecording, { passive: true });
-micBtn.addEventListener('touchend', stopRecording, { passive: true });
-micBtn.addEventListener('touchcancel', cancelRecording, { passive: true });
-
-async function startRecording(e) {
-  if (isRecording) return;
-  e.preventDefault();
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    mediaRecorder = new MediaRecorder(stream);
-    audioChunks = [];
-    mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
-    mediaRecorder.start();
-    isRecording = true;
-    recordingStartTime = Date.now();
-    micBtn.style.color = '#e53935';
-    micIcon.innerHTML = `<rect x="6" y="4" width="12" height="16" rx="2" fill="currentColor"/>`; // ícone de quadrado
-
-    showRecordingBubble();
-    if (micHoldTimer) clearInterval(micHoldTimer);
-    micHoldTimer = setInterval(updateRecordingTime, 1000);
-  } catch (err) {
-    console.error('Erro ao acessar microfone:', err);
-    addBubble('Não foi possível acessar o microfone. Permita o acesso e tente novamente.', 'in');
-  }
-}
-
-function stopRecording(e) {
-  if (!isRecording) return;
-  e.preventDefault();
-  if (mediaRecorder && mediaRecorder.state === 'recording') {
-    mediaRecorder.stop();
-    mediaRecorder.onstop = async () => {
-      const duration = (Date.now() - recordingStartTime) / 1000;
-      if (duration < 1) {
-        removeRecordingBubble();
-        addBubble('Áudio muito curto. Tente falar por pelo menos 1 segundo.', 'in');
-        resetMic();
-        return;
-      }
-      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-      await sendAudioFile(audioBlob);
-      resetMic();
-    };
-    mediaRecorder.stream.getTracks().forEach(track => track.stop());
-  }
-  isRecording = false;
-  if (micHoldTimer) clearInterval(micHoldTimer);
-}
-
-function cancelRecording(e) {
-  if (!isRecording) return;
-  e.preventDefault();
-  if (mediaRecorder && mediaRecorder.state === 'recording') {
-    mediaRecorder.stop();
-    mediaRecorder.stream.getTracks().forEach(track => track.stop());
-  }
-  isRecording = false;
-  if (micHoldTimer) clearInterval(micHoldTimer);
-  removeRecordingBubble();
-  addBubble('🎤 Gravação cancelada', 'out');
-  resetMic();
-}
-
-function resetMic() {
-  micBtn.style.color = '#8696a0';
-  micIcon.innerHTML = `<path d="M12 2a3 3 0 00-3 3v6a3 3 0 006 0V5a3 3 0 00-3-3z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 10v1a7 7 0 01-14 0v-1M12 18v4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>`;
-  removeRecordingBubble();
-}
-
-function showRecordingBubble() {
-  removeRecordingBubble();
-  recordingBubble = document.createElement('div');
-  recordingBubble.className = 'bbl out fade-in';
-  recordingBubble.style.maxWidth = '70%';
-  recordingBubble.style.alignSelf = 'flex-end';
-  recordingBubble.style.backgroundColor = '#d9fdd3';
-  recordingBubble.style.borderTopRightRadius = '0';
-  recordingBubble.innerHTML = `<div style="display:flex;align-items:center;gap:8px"><span>🎙️ Gravando</span> <span id="rec-time">0:00</span> <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#e53935;animation:blink 0.8s infinite"></span></div>`;
-  msgsEl.appendChild(recordingBubble);
-  scroll();
-  if (!document.getElementById('blink-style')) {
-    const style = document.createElement('style');
-    style.id = 'blink-style';
-    style.textContent = `@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }`;
-    document.head.appendChild(style);
-  }
-}
-
-function updateRecordingTime() {
-  const el = document.getElementById('rec-time');
-  if (el) {
-    const sec = Math.floor((Date.now() - recordingStartTime) / 1000);
-    const m = Math.floor(sec / 60);
-    const s = sec % 60;
-    el.textContent = `${m}:${String(s).padStart(2,'0')}`;
-  }
-}
-
-function removeRecordingBubble() {
-  if (recordingBubble) {
-    recordingBubble.remove();
-    recordingBubble = null;
-  }
-}
-
-async function sendAudioFile(blob) {
-  const file = new File([blob], 'audio.webm', { type: 'audio/webm' });
-  const now = getTime();
-  addBubble('🎵 Áudio', 'out', true, now);
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('text', inpEl.value.trim() || '');
-  formData.append('history', JSON.stringify(aiHistory));
-  inpEl.value = '';
-
-  inpEl.disabled = true;
-  sendBtn.disabled = true;
-
-  try {
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      body: formData
-    });
-    const data = await res.json();
-    if (data && data.reply) {
-      aiHistory.push({role:'assistant', content:data.reply, type:'text', timestamp: getTime()});
-      saveState();
-      await processAIResponse(data.reply);
-    } else {
-      addBubble('Não consegui processar o áudio. Tenta de novo? 😅', 'in');
-    }
-  } catch (err) {
-    addBubble('Erro ao enviar áudio. Tenta novamente.', 'in');
-  } finally {
-    inpEl.disabled = false;
-    sendBtn.disabled = false;
-    inpEl.focus();
-  }
-}
-
-// ═══ ENVIO DE IMAGEM/VIDEO (via clipe) ═══
-document.getElementById('file-input').addEventListener('change', async function(e) {
-  const file = this.files[0];
-  if (!file) return;
-  this.value = '';
-
-  let fileToSend = file;
-  let isVideo = file.type.startsWith('video/');
-
-  if (isVideo) {
-    try {
-      const audioBlob = await extractAudioFromVideo(file);
-      fileToSend = new File([audioBlob], 'audio.webm', { type: 'audio/webm' });
-      addBubble('🎬 Vídeo (áudio extraído)', 'out', true, getTime());
-    } catch (err) {
-      addBubble('Não foi possível extrair áudio do vídeo. Tente um formato diferente.', 'in');
-      return;
-    }
-  } else if (file.type.startsWith('image/')) {
-    addBubble('📷 Imagem', 'out', true, getTime());
-  } else {
-    addBubble('📎 Arquivo', 'out', true, getTime());
-  }
-
-  const formData = new FormData();
-  formData.append('file', fileToSend);
-  formData.append('text', inpEl.value.trim() || '');
-  formData.append('history', JSON.stringify(aiHistory));
-  inpEl.value = '';
-
-  inpEl.disabled = true;
-  sendBtn.disabled = true;
-
-  try {
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      body: formData
-    });
-    const data = await res.json();
-    if (data && data.reply) {
-      aiHistory.push({role:'assistant', content:data.reply, type:'text', timestamp: getTime()});
-      saveState();
-      await processAIResponse(data.reply);
-    } else {
-      addBubble('Não consegui processar o arquivo. Tenta de novo? 😅', 'in');
-    }
-  } catch (err) {
-    addBubble('Erro ao enviar arquivo. Tenta novamente.', 'in');
-  } finally {
-    inpEl.disabled = false;
-    sendBtn.disabled = false;
-    inpEl.focus();
-  }
-});
-
-// Função para extrair áudio de vídeo
-function extractAudioFromVideo(file) {
-  return new Promise((resolve, reject) => {
-    const video = document.createElement('video');
-    video.src = URL.createObjectURL(file);
-    video.muted = true;
-    video.onloadedmetadata = () => {
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const source = audioCtx.createMediaElementSource(video);
-      const destination = audioCtx.createMediaStreamDestination();
-      source.connect(destination);
-      const recorder = new MediaRecorder(destination.stream, { mimeType: 'audio/webm' });
-      const chunks = [];
-      recorder.ondataavailable = e => chunks.push(e.data);
-      recorder.onstop = () => {
-        const blob = new Blob(chunks, { type: 'audio/webm' });
-        resolve(blob);
-        video.remove();
-        URL.revokeObjectURL(video.src);
-        audioCtx.close();
-      };
-      recorder.start();
-      video.play();
-      setTimeout(() => {
-        recorder.stop();
-        video.pause();
-      }, (video.duration * 1000) + 200);
-    };
-    video.onerror = reject;
-  });
-}
 
 // ═══ AUTO CALL ═══
 function startAutoCallRing(){
@@ -1368,10 +1155,6 @@ document.getElementById('info-sheet').addEventListener('click', function(e){ if(
 function openSheet(){ document.getElementById('sheet').classList.add('open'); }
 function closeSheet(){ document.getElementById('sheet').classList.remove('open'); }
 document.getElementById('sheet').addEventListener('click', function(e){ if(e.target===this) closeSheet(); });
-
-// ═══ EMOJI PANEL OCULTO (já existe no HTML) ═══
-// O painel de emojis está no HTML, mas com display:none inicial.
-// A função toggleEmoji já está definida.
 </script>
 </body>
 </html>
