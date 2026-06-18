@@ -111,10 +111,16 @@ html,body{
 }
 .mic-btn:hover{background:rgba(0,0,0,0.05)}
 .mic-btn:active{transform:scale(0.92)}
+/* Botão de áudio gravando – verde como no WhatsApp */
 .mic-btn.recording{
   background:var(--wa-green);
   color:#fff;
   animation:pulse-mic 1.2s ease-in-out infinite;
+}
+/* Botão de cancelamento (arrastar para cancelar) */
+.mic-btn.cancel{
+  background:#e53935; /* vermelho */
+  animation:none;
 }
 @keyframes pulse-mic{
   0%{transform:scale(1);box-shadow:0 0 0 0 rgba(37,211,102,0.4)}
@@ -988,16 +994,11 @@ function submit() {
   askAI(text);
 }
 
-// ═══ GRAVAÇÃO DE ÁUDIO COM GESTOS (arrastar p/ esquerda = cancelar, p/ cima = travar) ═══
+// ═══ GRAVAÇÃO DE ÁUDIO (pressione e segure) ═══
 let _mediaRecorder = null, _audioChunks = [], _isRecording = false, _recordTimer = null;
 let _isMicPressed = false;
-let _recordingLocked = false;      // modo travado (arrastou para cima)
-let _recordingCanceled = false;    // cancelado (arrastou para esquerda)
-let _startX = 0, _startY = 0;
-let _mouseStartX = 0, _mouseStartY = 0;
-let _mouseLocked = false, _mouseCanceled = false;
+let _cancelRecording = false; // flag para cancelar
 
-// Função para detectar tipo MIME suportado
 function getSupportedMimeType() {
   const types = [
     'audio/webm;codecs=opus',
@@ -1026,12 +1027,16 @@ async function startRecord() {
   if (_isMicPressed) return;
 
   _isMicPressed = true;
+  _cancelRecording = false;
   micBtn.classList.add('recording');
 
-  // Feedback tátil: vibração curta ao iniciar
-  if (navigator.vibrate) navigator.vibrate(30);
+  // Feedback tátil (vibração) – NOVO
+  if (navigator.vibrate) {
+    navigator.vibrate(50); // vibra por 50ms
+  }
 
   try {
+    // Verifica permissão
     let permissionState = 'prompt';
     try {
       const perm = await navigator.permissions.query({ name: 'microphone' });
@@ -1068,32 +1073,25 @@ async function startRecord() {
     _mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) _audioChunks.push(e.data); };
     _mediaRecorder.onstop = () => {
       stream.getTracks().forEach(t => t.stop());
-      if (_audioChunks.length > 0 && !_recordingCanceled) {
+      if (_audioChunks.length > 0 && !_cancelRecording) {
         sendAudioMessage(mimeType);
       } else {
         _audioChunks = [];
       }
-      _recordingCanceled = false;
-      _recordingLocked = false;
+      _cancelRecording = false;
       _isRecording = false;
       micBtn.classList.remove('recording');
+      micBtn.classList.remove('cancel'); // remove classe cancel
       _isMicPressed = false;
-      // Reset visual
-      inpEl.placeholder = 'Mensagem';
-      micBtn.style.background = '';
-      micBtn.style.color = '';
     };
 
     _mediaRecorder.start();
     _isRecording = true;
-    _recordingLocked = false;
-    _recordingCanceled = false;
 
     inpEl.placeholder = '🔴 Gravando… (solte para enviar)';
 
-    // Limite de 60 segundos
     _recordTimer = setTimeout(() => {
-      if (_isRecording) stopRecord(true);
+      if (_isRecording) stopRecord(false);
     }, 60000);
 
   } catch (err) {
@@ -1109,34 +1107,37 @@ async function startRecord() {
     showMicError(msg);
     _isMicPressed = false;
     micBtn.classList.remove('recording');
+    micBtn.classList.remove('cancel');
     _isRecording = false;
   }
 }
 
-// Parar gravação (chamado ao soltar o botão ou ao arrastar para fora)
+// Parar gravação (chamado ao soltar o botão)
 function stopRecord(send = true) {
   if (!_isRecording || !_mediaRecorder) return;
   clearTimeout(_recordTimer);
   if (!send) {
-    // Cancelar gravação (arrastou para fora)
-    _recordingCanceled = true;
+    _cancelRecording = true;
     _audioChunks = [];
   }
   _mediaRecorder.stop();
   inpEl.placeholder = 'Mensagem';
 }
 
-// Cancelar gravação (arrastar para esquerda)
+// Função para cancelar gravação ao arrastar para fora (ou esquerda)
 function cancelRecord() {
   if (_isRecording) {
-    _recordingCanceled = true;
+    _cancelRecording = true;
+    // Feedback tátil opcional para cancelamento
+    if (navigator.vibrate) {
+      navigator.vibrate(30); // vibração curta
+    }
     stopRecord(false);
-    // Feedback tátil
-    if (navigator.vibrate) navigator.vibrate(20);
-    // Reset visual
-    inpEl.placeholder = 'Mensagem';
-    micBtn.style.background = '';
-    micBtn.style.color = '';
+    // Mostra visualmente que foi cancelado
+    micBtn.classList.add('cancel');
+    setTimeout(() => {
+      micBtn.classList.remove('cancel');
+    }, 300);
   }
 }
 
@@ -1152,167 +1153,11 @@ function showMicError(message) {
   scroll();
 }
 
-// ═══ EVENTOS DE TOUCH (mobile) ═══
-micBtn.addEventListener('touchstart', function(e) {
-    e.preventDefault();
-    const touch = e.touches[0];
-    _startX = touch.clientX;
-    _startY = touch.clientY;
-    _recordingLocked = false;
-    _recordingCanceled = false;
-    startRecord();
-}, { passive: false });
-
-micBtn.addEventListener('touchmove', function(e) {
-    if (!_isRecording) return;
-    e.preventDefault();
-    const touch = e.touches[0];
-    const deltaX = touch.clientX - _startX;
-    const deltaY = _startY - touch.clientY; // positivo para cima
-
-    // Arrastou para esquerda > 50px => cancelar (se não estiver travado)
-    if (deltaX < -50 && !_recordingLocked) {
-        _recordingCanceled = true;
-        inpEl.placeholder = '↩️ Cancelar';
-        micBtn.style.background = '#e53935';
-        micBtn.style.color = '#fff';
-        if (navigator.vibrate) navigator.vibrate(20);
-        return;
-    }
-    // Arrastou para cima > 50px => travar (se não estiver cancelado)
-    if (deltaY > 50 && !_recordingCanceled) {
-        _recordingLocked = true;
-        inpEl.placeholder = '🔒 Travado (solte para continuar)';
-        micBtn.style.background = '#25d366';
-        micBtn.style.color = '#fff';
-        if (navigator.vibrate) navigator.vibrate(30);
-        return;
-    }
-    // Reverter cancelamento se arrastar de volta para a direita
-    if (_recordingCanceled && deltaX > 20) {
-        _recordingCanceled = false;
-        inpEl.placeholder = '🔴 Gravando… (solte para enviar)';
-        micBtn.style.background = 'var(--wa-green)';
-        micBtn.style.color = '#fff';
-    }
-    // Reverter travamento se arrastar para baixo
-    if (_recordingLocked && deltaY < -30) {
-        _recordingLocked = false;
-        inpEl.placeholder = '🔴 Gravando… (solte para enviar)';
-        micBtn.style.background = 'var(--wa-green)';
-        micBtn.style.color = '#fff';
-    }
-}, { passive: false });
-
-micBtn.addEventListener('touchend', function(e) {
-    e.preventDefault();
-    if (_recordingCanceled) {
-        cancelRecord();
-        _recordingCanceled = false;
-        _recordingLocked = false;
-        return;
-    }
-    if (_recordingLocked) {
-        // Trava ativada: ao soltar, a gravação continua
-        _recordingLocked = false;
-        inpEl.placeholder = '🔴 Gravando… (toque para parar)';
-        micBtn.style.background = 'var(--wa-green)';
-        micBtn.style.color = '#fff';
-        return;
-    }
-    if (_isRecording) {
-        stopRecord(true);
-    }
-    inpEl.placeholder = 'Mensagem';
-    micBtn.style.background = '';
-    micBtn.style.color = '';
-}, { passive: false });
-
-micBtn.addEventListener('touchcancel', function(e) {
-    if (_isRecording) {
-        cancelRecord();
-    }
-    inpEl.placeholder = 'Mensagem';
-    micBtn.style.background = '';
-    micBtn.style.color = '';
-    _recordingLocked = false;
-    _recordingCanceled = false;
-}, { passive: false });
-
-// ═══ EVENTOS DE MOUSE (desktop) ═══
-micBtn.addEventListener('mousedown', function(e) {
-    e.preventDefault();
-    _mouseStartX = e.clientX;
-    _mouseStartY = e.clientY;
-    _mouseLocked = false;
-    _mouseCanceled = false;
-    startRecord();
-});
-
-document.addEventListener('mousemove', function(e) {
-    if (!_isRecording || !_isMicPressed) return;
-    const deltaX = e.clientX - _mouseStartX;
-    const deltaY = _mouseStartY - e.clientY;
-
-    if (deltaX < -50 && !_mouseLocked) {
-        _mouseCanceled = true;
-        inpEl.placeholder = '↩️ Cancelar';
-        micBtn.style.background = '#e53935';
-        micBtn.style.color = '#fff';
-        if (navigator.vibrate) navigator.vibrate(20);
-        return;
-    }
-    if (deltaY > 50 && !_mouseCanceled) {
-        _mouseLocked = true;
-        inpEl.placeholder = '🔒 Travado';
-        micBtn.style.background = '#25d366';
-        micBtn.style.color = '#fff';
-        if (navigator.vibrate) navigator.vibrate(30);
-        return;
-    }
-    if (_mouseCanceled && deltaX > 20) {
-        _mouseCanceled = false;
-        inpEl.placeholder = '🔴 Gravando…';
-        micBtn.style.background = 'var(--wa-green)';
-        micBtn.style.color = '#fff';
-    }
-    if (_mouseLocked && deltaY < -30) {
-        _mouseLocked = false;
-        inpEl.placeholder = '🔴 Gravando…';
-        micBtn.style.background = 'var(--wa-green)';
-        micBtn.style.color = '#fff';
-    }
-});
-
-document.addEventListener('mouseup', function(e) {
-    if (!_isRecording) return;
-    if (_mouseCanceled) {
-        cancelRecord();
-        inpEl.placeholder = 'Mensagem';
-        micBtn.style.background = '';
-        micBtn.style.color = '';
-        _mouseCanceled = false;
-        _mouseLocked = false;
-        return;
-    }
-    if (_mouseLocked) {
-        _mouseLocked = false;
-        inpEl.placeholder = '🔴 Gravando… (toque para parar)';
-        micBtn.style.background = 'var(--wa-green)';
-        micBtn.style.color = '#fff';
-        return;
-    }
-    stopRecord(true);
-    inpEl.placeholder = 'Mensagem';
-    micBtn.style.background = '';
-    micBtn.style.color = '';
-});
-
-// ═══ ENVIO DE ÁUDIO (após gravação) ═══
+// Enviar áudio após gravação
 async function sendAudioMessage(mimeType) {
   if (_audioChunks.length === 0) return;
   const blob = new Blob(_audioChunks, { type: mimeType });
-  if (blob.size < 500) return;
+  if (blob.size < 500) return; // áudio muito curto
 
   const url = URL.createObjectURL(blob);
   const audioId = 'user-' + Date.now();
@@ -1410,6 +1255,73 @@ inpEl.addEventListener('input', function() {
     micBtn.classList.remove('hidden');
   }
 });
+
+// ═══ EVENTOS DO BOTÃO DE MICROFONE (pressionar e segurar) ═══
+let startX = 0, startY = 0; // para rastrear arrasto
+
+// Mouse
+micBtn.addEventListener('mousedown', function(e) {
+  e.preventDefault();
+  startX = e.clientX;
+  startY = e.clientY;
+  startRecord();
+});
+
+micBtn.addEventListener('mouseup', function(e) {
+  if (_isRecording) {
+    stopRecord(true);
+  }
+});
+
+micBtn.addEventListener('mouseleave', function(e) {
+  if (_isRecording) {
+    // Verifica se saiu para a esquerda (ou para fora)
+    const rect = micBtn.getBoundingClientRect();
+    const mouseX = e.clientX;
+    if (mouseX < rect.left - 30) { // arrastou para esquerda
+      cancelRecord();
+    } else {
+      // se saiu para outra direção, apenas cancela (opcional)
+      cancelRecord();
+    }
+  }
+});
+
+// Touch (mobile)
+micBtn.addEventListener('touchstart', function(e) {
+  e.preventDefault();
+  const touch = e.touches[0];
+  startX = touch.clientX;
+  startY = touch.clientY;
+  startRecord();
+}, { passive: false });
+
+micBtn.addEventListener('touchmove', function(e) {
+  if (!_isRecording) return;
+  const touch = e.touches[0];
+  const deltaX = touch.clientX - startX;
+  // Se arrastou para a esquerda mais de 30px, cancela
+  if (deltaX < -30) {
+    cancelRecord();
+    // Impede que continue arrastando
+    // Não vamos parar o evento para não atrapalhar, mas cancelamos.
+  }
+}, { passive: false });
+
+micBtn.addEventListener('touchend', function(e) {
+  if (_isRecording) {
+    // Se não foi cancelado, envia
+    if (!_cancelRecording) {
+      stopRecord(true);
+    }
+  }
+}, { passive: false });
+
+micBtn.addEventListener('touchcancel', function(e) {
+  if (_isRecording) {
+    cancelRecord();
+  }
+}, { passive: false });
 
 // ═══ ENVIO DE IMAGEM ═══
 async function handleImageSelect(event) {
