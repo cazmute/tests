@@ -405,7 +405,6 @@ if (navigator.permissions) {
   navigator.permissions.query({ name: 'microphone' }).then(perm => {
     if (perm.state === 'denied') {
       console.warn('Microfone bloqueado pelo usuário.');
-      // Opcional: exibir aviso sutil
     }
   }).catch(() => {});
 }
@@ -959,6 +958,24 @@ inpEl.onkeydown = function(e) { if (e.key==='Enter') submit(); };
 // ═══ GRAVAÇÃO DE ÁUDIO (CORRIGIDA) ═══
 let _mediaRecorder = null, _audioChunks = [], _isRecording = false, _recordTimer = null;
 
+// Função para escolher um tipo MIME suportado
+function getSupportedMimeType() {
+  const types = [
+    'audio/webm;codecs=opus',
+    'audio/webm',
+    'audio/ogg;codecs=opus',
+    'audio/ogg',
+    'audio/mp4',
+    'audio/mpeg'
+  ];
+  for (const type of types) {
+    if (MediaRecorder.isTypeSupported(type)) {
+      return type;
+    }
+  }
+  return null; // nenhum suportado
+}
+
 function toggleRecord() {
   if (_isRecording) stopRecord();
   else startRecord();
@@ -966,24 +983,31 @@ function toggleRecord() {
 
 async function startRecord() {
   try {
-    // Verifica permissão antes de solicitar
+    // Verifica permissão
     let permissionState = 'prompt';
     try {
       const perm = await navigator.permissions.query({ name: 'microphone' });
       permissionState = perm.state;
-    } catch (e) {
-      // Permissions API não suportada, continua
-    }
+    } catch (e) { /* ignorar */ }
 
     if (permissionState === 'denied') {
       alert('Você bloqueou o microfone. Por favor, desbloqueie nas configurações do navegador e recarregue a página.');
       return;
     }
 
+    // Verifica se o MediaRecorder é suportado
+    if (typeof MediaRecorder === 'undefined') {
+      alert('Seu navegador não suporta gravação de áudio.');
+      return;
+    }
+
+    const mimeType = getSupportedMimeType();
+    if (!mimeType) {
+      alert('Seu navegador não suporta nenhum formato de áudio para gravação.');
+      return;
+    }
+
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus'
-                   : MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm'
-                   : 'audio/ogg';
     _mediaRecorder = new MediaRecorder(stream, { mimeType });
     _audioChunks = [];
     _mediaRecorder.ondataavailable = e => { if (e.data.size > 0) _audioChunks.push(e.data); };
