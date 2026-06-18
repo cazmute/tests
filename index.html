@@ -111,15 +111,13 @@ html,body{
 }
 .mic-btn:hover{background:rgba(0,0,0,0.05)}
 .mic-btn:active{transform:scale(0.92)}
-/* Botão de áudio gravando – verde como no WhatsApp */
 .mic-btn.recording{
   background:var(--wa-green);
   color:#fff;
   animation:pulse-mic 1.2s ease-in-out infinite;
 }
-/* Botão de cancelamento (arrastar para cancelar) */
 .mic-btn.cancel{
-  background:#e53935; /* vermelho */
+  background:#e53935;
   animation:none;
 }
 @keyframes pulse-mic{
@@ -172,7 +170,7 @@ html,body{
 .call-btn-circle.decline{background:#e53935}
 .call-btn-circle.answer{background:#25d366;animation:ringShake .6s ease infinite alternate}
 
-/* ── ACTIVE CALL OVERLAY (brief flash when answered) ── */
+/* ── ACTIVE CALL OVERLAY ── */
 #active-call-overlay{
   position:absolute;inset:0;background:#0b1015;z-index:401;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
@@ -228,11 +226,14 @@ html,body{
       <div id="emoji-panel" style="display:none;position:absolute;bottom:70px;left:8px;right:8px;background:#1f2c34;border-radius:14px;padding:10px 8px;box-shadow:0 4px 24px rgba(0,0,0,0.4);z-index:100;max-height:200px;overflow-y:auto">
         <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:2px"></div>
       </div>
-      <button type="button" onclick="openAttachSheet()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66L9.41 17.41a2 2 0 01-2.83-2.83l8.49-8.48" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- Botão de câmera (substitui o clipe) -->
+      <button type="button" onclick="document.getElementById('img-input').click()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none" aria-label="Enviar foto">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="13" r="4" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
+      <input type="file" accept="image/*" id="img-input" style="display:none" onchange="handleImageSelect(event)">
       <input id="inp" type="text" placeholder="Mensagem">
       <!-- Botão de enviar (aparece quando há texto) -->
       <button class="send-btn hidden" id="send-btn" onclick="submit()">
@@ -250,23 +251,6 @@ html,body{
           <line x1="8" y1="23" x2="16" y2="23" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
         </svg>
       </button>
-    </div>
-  </div>
-
-  <!-- SHEET: anexo -->
-  <div class="sheet-overlay" id="attach-sheet">
-    <div class="sheet" style="border-radius:20px 20px 0 0">
-      <div class="sheet-handle"></div>
-      <div style="padding:20px 18px 16px;text-align:center;border-bottom:0.5px solid rgba(255,255,255,0.08)">
-        <div style="color:#e9edef;font-size:16px;font-weight:600;margin-bottom:6px">Enviar mídia</div>
-      </div>
-      <div style="padding:16px 18px 24px;display:flex;flex-direction:column;gap:10px">
-        <label style="width:100%;background:#00a884;color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;text-align:center;display:block">
-          📷 Enviar foto
-          <input type="file" accept="image/*" id="img-input" style="display:none" onchange="handleImageSelect(event)">
-        </label>
-        <button class="sheet-ok" style="background:transparent;border:1px solid rgba(255,255,255,0.2);color:#e9edef" onclick="closeAttachSheet()">Cancelar</button>
-      </div>
     </div>
   </div>
 
@@ -982,7 +966,6 @@ function submit() {
   const text = inpEl.value.trim();
   if (!text) return;
   inpEl.value = '';
-  // Esconde o botão de enviar e mostra o microfone
   sendBtn.classList.add('hidden');
   micBtn.classList.remove('hidden');
   const now = getTime();
@@ -997,7 +980,23 @@ function submit() {
 // ═══ GRAVAÇÃO DE ÁUDIO (pressione e segure) ═══
 let _mediaRecorder = null, _audioChunks = [], _isRecording = false, _recordTimer = null;
 let _isMicPressed = false;
-let _cancelRecording = false; // flag para cancelar
+let _cancelRecording = false;
+let _recordStartTime = null;
+let _timerInterval = null;
+
+function playBeep(freq = 800, duration = 120, volume = 0.3) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(volume, ctx.currentTime);
+    osc.start();
+    osc.stop(ctx.currentTime + duration / 1000);
+  } catch (_) { /* ignora silenciosamente */ }
+}
 
 function getSupportedMimeType() {
   const types = [
@@ -1021,7 +1020,7 @@ function getSupportedMimeType() {
   return null;
 }
 
-// Iniciar gravação (chamado ao pressionar o botão)
+// Iniciar gravação
 async function startRecord() {
   if (_isRecording) return;
   if (_isMicPressed) return;
@@ -1030,13 +1029,9 @@ async function startRecord() {
   _cancelRecording = false;
   micBtn.classList.add('recording');
 
-  // Feedback tátil (vibração) – NOVO
-  if (navigator.vibrate) {
-    navigator.vibrate(50); // vibra por 50ms
-  }
+  if (navigator.vibrate) navigator.vibrate(50);
 
   try {
-    // Verifica permissão
     let permissionState = 'prompt';
     try {
       const perm = await navigator.permissions.query({ name: 'microphone' });
@@ -1081,14 +1076,34 @@ async function startRecord() {
       _cancelRecording = false;
       _isRecording = false;
       micBtn.classList.remove('recording');
-      micBtn.classList.remove('cancel'); // remove classe cancel
+      micBtn.classList.remove('cancel');
       _isMicPressed = false;
+      if (_timerInterval) {
+        clearInterval(_timerInterval);
+        _timerInterval = null;
+      }
+      inpEl.placeholder = 'Mensagem';
     };
 
     _mediaRecorder.start();
     _isRecording = true;
 
-    inpEl.placeholder = '🔴 Gravando… (solte para enviar)';
+    // CONTADOR E FEEDBACK SONORO
+    playBeep(880, 100);
+    _recordStartTime = Date.now();
+    inpEl.placeholder = '🔴 0:00';
+    if (_timerInterval) clearInterval(_timerInterval);
+    _timerInterval = setInterval(() => {
+      if (!_isRecording) {
+        clearInterval(_timerInterval);
+        _timerInterval = null;
+        return;
+      }
+      const elapsed = Math.floor((Date.now() - _recordStartTime) / 1000);
+      const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
+      const secs = String(elapsed % 60).padStart(2, '0');
+      inpEl.placeholder = `🔴 ${mins}:${secs}`;
+    }, 1000);
 
     _recordTimer = setTimeout(() => {
       if (_isRecording) stopRecord(false);
@@ -1109,31 +1124,40 @@ async function startRecord() {
     micBtn.classList.remove('recording');
     micBtn.classList.remove('cancel');
     _isRecording = false;
+    if (_timerInterval) {
+      clearInterval(_timerInterval);
+      _timerInterval = null;
+    }
+    inpEl.placeholder = 'Mensagem';
   }
 }
 
-// Parar gravação (chamado ao soltar o botão)
+// Parar gravação
 function stopRecord(send = true) {
   if (!_isRecording || !_mediaRecorder) return;
   clearTimeout(_recordTimer);
+  if (_timerInterval) {
+    clearInterval(_timerInterval);
+    _timerInterval = null;
+  }
   if (!send) {
     _cancelRecording = true;
     _audioChunks = [];
+    playBeep(400, 200);
+    inpEl.placeholder = 'Cancelado';
+    setTimeout(() => { inpEl.placeholder = 'Mensagem'; }, 500);
+  } else {
+    playBeep(1200, 100);
   }
   _mediaRecorder.stop();
-  inpEl.placeholder = 'Mensagem';
 }
 
-// Função para cancelar gravação ao arrastar para fora (ou esquerda)
+// Cancelar gravação
 function cancelRecord() {
   if (_isRecording) {
     _cancelRecording = true;
-    // Feedback tátil opcional para cancelamento
-    if (navigator.vibrate) {
-      navigator.vibrate(30); // vibração curta
-    }
+    if (navigator.vibrate) navigator.vibrate(30);
     stopRecord(false);
-    // Mostra visualmente que foi cancelado
     micBtn.classList.add('cancel');
     setTimeout(() => {
       micBtn.classList.remove('cancel');
@@ -1141,7 +1165,6 @@ function cancelRecord() {
   }
 }
 
-// Função para exibir erros do microfone (bolha no chat)
 function showMicError(message) {
   const b = document.createElement('div');
   b.className = 'bbl in fade-in';
@@ -1157,13 +1180,12 @@ function showMicError(message) {
 async function sendAudioMessage(mimeType) {
   if (_audioChunks.length === 0) return;
   const blob = new Blob(_audioChunks, { type: mimeType });
-  if (blob.size < 500) return; // áudio muito curto
+  if (blob.size < 500) return;
 
   const url = URL.createObjectURL(blob);
   const audioId = 'user-' + Date.now();
   const now = getTime();
 
-  // Bolha de áudio do usuário
   const b = document.createElement('div');
   b.className = 'bbl out fade-in';
   b.style.maxWidth = '85%';
@@ -1186,7 +1208,6 @@ async function sendAudioMessage(mimeType) {
   </div><div class="bbl-meta"><span class="bbl-time">${now}</span>${DOUBLE_TICK}</div>`;
   msgsEl.appendChild(b); scroll();
 
-  // Reprodução local
   const audioEl = new Audio(url);
   _audioInstances[audioId] = audioEl;
   audioEl.addEventListener('timeupdate', function() {
@@ -1205,7 +1226,6 @@ async function sendAudioMessage(mimeType) {
     audioEl.currentTime = 0;
   });
 
-  // Envia para a IA
   const reader = new FileReader();
   reader.onload = async function() {
     const base64 = reader.result.split(',')[1];
@@ -1256,10 +1276,9 @@ inpEl.addEventListener('input', function() {
   }
 });
 
-// ═══ EVENTOS DO BOTÃO DE MICROFONE (pressionar e segurar) ═══
-let startX = 0, startY = 0; // para rastrear arrasto
+// ═══ EVENTOS DO BOTÃO DE MICROFONE ═══
+let startX = 0, startY = 0;
 
-// Mouse
 micBtn.addEventListener('mousedown', function(e) {
   e.preventDefault();
   startX = e.clientX;
@@ -1275,19 +1294,16 @@ micBtn.addEventListener('mouseup', function(e) {
 
 micBtn.addEventListener('mouseleave', function(e) {
   if (_isRecording) {
-    // Verifica se saiu para a esquerda (ou para fora)
     const rect = micBtn.getBoundingClientRect();
     const mouseX = e.clientX;
-    if (mouseX < rect.left - 30) { // arrastou para esquerda
+    if (mouseX < rect.left - 30) {
       cancelRecord();
     } else {
-      // se saiu para outra direção, apenas cancela (opcional)
       cancelRecord();
     }
   }
 });
 
-// Touch (mobile)
 micBtn.addEventListener('touchstart', function(e) {
   e.preventDefault();
   const touch = e.touches[0];
@@ -1300,17 +1316,13 @@ micBtn.addEventListener('touchmove', function(e) {
   if (!_isRecording) return;
   const touch = e.touches[0];
   const deltaX = touch.clientX - startX;
-  // Se arrastou para a esquerda mais de 30px, cancela
   if (deltaX < -30) {
     cancelRecord();
-    // Impede que continue arrastando
-    // Não vamos parar o evento para não atrapalhar, mas cancelamos.
   }
 }, { passive: false });
 
 micBtn.addEventListener('touchend', function(e) {
   if (_isRecording) {
-    // Se não foi cancelado, envia
     if (!_cancelRecording) {
       stopRecord(true);
     }
@@ -1325,7 +1337,6 @@ micBtn.addEventListener('touchcancel', function(e) {
 
 // ═══ ENVIO DE IMAGEM ═══
 async function handleImageSelect(event) {
-  closeAttachSheet();
   const file = event.target.files && event.target.files[0];
   event.target.value = '';
   if (!file) return;
@@ -1537,9 +1548,8 @@ function toggleEmoji() {
   }
   panel.style.display = 'block';
 }
-function openAttachSheet(){ document.getElementById('attach-sheet').classList.add('open'); }
-function closeAttachSheet(){ document.getElementById('attach-sheet').classList.remove('open'); }
-document.getElementById('attach-sheet').addEventListener('click', function(e){ if(e.target===this) closeAttachSheet(); });
+
+// SHEETS: sair, info, chamada
 function openExitSheet(){ document.getElementById('exit-sheet').classList.add('open'); }
 function closeExitSheet(){ document.getElementById('exit-sheet').classList.remove('open'); }
 document.getElementById('exit-sheet').addEventListener('click', function(e){ if(e.target===this) closeExitSheet(); });
