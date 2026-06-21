@@ -451,6 +451,7 @@ const AUDIO_SRC = 'https://res.cloudinary.com/do59kzkec/video/upload/v1781646818
 const AUDIO_PIX_SRC = 'https://res.cloudinary.com/do59kzkec/video/upload/v1781647915/depois_de_mandar_o_pix_kxclc4.mp3';
 const IMG_INICIAL_SRC = 'https://i.ibb.co/XZGMmjcV/0416-D21-A-71-A5-4-C50-A316-AB8-DEE7-F5641.jpg';
 const IMG_LEAD_SRC = 'https://i.ibb.co/B2ML9kzf/Img-jpg.jpg';
+const IMG_EXTRA_SRC = 'https://i.ibb.co/Dg5WbtL6/Previa-jpg.jpg'; // NOVA IMAGEM
 
 let audioPIxJaTocou = false;
 let aiHistory=[], leadId=null, clicouCta=false, leadCityVal=null;
@@ -719,6 +720,24 @@ async function showCta(desconto) {
     salvarLead(true);
     criarBolhaAudio(AUDIO_PIX_SRC, 'pix', null);
   }
+}
+
+// ═══ FUNÇÃO GENÉRICA PARA EXIBIR IMAGEM (formato Vanessa) ═══
+function showImage(src, timestamp) {
+  const now = timestamp || getTime();
+  aiHistory.push({ role:'assistant', content:'[imagem]', type:'image', src: src, timestamp: now });
+  salvarLead();
+  const b = document.createElement('div');
+  b.className = 'bbl in fade-in';
+  b.style.maxWidth = '85%';
+  b.style.padding = '4px';
+  b.innerHTML = TAIL_IN + '<img src="'+src+'" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">'+now+'</span></div>';
+  msgsEl.appendChild(b);
+  scroll();
+}
+
+function showFotoLead() {
+  showImage(IMG_LEAD_SRC);
 }
 
 // ═══ FUNÇÃO PARA CRIAR BOLHA DE ÁUDIO DO LEAD ═══
@@ -1017,19 +1036,6 @@ async function rebuildUI() {
 
 let _audioInstances = {};
 
-function showFotoLead() {
-  const now = getTime();
-  aiHistory.push({ role:'assistant', content:'[imagem]', type:'image', src:IMG_LEAD_SRC, timestamp: now });
-  salvarLead();
-  const b = document.createElement('div');
-  b.className = 'bbl in fade-in';
-  b.style.maxWidth = '85%';
-  b.style.padding = '4px';
-  b.innerHTML = TAIL_IN + '<img src="'+IMG_LEAD_SRC+'" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">'+now+'</span></div>';
-  msgsEl.appendChild(b);
-  scroll();
-}
-
 function showBotaoEntregavel() {
   let ring=null;
   try{
@@ -1144,11 +1150,24 @@ async function askAI(userMsg) {
       addBubble(part, 'in', false, now);
     }
 
+    // === GATILHOS ===
     const temLink = /aqui o pix/i.test(replyContent) || /um desconto/i.test(replyContent) || /aqui.*pix/i.test(replyContent) || /pix.*aqui/i.test(replyContent);
     const temDesc = /um desconto/i.test(replyContent);
     const temFoto = /olha eu aqui/i.test(replyContent);
+    const temExtra = /tá, pera ai/i.test(replyContent); // NOVO GATILHO
+
     if (temLink) { await sleep(600); showCta(temDesc); }
     if (temFoto) { await sleep(500); showFotoLead(); }
+    
+    if (temExtra) {
+      // Simula o tempo de ela falar "tá, pera ai", tirar a foto e enviar
+      showTyping();
+      await sleep(3000 + Math.random() * 2000); // Entre 3 e 5 segundos
+      hideTyping();
+      showImage(IMG_EXTRA_SRC);
+    }
+    // ================
+
     salvarLead(temLink);
   } catch (e) {
     hideTyping();
@@ -1515,8 +1534,10 @@ async function sendAudioMessage(mimeType) {
       const temLink = /aqui o pix/i.test(reply) || /um desconto/i.test(reply) || /aqui.*pix/i.test(reply) || /pix.*aqui/i.test(reply);
       const temDesc = /um desconto/i.test(reply);
       const temFoto = /olha eu aqui/i.test(reply);
+      const temExtra = /tá, pera ai/i.test(reply);
       if (temLink) { await sleep(600); showCta(temDesc); }
       if (temFoto) { await sleep(500); showFotoLead(); }
+      if (temExtra) { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showImage(IMG_EXTRA_SRC); }
       salvarLead(temLink);
     } catch(e) {
       hideTyping();
@@ -1589,8 +1610,10 @@ async function handleImageSelect(event) {
       const temLink = /aqui o pix/i.test(reply) || /um desconto/i.test(reply) || /aqui.*pix/i.test(reply) || /pix.*aqui/i.test(reply);
       const temDesc = /um desconto/i.test(reply);
       const temFoto = /olha eu aqui/i.test(reply);
+      const temExtra = /tá, pera ai/i.test(reply);
       if (temLink) { await sleep(600); showCta(temDesc); }
       if (temFoto) { await sleep(500); showFotoLead(); }
+      if (temExtra) { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showImage(IMG_EXTRA_SRC); }
       salvarLead(temLink);
     } catch(e) {
       hideTyping();
