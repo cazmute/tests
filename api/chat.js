@@ -36,7 +36,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
-        temperature: 0.6,
+        temperature: 0.4,
         messages: [
           { role: 'system', content: fullSystem },
           ...msgs,
