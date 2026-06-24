@@ -1133,7 +1133,7 @@ async function askAI(userMsg) {
     const temLink = /aqui o pix/i.test(replyContent) || /um desconto/i.test(replyContent) || /aqui.*pix/i.test(replyContent) || /pix.*aqui/i.test(replyContent);
     const temDesc = /um desconto/i.test(replyContent);
     const temFoto = /olha eu aqui/i.test(replyContent);
-    const temExtra = /tá, pera/i.test(replyContent);
+    const temExtra = /tá pera/i.test(replyContent);
 
     if (temLink) { await showCta(temDesc); } // sem sleep
     if (temFoto) { showFotoLead(); }
