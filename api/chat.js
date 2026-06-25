@@ -35,7 +35,7 @@ export default async function handler(req, res) {
         'X-Title': 'Vanessa Macedo Bot',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'deepseek/deepseek-v4-flash',
         temperature: 0.4,
         messages: [
           { role: 'system', content: fullSystem },
