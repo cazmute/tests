@@ -1183,9 +1183,10 @@ async function askAI(userMsg) {
       showImage(IMG_EXTRA_SRC);
     }
 
-    // ======= DELAY ANTES DE MOSTRAR O ENTREGÁVEL =======
+    // ======= DELAY + PIXEL + ENTREGÁVEL =======
     if (deveMostrarEntregar) {
       await sleep(ENTREGAR_DELAY);
+      pixelPurchase(3000);   // DISPARA O PIXEL DE COMPRA
       showBotaoEntregavel();
     }
 
@@ -1574,6 +1575,7 @@ async function sendAudioMessage(mimeType) {
       
       if (deveMostrarEntregar) {
         await sleep(ENTREGAR_DELAY);
+        pixelPurchase(3000);
         showBotaoEntregavel();
       }
 
@@ -1668,6 +1670,7 @@ async function handleImageSelect(event) {
       
       if (deveMostrarEntregar) {
         await sleep(ENTREGAR_DELAY);
+        pixelPurchase(3000);
         showBotaoEntregavel();
       }
 
