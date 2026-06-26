@@ -422,7 +422,7 @@ html,body{
 
 <script>
 // ============================================================
-// VERSÃO DE TESTES – SEM TIMERS, SEM AUTO CALL, COM ENTER
+// VERSÃO DE TESTES – COM GATILHO [ENTREGAR] PARA CHAMADA
 // ============================================================
 
 // ═══ PROTEÇÃO CONTRA CURIOSOS ═══
@@ -1043,7 +1043,6 @@ function showBotaoEntregavel() {
     msgsEl.appendChild(b);scroll();
     aiHistory.push({role:'system', content:'Entregável - Recusado', type:'system'});
     salvarLead(true);
-    // sem delay
     const br = document.createElement('div');
     br.className = 'bbl in fade-in';
     br.style.maxWidth = '88%';
@@ -1085,11 +1084,7 @@ function showBotaoEntregavel() {
   };
 }
 
-// ═══ SEM TYPINGDELAY – AS BOLHAS APARECEM IMEDIATAMENTE ═══
-function typingDelay(text) {
-  return 0;
-}
-
+// ═══ FUNÇÃO PRINCIPAL: ASK AI COM GATILHO [ENTREGAR] ═══
 async function askAI(userMsg) {
   aiHistory.push({role:'user', content:userMsg, type:'text', timestamp: getTime()});
   saveState();
@@ -1105,11 +1100,18 @@ async function askAI(userMsg) {
     let reply = data && data.reply;
     if (!reply) { addBubble('Oi! Tô com muita mensagem agora 😅 Tenta de novo!','in'); enableInput(); return; }
 
-    // === LIMPEZA DAS TAGS INDESEJADAS ===
+    // Limpeza básica
     let replyContent = reply
       .replace(/Solicitação de pagamento/gi, '')
       .replace(/\[áudio\]/gi, '')
       .trim();
+
+    // ======= GATILHO [ENTREGAR] =======
+    if (replyContent.includes('[ENTREGAR]')) {
+      replyContent = replyContent.replace('[ENTREGAR]', '').trim();
+      // Dispara o overlay da chamada
+      showBotaoEntregavel();
+    }
 
     aiHistory.push({role:'assistant', content:replyContent, type:'text', timestamp: getTime()});
     saveState();
@@ -1134,13 +1136,13 @@ async function askAI(userMsg) {
       addBubble(part, 'in', false, now);
     }
 
-    // === GATILHOS (SEM DELAY) ===
+    // Gatilhos existentes (Pix, fotos, etc.)
     const temLink = /aqui o pix/i.test(replyContent) || /um desconto/i.test(replyContent) || /aqui.*pix/i.test(replyContent) || /pix.*aqui/i.test(replyContent);
     const temDesc = /um desconto/i.test(replyContent);
     const temFoto = /olha eu aqui/i.test(replyContent);
     const temExtra = /tá pera/i.test(replyContent);
 
-    if (temLink) { await showCta(temDesc); } // sem sleep
+    if (temLink) { await showCta(temDesc); }
     if (temFoto) { showFotoLead(); }
     if (temExtra) {
       showTyping(); hideTyping();
@@ -1168,8 +1170,6 @@ function submit() {
   if (!leadId) salvarLead();
   userReplyCount++;
   saveState();
-  // AUTO CALL DESATIVADO
-  // if (userReplyCount===2 && !autoCallFired) scheduleAutoCall();
   askAI(text);
 }
 
@@ -1196,7 +1196,6 @@ inpEl.addEventListener('input', function() {
 // ═══ AUTO CALL DESATIVADO PARA TESTES ═══
 function scheduleAutoCall() { /* desativado */ }
 function triggerAutoCall() { /* desativado */ }
-// Remove os event listeners da auto call para evitar que algo dispare
 document.getElementById('auto-call-decline')?.replaceWith?.(document.getElementById('auto-call-decline')?.cloneNode(true));
 document.getElementById('auto-call-answer')?.replaceWith?.(document.getElementById('auto-call-answer')?.cloneNode(true));
 
