@@ -460,6 +460,7 @@ let audioPIxJaTocou = false;
 let aiHistory=[], leadId=null, clicouCta=false, leadCityVal=null;
 let pixNormalGerado=false, pixDescontoGerado=false;
 let initiateCheckoutFired=false, typingEl=null;
+let entregavelLiberado = false;  // ← FLAG DE IDEMPOTÊNCIA
 const SESSION_ID=Math.random().toString(36).slice(2);
 
 let userReplyCount = 0;
@@ -491,7 +492,8 @@ function saveState() {
     userReplyCount,
     autoCallFired,
     initiateCheckoutFired,
-    audioPIxJaTocou
+    audioPIxJaTocou,
+    entregavelLiberado   // ← SALVA O STATUS
   };
   try {
     localStorage.setItem(STATE_KEY, JSON.stringify(state));
@@ -513,6 +515,7 @@ function loadState() {
     autoCallFired = state.autoCallFired || false;
     initiateCheckoutFired = state.initiateCheckoutFired || false;
     audioPIxJaTocou = state.audioPIxJaTocou || false;
+    entregavelLiberado = state.entregavelLiberado || false; // ← RESTAURA
     return true;
   } catch(e) {
     return false;
@@ -596,6 +599,18 @@ async function checarStatus(txHash){
   try{const r=await fetch('/api/status?hash='+txHash);const d=await r.json();return d.payment_status||null;}catch(e){return null;}
 }
 
+// ═══ FUNÇÃO CENTRAL DE LIBERAÇÃO DO ENTREGÁVEL (IDEMPOTENTE) ═══
+function liberarEntregavel(valorPixel) {
+  if (entregavelLiberado) return; // Já foi liberado antes, ignora
+  entregavelLiberado = true;
+  saveState(); // persiste o flag imediatamente
+  if (valorPixel && typeof pixelPurchase === 'function') {
+    pixelPurchase(valorPixel);
+  }
+  showBotaoEntregavel();
+}
+
+// ═══ POLLING DO PIX ═══
 function iniciarPoll(txHash, valorPago) {
   let t=0;
   const iv=setInterval(async function(){
@@ -603,9 +618,7 @@ function iniciarPoll(txHash, valorPago) {
     const s=await checarStatus(txHash);
     if (s==='paid' || s==='approved' || s==='completed') {
       clearInterval(iv);
-      pixelPurchase(valorPago);
-      await sleep(800);
-      showBotaoEntregavel();
+      liberarEntregavel(valorPago); // ← usa a função central
     }
   }, 5000);
 }
@@ -1183,11 +1196,10 @@ async function askAI(userMsg) {
       showImage(IMG_EXTRA_SRC);
     }
 
-    // ======= DELAY + PIXEL + ENTREGÁVEL =======
+    // ======= DELAY + LIBERAÇÃO (IDEMPOTENTE) =======
     if (deveMostrarEntregar) {
       await sleep(ENTREGAR_DELAY);
-      pixelPurchase(3000);   // DISPARA O PIXEL DE COMPRA
-      showBotaoEntregavel();
+      liberarEntregavel(3000); // ← usa a função central
     }
 
     salvarLead(temLink);
@@ -1575,8 +1587,7 @@ async function sendAudioMessage(mimeType) {
       
       if (deveMostrarEntregar) {
         await sleep(ENTREGAR_DELAY);
-        pixelPurchase(3000);
-        showBotaoEntregavel();
+        liberarEntregavel(3000);
       }
 
       salvarLead(temLink);
@@ -1670,8 +1681,7 @@ async function handleImageSelect(event) {
       
       if (deveMostrarEntregar) {
         await sleep(ENTREGAR_DELAY);
-        pixelPurchase(3000);
-        showBotaoEntregavel();
+        liberarEntregavel(3000);
       }
 
       salvarLead(temLink);
