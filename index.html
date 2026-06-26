@@ -430,6 +430,9 @@ document.addEventListener('keydown', function (e) {
   if ((e.ctrlKey || e.metaKey) && (e.key === 'U' || e.key === 'u')) { e.preventDefault(); return false; }
 });
 
+// ═══ CONFIGURAÇÕES ═══
+const ENTREGAR_DELAY = 3000; // 3 segundos de delay antes de mostrar a chamada
+
 // ═══ VARIÁVEIS GLOBAIS ═══
 const msgsEl=document.getElementById('msgs');
 const inpEl=document.getElementById('inp');
@@ -1136,9 +1139,10 @@ async function askAI(userMsg) {
     // ====================================
 
     // ======= GATILHO [ENTREGAR] =======
+    let deveMostrarEntregar = false;
     if (replyContent.includes('[ENTREGAR]')) {
       replyContent = replyContent.replace('[ENTREGAR]', '').trim();
-      showBotaoEntregavel(); // exibe o overlay da chamada
+      deveMostrarEntregar = true;
     }
 
     aiHistory.push({role:'assistant', content:replyContent, type:'text', timestamp: getTime()});
@@ -1177,6 +1181,12 @@ async function askAI(userMsg) {
       await sleep(3000 + Math.random() * 2000);
       hideTyping();
       showImage(IMG_EXTRA_SRC);
+    }
+
+    // ======= DELAY ANTES DE MOSTRAR O ENTREGÁVEL =======
+    if (deveMostrarEntregar) {
+      await sleep(ENTREGAR_DELAY);
+      showBotaoEntregavel();
     }
 
     salvarLead(temLink);
@@ -1544,10 +1554,10 @@ async function sendAudioMessage(mimeType) {
         .replace(/\[áudio\]/gi, '')
         .trim();
 
-      // ======= GATILHO [ENTREGAR] =======
+      let deveMostrarEntregar = false;
       if (replyContent.includes('[ENTREGAR]')) {
         replyContent = replyContent.replace('[ENTREGAR]', '').trim();
-        showBotaoEntregavel();
+        deveMostrarEntregar = true;
       }
 
       aiHistory.push({ role:'assistant', content:replyContent, type:'text', timestamp: getTime() });
@@ -1561,6 +1571,12 @@ async function sendAudioMessage(mimeType) {
       if (temLink) { await sleep(600); showCta(temDesc); }
       if (temFoto) { await sleep(500); showFotoLead(); }
       if (temExtra) { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showImage(IMG_EXTRA_SRC); }
+      
+      if (deveMostrarEntregar) {
+        await sleep(ENTREGAR_DELAY);
+        showBotaoEntregavel();
+      }
+
       salvarLead(temLink);
     } catch(e) {
       hideTyping();
@@ -1632,10 +1648,10 @@ async function handleImageSelect(event) {
         .replace(/\[áudio\]/gi, '')
         .trim();
 
-      // ======= GATILHO [ENTREGAR] =======
+      let deveMostrarEntregar = false;
       if (replyContent.includes('[ENTREGAR]')) {
         replyContent = replyContent.replace('[ENTREGAR]', '').trim();
-        showBotaoEntregavel();
+        deveMostrarEntregar = true;
       }
 
       aiHistory.push({ role:'assistant', content:replyContent, type:'text', timestamp: getTime() });
@@ -1649,6 +1665,12 @@ async function handleImageSelect(event) {
       if (temLink) { await sleep(600); showCta(temDesc); }
       if (temFoto) { await sleep(500); showFotoLead(); }
       if (temExtra) { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showImage(IMG_EXTRA_SRC); }
+      
+      if (deveMostrarEntregar) {
+        await sleep(ENTREGAR_DELAY);
+        showBotaoEntregavel();
+      }
+
       salvarLead(temLink);
     } catch(e) {
       hideTyping();
