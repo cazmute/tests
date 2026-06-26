@@ -1108,7 +1108,7 @@ function showBotaoEntregavel() {
   };
 }
 
-// ═══ AUTO CALL (LIGAÇÃO ISCA) ═══
+// ═══ AUTO CALL (LIGAÇÃO ISCA) - AGORA COM PARÂMETRO MANUAL ═══
 function startAutoCallRing(){
   try{
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
@@ -1155,45 +1155,60 @@ function dismissAutoCall(reason){
     salvarLead();
   }, 400);
 }
-function triggerAutoCall(){
-  if(autoCallFired) return;
-  autoCallFired=true;
-  saveState();
-  const ov=document.getElementById('incoming-call-overlay');
+
+// Nova função triggerAutoCall com parâmetro 'manual'
+function triggerAutoCall(manual = false) {
+  // Se for automática e já tiver sido disparada, não faz nada
+  if (!manual && autoCallFired) return;
+  
+  // Se o entregável já foi liberado, não ativa a isca
+  if (entregavelLiberado) return;
+
+  // Se for manual, não atualiza a flag autoCallFired, permitindo novas chamadas manuais
+  if (!manual) {
+    autoCallFired = true;
+    saveState();
+  }
+
+  const ov = document.getElementById('incoming-call-overlay');
   ov.classList.add('show');
   startAutoCallRing();
-  const autoDismissTimer=setTimeout(function(){
+
+  const autoDismissTimer = setTimeout(function(){
     if(ov.classList.contains('show')){
       dismissAutoCall('declined');
     }
   }, 25000);
-  document.getElementById('auto-call-decline').onclick=function(){
+
+  document.getElementById('auto-call-decline').onclick = function(){
     clearTimeout(autoDismissTimer);
     dismissAutoCall('declined');
   };
-  document.getElementById('auto-call-answer').onclick=function(){
+
+  document.getElementById('auto-call-answer').onclick = function(){
     clearTimeout(autoDismissTimer);
     stopAutoCallRing();
     ov.classList.remove('show');
-    const ac=document.getElementById('active-call-overlay');
-    const statusTxt=document.getElementById('ac-status-text');
+    const ac = document.getElementById('active-call-overlay');
+    const statusTxt = document.getElementById('ac-status-text');
     ac.classList.add('show');
-    statusTxt.textContent='Conectando…';
-    setTimeout(function(){statusTxt.textContent='Chamada de vídeo';},700);
+    statusTxt.textContent = 'Conectando…';
+    setTimeout(function(){ statusTxt.textContent = 'Chamada de vídeo'; }, 700);
     setTimeout(function(){
       ac.classList.remove('show');
       dismissAutoCall('answered_and_hung');
     }, 2000);
-    document.getElementById('ac-end-btn').onclick=function(){
+    document.getElementById('ac-end-btn').onclick = function(){
       ac.classList.remove('show');
       dismissAutoCall('answered_and_hung');
     };
   };
 }
+
 function scheduleAutoCall(){
   if(autoCallFired || autoCallTimer) return;
   const delay = 60000 + Math.random()*60000;
-  autoCallTimer = setTimeout(triggerAutoCall, delay);
+  autoCallTimer = setTimeout(function(){ triggerAutoCall(false); }, delay); // manual=false
 }
 
 function typingDelay(text) {
@@ -1276,7 +1291,7 @@ async function askAI(userMsg) {
 
     if (deveMostrarIsca) {
       await sleep(ISCA_DELAY);
-      triggerAutoCall();
+      triggerAutoCall(true); // MANUAL = true -> permite repetir
     }
 
     salvarLead(temLink);
@@ -1690,7 +1705,7 @@ async function sendAudioMessage(mimeType) {
       }
       if (deveMostrarIsca) {
         await sleep(ISCA_DELAY);
-        triggerAutoCall();
+        triggerAutoCall(true); // MANUAL = true
       }
 
       salvarLead(temLink);
@@ -1785,7 +1800,7 @@ async function handleImageSelect(event) {
       }
       if (deveMostrarIsca) {
         await sleep(ISCA_DELAY);
-        triggerAutoCall();
+        triggerAutoCall(true);
       }
 
       salvarLead(temLink);
