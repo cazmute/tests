@@ -1,22 +1,16 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { desconto, amount } = req.body;
+  const { desconto } = req.body;
 
-  let valor;
-  // Se receber um amount válido, usa ele (em centavos)
-  if (amount !== undefined && !isNaN(amount) && amount > 0) {
-    valor = Number(amount);
-  } else {
-    // Caso contrário, mantém a lógica antiga (desconto ou normal)
-    const VALOR_NORMAL   = 3000;
-    const VALOR_DESCONTO = 2000;
-    valor = desconto ? VALOR_DESCONTO : VALOR_NORMAL;
-  }
+  // VALORES ALTERADOS: 1990 → 2000 (R$20,00) e 990 → 1000 (R$10,00)
+  const VALOR_NORMAL   = 3000;
+  const VALOR_DESCONTO = 2000;
+  const valor = desconto ? VALOR_DESCONTO : VALOR_NORMAL;
 
   const payload = {
     api_token: process.env.INVICTUSPAY_KEY,
-    amount: valor, // valor dinâmico
+    amount: valor,
     offer_hash: process.env.OFFER_HASH,
     payment_method: 'pix',
     customer: {
@@ -57,8 +51,7 @@ export default async function handler(req, res) {
       body: JSON.stringify(payload),
     });
     const data = await response.json();
-    // Retorna o amount junto para o frontend exibir corretamente
-    return res.status(200).json({ ...data, amount: valor });
+    return res.status(200).json(data);
   } catch (e) {
     return res.status(500).json({ error: 'PIX request failed' });
   }
