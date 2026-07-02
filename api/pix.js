@@ -1,16 +1,22 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { desconto } = req.body;
+  const { desconto, amount } = req.body;
 
-  // VALORES ALTERADOS
-  const VALOR_NORMAL   = 3000;
-  const VALOR_DESCONTO = 2000;
-  const valor = desconto ? VALOR_DESCONTO : VALOR_NORMAL;
+  let valor;
+  // Se receber um amount válido, usa ele (em centavos)
+  if (amount !== undefined && !isNaN(amount) && amount > 0) {
+    valor = Number(amount);
+  } else {
+    // Caso contrário, mantém a lógica antiga (desconto ou normal)
+    const VALOR_NORMAL   = 3000;
+    const VALOR_DESCONTO = 2000;
+    valor = desconto ? VALOR_DESCONTO : VALOR_NORMAL;
+  }
 
   const payload = {
     api_token: process.env.INVICTUSPAY_KEY,
-    amount: valor,
+    amount: valor, // valor dinâmico
     offer_hash: process.env.OFFER_HASH,
     payment_method: 'pix',
     customer: {
@@ -39,9 +45,9 @@ export default async function handler(req, res) {
     transaction_origin: 'api',
     tracking: {
       src: '', utm_source: 'whatsapp', utm_medium: 'chat',
-      utm_campaign: 'gospel-bot', utm_term: '', utm_content: '',
+      utm_campaign: 'xpremium', utm_term: '', utm_content: '',
     },
-    postback_url: 'https://webhook.site/invictuspay-gospel',
+    postback_url: 'https://webhook.site/invictuspay-xpremium',
   };
 
   try {
@@ -51,7 +57,8 @@ export default async function handler(req, res) {
       body: JSON.stringify(payload),
     });
     const data = await response.json();
-    return res.status(200).json(data);
+    // Retorna o amount junto para o frontend exibir corretamente
+    return res.status(200).json({ ...data, amount: valor });
   } catch (e) {
     return res.status(500).json({ error: 'PIX request failed' });
   }
