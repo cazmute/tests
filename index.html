@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>WhatsApp - Testes</title>
+<title>WhatsApp</title>
 <!-- Meta Pixel -->
 <script>
 !function(f,b,e,v,n,t,s)
@@ -22,6 +22,7 @@ fbq('track', 'PageView');
   src="https://www.facebook.com/tr?id=981136621185086&ev=PageView&noscript=1"/>
 </noscript>
 <style>
+/* ... (estilos idênticos aos anteriores, não alterados) ... */
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --wa-green:#25d366;--wa-teal:#075e54;--wa-teal2:#128c7e;
@@ -381,7 +382,7 @@ html,body{
     </div>
   </div>
 
-  <!-- INCOMING VIDEO CALL OVERLAY (automático - desativado) -->
+  <!-- INCOMING VIDEO CALL OVERLAY (automático) -->
   <div id="incoming-call-overlay">
     <div style="text-align:center">
       <div class="call-avatar-wrap">
@@ -408,7 +409,7 @@ html,body{
     </div>
   </div>
 
-  <!-- ACTIVE CALL (brief flash ao atender - desativado) -->
+  <!-- ACTIVE CALL (brief flash ao atender) -->
   <div id="active-call-overlay">
     <div class="ac-avatar"><img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" alt="Vanessa"></div>
     <div class="ac-name">Vanessa Macedo</div>
@@ -421,10 +422,6 @@ html,body{
 </div>
 
 <script>
-// ============================================================
-// VERSÃO DE TESTES – SEM TIMERS, SEM AUTO CALL, COM ENTER
-// ============================================================
-
 // ═══ PROTEÇÃO CONTRA CURIOSOS ═══
 document.addEventListener('contextmenu', (e) => e.preventDefault());
 document.addEventListener('keydown', function (e) {
@@ -457,19 +454,25 @@ const IMG_INICIAL_SRC = 'https://i.ibb.co/XZGMmjcV/0416-D21-A-71-A5-4-C50-A316-A
 const IMG_LEAD_SRC = 'https://i.ibb.co/B2ML9kzf/Img-jpg.jpg';
 const IMG_EXTRA_SRC = 'https://i.ibb.co/mr9LqY60/Prev-jpg.jpg';
 
-let audioPIxJaTocou = false;
 let aiHistory=[], leadId=null, clicouCta=false, leadCityVal=null;
 let pixNormalGerado=false, pixDescontoGerado=false;
 let initiateCheckoutFired=false, typingEl=null;
 const SESSION_ID=Math.random().toString(36).slice(2);
 
-let userReplyCount = 0;
-let autoCallFired = false;
-let autoCallTimer = null;
+let autoCallFired = false; // será usado para evitar múltiplas chamadas
 let autoCallRingInterval = null;
 
 const STATE_KEY = 'wa-conversa-state';
 const AUDIO_LEAD_KEY = 'wa-audio-lead';
+
+// ═══ VERIFICA PERMISSÃO DO MICROFONE AO CARREGAR ═══
+if (navigator.permissions) {
+  navigator.permissions.query({ name: 'microphone' }).then(perm => {
+    if (perm.state === 'denied') {
+      console.warn('Microfone bloqueado pelo usuário.');
+    }
+  }).catch(() => {});
+}
 
 // ═══ PERSISTÊNCIA ═══
 function saveState() {
@@ -480,14 +483,12 @@ function saveState() {
     leadCityVal,
     pixNormalGerado,
     pixDescontoGerado,
-    userReplyCount,
     autoCallFired,
-    initiateCheckoutFired,
-    audioPIxJaTocou
+    initiateCheckoutFired
   };
   try {
     localStorage.setItem(STATE_KEY, JSON.stringify(state));
-  } catch(e) {}
+  } catch(e) { /* ignorar */ }
 }
 
 function loadState() {
@@ -501,10 +502,8 @@ function loadState() {
     leadCityVal = state.leadCityVal || null;
     pixNormalGerado = state.pixNormalGerado || false;
     pixDescontoGerado = state.pixDescontoGerado || false;
-    userReplyCount = state.userReplyCount || 0;
     autoCallFired = state.autoCallFired || false;
     initiateCheckoutFired = state.initiateCheckoutFired || false;
-    audioPIxJaTocou = state.audioPIxJaTocou || false;
     return true;
   } catch(e) {
     return false;
@@ -515,7 +514,7 @@ function loadState() {
 function salvarAudioLead(src, timestamp) {
   try {
     localStorage.setItem(AUDIO_LEAD_KEY, JSON.stringify({ src, timestamp }));
-  } catch(e) {}
+  } catch(e) { /* ignorar */ }
 }
 
 function carregarAudioLead() {
@@ -588,15 +587,115 @@ async function checarStatus(txHash){
   try{const r=await fetch('/api/status?hash='+txHash);const d=await r.json();return d.payment_status||null;}catch(e){return null;}
 }
 
-// ═══ POLLING SEM LOOP (APENAS UMA VERIFICAÇÃO PARA TESTES) ═══
-function iniciarPoll(txHash, valorPago) {
-  // Faz uma única verificação, sem loop
-  checarStatus(txHash).then(s => {
-    if (s==='paid' || s==='approved' || s==='completed') {
-      pixelPurchase(valorPago);
-      showBotaoEntregavel();
+// ═══ POLLING COM TIMEOUT E PERSISTÊNCIA ═══
+async function checarStatusComTimeout(txHash, timeout = 10000) {
+  return Promise.race([
+    checarStatus(txHash),
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeout))
+  ]);
+}
+
+let pollingTimeoutId = null;
+let pollingTentativas = 0;
+let pollingHashAtual = null;
+let pollingValorAtual = 0;
+let pollingPausado = false;
+let pollingIntervaloAtual = 5000;
+const MAX_TENTATIVAS = 720;
+const INTERVALO_INICIAL = 5000;
+const INTERVALO_MAXIMO = 30000;
+const BACKOFF_MULTIPLICADOR = 1.2;
+const POLL_STATE_KEY = 'poll_state';
+
+function salvarEstadoPolling(hash, tentativas, valor) {
+  try {
+    localStorage.setItem(POLL_STATE_KEY, JSON.stringify({ hash, tentativas, valor, timestamp: Date.now() }));
+  } catch(e) {}
+}
+
+function carregarEstadoPolling() {
+  try {
+    const raw = localStorage.getItem(POLL_STATE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch(e) { return null; }
+}
+
+function limparEstadoPolling() {
+  try { localStorage.removeItem(POLL_STATE_KEY); } catch(e) {}
+}
+
+function iniciarPollRobusto(txHash, valorPago, tentativasIniciais = 0) {
+  if (pollingTimeoutId) {
+    clearTimeout(pollingTimeoutId);
+    pollingTimeoutId = null;
+  }
+
+  pollingHashAtual = txHash;
+  pollingValorAtual = valorPago;
+  pollingTentativas = tentativasIniciais;
+  pollingPausado = false;
+  pollingIntervaloAtual = INTERVALO_INICIAL;
+
+  salvarEstadoPolling(txHash, pollingTentativas, pollingValorAtual);
+
+  function tentar() {
+    if (pollingPausado) {
+      pollingTimeoutId = setTimeout(tentar, 20000);
+      return;
     }
-  });
+
+    if (pollingTentativas >= MAX_TENTATIVAS) {
+      limparEstadoPolling();
+      return;
+    }
+
+    pollingTentativas++;
+    salvarEstadoPolling(pollingHashAtual, pollingTentativas, pollingValorAtual);
+
+    checarStatusComTimeout(pollingHashAtual)
+      .then(status => {
+        if (status === 'paid' || status === 'approved' || status === 'completed') {
+          limparEstadoPolling();
+          pixelPurchase(pollingValorAtual);
+          showBotaoEntregavel();
+          return;
+        }
+
+        pollingIntervaloAtual = Math.min(pollingIntervaloAtual * BACKOFF_MULTIPLICADOR, INTERVALO_MAXIMO);
+        pollingTimeoutId = setTimeout(tentar, pollingIntervaloAtual);
+      })
+      .catch(() => {
+        pollingTimeoutId = setTimeout(tentar, 10000);
+      });
+  }
+
+  tentar();
+}
+
+function retomarPollingSeNecessario() {
+  const estado = carregarEstadoPolling();
+  if (estado && estado.hash && estado.tentativas < MAX_TENTATIVAS) {
+    if (Date.now() - estado.timestamp < 3600000) {
+      iniciarPollRobusto(estado.hash, estado.valor, estado.tentativas);
+    } else {
+      limparEstadoPolling();
+    }
+  }
+}
+
+// ═══ VISIBILIDADE DA ABA ═══
+document.addEventListener('visibilitychange', function() {
+  if (document.hidden) {
+    pollingPausado = true;
+  } else {
+    pollingPausado = false;
+  }
+});
+
+// ═══ ANTIGO iniciarPoll (mantido para compatibilidade) ═══
+function iniciarPoll(txHash, valorPago) {
+  iniciarPollRobusto(txHash, valorPago);
 }
 
 window.copiarPix=function(btn,codigo){
@@ -689,32 +788,28 @@ function criarCardPix(data, desconto, timestamp) {
   msgsEl.appendChild(wrap);
   scroll();
 
-  iniciarPoll(txHash, valor);
+  iniciarPollRobusto(txHash, valor);
   pixelIniCheckout(valor);
+
+  // ── DISPARAR A CHAMADA FAKE APÓS O PIX ──
+  setTimeout(() => {
+    triggerAutoCall();
+  }, 2000); // pequeno delay para o lead ver o card
 }
 
-// ═══ SHOW CTA SEM DELAY ═══
 async function showCta(desconto) {
   if (desconto) { if (pixDescontoGerado) return; pixDescontoGerado = true; }
   else { if (pixNormalGerado) return; pixNormalGerado = true; }
 
-  showTyping(); hideTyping(); // sem delay
+  showTyping(); await sleep(1000); hideTyping();
   const data = await gerarPix(desconto);
   if (!data) { addBubble('Ops, tive um probleminha 😅 Tenta de novo!','in'); return; }
 
   const now = getTime();
   criarCardPix(data, desconto, now);
-
-  if (!audioPIxJaTocou) {
-    audioPIxJaTocou = true;
-    saveState();
-    aiHistory.push({role:'assistant', content:'[áudio]', type:'audio', src:AUDIO_PIX_SRC, timestamp: now});
-    salvarLead(true);
-    criarBolhaAudio(AUDIO_PIX_SRC, 'pix', null);
-  }
 }
 
-// ═══ FUNÇÃO GENÉRICA PARA EXIBIR IMAGEM (formato Vanessa) ═══
+// ═══ FUNÇÃO GENÉRICA PARA EXIBIR IMAGEM ═══
 function showImage(src, timestamp) {
   const now = timestamp || getTime();
   aiHistory.push({ role:'assistant', content:'[imagem]', type:'image', src: src, timestamp: now });
@@ -951,6 +1046,7 @@ async function rebuildUI() {
           timeToShow = hh + ':' + mm;
         }
         addBubble(parts[i], 'in', false, timeToShow);
+        await sleep(30);
       }
     }
     else if (msg.role === 'assistant' && msg.type === 'audio') {
@@ -1043,7 +1139,8 @@ function showBotaoEntregavel() {
     msgsEl.appendChild(b);scroll();
     aiHistory.push({role:'system', content:'Entregável - Recusado', type:'system'});
     salvarLead(true);
-    // sem delay
+    await sleep(1400);
+    
     const br = document.createElement('div');
     br.className = 'bbl in fade-in';
     br.style.maxWidth = '88%';
@@ -1085,9 +1182,9 @@ function showBotaoEntregavel() {
   };
 }
 
-// ═══ SEM TYPINGDELAY – AS BOLHAS APARECEM IMEDIATAMENTE ═══
 function typingDelay(text) {
-  return 0;
+  const chars = text.length, cps = 2.5 + Math.random();
+  return Math.min(Math.max((chars/cps)*1000+600+Math.random()*900, 1800), 12000);
 }
 
 async function askAI(userMsg) {
@@ -1102,10 +1199,9 @@ async function askAI(userMsg) {
     });
     const data = await res.json();
     hideTyping();
-    let reply = data && data.reply;
+    const reply = data && data.reply;
     if (!reply) { addBubble('Oi! Tô com muita mensagem agora 😅 Tenta de novo!','in'); enableInput(); return; }
-
-    // === LIMPEZA DAS TAGS INDESEJADAS ===
+    
     let replyContent = reply
       .replace(/Solicitação de pagamento/gi, '')
       .replace(/\[áudio\]/gi, '')
@@ -1117,10 +1213,7 @@ async function askAI(userMsg) {
     if (replyContent.includes('[FIM]')) {
       const msgFinal = replyContent.replace('[FIM]','').trim();
       const pts = msgFinal.split('|').map(p=>p.trim()).filter(Boolean);
-      for (let i=0;i<pts.length;i++) {
-        showTyping(); hideTyping();
-        addBubble(pts[i],'in',false,getTime());
-      }
+      for (let i=0;i<pts.length;i++) { showTyping(); await sleep(typingDelay(pts[i])); hideTyping(); addBubble(pts[i],'in',false,getTime()); }
       inpEl.disabled = true; sendBtn.disabled = true; inpEl.placeholder = 'Conversa encerrada';
       return;
     }
@@ -1130,23 +1223,38 @@ async function askAI(userMsg) {
     for (let i=0;i<parts.length;i++) {
       const part = parts[i];
       const now = getTime();
-      showTyping(); hideTyping();
+      showTyping();
+      await sleep(typingDelay(part));
+      hideTyping();
       addBubble(part, 'in', false, now);
     }
 
-    // === GATILHOS (SEM DELAY) ===
-    const temLink = /aqui o pix/i.test(replyContent) || /um desconto/i.test(replyContent) || /aqui.*pix/i.test(replyContent) || /pix.*aqui/i.test(replyContent);
-    const temDesc = /um desconto/i.test(replyContent);
-    const temFoto = /olha eu aqui/i.test(replyContent);
-    const temExtra = /tá pera/i.test(replyContent);
+    const temPixNormal = /aqui o pix/i.test(replyContent);
+    const temDesconto  = /um desconto/i.test(replyContent);
+    const temFoto     = /olha eu aqui/i.test(replyContent);
+    const temExtra    = /tá pera/i.test(replyContent);
 
-    if (temLink) { await showCta(temDesc); } // sem sleep
-    if (temFoto) { showFotoLead(); }
+    if (temPixNormal) {
+      await sleep(600);
+      showCta(false);
+    }
+    if (temDesconto) {
+      await sleep(600);
+      showCta(true);
+    }
+    if (temFoto) {
+      await sleep(500);
+      showFotoLead();
+    }
     if (temExtra) {
-      showTyping(); hideTyping();
+      showTyping();
+      await sleep(3000 + Math.random() * 2000);
+      hideTyping();
       showImage(IMG_EXTRA_SRC);
     }
-    salvarLead(temLink);
+
+    const houveCta = temPixNormal || temDesconto;
+    salvarLead(houveCta);
   } catch (e) {
     hideTyping();
     addBubble('Ops, tive um probleminha. Pode repetir? 😊','in');
@@ -1155,7 +1263,7 @@ async function askAI(userMsg) {
   enableInput();
 }
 
-// ═══ FUNÇÃO DE ENVIO (texto) – com suporte a Enter ═══
+// ═══ FUNÇÃO DE ENVIO (texto) ═══
 function submit() {
   const text = inpEl.value.trim();
   if (!text) return;
@@ -1166,20 +1274,359 @@ function submit() {
   const now = getTime();
   addBubble(text, 'out', false, now);
   if (!leadId) salvarLead();
-  userReplyCount++;
-  saveState();
-  // AUTO CALL DESATIVADO
-  // if (userReplyCount===2 && !autoCallFired) scheduleAutoCall();
   askAI(text);
 }
 
-// ═══ EVENTO PARA ENVIAR COM ENTER ═══
-inpEl.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    submit();
+// ═══ GRAVAÇÃO DE ÁUDIO (pressione e segure) ═══
+let _mediaRecorder = null, _audioChunks = [], _isRecording = false, _recordTimer = null;
+let _isMicPressed = false;
+let _cancelRecording = false;
+let _recordStartTime = null;
+let _timerInterval = null;
+
+let _pressTimer = null;
+let _pressStartX = 0, _pressStartY = 0;
+const PRESS_THRESHOLD = 200;
+const MOVE_THRESHOLD = 15;
+
+function showMicToast() {
+  micToast.classList.add('show');
+  clearTimeout(window._toastTimeout);
+  window._toastTimeout = setTimeout(() => {
+    micToast.classList.remove('show');
+  }, 2500);
+}
+
+function getSupportedMimeType() {
+  const types = [
+    'audio/webm;codecs=opus',
+    'audio/webm',
+    'audio/ogg;codecs=opus',
+    'audio/ogg',
+    'audio/mp4',
+    'audio/mpeg',
+    'audio/wav'
+  ];
+  if (typeof MediaRecorder !== 'undefined' && typeof MediaRecorder.isTypeSupported === 'function') {
+    for (const type of types) {
+      if (MediaRecorder.isTypeSupported(type)) {
+        return type;
+      }
+    }
+  } else {
+    return 'audio/webm';
+  }
+  return null;
+}
+
+async function _startRecording() {
+  if (_isRecording) return;
+  if (_isMicPressed) return;
+
+  _isMicPressed = true;
+  _cancelRecording = false;
+  micBtn.classList.add('recording');
+  cameraBtn.classList.add('hidden-mic');
+
+  if (navigator.vibrate) navigator.vibrate(50);
+
+  try {
+    let permissionState = 'prompt';
+    try {
+      const perm = await navigator.permissions.query({ name: 'microphone' });
+      permissionState = perm.state;
+    } catch(e) {}
+    if (permissionState === 'denied') {
+      showMicError('Microfone bloqueado. Desbloqueie nas configurações do navegador.');
+      _isMicPressed = false;
+      micBtn.classList.remove('recording');
+      cameraBtn.classList.remove('hidden-mic');
+      return;
+    }
+
+    if (typeof MediaRecorder === 'undefined') {
+      showMicError('Seu navegador não suporta gravação de áudio.');
+      _isMicPressed = false;
+      micBtn.classList.remove('recording');
+      cameraBtn.classList.remove('hidden-mic');
+      return;
+    }
+
+    const mimeType = getSupportedMimeType();
+    if (!mimeType) {
+      showMicError('Nenhum formato de áudio suportado.');
+      _isMicPressed = false;
+      micBtn.classList.remove('recording');
+      cameraBtn.classList.remove('hidden-mic');
+      return;
+    }
+
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+    });
+
+    _mediaRecorder = new MediaRecorder(stream, { mimeType });
+    _audioChunks = [];
+    _mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) _audioChunks.push(e.data); };
+    _mediaRecorder.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      if (_audioChunks.length > 0 && !_cancelRecording) {
+        sendAudioMessage(mimeType);
+      } else {
+        _audioChunks = [];
+      }
+      _cancelRecording = false;
+      _isRecording = false;
+      micBtn.classList.remove('recording');
+      micBtn.classList.remove('cancel');
+      cameraBtn.classList.remove('hidden-mic');
+      _isMicPressed = false;
+      if (_timerInterval) {
+        clearInterval(_timerInterval);
+        _timerInterval = null;
+      }
+      inpEl.placeholder = 'Mensagem';
+    };
+
+    _mediaRecorder.start();
+    _isRecording = true;
+
+    _recordStartTime = Date.now();
+    inpEl.placeholder = '🔴 0:00 • Deslize para cancelar';
+    if (_timerInterval) clearInterval(_timerInterval);
+    _timerInterval = setInterval(() => {
+      if (!_isRecording) {
+        clearInterval(_timerInterval);
+        _timerInterval = null;
+        return;
+      }
+      const elapsed = Math.floor((Date.now() - _recordStartTime) / 1000);
+      const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
+      const secs = String(elapsed % 60).padStart(2, '0');
+      inpEl.placeholder = `🔴 ${mins}:${secs} • Deslize para cancelar`;
+    }, 1000);
+
+    _recordTimer = setTimeout(() => {
+      if (_isRecording) stopRecord(false);
+    }, 60000);
+
+  } catch (err) {
+    console.error(err);
+    let msg = 'Não foi possível gravar áudio. ';
+    if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+      msg += 'Permissão negada. Clique no ícone do cadeado e permita o microfone.';
+    } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+      msg += 'Nenhum microfone encontrado.';
+    } else {
+      msg += err.message;
+    }
+    showMicError(msg);
+    _isMicPressed = false;
+    micBtn.classList.remove('recording');
+    micBtn.classList.remove('cancel');
+    cameraBtn.classList.remove('hidden-mic');
+    _isRecording = false;
+    if (_timerInterval) {
+      clearInterval(_timerInterval);
+      _timerInterval = null;
+    }
+    inpEl.placeholder = 'Mensagem';
+  }
+}
+
+function stopRecord(send = true) {
+  if (!_isRecording || !_mediaRecorder) return;
+  clearTimeout(_recordTimer);
+  if (_timerInterval) {
+    clearInterval(_timerInterval);
+    _timerInterval = null;
+  }
+  if (!send) {
+    _cancelRecording = true;
+    _audioChunks = [];
+    inpEl.placeholder = 'Cancelado';
+    setTimeout(() => { inpEl.placeholder = 'Mensagem'; }, 500);
+  }
+  _mediaRecorder.stop();
+}
+
+function cancelRecord() {
+  if (_isRecording) {
+    _cancelRecording = true;
+    if (navigator.vibrate) navigator.vibrate(30);
+    stopRecord(false);
+    micBtn.classList.add('cancel');
+    setTimeout(() => {
+      micBtn.classList.remove('cancel');
+    }, 300);
+  }
+}
+
+function handlePressStart(e) {
+  const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+  const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+  if (clientX == null) return;
+
+  if (_pressTimer) return;
+
+  _pressStartX = clientX;
+  _pressStartY = clientY;
+
+  micToast.classList.remove('show');
+
+  _pressTimer = setTimeout(() => {
+    _pressTimer = null;
+    _startRecording();
+  }, PRESS_THRESHOLD);
+}
+
+function handlePressEnd(e) {
+  if (_pressTimer) {
+    clearTimeout(_pressTimer);
+    _pressTimer = null;
+    const clientX = e.clientX || (e.changedTouches && e.changedTouches[0].clientX);
+    const clientY = e.clientY || (e.changedTouches && e.changedTouches[0].clientY);
+    if (clientX != null) {
+      const dx = clientX - _pressStartX;
+      const dy = clientY - _pressStartY;
+      if (Math.sqrt(dx*dx + dy*dy) < MOVE_THRESHOLD) {
+        showMicToast();
+      }
+    } else {
+      showMicToast();
+    }
+    return;
+  }
+
+  if (_isRecording) {
+    if (!_cancelRecording) {
+      stopRecord(true);
+    }
+  }
+}
+
+function handlePressMove(e) {
+  if (_pressTimer) {
+    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+    const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+    if (clientX != null) {
+      const dx = clientX - _pressStartX;
+      const dy = clientY - _pressStartY;
+      if (Math.sqrt(dx*dx + dy*dy) > MOVE_THRESHOLD) {
+        clearTimeout(_pressTimer);
+        _pressTimer = null;
+      }
+    }
+  }
+
+  if (_isRecording) {
+    const rect = micBtn.getBoundingClientRect();
+    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+    if (clientX != null && clientX < rect.left - 30) {
+      cancelRecord();
+    }
+  }
+}
+
+micBtn.addEventListener('mousedown', handlePressStart);
+micBtn.addEventListener('mouseup', handlePressEnd);
+micBtn.addEventListener('mouseleave', function(e) {
+  if (_pressTimer) {
+    clearTimeout(_pressTimer);
+    _pressTimer = null;
+  }
+  if (_isRecording) {
+    cancelRecord();
   }
 });
+micBtn.addEventListener('mousemove', handlePressMove);
+
+micBtn.addEventListener('touchstart', handlePressStart, { passive: true });
+micBtn.addEventListener('touchend', handlePressEnd, { passive: true });
+micBtn.addEventListener('touchcancel', function(e) {
+  if (_pressTimer) {
+    clearTimeout(_pressTimer);
+    _pressTimer = null;
+  }
+  if (_isRecording) {
+    cancelRecord();
+  }
+}, { passive: true });
+micBtn.addEventListener('touchmove', handlePressMove, { passive: true });
+
+function showMicError(message) {
+  const b = document.createElement('div');
+  b.className = 'bbl in fade-in';
+  b.style.maxWidth = '85%';
+  b.style.background = '#fde7e7';
+  b.style.color = '#b33';
+  b.innerHTML = TAIL_IN + '⚠️ ' + message + '<div class="bbl-meta"><span class="bbl-time">' + getTime() + '</span></div>';
+  msgsEl.appendChild(b);
+  scroll();
+}
+
+// ═══ ENVIO DE ÁUDIO (APÓS GRAVAÇÃO) ═══
+async function sendAudioMessage(mimeType) {
+  if (_audioChunks.length === 0) return;
+  const blob = new Blob(_audioChunks, { type: mimeType });
+  if (blob.size < 500) return;
+
+  const url = URL.createObjectURL(blob);
+  const audioId = 'user-' + Date.now();
+  const now = getTime();
+
+  const audioData = { url: url, id: audioId };
+  aiHistory.push({ 
+    role: 'user', 
+    content: '[áudio enviado pelo usuário]', 
+    type: 'audio-user', 
+    timestamp: now,
+    audioData: audioData
+  });
+  salvarLead();
+
+  criarBolhaAudioUsuario(url, audioId, now);
+
+  const reader = new FileReader();
+  reader.onload = async function() {
+    const base64 = reader.result.split(',')[1];
+    if (!leadId) salvarLead();
+    showTyping();
+    try {
+      const res = await fetch('/api/chat', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ history: aiHistory, city: leadCityVal, audio: base64, audioMime: mimeType })
+      });
+      const data = await res.json();
+      hideTyping();
+      const reply = data && data.reply;
+      if (!reply) { addBubble('Oi! Tô com muita mensagem agora 😅 Tenta de novo!','in'); enableInput(); return; }
+      aiHistory.push({ role:'assistant', content:reply, type:'text', timestamp: getTime() });
+      saveState();
+      const parts = reply.split('|').map(p=>p.trim()).filter(Boolean);
+      for (let i=0;i<parts.length;i++) { showTyping(); await sleep(typingDelay(parts[i])); hideTyping(); addBubble(parts[i],'in',false,getTime()); }
+      
+      const temPixNormal = /aqui o pix/i.test(reply);
+      const temDesconto  = /um desconto/i.test(reply);
+      const temFoto     = /olha eu aqui/i.test(reply);
+      const temExtra    = /tá pera/i.test(reply);
+
+      if (temPixNormal) { await sleep(600); showCta(false); }
+      if (temDesconto)  { await sleep(600); showCta(true); }
+      if (temFoto)      { await sleep(500); showFotoLead(); }
+      if (temExtra)     { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showImage(IMG_EXTRA_SRC); }
+
+      const houveCta = temPixNormal || temDesconto;
+      salvarLead(houveCta);
+    } catch(e) {
+      hideTyping();
+      addBubble('Ops, não consegui ouvir o áudio. Pode escrever? 😊','in');
+      aiHistory.pop();
+    }
+    enableInput();
+  };
+  reader.readAsDataURL(blob);
+}
 
 // ═══ CONTROLE DE VISIBILIDADE DOS BOTÕES ═══
 inpEl.addEventListener('input', function() {
@@ -1193,12 +1640,168 @@ inpEl.addEventListener('input', function() {
   }
 });
 
-// ═══ AUTO CALL DESATIVADO PARA TESTES ═══
-function scheduleAutoCall() { /* desativado */ }
-function triggerAutoCall() { /* desativado */ }
-// Remove os event listeners da auto call para evitar que algo dispare
-document.getElementById('auto-call-decline')?.replaceWith?.(document.getElementById('auto-call-decline')?.cloneNode(true));
-document.getElementById('auto-call-answer')?.replaceWith?.(document.getElementById('auto-call-answer')?.cloneNode(true));
+// ═══ ENVIO DE IMAGEM ═══
+async function handleImageSelect(event) {
+  const file = event.target.files && event.target.files[0];
+  event.target.value = '';
+  if (!file) return;
+
+  const now = getTime();
+  const localUrl = URL.createObjectURL(file);
+
+  aiHistory.push({ 
+    role: 'user', 
+    content: '[imagem enviada pelo usuário]', 
+    type: 'image-user', 
+    timestamp: now,
+    imageData: localUrl
+  });
+  salvarLead();
+
+  const b = document.createElement('div');
+  b.className = 'bbl out fade-in';
+  b.style.maxWidth = '85%';
+  b.style.padding = '4px';
+  b.innerHTML = TAIL_OUT + '<img src="'+localUrl+'" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto enviada"><div class="bbl-meta"><span class="bbl-time">'+now+'</span>'+DOUBLE_TICK+'</div>';
+  msgsEl.appendChild(b); scroll();
+
+  const reader = new FileReader();
+  reader.onload = async function() {
+    const base64 = reader.result.split(',')[1];
+    const mime = file.type || 'image/jpeg';
+    if (!leadId) salvarLead();
+    showTyping();
+    try {
+      const res = await fetch('/api/chat', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ history: aiHistory, city: leadCityVal, image: base64, imageMime: mime })
+      });
+      const data = await res.json();
+      hideTyping();
+      const reply = data && data.reply;
+      if (!reply) { addBubble('Oi! 😊 Pode me escrever o que precisa?','in'); enableInput(); return; }
+      aiHistory.push({ role:'assistant', content:reply, type:'text', timestamp: getTime() });
+      saveState();
+      const parts = reply.split('|').map(p=>p.trim()).filter(Boolean);
+      for (let i=0;i<parts.length;i++) { showTyping(); await sleep(typingDelay(parts[i])); hideTyping(); addBubble(parts[i],'in',false,getTime()); }
+      
+      const temPixNormal = /aqui o pix/i.test(reply);
+      const temDesconto  = /um desconto/i.test(reply);
+      const temFoto     = /olha eu aqui/i.test(reply);
+      const temExtra    = /tá pera/i.test(reply);
+
+      if (temPixNormal) { await sleep(600); showCta(false); }
+      if (temDesconto)  { await sleep(600); showCta(true); }
+      if (temFoto)      { await sleep(500); showFotoLead(); }
+      if (temExtra)     { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showImage(IMG_EXTRA_SRC); }
+
+      const houveCta = temPixNormal || temDesconto;
+      salvarLead(houveCta);
+    } catch(e) {
+      hideTyping();
+      addBubble('Ops, não consegui ver a foto. Pode escrever? 😊','in');
+      aiHistory.pop();
+    }
+    enableInput();
+  };
+  reader.readAsDataURL(file);
+}
+
+// ═══ AUTO CALL (CHAMADA FAKE) ═══
+function startAutoCallRing(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    function beep(){
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.frequency.value=480;
+      g.gain.setValueAtTime(0.25,ctx.currentTime);
+      o.start();o.stop(ctx.currentTime+0.4);
+    }
+    beep();
+    autoCallRingInterval=setInterval(beep,1600);
+  }catch(e){}
+}
+function stopAutoCallRing(){
+  if(autoCallRingInterval){clearInterval(autoCallRingInterval);autoCallRingInterval=null;}
+}
+function dismissAutoCall(reason){
+  stopAutoCallRing();
+  const ov=document.getElementById('incoming-call-overlay');
+  const ac=document.getElementById('active-call-overlay');
+  ov.classList.remove('show');
+  ac.classList.remove('show');
+  setTimeout(function(){
+    const b=document.createElement('div');
+    b.className='bbl in fade-in';
+    if(reason==='declined'){
+      b.innerHTML=TAIL_IN+
+        '<div style="display:flex;align-items:center;gap:8px;color:#e53935;font-size:13.5px">'+
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><line x1="3" y1="3" x2="21" y2="21" stroke="#e53935" stroke-width="1.75" stroke-linecap="round"/></svg>'+
+        'Chamada de vídeo perdida</div>'+
+        '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+      aiHistory.push({role:'system', content:'Ligação Isca - Recusada', type:'system'});
+    } else {
+      b.innerHTML=TAIL_IN+
+        '<div style="display:flex;align-items:center;gap:8px;color:#667781;font-size:13.5px">'+
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>'+
+        'Chamada encerrada</div>'+
+        '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+      aiHistory.push({role:'system', content:'Ligação Isca - Aceita', type:'system'});
+    }
+    msgsEl.appendChild(b);
+    scroll();
+    salvarLead();
+  }, 400);
+}
+function triggerAutoCall(){
+  if(autoCallFired) return;
+  autoCallFired = true;
+  saveState();
+  const ov = document.getElementById('incoming-call-overlay');
+  ov.classList.add('show');
+  startAutoCallRing();
+  const autoDismissTimer = setTimeout(function(){
+    if(ov.classList.contains('show')){
+      dismissAutoCall('declined');
+    }
+  }, 25000);
+
+  document.getElementById('auto-call-decline').onclick = function(){
+    clearTimeout(autoDismissTimer);
+    dismissAutoCall('declined');
+  };
+
+  document.getElementById('auto-call-answer').onclick = function(){
+    clearTimeout(autoDismissTimer);
+    stopAutoCallRing();
+    ov.classList.remove('show');
+    const ac = document.getElementById('active-call-overlay');
+    const statusTxt = document.getElementById('ac-status-text');
+    ac.classList.add('show');
+    statusTxt.textContent = 'Conectando…';
+
+    // Tocar o áudio do PIX como simulação de chamada
+    const audioCall = new Audio(AUDIO_PIX_SRC);
+    audioCall.volume = 0.8;
+    audioCall.play().catch(() => {});
+    statusTxt.textContent = 'Chamada em andamento…';
+
+    // Quando o áudio terminar, encerrar a chamada
+    audioCall.addEventListener('ended', function() {
+      ac.classList.remove('show');
+      dismissAutoCall('answered_and_hung');
+    });
+
+    // Se o usuário desligar manualmente
+    document.getElementById('ac-end-btn').onclick = function() {
+      audioCall.pause();
+      audioCall.currentTime = 0;
+      ac.classList.remove('show');
+      dismissAutoCall('answered_and_hung');
+    };
+  };
+}
 
 // ═══ INÍCIO ═══
 async function start() {
@@ -1206,6 +1809,7 @@ async function start() {
   if (restored && aiHistory.length > 0) {
     leadCityVal = leadCityVal || await fetchLeadCity();
     await rebuildUI();
+    
     const audioLeadSalvo = carregarAudioLead();
     if (audioLeadSalvo && audioLeadSalvo.src) {
       const audioExistente = aiHistory.some(msg => msg.type === 'audio' && msg.src === audioLeadSalvo.src);
@@ -1215,6 +1819,8 @@ async function start() {
         criarBolhaAudio(audioLeadSalvo.src, 'lead-audio', null);
       }
     }
+    
+    retomarPollingSeNecessario();
     enableInput();
     if (inpEl.value.trim().length === 0) {
       sendBtn.classList.add('hidden');
@@ -1222,7 +1828,8 @@ async function start() {
     }
   } else {
     leadCityVal = await fetchLeadCity();
-    showTyping(); hideTyping();
+    await sleep(700); showTyping();
+    await sleep(1100); hideTyping();
     const now = getTime();
     aiHistory.push({role:'assistant', content:'[áudio]', type:'audio', src:AUDIO_SRC, timestamp: now});
     salvarLead();
@@ -1240,8 +1847,9 @@ async function start() {
         imgBbl.style.padding = '4px';
         imgBbl.innerHTML = TAIL_IN + '<img src="'+IMG_INICIAL_SRC+'" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">'+imgNow+'</span></div>';
         msgsEl.appendChild(imgBbl); scroll();
-      }, 200);
+      }, 1200);
     });
+    
     salvarAudioLead(AUDIO_SRC, now);
   }
 }
@@ -1288,9 +1896,6 @@ document.getElementById('info-sheet').addEventListener('click', function(e){ if(
 function openSheet(){ document.getElementById('sheet').classList.add('open'); }
 function closeSheet(){ document.getElementById('sheet').classList.remove('open'); }
 document.getElementById('sheet').addEventListener('click', function(e){ if(e.target===this) closeSheet(); });
-
-// Microfone – mantido, mas não é o foco deste teste
-// (código completo de gravação de áudio não é necessário para os testes básicos)
 </script>
 </body>
 </html>
