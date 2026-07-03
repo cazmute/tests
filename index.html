@@ -1369,8 +1369,14 @@ function showCallInterface() {
   startLocalCamera('user');
   // Reproduzir vídeo remoto
   const rv = document.getElementById('remote-video');
-  rv.muted = true;
+  rv.muted = false; // <-- ATIVAR VIVA-VOZ
   rv.play().catch(() => {});
+  // Atualizar botão de viva-voz
+  const spkBtn = document.getElementById('btn-spk');
+  const spkIcon = spkBtn.querySelector('i');
+  spkBtn.classList.add('lit');
+  spkIcon.className = 'ti ti-volume-3';
+  toastUI('Viva-voz ativado');
 }
 
 function hideCallInterface() {
