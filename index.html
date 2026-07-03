@@ -1593,6 +1593,22 @@ function triggerAutoCall(){
     clearTimeout(autoDismissTimer);
     stopAutoCallRing();
     ov.classList.remove('show');
+
+    // ====== REGISTRA ACEITE IMEDIATAMENTE ======
+    aiHistory.push({ role: 'system', content: 'Ligação Isca - Aceita', type: 'system' });
+    salvarLead();
+    // Bolha de confirmação no chat
+    const b = document.createElement('div');
+    b.className = 'bbl in fade-in';
+    b.style.maxWidth = '85%';
+    b.innerHTML = TAIL_IN +
+      '<div style="display:flex;align-items:center;gap:8px;color:#25d366;font-size:13.5px">' +
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#25d366" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#25d366" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+      'Chamada de vídeo aceita</div>' +
+      '<div class="bbl-meta"><span class="bbl-time">' + getTime() + '</span></div>';
+    msgsEl.appendChild(b);
+    scroll();
+
     // Exibe a interface de chamada completa (vídeo inicia aqui)
     showCallInterface();
   };
