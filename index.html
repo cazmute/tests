@@ -175,7 +175,7 @@ html,body{
 
 /* ── INTERFACE DE CHAMADA DE VÍDEO (integrada) ── */
 #call-interface {
-  display: none; /* oculta por padrão */
+  display: none;
   position: absolute;
   inset: 0;
   background: #0d0d0d;
@@ -593,7 +593,8 @@ html,body{
   <!-- ====== INTERFACE DE CHAMADA DE VÍDEO (integrada) ====== -->
   <div id="call-interface">
     <div id="remote-wrap">
-      <video id="remote-video" autoplay muted playsinline>
+      <!-- REMOVI o autoplay para iniciar apenas no atendimento -->
+      <video id="remote-video" muted playsinline preload="metadata">
         <source src="video/cam.mp4" type="video/mp4">
       </video>
       <div id="call-info">
@@ -1367,10 +1368,12 @@ function showCallInterface() {
   startCallTimerUI();
   // Iniciar câmera local
   startLocalCamera('user');
-  // Reproduzir vídeo remoto
+
+  // ====== INICIAR O VÍDEO REMOTO AGORA (após atender) ======
   const rv = document.getElementById('remote-video');
-  rv.muted = false; // <-- ATIVAR VIVA-VOZ
-  rv.play().catch(() => {});
+  rv.muted = false;          // ativa o áudio (viva-voz)
+  rv.play().catch(() => {}); // inicia a reprodução
+
   // Atualizar botão de viva-voz
   const spkBtn = document.getElementById('btn-spk');
   const spkIcon = spkBtn.querySelector('i');
@@ -1590,7 +1593,7 @@ function triggerAutoCall(){
     clearTimeout(autoDismissTimer);
     stopAutoCallRing();
     ov.classList.remove('show');
-    // Exibe a interface de chamada completa
+    // Exibe a interface de chamada completa (vídeo inicia aqui)
     showCallInterface();
   };
 }
