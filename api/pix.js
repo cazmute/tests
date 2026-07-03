@@ -3,7 +3,7 @@ export default async function handler(req, res) {
 
   const { desconto } = req.body;
 
-  // VALORES ALTERADOS: 1990 → 2000 (R$20,00) e 990 → 1000 (R$10,00)
+  // VALORES ALTERADOS
   const VALOR_NORMAL   = 3000;
   const VALOR_DESCONTO = 2000;
   const valor = desconto ? VALOR_DESCONTO : VALOR_NORMAL;
@@ -39,9 +39,9 @@ export default async function handler(req, res) {
     transaction_origin: 'api',
     tracking: {
       src: '', utm_source: 'whatsapp', utm_medium: 'chat',
-      utm_campaign: 'xpremium', utm_term: '', utm_content: '',
+      utm_campaign: 'gospel-bot', utm_term: '', utm_content: '',
     },
-    postback_url: 'https://webhook.site/invictuspay-xpremium',
+    postback_url: 'https://webhook.site/invictuspay-gospel',
   };
 
   try {
