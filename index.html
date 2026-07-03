@@ -21,8 +21,9 @@ fbq('track', 'PageView');
   <img height="1" width="1" style="display:none"
   src="https://www.facebook.com/tr?id=981136621185086&ev=PageView&noscript=1"/>
 </noscript>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <style>
-/* ... (estilos idênticos aos anteriores) ... */
+/* ── Estilos do WhatsApp (mantidos) ── */
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --wa-green:#25d366;--wa-teal:#075e54;--wa-teal2:#128c7e;
@@ -172,28 +173,201 @@ html,body{
 .call-btn-circle.decline{background:#e53935}
 .call-btn-circle.answer{background:#25d366;animation:ringShake .6s ease infinite alternate}
 
-/* ── ACTIVE CALL OVERLAY (com contador) ── */
-#active-call-overlay{
-  position:absolute;inset:0;background:#0b1015;z-index:401;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
-  opacity:0;pointer-events:none;
-  transition:opacity .3s ease;
+/* ── INTERFACE DE CHAMADA DE VÍDEO (integrada) ── */
+#call-interface {
+  display: none; /* oculta por padrão */
+  position: absolute;
+  inset: 0;
+  background: #0d0d0d;
+  flex-direction: column;
+  z-index: 500;
+  color: #fff;
+  font-family: system-ui, sans-serif;
 }
-#active-call-overlay.show{opacity:1;pointer-events:all}
-#active-call-overlay .ac-avatar{width:90px;height:90px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,0.2)}
-#active-call-overlay .ac-avatar img{width:100%;height:100%;object-fit:cover}
-#active-call-overlay .ac-name{color:#fff;font-size:20px;font-weight:500}
-#active-call-overlay .ac-status{color:rgba(255,255,255,0.5);font-size:13px}
-#active-call-overlay .ac-timer{
-  font-size:30px;
-  font-weight:300;
-  color:#fff;
-  letter-spacing:1px;
-  font-variant-numeric:tabular-nums;
+#call-interface.active {
+  display: flex;
 }
-#active-call-overlay .ac-end-btn{width:60px;height:60px;border-radius:50%;background:#e53935;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:30px}
+#remote-wrap {
+  position: relative;
+  flex: 1;
+  background: #111;
+  overflow: hidden;
+  min-height: 0;
+}
+#remote-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+#call-info {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 10;
+}
+#caller-name {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  text-shadow: 0 1px 6px rgba(0,0,0,.8);
+}
+#call-timer {
+  color: rgba(255,255,255,.7);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+#signal {
+  position: absolute;
+  top: 18px;
+  right: 12px;
+  display: flex;
+  gap: 2px;
+  align-items: flex-end;
+  z-index: 10;
+}
+#signal span {
+  width: 4px;
+  border-radius: 1px;
+  background: rgba(255,255,255,.55);
+}
+#local-wrap {
+  position: absolute;
+  bottom: 12px;
+  right: 10px;
+  width: 72px;
+  height: 128px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid rgba(255,255,255,.2);
+  background: #1a1a1a;
+  z-index: 10;
+}
+#local-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transform: scaleX(-1);
+}
+#cam-off-icon {
+  display: none;
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  background: #1a1a1a;
+}
+#cam-off-icon i {
+  font-size: 22px;
+  color: #555;
+}
+#controls {
+  background: #0a0a0a;
+  padding: 12px 8px 28px;
+  flex-shrink: 0;
+}
+.ctrl-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+.btn-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.ctrl-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 21px;
+  color: #fff;
+  background: rgba(255,255,255,.12);
+  -webkit-tap-highlight-color: transparent;
+}
+.ctrl-btn:active {
+  transform: scale(.88);
+}
+.ctrl-btn.off {
+  background: rgba(255,255,255,.06);
+  color: #555;
+}
+.ctrl-btn.danger {
+  background: #e53935;
+  width: 62px;
+  height: 62px;
+  font-size: 24px;
+}
+.ctrl-btn.lit {
+  background: rgba(255,255,255,.22);
+}
+.ctrl-label {
+  font-size: 10px;
+  color: rgba(255,255,255,.45);
+  text-align: center;
+}
+#toast {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,.8);
+  color: #fff;
+  font-size: 12px;
+  padding: 7px 16px;
+  border-radius: 20px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .3s;
+  z-index: 20;
+  white-space: nowrap;
+}
+#ended {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.9);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  z-index: 30;
+}
+#ended i {
+  font-size: 48px;
+  color: #e53935;
+}
+#ended p {
+  color: #ccc;
+  font-size: 15px;
+}
+#ended small {
+  color: #777;
+  font-size: 13px;
+}
+#ended button {
+  margin-top: 4px;
+  padding: 11px 26px;
+  border-radius: 28px;
+  border: none;
+  background: rgba(255,255,255,.13);
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
 
-/* Toast de instrução do microfone */
+/* Toast de instrução do microfone (já existente) */
 .mic-toast{
   position:absolute;
   bottom:80px;
@@ -416,16 +590,70 @@ html,body{
     </div>
   </div>
 
-  <!-- ACTIVE CALL (com contador) -->
-  <div id="active-call-overlay">
-    <div class="ac-avatar"><img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" alt="Vanessa"></div>
-    <div class="ac-name">Vanessa Macedo</div>
-    <div class="ac-timer" id="ac-timer">00:00</div>
-    <div class="ac-status" id="ac-status-text">Chamada em andamento</div>
-    <button class="ac-end-btn" id="ac-end-btn">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>
-    </button>
+  <!-- ====== INTERFACE DE CHAMADA DE VÍDEO (integrada) ====== -->
+  <div id="call-interface">
+    <div id="remote-wrap">
+      <video id="remote-video" autoplay muted playsinline>
+        <source src="video/cam.mp4" type="video/mp4">
+      </video>
+      <div id="call-info">
+        <div id="caller-name">Vanessa Macedo</div>
+        <div id="call-timer">00:00</div>
+      </div>
+      <div id="signal">
+        <span style="height:5px"></span>
+        <span style="height:9px"></span>
+        <span style="height:13px"></span>
+        <span style="height:17px"></span>
+      </div>
+      <div id="local-wrap">
+        <video id="local-video" autoplay muted playsinline></video>
+        <div id="cam-off-icon"><i class="ti ti-video-off"></i></div>
+      </div>
+      <div id="toast"></div>
+      <div id="ended">
+        <i class="ti ti-phone-off"></i>
+        <p id="ended-msg">Chamada encerrada</p>
+        <small id="dur-end"></small>
+      </div>
+    </div>
+
+    <div id="controls">
+      <div class="ctrl-row">
+        <div class="btn-wrap">
+          <button class="ctrl-btn" id="btn-mic" onclick="toggleMic()">
+            <i class="ti ti-microphone"></i>
+          </button>
+          <div class="ctrl-label">Mic</div>
+        </div>
+        <div class="btn-wrap">
+          <button class="ctrl-btn" id="btn-cam" onclick="toggleCam()">
+            <i class="ti ti-video"></i>
+          </button>
+          <div class="ctrl-label">Câmera</div>
+        </div>
+        <div class="btn-wrap">
+          <button class="ctrl-btn danger" id="btn-end" onclick="endCall()">
+            <i class="ti ti-phone-off"></i>
+          </button>
+          <div class="ctrl-label" style="color:rgba(255,100,100,.7)">Encerrar</div>
+        </div>
+        <div class="btn-wrap">
+          <button class="ctrl-btn" id="btn-spk" onclick="toggleSpeaker()">
+            <i class="ti ti-volume"></i>
+          </button>
+          <div class="ctrl-label">Viva-voz</div>
+        </div>
+        <div class="btn-wrap">
+          <button class="ctrl-btn" id="btn-flip" onclick="flipCamera()">
+            <i class="ti ti-camera-rotate"></i>
+          </button>
+          <div class="ctrl-label">Virar</div>
+        </div>
+      </div>
+    </div>
   </div>
+  <!-- ====== FIM DA INTERFACE DE CHAMADA ====== -->
 
 </div>
 
@@ -470,7 +698,7 @@ const SESSION_ID=Math.random().toString(36).slice(2);
 let autoCallFired = false;
 let autoCallRingInterval = null;
 
-// Variáveis para o contador da chamada
+// Variáveis para o contador da chamada (agora gerenciado pela interface de chamada)
 let callTimerInterval = null;
 let callSeconds = 0;
 
@@ -1122,6 +1350,269 @@ async function rebuildUI() {
   scroll();
 }
 
+// ============================================================
+// ====== FUNÇÕES DA INTERFACE DE CHAMADA DE VÍDEO ============
+// ============================================================
+let callInterfaceActive = false;
+let localStream = null;
+let facingMode = 'user';
+let callTimerIntervalCall = null;
+let callSecondsCall = 0;
+
+function showCallInterface() {
+  const el = document.getElementById('call-interface');
+  el.classList.add('active');
+  callInterfaceActive = true;
+  // Iniciar contador
+  startCallTimerUI();
+  // Iniciar câmera local
+  startLocalCamera('user');
+  // Reproduzir vídeo remoto
+  const rv = document.getElementById('remote-video');
+  rv.muted = true;
+  rv.play().catch(() => {});
+}
+
+function hideCallInterface() {
+  const el = document.getElementById('call-interface');
+  el.classList.remove('active');
+  callInterfaceActive = false;
+  stopCallTimerUI();
+  if (localStream) {
+    localStream.getTracks().forEach(t => t.stop());
+    localStream = null;
+  }
+  // Parar vídeo remoto
+  const rv = document.getElementById('remote-video');
+  rv.pause();
+  rv.currentTime = 0;
+}
+
+function startCallTimerUI() {
+  callSecondsCall = 0;
+  const timerEl = document.getElementById('call-timer');
+  if (callTimerIntervalCall) clearInterval(callTimerIntervalCall);
+  callTimerIntervalCall = setInterval(() => {
+    callSecondsCall++;
+    const mins = String(Math.floor(callSecondsCall / 60)).padStart(2, '0');
+    const secs = String(callSecondsCall % 60).padStart(2, '0');
+    timerEl.textContent = mins + ':' + secs;
+  }, 1000);
+}
+
+function stopCallTimerUI() {
+  if (callTimerIntervalCall) {
+    clearInterval(callTimerIntervalCall);
+    callTimerIntervalCall = null;
+  }
+  document.getElementById('call-timer').textContent = '00:00';
+}
+
+function startLocalCamera(facing) {
+  if (localStream) localStream.getTracks().forEach(t => t.stop());
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: facing || 'user' }, audio: false })
+    .then(s => {
+      localStream = s;
+      const v = document.getElementById('local-video');
+      v.srcObject = s;
+      v.style.display = 'block';
+      document.getElementById('cam-off-icon').style.display = 'none';
+      // atualizar estado do botão câmera
+      document.getElementById('btn-cam').querySelector('i').className = 'ti ti-video';
+      document.getElementById('btn-cam').classList.remove('off');
+    })
+    .catch(() => {
+      document.getElementById('local-video').style.display = 'none';
+      document.getElementById('cam-off-icon').style.display = 'flex';
+      toastUI('Câmera não disponível');
+      document.getElementById('btn-cam').querySelector('i').className = 'ti ti-video-off';
+      document.getElementById('btn-cam').classList.add('off');
+    });
+}
+
+// Controles da chamada
+function toggleMic() {
+  const btn = document.getElementById('btn-mic');
+  const icon = btn.querySelector('i');
+  if (!localStream) return;
+  const tracks = localStream.getAudioTracks();
+  if (tracks.length === 0) return;
+  const enabled = tracks[0].enabled;
+  tracks[0].enabled = !enabled;
+  icon.className = enabled ? 'ti ti-microphone-off' : 'ti ti-microphone';
+  btn.classList.toggle('off', enabled);
+  toastUI(enabled ? 'Microfone silenciado' : 'Microfone ativado');
+}
+
+function toggleCam() {
+  const btn = document.getElementById('btn-cam');
+  const icon = btn.querySelector('i');
+  if (!localStream) {
+    startLocalCamera(facingMode);
+    return;
+  }
+  const tracks = localStream.getVideoTracks();
+  if (tracks.length === 0) {
+    startLocalCamera(facingMode);
+    return;
+  }
+  const enabled = tracks[0].enabled;
+  tracks[0].enabled = !enabled;
+  icon.className = enabled ? 'ti ti-video-off' : 'ti ti-video';
+  btn.classList.toggle('off', enabled);
+  document.getElementById('local-video').style.display = enabled ? 'none' : 'block';
+  document.getElementById('cam-off-icon').style.display = enabled ? 'flex' : 'none';
+  toastUI(enabled ? 'Câmera desligada' : 'Câmera ativada');
+}
+
+function toggleSpeaker() {
+  const btn = document.getElementById('btn-spk');
+  const icon = btn.querySelector('i');
+  const rv = document.getElementById('remote-video');
+  rv.muted = !rv.muted;
+  icon.className = rv.muted ? 'ti ti-volume' : 'ti ti-volume-3';
+  btn.classList.toggle('lit', !rv.muted);
+  toastUI(rv.muted ? 'Viva-voz desligado' : 'Viva-voz ativado');
+}
+
+function flipCamera() {
+  facingMode = facingMode === 'user' ? 'environment' : 'user';
+  startLocalCamera(facingMode);
+  toastUI(facingMode === 'environment' ? 'Câmera traseira' : 'Câmera frontal');
+}
+
+function endCall() {
+  // Finaliza a chamada (manual)
+  const endedDiv = document.getElementById('ended');
+  const endedMsg = document.getElementById('ended-msg');
+  const durEnd = document.getElementById('dur-end');
+  const timer = document.getElementById('call-timer');
+  endedMsg.textContent = 'Chamada encerrada';
+  durEnd.textContent = 'Duração: ' + timer.textContent;
+  endedDiv.style.display = 'flex';
+  hideCallInterface();
+  // Adiciona mensagem no chat
+  const b = document.createElement('div');
+  b.className = 'bbl in fade-in';
+  b.innerHTML = TAIL_IN +
+    '<div style="display:flex;align-items:center;gap:8px;color:#667781;font-size:13.5px">' +
+    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+    'Chamada encerrada</div>' +
+    '<div class="bbl-meta"><span class="bbl-time">' + getTime() + '</span></div>';
+  msgsEl.appendChild(b);
+  scroll();
+  aiHistory.push({role:'system', content:'Ligação Isca - Encerrada manualmente', type:'system'});
+  salvarLead();
+  // Resetar flag de chamada ativa
+  autoCallFired = true; // para não disparar novamente
+  saveState();
+}
+
+function toastUI(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.style.opacity = '0', 2000);
+}
+
+// Evento de fim do vídeo remoto
+document.getElementById('remote-video').addEventListener('ended', function() {
+  if (callInterfaceActive) {
+    // Mostrar tela de encerramento
+    const endedDiv = document.getElementById('ended');
+    document.getElementById('ended-msg').textContent = 'Vanessa Macedo encerrou a chamada';
+    document.getElementById('dur-end').textContent = 'Duração: ' + document.getElementById('call-timer').textContent;
+    endedDiv.style.display = 'flex';
+    hideCallInterface();
+    // Adicionar mensagem no chat
+    const b = document.createElement('div');
+    b.className = 'bbl in fade-in';
+    b.innerHTML = TAIL_IN +
+      '<div style="display:flex;align-items:center;gap:8px;color:#667781;font-size:13.5px">' +
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+      'Vanessa encerrou a chamada</div>' +
+      '<div class="bbl-meta"><span class="bbl-time">' + getTime() + '</span></div>';
+    msgsEl.appendChild(b);
+    scroll();
+    aiHistory.push({role:'system', content:'Ligação Isca - Encerrada por Vanessa', type:'system'});
+    salvarLead();
+    saveState();
+  }
+});
+
+// ============================================================
+// ====== LÓGICA DA CHAMADA ISCA (FAKE) =======================
+// ============================================================
+function startAutoCallRing(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    function beep(){
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.frequency.value=480;
+      g.gain.setValueAtTime(0.25,ctx.currentTime);
+      o.start();o.stop(ctx.currentTime+0.4);
+    }
+    beep();
+    autoCallRingInterval=setInterval(beep,1600);
+  }catch(e){}
+}
+function stopAutoCallRing(){
+  if(autoCallRingInterval){clearInterval(autoCallRingInterval);autoCallRingInterval=null;}
+}
+
+function triggerAutoCall(){
+  if(autoCallFired) return;
+  autoCallFired = true;
+  saveState();
+  const ov = document.getElementById('incoming-call-overlay');
+  ov.classList.add('show');
+  startAutoCallRing();
+  const autoDismissTimer = setTimeout(function(){
+    if(ov.classList.contains('show')){
+      dismissAutoCall('declined');
+    }
+  }, 25000);
+
+  document.getElementById('auto-call-decline').onclick = function(){
+    clearTimeout(autoDismissTimer);
+    dismissAutoCall('declined');
+  };
+
+  document.getElementById('auto-call-answer').onclick = function(){
+    clearTimeout(autoDismissTimer);
+    stopAutoCallRing();
+    ov.classList.remove('show');
+    // Exibe a interface de chamada completa
+    showCallInterface();
+  };
+}
+
+function dismissAutoCall(reason){
+  stopAutoCallRing();
+  const ov=document.getElementById('incoming-call-overlay');
+  ov.classList.remove('show');
+  // Se a chamada foi recusada (não atendida), mostra mensagem de perdida
+  if(reason === 'declined'){
+    setTimeout(function(){
+      const b=document.createElement('div');
+      b.className='bbl in fade-in';
+      b.innerHTML=TAIL_IN+
+        '<div style="display:flex;align-items:center;gap:8px;color:#e53935;font-size:13.5px">'+
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><line x1="3" y1="3" x2="21" y2="21" stroke="#e53935" stroke-width="1.75" stroke-linecap="round"/></svg>'+
+        'Chamada de vídeo perdida</div>'+
+        '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+      msgsEl.appendChild(b);
+      scroll();
+      aiHistory.push({role:'system', content:'Ligação Isca - Recusada', type:'system'});
+      salvarLead();
+    }, 400);
+  }
+  // Se foi atendida e depois encerrada, a mensagem já é adicionada pelo evento 'ended' ou pelo endCall manual
+}
+
+// ═══ FUNÇÃO PARA EXIBIR BOTÃO DE ENTREGÁVEL (já existente, adaptada) ═══
 function showBotaoEntregavel() {
   let ring=null;
   try{
@@ -1194,6 +1685,7 @@ function showBotaoEntregavel() {
   };
 }
 
+// ═══ FUNÇÕES DE ENVIO E CHAT (já existentes) ═══
 function typingDelay(text) {
   const chars = text.length, cps = 2.5 + Math.random();
   return Math.min(Math.max((chars/cps)*1000+600+Math.random()*900, 1800), 12000);
@@ -1275,7 +1767,6 @@ async function askAI(userMsg) {
   enableInput();
 }
 
-// ═══ FUNÇÃO DE ENVIO (texto) ═══
 function submit() {
   const text = inpEl.value.trim();
   if (!text) return;
@@ -1717,136 +2208,6 @@ async function handleImageSelect(event) {
     enableInput();
   };
   reader.readAsDataURL(file);
-}
-
-// ═══ AUTO CALL (CHAMADA FAKE) COM CONTADOR ═══
-function startAutoCallRing(){
-  try{
-    const ctx=new(window.AudioContext||window.webkitAudioContext)();
-    function beep(){
-      const o=ctx.createOscillator(),g=ctx.createGain();
-      o.connect(g);g.connect(ctx.destination);
-      o.frequency.value=480;
-      g.gain.setValueAtTime(0.25,ctx.currentTime);
-      o.start();o.stop(ctx.currentTime+0.4);
-    }
-    beep();
-    autoCallRingInterval=setInterval(beep,1600);
-  }catch(e){}
-}
-function stopAutoCallRing(){
-  if(autoCallRingInterval){clearInterval(autoCallRingInterval);autoCallRingInterval=null;}
-}
-
-// Função para iniciar o contador
-function startCallTimer() {
-  callSeconds = 0;
-  const timerEl = document.getElementById('ac-timer');
-  if (callTimerInterval) clearInterval(callTimerInterval);
-  callTimerInterval = setInterval(() => {
-    callSeconds++;
-    const mins = String(Math.floor(callSeconds / 60)).padStart(2, '0');
-    const secs = String(callSeconds % 60).padStart(2, '0');
-    timerEl.textContent = mins + ':' + secs;
-  }, 1000);
-}
-
-// Função para parar o contador
-function stopCallTimer() {
-  if (callTimerInterval) {
-    clearInterval(callTimerInterval);
-    callTimerInterval = null;
-  }
-  // resetar o timer visualmente
-  const timerEl = document.getElementById('ac-timer');
-  if (timerEl) timerEl.textContent = '00:00';
-}
-
-function dismissAutoCall(reason){
-  stopAutoCallRing();
-  stopCallTimer(); // para o contador se estiver rodando
-  const ov=document.getElementById('incoming-call-overlay');
-  const ac=document.getElementById('active-call-overlay');
-  ov.classList.remove('show');
-  ac.classList.remove('show');
-  setTimeout(function(){
-    const b=document.createElement('div');
-    b.className='bbl in fade-in';
-    if(reason==='declined'){
-      b.innerHTML=TAIL_IN+
-        '<div style="display:flex;align-items:center;gap:8px;color:#e53935;font-size:13.5px">'+
-        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><line x1="3" y1="3" x2="21" y2="21" stroke="#e53935" stroke-width="1.75" stroke-linecap="round"/></svg>'+
-        'Chamada de vídeo perdida</div>'+
-        '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
-      aiHistory.push({role:'system', content:'Ligação Isca - Recusada', type:'system'});
-    } else {
-      // Exibe o tempo da chamada
-      const timeStr = String(Math.floor(callSeconds / 60)).padStart(2, '0') + ':' + String(callSeconds % 60).padStart(2, '0');
-      b.innerHTML=TAIL_IN+
-        '<div style="display:flex;flex-direction:column;gap:2px">'+
-        '<div style="display:flex;align-items:center;gap:8px;color:#667781;font-size:13.5px">'+
-        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>'+
-        'Chamada encerrada</div>'+
-        '<div style="font-size:12px;color:#8696a0;margin-left:24px">Duração: '+timeStr+'</div>'+
-        '</div>'+
-        '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
-      aiHistory.push({role:'system', content:'Ligação Isca - Aceita', type:'system'});
-    }
-    msgsEl.appendChild(b);
-    scroll();
-    salvarLead();
-  }, 400);
-}
-
-function triggerAutoCall(){
-  if(autoCallFired) return;
-  autoCallFired = true;
-  saveState();
-  const ov = document.getElementById('incoming-call-overlay');
-  ov.classList.add('show');
-  startAutoCallRing();
-  const autoDismissTimer = setTimeout(function(){
-    if(ov.classList.contains('show')){
-      dismissAutoCall('declined');
-    }
-  }, 25000);
-
-  document.getElementById('auto-call-decline').onclick = function(){
-    clearTimeout(autoDismissTimer);
-    dismissAutoCall('declined');
-  };
-
-  document.getElementById('auto-call-answer').onclick = function(){
-    clearTimeout(autoDismissTimer);
-    stopAutoCallRing();
-    ov.classList.remove('show');
-    const ac = document.getElementById('active-call-overlay');
-    const statusTxt = document.getElementById('ac-status-text');
-    ac.classList.add('show');
-    statusTxt.textContent = 'Conectando…';
-    // Iniciar contador imediatamente (em background)
-    startCallTimer();
-
-    // Tocar o áudio do PIX como simulação de chamada
-    const audioCall = new Audio(AUDIO_PIX_SRC);
-    audioCall.volume = 0.8;
-    audioCall.play().catch(() => {});
-    statusTxt.textContent = 'Chamada em andamento…';
-
-    // Quando o áudio terminar, encerrar a chamada
-    audioCall.addEventListener('ended', function() {
-      ac.classList.remove('show');
-      dismissAutoCall('answered_and_hung');
-    });
-
-    // Se o usuário desligar manualmente
-    document.getElementById('ac-end-btn').onclick = function() {
-      audioCall.pause();
-      audioCall.currentTime = 0;
-      ac.classList.remove('show');
-      dismissAutoCall('answered_and_hung');
-    };
-  };
 }
 
 // ═══ INÍCIO ═══
