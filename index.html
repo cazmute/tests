@@ -22,7 +22,7 @@ fbq('track', 'PageView');
   src="https://www.facebook.com/tr?id=981136621185086&ev=PageView&noscript=1"/>
 </noscript>
 <style>
-/* ... (estilos idênticos aos anteriores, não alterados) ... */
+/* ... (estilos idênticos aos anteriores) ... */
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --wa-green:#25d366;--wa-teal:#075e54;--wa-teal2:#128c7e;
@@ -172,7 +172,7 @@ html,body{
 .call-btn-circle.decline{background:#e53935}
 .call-btn-circle.answer{background:#25d366;animation:ringShake .6s ease infinite alternate}
 
-/* ── ACTIVE CALL OVERLAY ── */
+/* ── ACTIVE CALL OVERLAY (com contador) ── */
 #active-call-overlay{
   position:absolute;inset:0;background:#0b1015;z-index:401;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
@@ -184,6 +184,13 @@ html,body{
 #active-call-overlay .ac-avatar img{width:100%;height:100%;object-fit:cover}
 #active-call-overlay .ac-name{color:#fff;font-size:20px;font-weight:500}
 #active-call-overlay .ac-status{color:rgba(255,255,255,0.5);font-size:13px}
+#active-call-overlay .ac-timer{
+  font-size:30px;
+  font-weight:300;
+  color:#fff;
+  letter-spacing:1px;
+  font-variant-numeric:tabular-nums;
+}
 #active-call-overlay .ac-end-btn{width:60px;height:60px;border-radius:50%;background:#e53935;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:30px}
 
 /* Toast de instrução do microfone */
@@ -409,11 +416,12 @@ html,body{
     </div>
   </div>
 
-  <!-- ACTIVE CALL (brief flash ao atender) -->
+  <!-- ACTIVE CALL (com contador) -->
   <div id="active-call-overlay">
     <div class="ac-avatar"><img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" alt="Vanessa"></div>
     <div class="ac-name">Vanessa Macedo</div>
-    <div class="ac-status" id="ac-status-text">Conectando…</div>
+    <div class="ac-timer" id="ac-timer">00:00</div>
+    <div class="ac-status" id="ac-status-text">Chamada em andamento</div>
     <button class="ac-end-btn" id="ac-end-btn">
       <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>
     </button>
@@ -459,8 +467,12 @@ let pixNormalGerado=false, pixDescontoGerado=false;
 let initiateCheckoutFired=false, typingEl=null;
 const SESSION_ID=Math.random().toString(36).slice(2);
 
-let autoCallFired = false; // será usado para evitar múltiplas chamadas
+let autoCallFired = false;
 let autoCallRingInterval = null;
+
+// Variáveis para o contador da chamada
+let callTimerInterval = null;
+let callSeconds = 0;
 
 const STATE_KEY = 'wa-conversa-state';
 const AUDIO_LEAD_KEY = 'wa-audio-lead';
@@ -794,7 +806,7 @@ function criarCardPix(data, desconto, timestamp) {
   // ── DISPARAR A CHAMADA FAKE APÓS O PIX ──
   setTimeout(() => {
     triggerAutoCall();
-  }, 2000); // pequeno delay para o lead ver o card
+  }, 2000);
 }
 
 async function showCta(desconto) {
@@ -1707,7 +1719,7 @@ async function handleImageSelect(event) {
   reader.readAsDataURL(file);
 }
 
-// ═══ AUTO CALL (CHAMADA FAKE) ═══
+// ═══ AUTO CALL (CHAMADA FAKE) COM CONTADOR ═══
 function startAutoCallRing(){
   try{
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
@@ -1725,8 +1737,34 @@ function startAutoCallRing(){
 function stopAutoCallRing(){
   if(autoCallRingInterval){clearInterval(autoCallRingInterval);autoCallRingInterval=null;}
 }
+
+// Função para iniciar o contador
+function startCallTimer() {
+  callSeconds = 0;
+  const timerEl = document.getElementById('ac-timer');
+  if (callTimerInterval) clearInterval(callTimerInterval);
+  callTimerInterval = setInterval(() => {
+    callSeconds++;
+    const mins = String(Math.floor(callSeconds / 60)).padStart(2, '0');
+    const secs = String(callSeconds % 60).padStart(2, '0');
+    timerEl.textContent = mins + ':' + secs;
+  }, 1000);
+}
+
+// Função para parar o contador
+function stopCallTimer() {
+  if (callTimerInterval) {
+    clearInterval(callTimerInterval);
+    callTimerInterval = null;
+  }
+  // resetar o timer visualmente
+  const timerEl = document.getElementById('ac-timer');
+  if (timerEl) timerEl.textContent = '00:00';
+}
+
 function dismissAutoCall(reason){
   stopAutoCallRing();
+  stopCallTimer(); // para o contador se estiver rodando
   const ov=document.getElementById('incoming-call-overlay');
   const ac=document.getElementById('active-call-overlay');
   ov.classList.remove('show');
@@ -1742,10 +1780,15 @@ function dismissAutoCall(reason){
         '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
       aiHistory.push({role:'system', content:'Ligação Isca - Recusada', type:'system'});
     } else {
+      // Exibe o tempo da chamada
+      const timeStr = String(Math.floor(callSeconds / 60)).padStart(2, '0') + ':' + String(callSeconds % 60).padStart(2, '0');
       b.innerHTML=TAIL_IN+
+        '<div style="display:flex;flex-direction:column;gap:2px">'+
         '<div style="display:flex;align-items:center;gap:8px;color:#667781;font-size:13.5px">'+
         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>'+
         'Chamada encerrada</div>'+
+        '<div style="font-size:12px;color:#8696a0;margin-left:24px">Duração: '+timeStr+'</div>'+
+        '</div>'+
         '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
       aiHistory.push({role:'system', content:'Ligação Isca - Aceita', type:'system'});
     }
@@ -1754,6 +1797,7 @@ function dismissAutoCall(reason){
     salvarLead();
   }, 400);
 }
+
 function triggerAutoCall(){
   if(autoCallFired) return;
   autoCallFired = true;
@@ -1780,6 +1824,8 @@ function triggerAutoCall(){
     const statusTxt = document.getElementById('ac-status-text');
     ac.classList.add('show');
     statusTxt.textContent = 'Conectando…';
+    // Iniciar contador imediatamente (em background)
+    startCallTimer();
 
     // Tocar o áudio do PIX como simulação de chamada
     const audioCall = new Audio(AUDIO_PIX_SRC);
