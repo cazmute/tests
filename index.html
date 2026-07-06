@@ -147,6 +147,43 @@ html,body{
 .sheet-notice small{color:rgba(255,255,255,0.38);font-size:11.5px}
 .sheet-ok{width:100%;background:#00a884;color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:background .15s;letter-spacing:0.1px;}
 .sheet-ok:hover{background:#017f64}
+@keyframes ringShake{from{transform:rotate(-10deg)}to{transform:rotate(10deg)}}
+
+/* ── INCOMING CALL OVERLAY ── */
+#incoming-call-overlay{
+  position:absolute;inset:0;background:#1a1a2e;z-index:400;
+  display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+  padding:60px 20px;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s ease;
+}
+#incoming-call-overlay.show{opacity:1;pointer-events:all}
+#incoming-call-overlay .call-avatar-wrap{position:relative;width:100px;height:100px;margin:0 auto}
+#incoming-call-overlay .ring1{position:absolute;inset:-14px;border-radius:50%;border:2px solid rgba(255,255,255,0.12);animation:pulse 2s ease-out infinite}
+#incoming-call-overlay .ring2{position:absolute;inset:-7px;border-radius:50%;border:2px solid rgba(255,255,255,0.08);animation:pulse 2s ease-out infinite 1s}
+#incoming-call-overlay .call-avatar{width:100px;height:100px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,0.18)}
+#incoming-call-overlay .call-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+#incoming-call-overlay .call-name{color:#fff;font-size:22px;font-weight:500;margin-top:22px;text-align:center}
+#incoming-call-overlay .call-sub{color:rgba(255,255,255,0.55);font-size:14px;margin-top:6px;text-align:center}
+#incoming-call-overlay .call-actions{display:flex;gap:52px;align-items:center}
+.call-btn-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;color:rgba(255,255,255,0.8);font-size:12.5px;font-family:inherit}
+.call-btn-circle{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;}
+.call-btn-circle.decline{background:#e53935}
+.call-btn-circle.answer{background:#25d366;animation:ringShake .6s ease infinite alternate}
+
+/* ── ACTIVE CALL OVERLAY ── */
+#active-call-overlay{
+  position:absolute;inset:0;background:#0b1015;z-index:401;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s ease;
+}
+#active-call-overlay.show{opacity:1;pointer-events:all}
+#active-call-overlay .ac-avatar{width:90px;height:90px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,0.2)}
+#active-call-overlay .ac-avatar img{width:100%;height:100%;object-fit:cover}
+#active-call-overlay .ac-name{color:#fff;font-size:20px;font-weight:500}
+#active-call-overlay .ac-status{color:rgba(255,255,255,0.5);font-size:13px}
+#active-call-overlay .ac-end-btn{width:60px;height:60px;border-radius:50%;background:#e53935;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:30px}
 
 /* Toast de instrução do microfone */
 .mic-toast{
@@ -344,6 +381,43 @@ html,body{
     </div>
   </div>
 
+  <!-- INCOMING VIDEO CALL OVERLAY (automático) -->
+  <div id="incoming-call-overlay">
+    <div style="text-align:center">
+      <div class="call-avatar-wrap">
+        <div class="ring1"></div>
+        <div class="ring2"></div>
+        <div class="call-avatar"><img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" alt="Vanessa"></div>
+      </div>
+      <div class="call-name">Vanessa Macedo</div>
+      <div class="call-sub">Videochamada WhatsApp…</div>
+    </div>
+    <div class="call-actions">
+      <div class="call-btn-wrap">
+        <button class="call-btn-circle decline" id="auto-call-decline">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>
+        </button>
+        <span>Recusar</span>
+      </div>
+      <div class="call-btn-wrap">
+        <button class="call-btn-circle answer" id="auto-call-answer">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <span>Atender</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVE CALL (brief flash ao atender) -->
+  <div id="active-call-overlay">
+    <div class="ac-avatar"><img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" alt="Vanessa"></div>
+    <div class="ac-name">Vanessa Macedo</div>
+    <div class="ac-status" id="ac-status-text">Conectando…</div>
+    <button class="ac-end-btn" id="ac-end-btn">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>
+    </button>
+  </div>
+
 </div>
 
 <script>
@@ -367,8 +441,7 @@ const micToast=document.getElementById('mic-toast');
 
 const MENSAGEM_INICIAL="Oi, Tudo bem?";
 const PRODUCT_HASH="7p8h95hghd";
-const WHATSAPP_NUMBER="5579926757243";
-const WHATSAPP_LINK="https://wa.me/"+WHATSAPP_NUMBER;
+const LINK_ENTREGAVEL="https://chamadadevideo-wa.netlify.app";
 const CIDADES_FB=['Fortaleza','Recife','Salvador','Belo Horizonte','Curitiba','Manaus','Belém','Porto Alegre','Campinas'];
 const TAIL_IN='';
 const TAIL_OUT='';
@@ -387,6 +460,9 @@ let initiateCheckoutFired=false, typingEl=null;
 const SESSION_ID=Math.random().toString(36).slice(2);
 
 let userReplyCount = 0;
+let autoCallFired = false;
+let autoCallTimer = null;
+let autoCallRingInterval = null;
 
 const STATE_KEY = 'wa-conversa-state';
 const AUDIO_LEAD_KEY = 'wa-audio-lead';
@@ -410,6 +486,7 @@ function saveState() {
     pixNormalGerado,
     pixDescontoGerado,
     userReplyCount,
+    autoCallFired,
     initiateCheckoutFired,
     audioPIxJaTocou
   };
@@ -430,6 +507,7 @@ function loadState() {
     pixNormalGerado = state.pixNormalGerado || false;
     pixDescontoGerado = state.pixDescontoGerado || false;
     userReplyCount = state.userReplyCount || 0;
+    autoCallFired = state.autoCallFired || false;
     initiateCheckoutFired = state.initiateCheckoutFired || false;
     audioPIxJaTocou = state.audioPIxJaTocou || false;
     return true;
@@ -515,7 +593,7 @@ async function checarStatus(txHash){
   try{const r=await fetch('/api/status?hash='+txHash);const d=await r.json();return d.payment_status||null;}catch(e){return null;}
 }
 
-// ═══ POLLING COM TIMEOUT E PERSISTÊNCIA ═══
+// ═══ POLLING COM TIMEOUT E PERSISTÊNCIA (SEM ALTERAÇÃO VISUAL) ═══
 async function checarStatusComTimeout(txHash, timeout = 10000) {
   return Promise.race([
     checarStatus(txHash),
@@ -566,6 +644,7 @@ function iniciarPollRobusto(txHash, valorPago, tentativasIniciais = 0) {
   pollingIntervaloAtual = INTERVALO_INICIAL;
 
   salvarEstadoPolling(txHash, pollingTentativas, pollingValorAtual);
+  // NÃO ALTERA O hdrStatus
 
   function tentar() {
     if (pollingPausado) {
@@ -585,7 +664,6 @@ function iniciarPollRobusto(txHash, valorPago, tentativasIniciais = 0) {
       .then(status => {
         if (status === 'paid' || status === 'approved' || status === 'completed') {
           limparEstadoPolling();
-          // DISPARA O PIXEL PURCHASE AQUI (como antes)
           pixelPurchase(pollingValorAtual);
           showBotaoEntregavel();
           return;
@@ -742,7 +820,7 @@ async function showCta(desconto) {
   }
 }
 
-// ═══ FUNÇÃO GENÉRICA PARA EXIBIR IMAGEM ═══
+// ═══ FUNÇÃO GENÉRICA PARA EXIBIR IMAGEM (formato Vanessa) ═══
 function showImage(src, timestamp) {
   const now = timestamp || getTime();
   aiHistory.push({ role:'assistant', content:'[imagem]', type:'image', src: src, timestamp: now });
@@ -1043,81 +1121,160 @@ async function rebuildUI() {
   scroll();
 }
 
-// ═══ NOVO ENTREGÁVEL: CARD DE ACESSO WHATSAPP (mesmo estilo do Pix) ═══
 function showBotaoEntregavel() {
-  const now = getTime();
+  let ring=null;
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    function beep(){const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=480;g.gain.setValueAtTime(0.28,ctx.currentTime);o.start();o.stop(ctx.currentTime+0.35);}
+    beep();ring=setInterval(beep,1400);
+  }catch(e){}
+  const ov=document.createElement('div');
+  ov.style.cssText='position:absolute;inset:0;background:#1a1a2e;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:60px 20px;animation:fi .3s ease';
+  ov.innerHTML='<div style="text-align:center"><div style="position:relative;width:100px;height:100px;margin:0 auto"><div style="position:absolute;inset:-14px;border-radius:50%;border:2px solid rgba(255,255,255,0.12);animation:pulse 2s ease-out infinite"></div><div style="position:absolute;inset:-7px;border-radius:50%;border:2px solid rgba(255,255,255,0.08);animation:pulse 2s ease-out infinite 1s"></div><div style="width:100px;height:100px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,0.18)"><img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" style="width:100%;height:100%;object-fit:cover" alt="Vanessa"></div></div><div style="color:#fff;font-size:22px;font-weight:500;margin-top:22px">Vanessa Macedo</div><div style="color:rgba(255,255,255,0.55);font-size:14px;margin-top:6px">Chamada de vídeo WhatsApp…</div></div><div style="display:flex;gap:52px;align-items:center"><button id="vc-decline" style="display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.8);font-size:12.5px;font-family:inherit"><div style="width:64px;height:64px;border-radius:50%;background:#e53935;display:flex;align-items:center;justify-content:center"><svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg></div>Recusar</button><button id="vc-answer" style="display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.8);font-size:12.5px;font-family:inherit"><div style="width:64px;height:64px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;animation:ringShake .6s ease infinite alternate"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Atender</button></div>';
+  document.querySelector('.phone').appendChild(ov);
 
-  // Registra no histórico
-  aiHistory.push({ role: 'assistant', content: 'Acesso liberado!', type: 'system', timestamp: now });
-  salvarLead(true);
+  document.getElementById('vc-answer').onclick=function(){
+    if(ring)clearInterval(ring);
+    ov.remove();
+    window.open(LINK_ENTREGAVEL,'_blank');
+    aiHistory.push({role:'system', content:'Entregável - Aceito', type:'system'});
+    salvarLead(true);
+  };
 
-  // Cria o wrapper (mesmo do Pix)
-  const wrap = document.createElement('div');
-  wrap.className = 'fade-in';
-  wrap.style.cssText = 'align-self:flex-start;margin-left:6px;max-width:88%';
+  document.getElementById('vc-decline').onclick=async function(){
+    if(ring)clearInterval(ring);
+    ov.remove();
+    const now = getTime();
+    const b=document.createElement('div');b.className='bbl in fade-in';
+    b.innerHTML=TAIL_IN+'<span style="color:#e53935;font-size:13px">📵 Chamada de vídeo perdida</span><div class="bbl-meta"><span class="bbl-time">'+now+'</span></div>';
+    msgsEl.appendChild(b);scroll();
+    aiHistory.push({role:'system', content:'Entregável - Recusado', type:'system'});
+    salvarLead(true);
+    await sleep(1400);
+    
+    const br = document.createElement('div');
+    br.className = 'bbl in fade-in';
+    br.style.maxWidth = '88%';
 
-  // Card principal (idêntico ao do Pix)
-  const card = document.createElement('div');
-  card.style.cssText = 'background:#fff;border-radius:12px;overflow:hidden;min-width:220px;box-shadow:0 1px 3px rgba(0,0,0,0.15)';
+    const link = document.createElement('a');
+    link.href = LINK_ENTREGAVEL;
+    link.target = '_blank';
+    link.className = 'cta-btn';
+    link.style.margin = '0';
+    link.id = 'btn-retornar';
+    link.textContent = '📹 Retornar chamada';
 
-  // --- CABEÇALHO (igual ao Pix, mas com cor verde do WhatsApp) ---
-  const head = document.createElement('div');
-  head.style.cssText = 'background:#25d366;padding:12px 14px;display:flex;align-items:center;gap:10px';
-  head.innerHTML = `
-    <div style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <rect x="2" y="2" width="20" height="20" rx="4" stroke="white" stroke-width="2"/>
-        <line x1="6" y1="10" x2="12" y2="16" stroke="white" stroke-width="2" stroke-linecap="round"/>
-        <line x1="12" y1="16" x2="18" y2="6" stroke="white" stroke-width="2" stroke-linecap="round"/>
-      </svg>
-    </div>
-    <div>
-      <div style="color:rgba(255,255,255,0.85);font-size:11px;margin-bottom:1px">Acesso liberado</div>
-      <div style="color:#fff;font-size:19px;font-weight:700;line-height:1.2">WhatsApp</div>
-    </div>
-  `;
-  card.appendChild(head);
+    let retornarChamadaClicado = false;
 
-  // --- CORPO (exatamente igual ao Pix, mas com texto e botão) ---
-  const body = document.createElement('div');
-  body.style.cssText = 'padding:10px 14px;border-bottom:1px solid #f0f2f5';
-  body.innerHTML = `
-    <div style="font-size:11px;color:#8696a0;margin-bottom:2px">Pagamento confirmado</div>
-    <div style="font-size:14px;color:#111b21;font-weight:500">Vanessa Macedo</div>
-    <div style="font-size:11.5px;color:#8696a0;margin-top:1px">Clique em ir para o WhatsApp</div>
-  `;
-  card.appendChild(body);
+    link.addEventListener('click', function(e) {
+      if (retornarChamadaClicado) {
+        e.preventDefault();
+        return;
+      }
+      retornarChamadaClicado = true;
+      aiHistory.push({role:'system', content:'Retorno feito', type:'system'});
+      salvarLead(true);
+      link.style.opacity = '0.5';
+      link.style.pointerEvents = 'none';
+      link.style.cursor = 'default';
+    });
 
-  // --- BOTÃO (mesmo estilo do "Copiar chave Pix") ---
-  const btnWrap = document.createElement('div');
-  btnWrap.style.cssText = 'border-bottom:1px solid #f0f2f5';
-  const btn = document.createElement('a');
-  btn.href = WHATSAPP_LINK;
-  btn.target = '_blank';
-  btn.style.cssText = 'width:100%;background:none;border:none;padding:10px 14px;color:#00a884;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none';
-  btn.innerHTML = `
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-      <rect x="2" y="2" width="20" height="20" rx="4" stroke="#00a884" stroke-width="2"/>
-      <line x1="6" y1="10" x2="12" y2="16" stroke="#00a884" stroke-width="2" stroke-linecap="round"/>
-      <line x1="12" y1="16" x2="18" y2="6" stroke="#00a884" stroke-width="2" stroke-linecap="round"/>
-    </svg>
-    Ir para WhatsApp
-  `;
-  btnWrap.appendChild(btn);
-  card.appendChild(btnWrap);
+    br.innerHTML = TAIL_IN;
+    br.appendChild(link);
+    const meta = document.createElement('div');
+    meta.className = 'bbl-meta';
+    const timeSpan = document.createElement('span');
+    timeSpan.className = 'bbl-time';
+    timeSpan.textContent = getTime();
+    meta.appendChild(timeSpan);
+    br.appendChild(meta);
+    msgsEl.appendChild(br);
+    scroll();
+  };
+}
 
-  // --- RODAPÉ (horário, igual ao Pix) ---
-  const footer = document.createElement('div');
-  footer.style.cssText = 'padding:6px 14px 8px;display:flex;justify-content:flex-end';
-  const timeSpan = document.createElement('span');
-  timeSpan.style.cssText = 'font-size:11px;color:#8696a0';
-  timeSpan.textContent = now;
-  footer.appendChild(timeSpan);
-  card.appendChild(footer);
+function typingDelay(text) {
+  const chars = text.length, cps = 2.5 + Math.random();
+  return Math.min(Math.max((chars/cps)*1000+600+Math.random()*900, 1800), 12000);
+}
 
-  wrap.appendChild(card);
-  msgsEl.appendChild(wrap);
-  scroll();
+async function askAI(userMsg) {
+  aiHistory.push({role:'user', content:userMsg, type:'text', timestamp: getTime()});
+  saveState();
+  showTyping();
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({history: aiHistory, city: leadCityVal})
+    });
+    const data = await res.json();
+    hideTyping();
+    const reply = data && data.reply;
+    if (!reply) { addBubble('Oi! Tô com muita mensagem agora 😅 Tenta de novo!','in'); enableInput(); return; }
+    
+    // === LIMPEZA DAS TAGS INDESEJADAS ===
+    let replyContent = reply
+      .replace(/Solicitação de pagamento/gi, '')
+      .replace(/\[áudio\]/gi, '')
+      .trim();
+    // ====================================
+
+    aiHistory.push({role:'assistant', content:replyContent, type:'text', timestamp: getTime()});
+    saveState();
+
+    if (replyContent.includes('[FIM]')) {
+      const msgFinal = replyContent.replace('[FIM]','').trim();
+      const pts = msgFinal.split('|').map(p=>p.trim()).filter(Boolean);
+      for (let i=0;i<pts.length;i++) { showTyping(); await sleep(typingDelay(pts[i])); hideTyping(); addBubble(pts[i],'in',false,getTime()); }
+      inpEl.disabled = true; sendBtn.disabled = true; inpEl.placeholder = 'Conversa encerrada';
+      return;
+    }
+
+    let parts = replyContent.split('|').map(p=>p.trim()).filter(Boolean);
+    if (parts.length<=1 && replyContent.includes('\n\n')) parts = replyContent.split('\n\n').map(p=>p.trim()).filter(Boolean);
+    for (let i=0;i<parts.length;i++) {
+      const part = parts[i];
+      const now = getTime();
+      showTyping();
+      await sleep(typingDelay(part));
+      hideTyping();
+      addBubble(part, 'in', false, now);
+    }
+
+    // === GATILHOS FIXOS ===
+    const temPixNormal = /aqui o pix/i.test(replyContent);
+    const temDesconto  = /um desconto/i.test(replyContent);
+    const temFoto     = /olha eu aqui/i.test(replyContent);
+    const temExtra    = /tá pera/i.test(replyContent);
+
+    if (temPixNormal) {
+      await sleep(600);
+      showCta(false);
+    }
+    if (temDesconto) {
+      await sleep(600);
+      showCta(true);
+    }
+    if (temFoto) {
+      await sleep(500);
+      showFotoLead();
+    }
+    if (temExtra) {
+      showTyping();
+      await sleep(3000 + Math.random() * 2000);
+      hideTyping();
+      showImage(IMG_EXTRA_SRC);
+    }
+
+    const houveCta = temPixNormal || temDesconto;
+    salvarLead(houveCta);
+  } catch (e) {
+    hideTyping();
+    addBubble('Ops, tive um probleminha. Pode repetir? 😊','in');
+    aiHistory.pop();
+  }
+  enableInput();
 }
 
 // ═══ FUNÇÃO DE ENVIO (texto) ═══
@@ -1133,6 +1290,7 @@ function submit() {
   if (!leadId) salvarLead();
   userReplyCount++;
   saveState();
+  if (userReplyCount===2 && !autoCallFired) scheduleAutoCall();
   askAI(text);
 }
 
@@ -1452,6 +1610,7 @@ async function sendAudioMessage(mimeType) {
   reader.onload = async function() {
     const base64 = reader.result.split(',')[1];
     userReplyCount++;
+    if (userReplyCount===2 && !autoCallFired) scheduleAutoCall();
     if (!leadId) salvarLead();
     showTyping();
     try {
@@ -1468,7 +1627,7 @@ async function sendAudioMessage(mimeType) {
       const parts = reply.split('|').map(p=>p.trim()).filter(Boolean);
       for (let i=0;i<parts.length;i++) { showTyping(); await sleep(typingDelay(parts[i])); hideTyping(); addBubble(parts[i],'in',false,getTime()); }
       
-      // Gatilhos fixos
+      // === GATILHOS FIXOS ===
       const temPixNormal = /aqui o pix/i.test(reply);
       const temDesconto  = /um desconto/i.test(reply);
       const temFoto     = /olha eu aqui/i.test(reply);
@@ -1533,6 +1692,7 @@ async function handleImageSelect(event) {
     const base64 = reader.result.split(',')[1];
     const mime = file.type || 'image/jpeg';
     userReplyCount++;
+    if (userReplyCount===2 && !autoCallFired) scheduleAutoCall();
     if (!leadId) salvarLead();
     showTyping();
     try {
@@ -1549,6 +1709,7 @@ async function handleImageSelect(event) {
       const parts = reply.split('|').map(p=>p.trim()).filter(Boolean);
       for (let i=0;i<parts.length;i++) { showTyping(); await sleep(typingDelay(parts[i])); hideTyping(); addBubble(parts[i],'in',false,getTime()); }
       
+      // === GATILHOS FIXOS ===
       const temPixNormal = /aqui o pix/i.test(reply);
       const temDesconto  = /um desconto/i.test(reply);
       const temFoto     = /olha eu aqui/i.test(reply);
@@ -1571,72 +1732,92 @@ async function handleImageSelect(event) {
   reader.readAsDataURL(file);
 }
 
-// ═══ FUNÇÃO askAI (para mensagens de texto) ═══
-function typingDelay(text) {
-  const chars = text.length, cps = 2.5 + Math.random();
-  return Math.min(Math.max((chars/cps)*1000+600+Math.random()*900, 1800), 12000);
+// ═══ AUTO CALL ═══
+function startAutoCallRing(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    function beep(){
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.frequency.value=480;
+      g.gain.setValueAtTime(0.25,ctx.currentTime);
+      o.start();o.stop(ctx.currentTime+0.4);
+    }
+    beep();
+    autoCallRingInterval=setInterval(beep,1600);
+  }catch(e){}
 }
-
-async function askAI(userMsg) {
-  aiHistory.push({role:'user', content:userMsg, type:'text', timestamp: getTime()});
+function stopAutoCallRing(){
+  if(autoCallRingInterval){clearInterval(autoCallRingInterval);autoCallRingInterval=null;}
+}
+function dismissAutoCall(reason){
+  stopAutoCallRing();
+  const ov=document.getElementById('incoming-call-overlay');
+  const ac=document.getElementById('active-call-overlay');
+  ov.classList.remove('show');
+  ac.classList.remove('show');
+  setTimeout(function(){
+    const b=document.createElement('div');
+    b.className='bbl in fade-in';
+    if(reason==='declined'){
+      b.innerHTML=TAIL_IN+
+        '<div style="display:flex;align-items:center;gap:8px;color:#e53935;font-size:13.5px">'+
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><line x1="3" y1="3" x2="21" y2="21" stroke="#e53935" stroke-width="1.75" stroke-linecap="round"/></svg>'+
+        'Chamada de vídeo perdida</div>'+
+        '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+      aiHistory.push({role:'system', content:'Ligação Isca - Recusada', type:'system'});
+    } else {
+      b.innerHTML=TAIL_IN+
+        '<div style="display:flex;align-items:center;gap:8px;color:#667781;font-size:13.5px">'+
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>'+
+        'Vanessa desligou · 0:02</div>'+
+        '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+      aiHistory.push({role:'system', content:'Ligação Isca - Aceita', type:'system'});
+    }
+    msgsEl.appendChild(b);
+    scroll();
+    salvarLead();
+  }, 400);
+}
+function triggerAutoCall(){
+  if(autoCallFired) return;
+  autoCallFired=true;
   saveState();
-  showTyping();
-  try {
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({history: aiHistory, city: leadCityVal})
-    });
-    const data = await res.json();
-    hideTyping();
-    const reply = data && data.reply;
-    if (!reply) { addBubble('Oi! Tô com muita mensagem agora 😅 Tenta de novo!','in'); enableInput(); return; }
-    
-    let replyContent = reply
-      .replace(/Solicitação de pagamento/gi, '')
-      .replace(/\[áudio\]/gi, '')
-      .trim();
-
-    aiHistory.push({role:'assistant', content:replyContent, type:'text', timestamp: getTime()});
-    saveState();
-
-    if (replyContent.includes('[FIM]')) {
-      const msgFinal = replyContent.replace('[FIM]','').trim();
-      const pts = msgFinal.split('|').map(p=>p.trim()).filter(Boolean);
-      for (let i=0;i<pts.length;i++) { showTyping(); await sleep(typingDelay(pts[i])); hideTyping(); addBubble(pts[i],'in',false,getTime()); }
-      inpEl.disabled = true; sendBtn.disabled = true; inpEl.placeholder = 'Conversa encerrada';
-      return;
+  const ov=document.getElementById('incoming-call-overlay');
+  ov.classList.add('show');
+  startAutoCallRing();
+  const autoDismissTimer=setTimeout(function(){
+    if(ov.classList.contains('show')){
+      dismissAutoCall('declined');
     }
-
-    let parts = replyContent.split('|').map(p=>p.trim()).filter(Boolean);
-    if (parts.length<=1 && replyContent.includes('\n\n')) parts = replyContent.split('\n\n').map(p=>p.trim()).filter(Boolean);
-    for (let i=0;i<parts.length;i++) {
-      const part = parts[i];
-      const now = getTime();
-      showTyping();
-      await sleep(typingDelay(part));
-      hideTyping();
-      addBubble(part, 'in', false, now);
-    }
-
-    const temPixNormal = /aqui o pix/i.test(replyContent);
-    const temDesconto  = /um desconto/i.test(replyContent);
-    const temFoto     = /olha eu aqui/i.test(replyContent);
-    const temExtra    = /tá pera/i.test(replyContent);
-
-    if (temPixNormal) { await sleep(600); showCta(false); }
-    if (temDesconto)  { await sleep(600); showCta(true); }
-    if (temFoto)      { await sleep(500); showFotoLead(); }
-    if (temExtra)     { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showImage(IMG_EXTRA_SRC); }
-
-    const houveCta = temPixNormal || temDesconto;
-    salvarLead(houveCta);
-  } catch (e) {
-    hideTyping();
-    addBubble('Ops, tive um probleminha. Pode repetir? 😊','in');
-    aiHistory.pop();
-  }
-  enableInput();
+  }, 25000);
+  document.getElementById('auto-call-decline').onclick=function(){
+    clearTimeout(autoDismissTimer);
+    dismissAutoCall('declined');
+  };
+  document.getElementById('auto-call-answer').onclick=function(){
+    clearTimeout(autoDismissTimer);
+    stopAutoCallRing();
+    ov.classList.remove('show');
+    const ac=document.getElementById('active-call-overlay');
+    const statusTxt=document.getElementById('ac-status-text');
+    ac.classList.add('show');
+    statusTxt.textContent='Conectando…';
+    setTimeout(function(){statusTxt.textContent='Chamada de vídeo';},700);
+    setTimeout(function(){
+      ac.classList.remove('show');
+      dismissAutoCall('answered_and_hung');
+    }, 2000);
+    document.getElementById('ac-end-btn').onclick=function(){
+      ac.classList.remove('show');
+      dismissAutoCall('answered_and_hung');
+    };
+  };
+}
+function scheduleAutoCall(){
+  if(autoCallFired || autoCallTimer) return;
+  const delay = 60000 + Math.random()*60000;
+  autoCallTimer = setTimeout(triggerAutoCall, delay);
 }
 
 // ═══ INÍCIO ═══
@@ -1658,6 +1839,7 @@ async function start() {
     
     retomarPollingSeNecessario();
 
+    if (userReplyCount >= 2 && !autoCallFired) scheduleAutoCall();
     enableInput();
     if (inpEl.value.trim().length === 0) {
       sendBtn.classList.add('hidden');
