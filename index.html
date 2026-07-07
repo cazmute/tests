@@ -96,6 +96,7 @@ html,body{
 .input-pill{flex:1;display:flex;align-items:center;background:#fff;border-radius:24px;padding:0 14px;gap:8px;min-height:44px;position:relative;}
 .input-pill input{flex:1;border:none;outline:none;font-size:16px;color:var(--wa-text);background:transparent;padding:10px 0;font-family:inherit;}
 .input-pill input::placeholder{color:#8696a0}
+.input-pill input:disabled{opacity:0.7;cursor:not-allowed;}
 .send-btn, .mic-btn{
   width:48px;height:48px;border-radius:50%;border:none;cursor:pointer;
   display:flex;align-items:center;justify-content:center;flex-shrink:0;
@@ -251,7 +252,7 @@ html,body{
 
   <div class="input-wrap">
     <div class="input-pill" style="position:relative;">
-      <button type="button" onclick="toggleEmoji()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none">
+      <button type="button" id="emoji-btn" onclick="toggleEmoji()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#8696a0" stroke-width="1.75"/><path d="M8.5 14s.875 1.5 3.5 1.5 3.5-1.5 3.5-1.5" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round"/><circle cx="9" cy="10" r="1" fill="#8696a0"/><circle cx="15" cy="10" r="1" fill="#8696a0"/></svg>
       </button>
       <div id="emoji-panel" style="display:none;position:absolute;bottom:70px;left:8px;right:8px;background:#1f2c34;border-radius:14px;padding:10px 8px;box-shadow:0 4px 24px rgba(0,0,0,0.4);z-index:100;max-height:200px;overflow-y:auto">
@@ -436,6 +437,7 @@ const inpEl=document.getElementById('inp');
 const sendBtn=document.getElementById('send-btn');
 const micBtn=document.getElementById('mic-btn');
 const cameraBtn=document.getElementById('camera-btn');
+const emojiBtn=document.getElementById('emoji-btn');
 const hdrStatus=document.getElementById('hdr-status');
 const micToast=document.getElementById('mic-toast');
 
@@ -464,7 +466,7 @@ let autoCallFired = false;
 let autoCallTimer = null;
 let autoCallRingInterval = null;
 
-// ═══ NOVA FLAG: CONVERSA ENCERRADA ═══
+// ═══ FLAG: CONVERSA ENCERRADA ═══
 let conversaEncerrada = false;
 
 const STATE_KEY = 'wa-conversa-state';
@@ -492,7 +494,7 @@ function saveState() {
     autoCallFired,
     initiateCheckoutFired,
     audioPIxJaTocou,
-    conversaEncerrada  // nova flag
+    conversaEncerrada
   };
   try {
     localStorage.setItem(STATE_KEY, JSON.stringify(state));
@@ -514,7 +516,7 @@ function loadState() {
     autoCallFired = state.autoCallFired || false;
     initiateCheckoutFired = state.initiateCheckoutFired || false;
     audioPIxJaTocou = state.audioPIxJaTocou || false;
-    conversaEncerrada = state.conversaEncerrada || false; // carrega flag
+    conversaEncerrada = state.conversaEncerrada || false;
     return true;
   } catch(e) {
     return false;
@@ -574,24 +576,27 @@ function hideTyping(){
 }
 
 function enableInput(){
+  // Desabilita o input se conversa encerrada
   inpEl.disabled = conversaEncerrada;
   if (conversaEncerrada) {
     inpEl.placeholder = 'Conversa encerrada';
     inpEl.disabled = true;
+    // NÃO oculta os botões, apenas os desabilita via CSS/eventos
+    // Apenas garantimos que o send button fique oculto (já que não há texto)
     sendBtn.classList.add('hidden');
-    micBtn.classList.add('hidden');
-    cameraBtn.classList.add('hidden-mic');
+    // Os demais botões permanecem visíveis, mas as funções serão bloqueadas por verificações
   } else {
     inpEl.disabled = false;
     inpEl.placeholder = 'Mensagem';
     // Restaurar visibilidade dos botões conforme o texto
     if (inpEl.value.trim().length > 0) {
       sendBtn.classList.remove('hidden');
-      micBtn.classList.add('hidden');
+      micBtn.classList.remove('hidden');
     } else {
       sendBtn.classList.add('hidden');
       micBtn.classList.remove('hidden');
     }
+    cameraBtn.classList.remove('hidden-mic');
   }
 }
 
@@ -1251,7 +1256,7 @@ function typingDelay(text) {
   return Math.min(Math.max((chars/cps)*1000+600+Math.random()*900, 1800), 12000);
 }
 
-// ═══ FUNÇÃO ASKAI (MODIFICADA PARA USAR processarResposta E finalizarConversa) ═══
+// ═══ FUNÇÃO ASKAI ═══
 async function askAI(userMsg) {
   if (conversaEncerrada) return;
 
@@ -1269,13 +1274,11 @@ async function askAI(userMsg) {
     const reply = data && data.reply;
     if (!reply) { addBubble('Oi! Tô com muita mensagem agora 😅 Tenta de novo!','in'); enableInput(); return; }
     
-    // === PROCESSAR RESPOSTA (remover tags e detectar [FIM]) ===
     const { cleanContent, isFinal } = processarResposta(reply);
     aiHistory.push({role:'assistant', content: cleanContent, type:'text', timestamp: getTime()});
     saveState();
 
     if (isFinal) {
-      // Exibe a mensagem final sem a tag
       const pts = cleanContent.split('|').map(p=>p.trim()).filter(Boolean);
       for (let i=0;i<pts.length;i++) {
         showTyping();
@@ -1283,12 +1286,10 @@ async function askAI(userMsg) {
         hideTyping();
         addBubble(pts[i],'in',false,getTime());
       }
-      // Finaliza a conversa
       finalizarConversa();
       return;
     }
 
-    // Se não for final, processa normalmente
     let parts = cleanContent.split('|').map(p=>p.trim()).filter(Boolean);
     if (parts.length<=1 && cleanContent.includes('\n\n')) parts = cleanContent.split('\n\n').map(p=>p.trim()).filter(Boolean);
     for (let i=0;i<parts.length;i++) {
@@ -1300,7 +1301,6 @@ async function askAI(userMsg) {
       addBubble(part, 'in', false, now);
     }
 
-    // === GATILHOS FIXOS ===
     const temPixNormal = /aqui o pix/i.test(cleanContent);
     const temDesconto  = /um desconto/i.test(cleanContent);
     const temFoto     = /olha eu aqui/i.test(cleanContent);
@@ -1730,7 +1730,10 @@ async function sendAudioMessage(mimeType) {
 
 // ═══ CONTROLE DE VISIBILIDADE DOS BOTÕES ═══
 inpEl.addEventListener('input', function() {
-  if (conversaEncerrada) return;
+  if (conversaEncerrada) {
+    // Mantém tudo desabilitado
+    return;
+  }
   const hasText = this.value.trim().length > 0;
   if (hasText) {
     sendBtn.classList.remove('hidden');
@@ -1967,8 +1970,9 @@ async function start() {
 }
 start();
 
-// ═══ FUNÇÕES DOS SHEETS ═══
+// ═══ FUNÇÕES DOS SHEETS (com bloqueio para conversa encerrada) ═══
 function toggleEmoji() {
+  if (conversaEncerrada) return;
   const panel = document.getElementById('emoji-panel');
   const isOpen = panel.style.display !== 'none';
   if (isOpen) {
@@ -1985,6 +1989,7 @@ function toggleEmoji() {
       btn.onmouseover = function() { btn.style.background = 'rgba(255,255,255,0.08)'; };
       btn.onmouseout = function() { btn.style.background = 'none'; };
       btn.onclick = function() {
+        if (conversaEncerrada) return;
         const inp = document.getElementById('inp');
         const pos = inp.selectionStart || inp.value.length;
         inp.value = inp.value.slice(0, pos) + em + inp.value.slice(pos);
@@ -1999,7 +2004,10 @@ function toggleEmoji() {
   panel.style.display = 'block';
 }
 
-function openExitSheet(){ document.getElementById('exit-sheet').classList.add('open'); }
+function openExitSheet(){ 
+  if (conversaEncerrada) return; // Opcional, mas pode permitir sair mesmo encerrado? Deixamos permitir.
+  document.getElementById('exit-sheet').classList.add('open'); 
+}
 function closeExitSheet(){ document.getElementById('exit-sheet').classList.remove('open'); }
 document.getElementById('exit-sheet').addEventListener('click', function(e){ if(e.target===this) closeExitSheet(); });
 function openInfoSheet(){ document.getElementById('info-sheet').classList.add('open'); }
