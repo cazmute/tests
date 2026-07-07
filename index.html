@@ -431,6 +431,11 @@ document.addEventListener('keydown', function (e) {
   if ((e.ctrlKey || e.metaKey) && (e.key === 'U' || e.key === 'u')) { e.preventDefault(); return false; }
 });
 
+// ═══ FUNÇÃO AUXILIAR PARA REMOVER [FIM] VISUALMENTE ═══
+function stripFim(text) {
+  return text ? text.replace(/\[FIM\]/g, '').trim() : '';
+}
+
 // ═══ VARIÁVEIS GLOBAIS ═══
 const msgsEl=document.getElementById('msgs');
 const inpEl=document.getElementById('inp');
@@ -546,6 +551,15 @@ function scroll(){msgsEl.scrollTop=msgsEl.scrollHeight}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
 
 function addBubble(html, side, isHTML = false, customTime = null) {
+  // Remove visualmente a tag [FIM] apenas para mensagens da assistente
+  let displayHtml = html;
+  if (side === 'in' && !isHTML) {
+    displayHtml = stripFim(html);
+  } else if (side === 'in' && isHTML) {
+    // Para HTML, removemos manualmente (ex: se houver [FIM] dentro)
+    displayHtml = html.replace(/\[FIM\]/g, '');
+  }
+
   const b = document.createElement('div');
   b.className = 'bbl ' + side + ' fade-in';
   const tail = side === 'in' ? TAIL_IN : TAIL_OUT;
@@ -553,9 +567,9 @@ function addBubble(html, side, isHTML = false, customTime = null) {
   const timeStr = customTime || getTime();
 
   if (isHTML) {
-    b.innerHTML = tail + html + '<div class="bbl-meta"><span class="bbl-time">' + timeStr + '</span>' + ticks + '</div>';
+    b.innerHTML = tail + displayHtml + '<div class="bbl-meta"><span class="bbl-time">' + timeStr + '</span>' + ticks + '</div>';
   } else {
-    b.innerHTML = tail + html.replace(/\n/g, '<br>') + '<div class="bbl-meta"><span class="bbl-time">' + timeStr + '</span>' + ticks + '</div>';
+    b.innerHTML = tail + displayHtml.replace(/\n/g, '<br>') + '<div class="bbl-meta"><span class="bbl-time">' + timeStr + '</span>' + ticks + '</div>';
   }
   if (typingEl) { msgsEl.insertBefore(b, typingEl); } else { msgsEl.appendChild(b); }
   scroll();
@@ -576,19 +590,14 @@ function hideTyping(){
 }
 
 function enableInput(){
-  // Desabilita o input se conversa encerrada
   inpEl.disabled = conversaEncerrada;
   if (conversaEncerrada) {
     inpEl.placeholder = 'Conversa encerrada';
     inpEl.disabled = true;
-    // NÃO oculta os botões, apenas os desabilita via CSS/eventos
-    // Apenas garantimos que o send button fique oculto (já que não há texto)
     sendBtn.classList.add('hidden');
-    // Os demais botões permanecem visíveis, mas as funções serão bloqueadas por verificações
   } else {
     inpEl.disabled = false;
     inpEl.placeholder = 'Mensagem';
-    // Restaurar visibilidade dos botões conforme o texto
     if (inpEl.value.trim().length > 0) {
       sendBtn.classList.remove('hidden');
       micBtn.classList.remove('hidden');
@@ -606,16 +615,14 @@ function finalizarConversa() {
   saveState();
 }
 
-// ═══ FUNÇÃO AUXILIAR PARA PROCESSAR RESPOSTA DA IA (remove tags e detecta [FIM]) ═══
+// ═══ FUNÇÃO AUXILIAR PARA PROCESSAR RESPOSTA DA IA (NÃO REMOVE A TAG, APENAS DETECTA) ═══
 function processarResposta(reply) {
   let content = reply
     .replace(/Solicitação de pagamento/gi, '')
     .replace(/\[áudio\]/gi, '')
     .trim();
   const isFinal = content.includes('[FIM]');
-  if (isFinal) {
-    content = content.replace('[FIM]', '').trim();
-  }
+  // Mantém a tag no conteúdo
   return { cleanContent: content, isFinal };
 }
 
@@ -693,7 +700,6 @@ function iniciarPollRobusto(txHash, valorPago, tentativasIniciais = 0) {
   pollingIntervaloAtual = INTERVALO_INICIAL;
 
   salvarEstadoPolling(txHash, pollingTentativas, pollingValorAtual);
-  // NÃO ALTERA O hdrStatus
 
   function tentar() {
     if (pollingPausado) {
@@ -861,7 +867,6 @@ async function showCta(desconto) {
   const now = getTime();
   criarCardPix(data, desconto, now);
 
-  // --- Áudio e callback APENAS para o Pix normal (sem desconto) ---
   if (!desconto && !audioPIxJaTocou) {
     audioPIxJaTocou = true;
     saveState();
@@ -1082,7 +1087,7 @@ window.seekAudioById = function(e, bar, id) {
   foundAudio.currentTime = pct * foundAudio.duration;
 };
 
-// ═══ REBUILD UI ═══
+// ═══ REBUILD UI (remove [FIM] visualmente nas mensagens da assistente) ═══
 async function rebuildUI() {
   msgsEl.innerHTML = '<div class="date-pill">Hoje</div>';
   for (const msg of aiHistory) {
@@ -1101,8 +1106,10 @@ async function rebuildUI() {
       }
     } 
     else if (msg.role === 'assistant' && msg.type === 'text') {
-      const parts = msg.content.split('|').map(p => p.trim()).filter(Boolean);
-      if (parts.length === 0) parts = [msg.content];
+      // Remove [FIM] visualmente
+      const displayContent = stripFim(msg.content);
+      const parts = displayContent.split('|').map(p => p.trim()).filter(Boolean);
+      if (parts.length === 0) parts = [displayContent];
       for (let i = 0; i < parts.length; i++) {
         let timeToShow = msg.timestamp || getTime();
         if (i > 0 && msg.timestamp) {
@@ -1175,7 +1182,7 @@ async function rebuildUI() {
     }
   }
   scroll();
-  enableInput(); // aplica estado de encerramento, se houver
+  enableInput();
 }
 
 // ═══ showBotaoEntregavel (com link e botão de retorno) ═══
@@ -1279,14 +1286,16 @@ async function askAI(userMsg) {
     saveState();
 
     if (isFinal) {
-      const pts = cleanContent.split('|').map(p=>p.trim()).filter(Boolean);
+      // Exibe a mensagem sem a tag visualmente (stripFim)
+      const displayContent = stripFim(cleanContent);
+      const pts = displayContent.split('|').map(p=>p.trim()).filter(Boolean);
+      if (pts.length === 0) pts = [displayContent || 'Conversa encerrada.'];
       for (let i=0;i<pts.length;i++) {
         showTyping();
         await sleep(typingDelay(pts[i]));
         hideTyping();
         addBubble(pts[i],'in',false,getTime());
       }
-      // 🔥 SALVA NO SUPABASE ANTES DE FINALIZAR
       await salvarLead(true);
       finalizarConversa();
       return;
@@ -1361,11 +1370,10 @@ let _cancelRecording = false;
 let _recordStartTime = null;
 let _timerInterval = null;
 
-// Controle do clique curto
 let _pressTimer = null;
 let _pressStartX = 0, _pressStartY = 0;
-const PRESS_THRESHOLD = 200; // ms para considerar "segurar"
-const MOVE_THRESHOLD = 15;   // px de movimento para ignorar clique
+const PRESS_THRESHOLD = 200;
+const MOVE_THRESHOLD = 15;
 
 function showMicToast() {
   micToast.classList.add('show');
@@ -1397,7 +1405,6 @@ function getSupportedMimeType() {
   return null;
 }
 
-// Iniciar gravação (chamado após o timer de pressão)
 async function _startRecording() {
   if (conversaEncerrada) return;
   if (_isRecording) return;
@@ -1692,14 +1699,15 @@ async function sendAudioMessage(mimeType) {
       saveState();
 
       if (isFinal) {
-        const pts = cleanContent.split('|').map(p=>p.trim()).filter(Boolean);
+        const displayContent = stripFim(cleanContent);
+        const pts = displayContent.split('|').map(p=>p.trim()).filter(Boolean);
+        if (pts.length === 0) pts = [displayContent || 'Conversa encerrada.'];
         for (let i=0;i<pts.length;i++) {
           showTyping();
           await sleep(typingDelay(pts[i]));
           hideTyping();
           addBubble(pts[i],'in',false,getTime());
         }
-        // 🔥 SALVA NO SUPABASE ANTES DE FINALIZAR
         await salvarLead(true);
         finalizarConversa();
         return;
@@ -1734,10 +1742,7 @@ async function sendAudioMessage(mimeType) {
 
 // ═══ CONTROLE DE VISIBILIDADE DOS BOTÕES ═══
 inpEl.addEventListener('input', function() {
-  if (conversaEncerrada) {
-    // Mantém tudo desabilitado
-    return;
-  }
+  if (conversaEncerrada) return;
   const hasText = this.value.trim().length > 0;
   if (hasText) {
     sendBtn.classList.remove('hidden');
@@ -1796,14 +1801,15 @@ async function handleImageSelect(event) {
       saveState();
 
       if (isFinal) {
-        const pts = cleanContent.split('|').map(p=>p.trim()).filter(Boolean);
+        const displayContent = stripFim(cleanContent);
+        const pts = displayContent.split('|').map(p=>p.trim()).filter(Boolean);
+        if (pts.length === 0) pts = [displayContent || 'Conversa encerrada.'];
         for (let i=0;i<pts.length;i++) {
           showTyping();
           await sleep(typingDelay(pts[i]));
           hideTyping();
           addBubble(pts[i],'in',false,getTime());
         }
-        // 🔥 SALVA NO SUPABASE ANTES DE FINALIZAR
         await salvarLead(true);
         finalizarConversa();
         return;
@@ -2011,7 +2017,7 @@ function toggleEmoji() {
 }
 
 function openExitSheet(){ 
-  if (conversaEncerrada) return; // Opcional, mas pode permitir sair mesmo encerrado? Deixamos permitir.
+  if (conversaEncerrada) return;
   document.getElementById('exit-sheet').classList.add('open'); 
 }
 function closeExitSheet(){ document.getElementById('exit-sheet').classList.remove('open'); }
