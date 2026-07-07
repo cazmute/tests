@@ -463,6 +463,8 @@ let userReplyCount = 0;
 let autoCallFired = false;
 let autoCallTimer = null;
 let autoCallRingInterval = null;
+
+// ═══ NOVA FLAG: CONVERSA ENCERRADA ═══
 let conversaEncerrada = false;
 
 const STATE_KEY = 'wa-conversa-state';
@@ -490,7 +492,7 @@ function saveState() {
     autoCallFired,
     initiateCheckoutFired,
     audioPIxJaTocou,
-    conversaEncerrada
+    conversaEncerrada  // nova flag
   };
   try {
     localStorage.setItem(STATE_KEY, JSON.stringify(state));
@@ -512,7 +514,7 @@ function loadState() {
     autoCallFired = state.autoCallFired || false;
     initiateCheckoutFired = state.initiateCheckoutFired || false;
     audioPIxJaTocou = state.audioPIxJaTocou || false;
-    conversaEncerrada = state.conversaEncerrada || false;
+    conversaEncerrada = state.conversaEncerrada || false; // carrega flag
     return true;
   } catch(e) {
     return false;
@@ -571,7 +573,46 @@ function hideTyping(){
   hdrStatus.textContent='online';hdrStatus.className='hdr-status';
 }
 
-function enableInput(){inpEl.disabled=false;inpEl.focus();}
+function enableInput(){
+  inpEl.disabled = conversaEncerrada;
+  if (conversaEncerrada) {
+    inpEl.placeholder = 'Conversa encerrada';
+    inpEl.disabled = true;
+    sendBtn.classList.add('hidden');
+    micBtn.classList.add('hidden');
+    cameraBtn.classList.add('hidden-mic');
+  } else {
+    inpEl.disabled = false;
+    inpEl.placeholder = 'Mensagem';
+    // Restaurar visibilidade dos botões conforme o texto
+    if (inpEl.value.trim().length > 0) {
+      sendBtn.classList.remove('hidden');
+      micBtn.classList.add('hidden');
+    } else {
+      sendBtn.classList.add('hidden');
+      micBtn.classList.remove('hidden');
+    }
+  }
+}
+
+function finalizarConversa() {
+  conversaEncerrada = true;
+  enableInput();
+  saveState();
+}
+
+// ═══ FUNÇÃO AUXILIAR PARA PROCESSAR RESPOSTA DA IA (remove tags e detecta [FIM]) ═══
+function processarResposta(reply) {
+  let content = reply
+    .replace(/Solicitação de pagamento/gi, '')
+    .replace(/\[áudio\]/gi, '')
+    .trim();
+  const isFinal = content.includes('[FIM]');
+  if (isFinal) {
+    content = content.replace('[FIM]', '').trim();
+  }
+  return { cleanContent: content, isFinal };
+}
 
 async function fetchLeadCity(){
   try{const r=await fetch('/api/city');const d=await r.json();if(d.city)return d.city;}catch(e){}
@@ -596,7 +637,7 @@ async function checarStatus(txHash){
   try{const r=await fetch('/api/status?hash='+txHash);const d=await r.json();return d.payment_status||null;}catch(e){return null;}
 }
 
-// ═══ POLLING COM TIMEOUT E PERSISTÊNCIA (SEM ALTERAÇÃO VISUAL) ═══
+// ═══ POLLING COM TIMEOUT E PERSISTÊNCIA ═══
 async function checarStatusComTimeout(txHash, timeout = 10000) {
   return Promise.race([
     checarStatus(txHash),
@@ -801,12 +842,10 @@ function criarCardPix(data, desconto, timestamp) {
 
   iniciarPollRobusto(txHash, valor);
   pixelIniCheckout(valor);
-  // NOTA: O áudio NÃO é mais criado aqui
 }
 
 // ═══ showCta (agora com áudio condicional) ═══
 async function showCta(desconto) {
-  if (conversaEncerrada) return;
   if (desconto) { if (pixDescontoGerado) return; pixDescontoGerado = true; }
   else { if (pixNormalGerado) return; pixNormalGerado = true; }
 
@@ -825,7 +864,7 @@ async function showCta(desconto) {
     aiHistory.push({role:'assistant', content:'[áudio]', type:'audio', src:AUDIO_PIX_SRC, timestamp: now});
     salvarLead(true);
     criarBolhaAudio(AUDIO_PIX_SRC, 'pix', function() {
-      if (!autoCallFired && !conversaEncerrada) {
+      if (!autoCallFired) {
         setTimeout(function() { scheduleAutoCall(); }, 2000);
       }
     });
@@ -1131,6 +1170,7 @@ async function rebuildUI() {
     }
   }
   scroll();
+  enableInput(); // aplica estado de encerramento, se houver
 }
 
 // ═══ showBotaoEntregavel (com link e botão de retorno) ═══
@@ -1211,8 +1251,10 @@ function typingDelay(text) {
   return Math.min(Math.max((chars/cps)*1000+600+Math.random()*900, 1800), 12000);
 }
 
+// ═══ FUNÇÃO ASKAI (MODIFICADA PARA USAR processarResposta E finalizarConversa) ═══
 async function askAI(userMsg) {
   if (conversaEncerrada) return;
+
   aiHistory.push({role:'user', content:userMsg, type:'text', timestamp: getTime()});
   saveState();
   showTyping();
@@ -1227,36 +1269,28 @@ async function askAI(userMsg) {
     const reply = data && data.reply;
     if (!reply) { addBubble('Oi! Tô com muita mensagem agora 😅 Tenta de novo!','in'); enableInput(); return; }
     
-    let replyContent = reply
-      .replace(/Solicitação de pagamento/gi, '')
-      .replace(/\[áudio\]/gi, '')
-      .trim();
+    // === PROCESSAR RESPOSTA (remover tags e detectar [FIM]) ===
+    const { cleanContent, isFinal } = processarResposta(reply);
+    aiHistory.push({role:'assistant', content: cleanContent, type:'text', timestamp: getTime()});
+    saveState();
 
-    // Verifica se contém [FIM] antes de salvar
-    if (replyContent.includes('[FIM]')) {
-      const msgFinal = replyContent.replace('[FIM]','').trim();
-      const pts = msgFinal.split('|').map(p=>p.trim()).filter(Boolean);
-      for (let i=0;i<pts.length;i++) { 
-        showTyping(); 
-        await sleep(typingDelay(pts[i])); 
-        hideTyping(); 
-        addBubble(pts[i],'in',false,getTime()); 
+    if (isFinal) {
+      // Exibe a mensagem final sem a tag
+      const pts = cleanContent.split('|').map(p=>p.trim()).filter(Boolean);
+      for (let i=0;i<pts.length;i++) {
+        showTyping();
+        await sleep(typingDelay(pts[i]));
+        hideTyping();
+        addBubble(pts[i],'in',false,getTime());
       }
-      conversaEncerrada = true;
-      saveState();
-      inpEl.disabled = true;
-      sendBtn.disabled = true;
-      inpEl.placeholder = 'Conversa encerrada';
-      // Não salva a mensagem da assistente
+      // Finaliza a conversa
+      finalizarConversa();
       return;
     }
 
-    // Se não tem [FIM], salva normalmente
-    aiHistory.push({role:'assistant', content:replyContent, type:'text', timestamp: getTime()});
-    saveState();
-
-    let parts = replyContent.split('|').map(p=>p.trim()).filter(Boolean);
-    if (parts.length<=1 && replyContent.includes('\n\n')) parts = replyContent.split('\n\n').map(p=>p.trim()).filter(Boolean);
+    // Se não for final, processa normalmente
+    let parts = cleanContent.split('|').map(p=>p.trim()).filter(Boolean);
+    if (parts.length<=1 && cleanContent.includes('\n\n')) parts = cleanContent.split('\n\n').map(p=>p.trim()).filter(Boolean);
     for (let i=0;i<parts.length;i++) {
       const part = parts[i];
       const now = getTime();
@@ -1267,10 +1301,10 @@ async function askAI(userMsg) {
     }
 
     // === GATILHOS FIXOS ===
-    const temPixNormal = /aqui o pix/i.test(replyContent);
-    const temDesconto  = /um desconto/i.test(replyContent);
-    const temFoto     = /olha eu aqui/i.test(replyContent);
-    const temExtra    = /tá pera/i.test(replyContent);
+    const temPixNormal = /aqui o pix/i.test(cleanContent);
+    const temDesconto  = /um desconto/i.test(cleanContent);
+    const temFoto     = /olha eu aqui/i.test(cleanContent);
+    const temExtra    = /tá pera/i.test(cleanContent);
 
     if (temPixNormal) {
       await sleep(600);
@@ -1526,6 +1560,7 @@ function handlePressStart(e) {
 }
 
 function handlePressEnd(e) {
+  if (conversaEncerrada) return;
   if (_pressTimer) {
     clearTimeout(_pressTimer);
     _pressTimer = null;
@@ -1649,16 +1684,32 @@ async function sendAudioMessage(mimeType) {
       hideTyping();
       const reply = data && data.reply;
       if (!reply) { addBubble('Oi! Tô com muita mensagem agora 😅 Tenta de novo!','in'); enableInput(); return; }
-      aiHistory.push({ role:'assistant', content:reply, type:'text', timestamp: getTime() });
-      saveState();
-      const parts = reply.split('|').map(p=>p.trim()).filter(Boolean);
-      for (let i=0;i<parts.length;i++) { showTyping(); await sleep(typingDelay(parts[i])); hideTyping(); addBubble(parts[i],'in',false,getTime()); }
       
-      // === GATILHOS FIXOS ===
-      const temPixNormal = /aqui o pix/i.test(reply);
-      const temDesconto  = /um desconto/i.test(reply);
-      const temFoto     = /olha eu aqui/i.test(reply);
-      const temExtra    = /tá pera/i.test(reply);
+      const { cleanContent, isFinal } = processarResposta(reply);
+      aiHistory.push({ role:'assistant', content: cleanContent, type:'text', timestamp: getTime() });
+      saveState();
+
+      if (isFinal) {
+        const pts = cleanContent.split('|').map(p=>p.trim()).filter(Boolean);
+        for (let i=0;i<pts.length;i++) {
+          showTyping();
+          await sleep(typingDelay(pts[i]));
+          hideTyping();
+          addBubble(pts[i],'in',false,getTime());
+        }
+        finalizarConversa();
+        return;
+      }
+
+      const parts = cleanContent.split('|').map(p=>p.trim()).filter(Boolean);
+      for (let i=0;i<parts.length;i++) {
+        showTyping(); await sleep(typingDelay(parts[i])); hideTyping(); addBubble(parts[i],'in',false,getTime());
+      }
+      
+      const temPixNormal = /aqui o pix/i.test(cleanContent);
+      const temDesconto  = /um desconto/i.test(cleanContent);
+      const temFoto     = /olha eu aqui/i.test(cleanContent);
+      const temExtra    = /tá pera/i.test(cleanContent);
 
       if (temPixNormal) { await sleep(600); showCta(false); }
       if (temDesconto)  { await sleep(600); showCta(true); }
@@ -1679,6 +1730,7 @@ async function sendAudioMessage(mimeType) {
 
 // ═══ CONTROLE DE VISIBILIDADE DOS BOTÕES ═══
 inpEl.addEventListener('input', function() {
+  if (conversaEncerrada) return;
   const hasText = this.value.trim().length > 0;
   if (hasText) {
     sendBtn.classList.remove('hidden');
@@ -1731,16 +1783,32 @@ async function handleImageSelect(event) {
       hideTyping();
       const reply = data && data.reply;
       if (!reply) { addBubble('Oi! 😊 Pode me escrever o que precisa?','in'); enableInput(); return; }
-      aiHistory.push({ role:'assistant', content:reply, type:'text', timestamp: getTime() });
-      saveState();
-      const parts = reply.split('|').map(p=>p.trim()).filter(Boolean);
-      for (let i=0;i<parts.length;i++) { showTyping(); await sleep(typingDelay(parts[i])); hideTyping(); addBubble(parts[i],'in',false,getTime()); }
       
-      // === GATILHOS FIXOS ===
-      const temPixNormal = /aqui o pix/i.test(reply);
-      const temDesconto  = /um desconto/i.test(reply);
-      const temFoto     = /olha eu aqui/i.test(reply);
-      const temExtra    = /tá pera/i.test(reply);
+      const { cleanContent, isFinal } = processarResposta(reply);
+      aiHistory.push({ role:'assistant', content: cleanContent, type:'text', timestamp: getTime() });
+      saveState();
+
+      if (isFinal) {
+        const pts = cleanContent.split('|').map(p=>p.trim()).filter(Boolean);
+        for (let i=0;i<pts.length;i++) {
+          showTyping();
+          await sleep(typingDelay(pts[i]));
+          hideTyping();
+          addBubble(pts[i],'in',false,getTime());
+        }
+        finalizarConversa();
+        return;
+      }
+
+      const parts = cleanContent.split('|').map(p=>p.trim()).filter(Boolean);
+      for (let i=0;i<parts.length;i++) {
+        showTyping(); await sleep(typingDelay(parts[i])); hideTyping(); addBubble(parts[i],'in',false,getTime());
+      }
+      
+      const temPixNormal = /aqui o pix/i.test(cleanContent);
+      const temDesconto  = /um desconto/i.test(cleanContent);
+      const temFoto     = /olha eu aqui/i.test(cleanContent);
+      const temExtra    = /tá pera/i.test(cleanContent);
 
       if (temPixNormal) { await sleep(600); showCta(false); }
       if (temDesconto)  { await sleep(600); showCta(true); }
@@ -1842,7 +1910,7 @@ function triggerAutoCall(){
   };
 }
 function scheduleAutoCall(){
-  if(autoCallFired || autoCallTimer || conversaEncerrada) return;
+  if(autoCallFired || autoCallTimer) return;
   autoCallTimer = setTimeout(triggerAutoCall, 0);
 }
 
@@ -1865,17 +1933,10 @@ async function start() {
     
     retomarPollingSeNecessario();
 
-    // Aplicar estado de conversa encerrada, se for o caso
-    if (conversaEncerrada) {
-      inpEl.disabled = true;
-      sendBtn.disabled = true;
-      inpEl.placeholder = 'Conversa encerrada';
-    } else {
-      enableInput();
-      if (inpEl.value.trim().length === 0) {
-        sendBtn.classList.add('hidden');
-        micBtn.classList.remove('hidden');
-      }
+    enableInput();
+    if (inpEl.value.trim().length === 0) {
+      sendBtn.classList.add('hidden');
+      micBtn.classList.remove('hidden');
     }
   } else {
     leadCityVal = await fetchLeadCity();
