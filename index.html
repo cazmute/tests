@@ -1256,7 +1256,7 @@ function typingDelay(text) {
   return Math.min(Math.max((chars/cps)*1000+600+Math.random()*900, 1800), 12000);
 }
 
-// ═══ FUNÇÃO ASKAI ═══
+// ═══ FUNÇÃO ASKAI (agora com salvarLead antes de finalizar) ═══
 async function askAI(userMsg) {
   if (conversaEncerrada) return;
 
@@ -1286,6 +1286,8 @@ async function askAI(userMsg) {
         hideTyping();
         addBubble(pts[i],'in',false,getTime());
       }
+      // 🔥 SALVA NO SUPABASE ANTES DE FINALIZAR
+      await salvarLead(true);
       finalizarConversa();
       return;
     }
@@ -1646,7 +1648,7 @@ function showMicError(message) {
   scroll();
 }
 
-// ═══ ENVIO DE ÁUDIO (APÓS GRAVAÇÃO) ═══
+// ═══ ENVIO DE ÁUDIO (APÓS GRAVAÇÃO) - agora com salvarLead antes de finalizar ═══
 async function sendAudioMessage(mimeType) {
   if (conversaEncerrada) return;
   if (_audioChunks.length === 0) return;
@@ -1697,6 +1699,8 @@ async function sendAudioMessage(mimeType) {
           hideTyping();
           addBubble(pts[i],'in',false,getTime());
         }
+        // 🔥 SALVA NO SUPABASE ANTES DE FINALIZAR
+        await salvarLead(true);
         finalizarConversa();
         return;
       }
@@ -1744,7 +1748,7 @@ inpEl.addEventListener('input', function() {
   }
 });
 
-// ═══ ENVIO DE IMAGEM ═══
+// ═══ ENVIO DE IMAGEM - agora com salvarLead antes de finalizar ═══
 async function handleImageSelect(event) {
   if (conversaEncerrada) return;
   const file = event.target.files && event.target.files[0];
@@ -1799,6 +1803,8 @@ async function handleImageSelect(event) {
           hideTyping();
           addBubble(pts[i],'in',false,getTime());
         }
+        // 🔥 SALVA NO SUPABASE ANTES DE FINALIZAR
+        await salvarLead(true);
         finalizarConversa();
         return;
       }
