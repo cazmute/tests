@@ -551,12 +551,10 @@ function scroll(){msgsEl.scrollTop=msgsEl.scrollHeight}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
 
 function addBubble(html, side, isHTML = false, customTime = null) {
-  // Remove visualmente a tag [FIM] apenas para mensagens da assistente
   let displayHtml = html;
   if (side === 'in' && !isHTML) {
     displayHtml = stripFim(html);
   } else if (side === 'in' && isHTML) {
-    // Para HTML, removemos manualmente (ex: se houver [FIM] dentro)
     displayHtml = html.replace(/\[FIM\]/g, '');
   }
 
@@ -589,24 +587,33 @@ function hideTyping(){
   hdrStatus.textContent='online';hdrStatus.className='hdr-status';
 }
 
+// ═══ FUNÇÃO CENTRALIZADA PARA ALTERNAR BOTÕES DE ENVIO/MIC ═══
+function updateSendMicButtons() {
+  if (conversaEncerrada) {
+    // Quando encerrado, mantemos o mic visível (desativado) e ocultamos a seta
+    sendBtn.classList.add('hidden');
+    micBtn.classList.remove('hidden');
+    return;
+  }
+  const hasText = inpEl.value.trim().length > 0;
+  sendBtn.classList.toggle('hidden', !hasText);
+  micBtn.classList.toggle('hidden', hasText);
+}
+
 function enableInput(){
   inpEl.disabled = conversaEncerrada;
   if (conversaEncerrada) {
     inpEl.placeholder = 'Conversa encerrada';
     inpEl.disabled = true;
-    sendBtn.classList.add('hidden');
+    // A câmera também deve ser desativada visualmente?
+    // Mantemos a câmera visível, mas desativada pela verificação no handleImageSelect
+    cameraBtn.classList.remove('hidden-mic');
   } else {
     inpEl.disabled = false;
     inpEl.placeholder = 'Mensagem';
-    if (inpEl.value.trim().length > 0) {
-      sendBtn.classList.remove('hidden');
-      micBtn.classList.remove('hidden');
-    } else {
-      sendBtn.classList.add('hidden');
-      micBtn.classList.remove('hidden');
-    }
     cameraBtn.classList.remove('hidden-mic');
   }
+  updateSendMicButtons();
 }
 
 function finalizarConversa() {
@@ -1106,7 +1113,6 @@ async function rebuildUI() {
       }
     } 
     else if (msg.role === 'assistant' && msg.type === 'text') {
-      // Remove [FIM] visualmente
       const displayContent = stripFim(msg.content);
       const parts = displayContent.split('|').map(p => p.trim()).filter(Boolean);
       if (parts.length === 0) parts = [displayContent];
@@ -1286,7 +1292,6 @@ async function askAI(userMsg) {
     saveState();
 
     if (isFinal) {
-      // Exibe a mensagem sem a tag visualmente (stripFim)
       const displayContent = stripFim(cleanContent);
       const pts = displayContent.split('|').map(p=>p.trim()).filter(Boolean);
       if (pts.length === 0) pts = [displayContent || 'Conversa encerrada.'];
@@ -1352,9 +1357,7 @@ function submit() {
   const text = inpEl.value.trim();
   if (!text) return;
   inpEl.value = '';
-  sendBtn.classList.add('hidden');
-  micBtn.classList.remove('hidden');
-  cameraBtn.classList.remove('hidden-mic');
+  updateSendMicButtons(); // atualiza após limpar
   const now = getTime();
   addBubble(text, 'out', false, now);
   if (!leadId) salvarLead();
@@ -1740,17 +1743,9 @@ async function sendAudioMessage(mimeType) {
   reader.readAsDataURL(blob);
 }
 
-// ═══ CONTROLE DE VISIBILIDADE DOS BOTÕES ═══
+// ═══ CONTROLE DE VISIBILIDADE DOS BOTÕES (usando a função centralizada) ═══
 inpEl.addEventListener('input', function() {
-  if (conversaEncerrada) return;
-  const hasText = this.value.trim().length > 0;
-  if (hasText) {
-    sendBtn.classList.remove('hidden');
-    micBtn.classList.add('hidden');
-  } else {
-    sendBtn.classList.add('hidden');
-    micBtn.classList.remove('hidden');
-  }
+  updateSendMicButtons();
 });
 
 // ═══ ENVIO DE IMAGEM - agora com salvarLead antes de finalizar ═══
@@ -1949,10 +1944,8 @@ async function start() {
     retomarPollingSeNecessario();
 
     enableInput();
-    if (inpEl.value.trim().length === 0) {
-      sendBtn.classList.add('hidden');
-      micBtn.classList.remove('hidden');
-    }
+    // Garantir que os botões estejam corretos após o rebuild
+    updateSendMicButtons();
   } else {
     leadCityVal = await fetchLeadCity();
     await sleep(700); showTyping();
