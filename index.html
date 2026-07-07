@@ -463,7 +463,7 @@ let userReplyCount = 0;
 let autoCallFired = false;
 let autoCallTimer = null;
 let autoCallRingInterval = null;
-let conversaEncerrada = false; // NOVO: flag para conversa encerrada
+let conversaEncerrada = false;
 
 const STATE_KEY = 'wa-conversa-state';
 const AUDIO_LEAD_KEY = 'wa-audio-lead';
@@ -490,7 +490,7 @@ function saveState() {
     autoCallFired,
     initiateCheckoutFired,
     audioPIxJaTocou,
-    conversaEncerrada // NOVO
+    conversaEncerrada
   };
   try {
     localStorage.setItem(STATE_KEY, JSON.stringify(state));
@@ -512,7 +512,7 @@ function loadState() {
     autoCallFired = state.autoCallFired || false;
     initiateCheckoutFired = state.initiateCheckoutFired || false;
     audioPIxJaTocou = state.audioPIxJaTocou || false;
-    conversaEncerrada = state.conversaEncerrada || false; // NOVO
+    conversaEncerrada = state.conversaEncerrada || false;
     return true;
   } catch(e) {
     return false;
@@ -806,7 +806,7 @@ function criarCardPix(data, desconto, timestamp) {
 
 // ═══ showCta (agora com áudio condicional) ═══
 async function showCta(desconto) {
-  if (conversaEncerrada) return; // Impede se conversa encerrada
+  if (conversaEncerrada) return;
   if (desconto) { if (pixDescontoGerado) return; pixDescontoGerado = true; }
   else { if (pixNormalGerado) return; pixNormalGerado = true; }
 
@@ -1212,7 +1212,7 @@ function typingDelay(text) {
 }
 
 async function askAI(userMsg) {
-  if (conversaEncerrada) return; // Bloqueia se conversa encerrada
+  if (conversaEncerrada) return;
   aiHistory.push({role:'user', content:userMsg, type:'text', timestamp: getTime()});
   saveState();
   showTyping();
@@ -1227,31 +1227,33 @@ async function askAI(userMsg) {
     const reply = data && data.reply;
     if (!reply) { addBubble('Oi! Tô com muita mensagem agora 😅 Tenta de novo!','in'); enableInput(); return; }
     
-    // === LIMPEZA DAS TAGS INDESEJADAS ===
     let replyContent = reply
       .replace(/Solicitação de pagamento/gi, '')
       .replace(/\[áudio\]/gi, '')
       .trim();
-    // ====================================
 
-    aiHistory.push({role:'assistant', content:replyContent, type:'text', timestamp: getTime()});
-    saveState();
-
+    // Verifica se contém [FIM] antes de salvar
     if (replyContent.includes('[FIM]')) {
       const msgFinal = replyContent.replace('[FIM]','').trim();
       const pts = msgFinal.split('|').map(p=>p.trim()).filter(Boolean);
-      for (let i=0;i<pts.length;i++) { showTyping(); await sleep(typingDelay(pts[i])); hideTyping(); addBubble(pts[i],'in',false,getTime()); }
-      
-      // Marcar conversa como encerrada e salvar
+      for (let i=0;i<pts.length;i++) { 
+        showTyping(); 
+        await sleep(typingDelay(pts[i])); 
+        hideTyping(); 
+        addBubble(pts[i],'in',false,getTime()); 
+      }
       conversaEncerrada = true;
       saveState();
-      
-      // Desabilitar input e enviar aviso
       inpEl.disabled = true;
       sendBtn.disabled = true;
       inpEl.placeholder = 'Conversa encerrada';
+      // Não salva a mensagem da assistente
       return;
     }
+
+    // Se não tem [FIM], salva normalmente
+    aiHistory.push({role:'assistant', content:replyContent, type:'text', timestamp: getTime()});
+    saveState();
 
     let parts = replyContent.split('|').map(p=>p.trim()).filter(Boolean);
     if (parts.length<=1 && replyContent.includes('\n\n')) parts = replyContent.split('\n\n').map(p=>p.trim()).filter(Boolean);
@@ -1301,7 +1303,7 @@ async function askAI(userMsg) {
 
 // ═══ FUNÇÃO DE ENVIO (texto) ═══
 function submit() {
-  if (conversaEncerrada) return; // Bloqueia se conversa encerrada
+  if (conversaEncerrada) return;
   const text = inpEl.value.trim();
   if (!text) return;
   inpEl.value = '';
@@ -1361,7 +1363,7 @@ function getSupportedMimeType() {
 
 // Iniciar gravação (chamado após o timer de pressão)
 async function _startRecording() {
-  if (conversaEncerrada) return; // Bloqueia se conversa encerrada
+  if (conversaEncerrada) return;
   if (_isRecording) return;
   if (_isMicPressed) return;
 
@@ -1505,7 +1507,7 @@ function cancelRecord() {
 }
 
 function handlePressStart(e) {
-  if (conversaEncerrada) return; // Bloqueia se conversa encerrada
+  if (conversaEncerrada) return;
   const clientX = e.clientX || (e.touches && e.touches[0].clientX);
   const clientY = e.clientY || (e.touches && e.touches[0].clientY);
   if (clientX == null) return;
@@ -1549,7 +1551,7 @@ function handlePressEnd(e) {
 }
 
 function handlePressMove(e) {
-  if (conversaEncerrada) return; // Bloqueia se conversa encerrada
+  if (conversaEncerrada) return;
   if (_pressTimer) {
     const clientX = e.clientX || (e.touches && e.touches[0].clientX);
     const clientY = e.clientY || (e.touches && e.touches[0].clientY);
@@ -1611,7 +1613,7 @@ function showMicError(message) {
 
 // ═══ ENVIO DE ÁUDIO (APÓS GRAVAÇÃO) ═══
 async function sendAudioMessage(mimeType) {
-  if (conversaEncerrada) return; // Bloqueia se conversa encerrada
+  if (conversaEncerrada) return;
   if (_audioChunks.length === 0) return;
   const blob = new Blob(_audioChunks, { type: mimeType });
   if (blob.size < 500) return;
@@ -1689,7 +1691,7 @@ inpEl.addEventListener('input', function() {
 
 // ═══ ENVIO DE IMAGEM ═══
 async function handleImageSelect(event) {
-  if (conversaEncerrada) return; // Bloqueia se conversa encerrada
+  if (conversaEncerrada) return;
   const file = event.target.files && event.target.files[0];
   event.target.value = '';
   if (!file) return;
