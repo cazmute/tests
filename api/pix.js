@@ -4,8 +4,8 @@ export default async function handler(req, res) {
   const { desconto } = req.body;
 
   // VALORES ALTERADOS
-  const VALOR_NORMAL   = 3000;
-  const VALOR_DESCONTO = 2000;
+  const VALOR_NORMAL   = 2000;
+  const VALOR_DESCONTO = 1000;
   const valor = desconto ? VALOR_DESCONTO : VALOR_NORMAL;
 
   const payload = {
