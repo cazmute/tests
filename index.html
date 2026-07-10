@@ -567,9 +567,9 @@ let initiateCheckoutFired=false, typingEl=null;
 const SESSION_ID=Math.random().toString(36).slice(2);
 
 let userReplyCount = 0;
-let autoCallFired = false;
 let autoCallTimer = null;
 let autoCallRingInterval = null;
+let lastCallTime = 0;
 
 // ═══ FLAG: CONVERSA ENCERRADA ═══
 let conversaEncerrada = false;
@@ -596,7 +596,6 @@ function saveState() {
     pixNormalGerado,
     pixDescontoGerado,
     userReplyCount,
-    autoCallFired,
     initiateCheckoutFired,
     audioPIxJaTocou,
     conversaEncerrada
@@ -618,7 +617,6 @@ function loadState() {
     pixNormalGerado = state.pixNormalGerado || false;
     pixDescontoGerado = state.pixDescontoGerado || false;
     userReplyCount = state.userReplyCount || 0;
-    autoCallFired = state.autoCallFired || false;
     initiateCheckoutFired = state.initiateCheckoutFired || false;
     audioPIxJaTocou = state.audioPIxJaTocou || false;
     conversaEncerrada = state.conversaEncerrada || false;
@@ -1257,7 +1255,7 @@ async function rebuildUI() {
   enableInput();
 }
 
-// ═══ ASKAI (modificada para detectar gatilho "vou te ligar") ═══
+// ═══ ASKAI (modificada para detectar gatilho "vou te ligar" sem flag) ═══
 async function askAI(userMsg) {
   if (conversaEncerrada) return;
 
@@ -1305,16 +1303,12 @@ async function askAI(userMsg) {
       addBubble(part, 'in', false, now);
     }
 
-    // ═══ DETECTA GATILHO "vou te ligar" ═══
+    // ═══ DETECTA GATILHO "vou te ligar" (sem flag, pode disparar várias vezes) ═══
     const triggerMatch = cleanContent.match(/\bvou te ligar\b/i);
-    if (triggerMatch && !autoCallFired) {
-      // Agenda a chamada automática
-      setTimeout(() => {
-        triggerAutoCall();
-      }, 1000);
+    if (triggerMatch) {
+      setTimeout(() => { triggerAutoCall(); }, 1000);
     }
 
-    // Removemos a geração de Pix automática (showCta) daqui, pois agora só via tela de pagamento
     const temFoto = /olha eu aqui/i.test(cleanContent);
     const temExtra = /tá pera/i.test(cleanContent);
 
@@ -1329,7 +1323,6 @@ async function askAI(userMsg) {
       showImage(IMG_EXTRA_SRC);
     }
 
-    // Salva lead sem indicar clicouCta (pois a compra será via overlay)
     salvarLead(false);
   } catch (e) {
     hideTyping();
@@ -1714,12 +1707,10 @@ async function sendAudioMessage(mimeType) {
         showTyping(); await sleep(typingDelay(parts[i])); hideTyping(); addBubble(parts[i],'in',false,getTime());
       }
       
-      // Gatilho "vou te ligar"
+      // Gatilho "vou te ligar" - sem flag
       const triggerMatch = cleanContent.match(/\bvou te ligar\b/i);
-      if (triggerMatch && !autoCallFired) {
-        setTimeout(() => {
-          triggerAutoCall();
-        }, 1000);
+      if (triggerMatch) {
+        setTimeout(() => { triggerAutoCall(); }, 1000);
       }
 
       const temFoto = /olha eu aqui/i.test(cleanContent);
@@ -1807,10 +1798,8 @@ async function handleImageSelect(event) {
       }
       
       const triggerMatch = cleanContent.match(/\bvou te ligar\b/i);
-      if (triggerMatch && !autoCallFired) {
-        setTimeout(() => {
-          triggerAutoCall();
-        }, 1000);
+      if (triggerMatch) {
+        setTimeout(() => { triggerAutoCall(); }, 1000);
       }
 
       const temFoto = /olha eu aqui/i.test(cleanContent);
@@ -1877,10 +1866,17 @@ function dismissAutoCall(reason){
   }
 }
 function triggerAutoCall(){
-  if(autoCallFired) return;
-  autoCallFired=true;
-  saveState();
-  const ov=document.getElementById('incoming-call-overlay');
+  const now = Date.now();
+  // Impedir chamadas muito seguidas (cooldown de 5 segundos)
+  if (now - lastCallTime < 5000) return;
+  const ov = document.getElementById('incoming-call-overlay');
+  if (ov.classList.contains('show')) return;
+  
+  lastCallTime = now;
+  
+  // Não há mais flag autoCallFired, então sempre pode disparar
+  // (desde que respeite o cooldown e o overlay não esteja aberto)
+  
   ov.classList.add('show');
   startAutoCallRing();
   const autoDismissTimer=setTimeout(function(){
@@ -1910,16 +1906,12 @@ function triggerAutoCall(){
     }, 2000);
     document.getElementById('ac-end-btn').onclick=function(){
       ac.classList.remove('show');
-      // Se o usuário desligar antes de pagar, consideramos como recusa?
-      // Mas aqui vamos apenas fechar a chamada e não abrir pagamento
-      // Melhor: se ele clicar em "desligar" durante a chamada ativa, considera como recusa?
-      // Vamos tratar como se ele tivesse recusado a chamada original.
       dismissAutoCall('declined');
     };
   };
 }
 function scheduleAutoCall(){
-  if(autoCallFired || autoCallTimer) return;
+  if(autoCallTimer) return;
   autoCallTimer = setTimeout(triggerAutoCall, 0);
 }
 
