@@ -96,7 +96,6 @@ html,body{
 .input-pill{flex:1;display:flex;align-items:center;background:#fff;border-radius:24px;padding:0 14px;gap:8px;min-height:44px;position:relative;}
 .input-pill input{flex:1;border:none;outline:none;font-size:16px;color:var(--wa-text);background:transparent;padding:10px 0;font-family:inherit;}
 .input-pill input::placeholder{color:#8696a0}
-.input-pill input:disabled{opacity:0.7;cursor:not-allowed;}
 .send-btn, .mic-btn{
   width:48px;height:48px;border-radius:50%;border:none;cursor:pointer;
   display:flex;align-items:center;justify-content:center;flex-shrink:0;
@@ -225,7 +224,7 @@ html,body{
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M20 12H4M4 12L10 6M4 12L10 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
     <div class="hdr-avatar">
-      <img src="https://i.ibb.co/ksmzSzDM/perfilv2.png" alt="Vanessa Macedo" onerror="this.style.display='none'">
+      <img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" alt="Vanessa Macedo" onerror="this.style.display='none'">
     </div>
     <div class="hdr-info">
       <div class="hdr-name">Vanessa Macedo</div>
@@ -252,7 +251,7 @@ html,body{
 
   <div class="input-wrap">
     <div class="input-pill" style="position:relative;">
-      <button type="button" id="emoji-btn" onclick="toggleEmoji()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none">
+      <button type="button" onclick="toggleEmoji()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#8696a0" stroke-width="1.75"/><path d="M8.5 14s.875 1.5 3.5 1.5 3.5-1.5 3.5-1.5" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round"/><circle cx="9" cy="10" r="1" fill="#8696a0"/><circle cx="15" cy="10" r="1" fill="#8696a0"/></svg>
       </button>
       <div id="emoji-panel" style="display:none;position:absolute;bottom:70px;left:8px;right:8px;background:#1f2c34;border-radius:14px;padding:10px 8px;box-shadow:0 4px 24px rgba(0,0,0,0.4);z-index:100;max-height:200px;overflow-y:auto">
@@ -324,7 +323,7 @@ html,body{
       <div class="sheet-handle"></div>
       <div style="padding:20px 18px 18px;text-align:center;border-bottom:0.5px solid rgba(255,255,255,0.08)">
         <div style="width:64px;height:64px;border-radius:50%;overflow:hidden;margin:0 auto 10px;border:2.5px solid rgba(0,168,132,0.4)">
-          <img src="https://i.ibb.co/ksmzSzDM/perfilv2.png" style="width:100%;height:100%;object-fit:cover" alt="Vanessa">
+          <img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" style="width:100%;height:100%;object-fit:cover" alt="Vanessa">
         </div>
         <div style="color:#e9edef;font-size:16px;font-weight:600">Vanessa Macedo</div>
         <div style="display:flex;align-items:center;justify-content:center;gap:5px;margin-top:4px">
@@ -357,7 +356,7 @@ html,body{
       <div class="sheet-hdr">
         <div class="sheet-av-wrap">
           <div class="sheet-av-ring"></div>
-          <div class="sheet-av"><img src="https://i.ibb.co/ksmzSzDM/perfilv2.png" alt="Vanessa Macedo"></div>
+          <div class="sheet-av"><img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" alt="Vanessa Macedo"></div>
         </div>
         <div>
           <div class="sheet-name">Vanessa Macedo</div>
@@ -388,7 +387,7 @@ html,body{
       <div class="call-avatar-wrap">
         <div class="ring1"></div>
         <div class="ring2"></div>
-        <div class="call-avatar"><img src="https://i.ibb.co/ksmzSzDM/perfilv2.png" alt="Vanessa"></div>
+        <div class="call-avatar"><img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" alt="Vanessa"></div>
       </div>
       <div class="call-name">Vanessa Macedo</div>
       <div class="call-sub">Videochamada WhatsApp…</div>
@@ -411,7 +410,7 @@ html,body{
 
   <!-- ACTIVE CALL (brief flash ao atender) -->
   <div id="active-call-overlay">
-    <div class="ac-avatar"><img src="https://i.ibb.co/ksmzSzDM/perfilv2.png" alt="Vanessa"></div>
+    <div class="ac-avatar"><img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" alt="Vanessa"></div>
     <div class="ac-name">Vanessa Macedo</div>
     <div class="ac-status" id="ac-status-text">Conectando…</div>
     <button class="ac-end-btn" id="ac-end-btn">
@@ -431,18 +430,12 @@ document.addEventListener('keydown', function (e) {
   if ((e.ctrlKey || e.metaKey) && (e.key === 'U' || e.key === 'u')) { e.preventDefault(); return false; }
 });
 
-// ═══ FUNÇÃO AUXILIAR PARA REMOVER [FIM] VISUALMENTE ═══
-function stripFim(text) {
-  return text ? text.replace(/\[FIM\]/g, '').trim() : '';
-}
-
 // ═══ VARIÁVEIS GLOBAIS ═══
 const msgsEl=document.getElementById('msgs');
 const inpEl=document.getElementById('inp');
 const sendBtn=document.getElementById('send-btn');
 const micBtn=document.getElementById('mic-btn');
 const cameraBtn=document.getElementById('camera-btn');
-const emojiBtn=document.getElementById('emoji-btn');
 const hdrStatus=document.getElementById('hdr-status');
 const micToast=document.getElementById('mic-toast');
 
@@ -458,7 +451,7 @@ const AUDIO_SRC = 'https://res.cloudinary.com/do59kzkec/video/upload/v1781646818
 const AUDIO_PIX_SRC = 'https://res.cloudinary.com/do59kzkec/video/upload/v1781647915/depois_de_mandar_o_pix_kxclc4.mp3';
 const IMG_INICIAL_SRC = 'https://i.ibb.co/XZGMmjcV/0416-D21-A-71-A5-4-C50-A316-AB8-DEE7-F5641.jpg';
 const IMG_LEAD_SRC = 'https://i.ibb.co/B2ML9kzf/Img-jpg.jpg';
-const IMG_EXTRA_SRC = 'https://i.ibb.co/mr9LqY60/Prev-jpg.jpg';
+const IMG_EXTRA_SRC = 'https://i.ibb.co/Dg5WbtL6/Previa-jpg.jpg'; // NOVA IMAGEM
 
 let audioPIxJaTocou = false;
 let aiHistory=[], leadId=null, clicouCta=false, leadCityVal=null;
@@ -470,9 +463,6 @@ let userReplyCount = 0;
 let autoCallFired = false;
 let autoCallTimer = null;
 let autoCallRingInterval = null;
-
-// ═══ FLAG: CONVERSA ENCERRADA ═══
-let conversaEncerrada = false;
 
 const STATE_KEY = 'wa-conversa-state';
 const AUDIO_LEAD_KEY = 'wa-audio-lead';
@@ -498,8 +488,7 @@ function saveState() {
     userReplyCount,
     autoCallFired,
     initiateCheckoutFired,
-    audioPIxJaTocou,
-    conversaEncerrada
+    audioPIxJaTocou
   };
   try {
     localStorage.setItem(STATE_KEY, JSON.stringify(state));
@@ -521,7 +510,6 @@ function loadState() {
     autoCallFired = state.autoCallFired || false;
     initiateCheckoutFired = state.initiateCheckoutFired || false;
     audioPIxJaTocou = state.audioPIxJaTocou || false;
-    conversaEncerrada = state.conversaEncerrada || false;
     return true;
   } catch(e) {
     return false;
@@ -551,13 +539,6 @@ function scroll(){msgsEl.scrollTop=msgsEl.scrollHeight}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
 
 function addBubble(html, side, isHTML = false, customTime = null) {
-  let displayHtml = html;
-  if (side === 'in' && !isHTML) {
-    displayHtml = stripFim(html);
-  } else if (side === 'in' && isHTML) {
-    displayHtml = html.replace(/\[FIM\]/g, '');
-  }
-
   const b = document.createElement('div');
   b.className = 'bbl ' + side + ' fade-in';
   const tail = side === 'in' ? TAIL_IN : TAIL_OUT;
@@ -565,9 +546,9 @@ function addBubble(html, side, isHTML = false, customTime = null) {
   const timeStr = customTime || getTime();
 
   if (isHTML) {
-    b.innerHTML = tail + displayHtml + '<div class="bbl-meta"><span class="bbl-time">' + timeStr + '</span>' + ticks + '</div>';
+    b.innerHTML = tail + html + '<div class="bbl-meta"><span class="bbl-time">' + timeStr + '</span>' + ticks + '</div>';
   } else {
-    b.innerHTML = tail + displayHtml.replace(/\n/g, '<br>') + '<div class="bbl-meta"><span class="bbl-time">' + timeStr + '</span>' + ticks + '</div>';
+    b.innerHTML = tail + html.replace(/\n/g, '<br>') + '<div class="bbl-meta"><span class="bbl-time">' + timeStr + '</span>' + ticks + '</div>';
   }
   if (typingEl) { msgsEl.insertBefore(b, typingEl); } else { msgsEl.appendChild(b); }
   scroll();
@@ -587,51 +568,7 @@ function hideTyping(){
   hdrStatus.textContent='online';hdrStatus.className='hdr-status';
 }
 
-// ═══ FUNÇÃO CENTRALIZADA PARA ALTERNAR BOTÕES DE ENVIO/MIC ═══
-function updateSendMicButtons() {
-  if (conversaEncerrada) {
-    // Quando encerrado, mantemos o mic visível (desativado) e ocultamos a seta
-    sendBtn.classList.add('hidden');
-    micBtn.classList.remove('hidden');
-    return;
-  }
-  const hasText = inpEl.value.trim().length > 0;
-  sendBtn.classList.toggle('hidden', !hasText);
-  micBtn.classList.toggle('hidden', hasText);
-}
-
-function enableInput(){
-  inpEl.disabled = conversaEncerrada;
-  if (conversaEncerrada) {
-    inpEl.placeholder = 'Conversa encerrada';
-    inpEl.disabled = true;
-    // A câmera também deve ser desativada visualmente?
-    // Mantemos a câmera visível, mas desativada pela verificação no handleImageSelect
-    cameraBtn.classList.remove('hidden-mic');
-  } else {
-    inpEl.disabled = false;
-    inpEl.placeholder = 'Mensagem';
-    cameraBtn.classList.remove('hidden-mic');
-  }
-  updateSendMicButtons();
-}
-
-function finalizarConversa() {
-  conversaEncerrada = true;
-  enableInput();
-  saveState();
-}
-
-// ═══ FUNÇÃO AUXILIAR PARA PROCESSAR RESPOSTA DA IA (NÃO REMOVE A TAG, APENAS DETECTA) ═══
-function processarResposta(reply) {
-  let content = reply
-    .replace(/Solicitação de pagamento/gi, '')
-    .replace(/\[áudio\]/gi, '')
-    .trim();
-  const isFinal = content.includes('[FIM]');
-  // Mantém a tag no conteúdo
-  return { cleanContent: content, isFinal };
-}
+function enableInput(){inpEl.disabled=false;inpEl.focus();}
 
 async function fetchLeadCity(){
   try{const r=await fetch('/api/city');const d=await r.json();if(d.city)return d.city;}catch(e){}
@@ -656,115 +593,18 @@ async function checarStatus(txHash){
   try{const r=await fetch('/api/status?hash='+txHash);const d=await r.json();return d.payment_status||null;}catch(e){return null;}
 }
 
-// ═══ POLLING COM TIMEOUT E PERSISTÊNCIA ═══
-async function checarStatusComTimeout(txHash, timeout = 10000) {
-  return Promise.race([
-    checarStatus(txHash),
-    new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeout))
-  ]);
-}
-
-let pollingTimeoutId = null;
-let pollingTentativas = 0;
-let pollingHashAtual = null;
-let pollingValorAtual = 0;
-let pollingPausado = false;
-let pollingIntervaloAtual = 5000;
-const MAX_TENTATIVAS = 720;
-const INTERVALO_INICIAL = 5000;
-const INTERVALO_MAXIMO = 30000;
-const BACKOFF_MULTIPLICADOR = 1.2;
-const POLL_STATE_KEY = 'poll_state';
-
-function salvarEstadoPolling(hash, tentativas, valor) {
-  try {
-    localStorage.setItem(POLL_STATE_KEY, JSON.stringify({ hash, tentativas, valor, timestamp: Date.now() }));
-  } catch(e) {}
-}
-
-function carregarEstadoPolling() {
-  try {
-    const raw = localStorage.getItem(POLL_STATE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch(e) { return null; }
-}
-
-function limparEstadoPolling() {
-  try { localStorage.removeItem(POLL_STATE_KEY); } catch(e) {}
-}
-
-function iniciarPollRobusto(txHash, valorPago, tentativasIniciais = 0) {
-  if (pollingTimeoutId) {
-    clearTimeout(pollingTimeoutId);
-    pollingTimeoutId = null;
-  }
-
-  pollingHashAtual = txHash;
-  pollingValorAtual = valorPago;
-  pollingTentativas = tentativasIniciais;
-  pollingPausado = false;
-  pollingIntervaloAtual = INTERVALO_INICIAL;
-
-  salvarEstadoPolling(txHash, pollingTentativas, pollingValorAtual);
-
-  function tentar() {
-    if (pollingPausado) {
-      pollingTimeoutId = setTimeout(tentar, 20000);
-      return;
-    }
-
-    if (pollingTentativas >= MAX_TENTATIVAS) {
-      limparEstadoPolling();
-      return;
-    }
-
-    pollingTentativas++;
-    salvarEstadoPolling(pollingHashAtual, pollingTentativas, pollingValorAtual);
-
-    checarStatusComTimeout(pollingHashAtual)
-      .then(status => {
-        if (status === 'paid' || status === 'approved' || status === 'completed') {
-          limparEstadoPolling();
-          pixelPurchase(pollingValorAtual);
-          showBotaoEntregavel();
-          return;
-        }
-
-        pollingIntervaloAtual = Math.min(pollingIntervaloAtual * BACKOFF_MULTIPLICADOR, INTERVALO_MAXIMO);
-        pollingTimeoutId = setTimeout(tentar, pollingIntervaloAtual);
-      })
-      .catch(() => {
-        pollingTimeoutId = setTimeout(tentar, 10000);
-      });
-  }
-
-  tentar();
-}
-
-function retomarPollingSeNecessario() {
-  const estado = carregarEstadoPolling();
-  if (estado && estado.hash && estado.tentativas < MAX_TENTATIVAS) {
-    if (Date.now() - estado.timestamp < 3600000) {
-      iniciarPollRobusto(estado.hash, estado.valor, estado.tentativas);
-    } else {
-      limparEstadoPolling();
-    }
-  }
-}
-
-// ═══ VISIBILIDADE DA ABA ═══
-document.addEventListener('visibilitychange', function() {
-  if (document.hidden) {
-    pollingPausado = true;
-  } else {
-    pollingPausado = false;
-  }
-});
-
-// ═══ ANTIGO iniciarPoll (mantido para compatibilidade) ═══
 function iniciarPoll(txHash, valorPago) {
-  iniciarPollRobusto(txHash, valorPago);
+  let t=0;
+  const iv=setInterval(async function(){
+    t++; if (t>720) { clearInterval(iv); return; }
+    const s=await checarStatus(txHash);
+    if (s==='paid' || s==='approved' || s==='completed') {
+      clearInterval(iv);
+      pixelPurchase(valorPago);
+      await sleep(800);
+      showBotaoEntregavel();
+    }
+  }, 5000);
 }
 
 window.copiarPix=function(btn,codigo){
@@ -795,9 +635,8 @@ function pixelPurchase(v){
   if(typeof fbq!=='undefined')fbq('track','Purchase',{value:(v/100).toFixed(2),currency:'BRL',num_items:1,content_ids:[PRODUCT_HASH],content_type:'product'});
 }
 
-// ═══ FUNÇÃO PARA CRIAR CARD PIX (SEM ÁUDIO) ═══
 function criarCardPix(data, desconto, timestamp) {
-  const valor = desconto ? 1000 : 2000;
+  const valor = desconto ? 2000 : 3000;
   const valorFmt = 'R$ ' + (valor/100).toFixed(2).replace('.',',');
   const pixCopia = (data.pix && data.pix.pix_qr_code) || '';
   const txHash = data.hash || ('tx'+Date.now());
@@ -858,11 +697,10 @@ function criarCardPix(data, desconto, timestamp) {
   msgsEl.appendChild(wrap);
   scroll();
 
-  iniciarPollRobusto(txHash, valor);
+  iniciarPoll(txHash, valor);
   pixelIniCheckout(valor);
 }
 
-// ═══ showCta (agora com áudio condicional) ═══
 async function showCta(desconto) {
   if (desconto) { if (pixDescontoGerado) return; pixDescontoGerado = true; }
   else { if (pixNormalGerado) return; pixNormalGerado = true; }
@@ -874,17 +712,13 @@ async function showCta(desconto) {
   const now = getTime();
   criarCardPix(data, desconto, now);
 
-  if (!desconto && !audioPIxJaTocou) {
+  if (!audioPIxJaTocou) {
     audioPIxJaTocou = true;
     saveState();
     await sleep(600);
     aiHistory.push({role:'assistant', content:'[áudio]', type:'audio', src:AUDIO_PIX_SRC, timestamp: now});
     salvarLead(true);
-    criarBolhaAudio(AUDIO_PIX_SRC, 'pix', function() {
-      if (!autoCallFired) {
-        setTimeout(function() { scheduleAutoCall(); }, 2000);
-      }
-    });
+    criarBolhaAudio(AUDIO_PIX_SRC, 'pix', null);
   }
 }
 
@@ -928,14 +762,17 @@ function criarBolhaAudio(src, id, onEnded) {
       </div>
       <div style="font-size:11.5px;color:#667781" id="audio-dur-${id}">0:00</div>
     </div>
-    <img src="https://i.ibb.co/ksmzSzDM/perfilv2.png" style="width:42px;height:42px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(0,0,0,0.08)" alt="Vanessa">
+    <img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" style="width:42px;height:42px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(0,0,0,0.08)" alt="Vanessa">
   </div><div class="bbl-meta"><span class="bbl-time">${now}</span></div>`;
   msgsEl.appendChild(b);
   scroll();
 
   const audio = new Audio(src);
+  // Usa um ID único para cada áudio
   const audioKey = 'audio_' + id + '_' + Date.now();
   _audioInstances[audioKey] = audio;
+  
+  // Guarda a referência do ID para os eventos
   audio._audioId = id;
   audio._audioKey = audioKey;
 
@@ -981,6 +818,7 @@ function criarBolhaAudio(src, id, onEnded) {
     if (onEnded) onEnded();
   });
 
+  // Salva o áudio do lead no localStorage se for o primeiro áudio
   if (id === 'lead-audio' || id === '0') {
     salvarAudioLead(src, now);
   }
@@ -1011,6 +849,7 @@ function criarBolhaAudioUsuario(url, id, timestamp) {
   </div><div class="bbl-meta"><span class="bbl-time">${now}</span>${DOUBLE_TICK}</div>`;
   msgsEl.appendChild(b); scroll();
 
+  // Cria o áudio e armazena com ID único
   const audio = new Audio(url);
   const audioKey = 'user_audio_' + id + '_' + Date.now();
   _audioInstances[audioKey] = audio;
@@ -1060,12 +899,14 @@ function criarBolhaAudioUsuario(url, id, timestamp) {
 }
 
 // ═══ FUNÇÃO GLOBAL PARA CONTROLAR ÁUDIO ═══
-let _audioInstances = {};
 window.toggleAudioById = function(id) {
+  // Procura o áudio que tem este ID
   let foundAudio = null;
+  let foundKey = null;
   for (const key in _audioInstances) {
     if (_audioInstances[key]._audioId === id) {
       foundAudio = _audioInstances[key];
+      foundKey = key;
       break;
     }
   }
@@ -1073,6 +914,7 @@ window.toggleAudioById = function(id) {
     console.warn('Áudio não encontrado:', id);
     return;
   }
+  
   if (foundAudio.paused) {
     foundAudio.play();
   } else {
@@ -1081,6 +923,7 @@ window.toggleAudioById = function(id) {
 };
 
 window.seekAudioById = function(e, bar, id) {
+  // Procura o áudio que tem este ID
   let foundAudio = null;
   for (const key in _audioInstances) {
     if (_audioInstances[key]._audioId === id) {
@@ -1094,9 +937,10 @@ window.seekAudioById = function(e, bar, id) {
   foundAudio.currentTime = pct * foundAudio.duration;
 };
 
-// ═══ REBUILD UI (remove [FIM] visualmente nas mensagens da assistente) ═══
+// ═══ REBUILD UI ═══
 async function rebuildUI() {
   msgsEl.innerHTML = '<div class="date-pill">Hoje</div>';
+
   for (const msg of aiHistory) {
     if (msg.role === 'user') {
       if (msg.type === 'audio-user' && msg.audioData) {
@@ -1113,9 +957,8 @@ async function rebuildUI() {
       }
     } 
     else if (msg.role === 'assistant' && msg.type === 'text') {
-      const displayContent = stripFim(msg.content);
-      const parts = displayContent.split('|').map(p => p.trim()).filter(Boolean);
-      if (parts.length === 0) parts = [displayContent];
+      const parts = msg.content.split('|').map(p => p.trim()).filter(Boolean);
+      if (parts.length === 0) parts = [msg.content];
       for (let i = 0; i < parts.length; i++) {
         let timeToShow = msg.timestamp || getTime();
         if (i > 0 && msg.timestamp) {
@@ -1186,12 +1029,13 @@ async function rebuildUI() {
     else if (msg.role === 'system') {
       continue;
     }
+    await sleep(50);
   }
   scroll();
-  enableInput();
 }
 
-// ═══ showBotaoEntregavel (com link e botão de retorno) ═══
+let _audioInstances = {};
+
 function showBotaoEntregavel() {
   let ring=null;
   try{
@@ -1201,7 +1045,7 @@ function showBotaoEntregavel() {
   }catch(e){}
   const ov=document.createElement('div');
   ov.style.cssText='position:absolute;inset:0;background:#1a1a2e;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:60px 20px;animation:fi .3s ease';
-  ov.innerHTML='<div style="text-align:center"><div style="position:relative;width:100px;height:100px;margin:0 auto"><div style="position:absolute;inset:-14px;border-radius:50%;border:2px solid rgba(255,255,255,0.12);animation:pulse 2s ease-out infinite"></div><div style="position:absolute;inset:-7px;border-radius:50%;border:2px solid rgba(255,255,255,0.08);animation:pulse 2s ease-out infinite 1s"></div><div style="width:100px;height:100px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,0.18)"><img src="https://i.ibb.co/ksmzSzDM/perfilv2.png" style="width:100%;height:100%;object-fit:cover" alt="Vanessa"></div></div><div style="color:#fff;font-size:22px;font-weight:500;margin-top:22px">Vanessa Macedo</div><div style="color:rgba(255,255,255,0.55);font-size:14px;margin-top:6px">Chamada de vídeo WhatsApp…</div></div><div style="display:flex;gap:52px;align-items:center"><button id="vc-decline" style="display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.8);font-size:12.5px;font-family:inherit"><div style="width:64px;height:64px;border-radius:50%;background:#e53935;display:flex;align-items:center;justify-content:center"><svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg></div>Recusar</button><button id="vc-answer" style="display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.8);font-size:12.5px;font-family:inherit"><div style="width:64px;height:64px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;animation:ringShake .6s ease infinite alternate"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Atender</button></div>';
+  ov.innerHTML='<div style="text-align:center"><div style="position:relative;width:100px;height:100px;margin:0 auto"><div style="position:absolute;inset:-14px;border-radius:50%;border:2px solid rgba(255,255,255,0.12);animation:pulse 2s ease-out infinite"></div><div style="position:absolute;inset:-7px;border-radius:50%;border:2px solid rgba(255,255,255,0.08);animation:pulse 2s ease-out infinite 1s"></div><div style="width:100px;height:100px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,0.18)"><img src="https://i.ibb.co/cKQ1yG8D/perfil-novo.jpg" style="width:100%;height:100%;object-fit:cover" alt="Vanessa"></div></div><div style="color:#fff;font-size:22px;font-weight:500;margin-top:22px">Vanessa Macedo</div><div style="color:rgba(255,255,255,0.55);font-size:14px;margin-top:6px">Chamada de vídeo WhatsApp…</div></div><div style="display:flex;gap:52px;align-items:center"><button id="vc-decline" style="display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.8);font-size:12.5px;font-family:inherit"><div style="width:64px;height:64px;border-radius:50%;background:#e53935;display:flex;align-items:center;justify-content:center"><svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg></div>Recusar</button><button id="vc-answer" style="display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.8);font-size:12.5px;font-family:inherit"><div style="width:64px;height:64px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;animation:ringShake .6s ease infinite alternate"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Atender</button></div>';
   document.querySelector('.phone').appendChild(ov);
 
   document.getElementById('vc-answer').onclick=function(){
@@ -1269,10 +1113,7 @@ function typingDelay(text) {
   return Math.min(Math.max((chars/cps)*1000+600+Math.random()*900, 1800), 12000);
 }
 
-// ═══ FUNÇÃO ASKAI (agora com salvarLead antes de finalizar) ═══
 async function askAI(userMsg) {
-  if (conversaEncerrada) return;
-
   aiHistory.push({role:'user', content:userMsg, type:'text', timestamp: getTime()});
   saveState();
   showTyping();
@@ -1286,28 +1127,20 @@ async function askAI(userMsg) {
     hideTyping();
     const reply = data && data.reply;
     if (!reply) { addBubble('Oi! Tô com muita mensagem agora 😅 Tenta de novo!','in'); enableInput(); return; }
-    
-    const { cleanContent, isFinal } = processarResposta(reply);
-    aiHistory.push({role:'assistant', content: cleanContent, type:'text', timestamp: getTime()});
+    const replyContent = reply;
+    aiHistory.push({role:'assistant', content:replyContent, type:'text', timestamp: getTime()});
     saveState();
 
-    if (isFinal) {
-      const displayContent = stripFim(cleanContent);
-      const pts = displayContent.split('|').map(p=>p.trim()).filter(Boolean);
-      if (pts.length === 0) pts = [displayContent || 'Conversa encerrada.'];
-      for (let i=0;i<pts.length;i++) {
-        showTyping();
-        await sleep(typingDelay(pts[i]));
-        hideTyping();
-        addBubble(pts[i],'in',false,getTime());
-      }
-      await salvarLead(true);
-      finalizarConversa();
+    if (replyContent.includes('[FIM]')) {
+      const msgFinal = replyContent.replace('[FIM]','').trim();
+      const pts = msgFinal.split('|').map(p=>p.trim()).filter(Boolean);
+      for (let i=0;i<pts.length;i++) { showTyping(); await sleep(typingDelay(pts[i])); hideTyping(); addBubble(pts[i],'in',false,getTime()); }
+      inpEl.disabled = true; sendBtn.disabled = true; inpEl.placeholder = 'Conversa encerrada';
       return;
     }
 
-    let parts = cleanContent.split('|').map(p=>p.trim()).filter(Boolean);
-    if (parts.length<=1 && cleanContent.includes('\n\n')) parts = cleanContent.split('\n\n').map(p=>p.trim()).filter(Boolean);
+    let parts = replyContent.split('|').map(p=>p.trim()).filter(Boolean);
+    if (parts.length<=1 && replyContent.includes('\n\n')) parts = replyContent.split('\n\n').map(p=>p.trim()).filter(Boolean);
     for (let i=0;i<parts.length;i++) {
       const part = parts[i];
       const now = getTime();
@@ -1317,32 +1150,25 @@ async function askAI(userMsg) {
       addBubble(part, 'in', false, now);
     }
 
-    const temPixNormal = /aqui o pix/i.test(cleanContent);
-    const temDesconto  = /um desconto/i.test(cleanContent);
-    const temFoto     = /olha eu aqui/i.test(cleanContent);
-    const temExtra    = /tá pera/i.test(cleanContent);
+    // === GATILHOS ===
+    const temLink = /aqui o pix/i.test(replyContent) || /um desconto/i.test(replyContent) || /aqui.*pix/i.test(replyContent) || /pix.*aqui/i.test(replyContent);
+    const temDesc = /um desconto/i.test(replyContent);
+    const temFoto = /olha eu aqui/i.test(replyContent);
+    const temExtra = /tá, pera/i.test(replyContent); // NOVO GATILHO
 
-    if (temPixNormal) {
-      await sleep(600);
-      showCta(false);
-    }
-    if (temDesconto) {
-      await sleep(600);
-      showCta(true);
-    }
-    if (temFoto) {
-      await sleep(500);
-      showFotoLead();
-    }
+    if (temLink) { await sleep(600); showCta(temDesc); }
+    if (temFoto) { await sleep(500); showFotoLead(); }
+    
     if (temExtra) {
+      // Simula o tempo de ela falar "tá, pera ai", tirar a foto e enviar
       showTyping();
-      await sleep(3000 + Math.random() * 2000);
+      await sleep(3000 + Math.random() * 2000); // Entre 3 e 5 segundos
       hideTyping();
       showImage(IMG_EXTRA_SRC);
     }
+    // ================
 
-    const houveCta = temPixNormal || temDesconto;
-    salvarLead(houveCta);
+    salvarLead(temLink);
   } catch (e) {
     hideTyping();
     addBubble('Ops, tive um probleminha. Pode repetir? 😊','in');
@@ -1353,16 +1179,18 @@ async function askAI(userMsg) {
 
 // ═══ FUNÇÃO DE ENVIO (texto) ═══
 function submit() {
-  if (conversaEncerrada) return;
   const text = inpEl.value.trim();
   if (!text) return;
   inpEl.value = '';
-  updateSendMicButtons(); // atualiza após limpar
+  sendBtn.classList.add('hidden');
+  micBtn.classList.remove('hidden');
+  cameraBtn.classList.remove('hidden-mic');
   const now = getTime();
   addBubble(text, 'out', false, now);
   if (!leadId) salvarLead();
   userReplyCount++;
   saveState();
+  if (userReplyCount===2 && !autoCallFired) scheduleAutoCall();
   askAI(text);
 }
 
@@ -1373,10 +1201,11 @@ let _cancelRecording = false;
 let _recordStartTime = null;
 let _timerInterval = null;
 
+// Controle do clique curto
 let _pressTimer = null;
 let _pressStartX = 0, _pressStartY = 0;
-const PRESS_THRESHOLD = 200;
-const MOVE_THRESHOLD = 15;
+const PRESS_THRESHOLD = 200; // ms para considerar "segurar"
+const MOVE_THRESHOLD = 15;   // px de movimento para ignorar clique
 
 function showMicToast() {
   micToast.classList.add('show');
@@ -1408,14 +1237,15 @@ function getSupportedMimeType() {
   return null;
 }
 
+// Iniciar gravação (chamado após o timer de pressão)
 async function _startRecording() {
-  if (conversaEncerrada) return;
   if (_isRecording) return;
   if (_isMicPressed) return;
 
   _isMicPressed = true;
   _cancelRecording = false;
   micBtn.classList.add('recording');
+  // Oculta o botão da câmera durante a gravação
   cameraBtn.classList.add('hidden-mic');
 
   if (navigator.vibrate) navigator.vibrate(50);
@@ -1481,6 +1311,7 @@ async function _startRecording() {
     _mediaRecorder.start();
     _isRecording = true;
 
+    // CONTADOR com dica de deslize
     _recordStartTime = Date.now();
     inpEl.placeholder = '🔴 0:00 • Deslize para cancelar';
     if (_timerInterval) clearInterval(_timerInterval);
@@ -1524,6 +1355,7 @@ async function _startRecording() {
   }
 }
 
+// Parar gravação
 function stopRecord(send = true) {
   if (!_isRecording || !_mediaRecorder) return;
   clearTimeout(_recordTimer);
@@ -1540,6 +1372,7 @@ function stopRecord(send = true) {
   _mediaRecorder.stop();
 }
 
+// Cancelar gravação
 function cancelRecord() {
   if (_isRecording) {
     _cancelRecording = true;
@@ -1552,8 +1385,8 @@ function cancelRecord() {
   }
 }
 
+// ── Eventos de pressão no microfone ──
 function handlePressStart(e) {
-  if (conversaEncerrada) return;
   const clientX = e.clientX || (e.touches && e.touches[0].clientX);
   const clientY = e.clientY || (e.touches && e.touches[0].clientY);
   if (clientX == null) return;
@@ -1572,7 +1405,6 @@ function handlePressStart(e) {
 }
 
 function handlePressEnd(e) {
-  if (conversaEncerrada) return;
   if (_pressTimer) {
     clearTimeout(_pressTimer);
     _pressTimer = null;
@@ -1598,7 +1430,6 @@ function handlePressEnd(e) {
 }
 
 function handlePressMove(e) {
-  if (conversaEncerrada) return;
   if (_pressTimer) {
     const clientX = e.clientX || (e.touches && e.touches[0].clientX);
     const clientY = e.clientY || (e.touches && e.touches[0].clientY);
@@ -1658,9 +1489,8 @@ function showMicError(message) {
   scroll();
 }
 
-// ═══ ENVIO DE ÁUDIO (APÓS GRAVAÇÃO) - agora com salvarLead antes de finalizar ═══
+// ═══ ENVIO DE ÁUDIO (APÓS GRAVAÇÃO) ═══
 async function sendAudioMessage(mimeType) {
-  if (conversaEncerrada) return;
   if (_audioChunks.length === 0) return;
   const blob = new Blob(_audioChunks, { type: mimeType });
   if (blob.size < 500) return;
@@ -1685,6 +1515,7 @@ async function sendAudioMessage(mimeType) {
   reader.onload = async function() {
     const base64 = reader.result.split(',')[1];
     userReplyCount++;
+    if (userReplyCount===2 && !autoCallFired) scheduleAutoCall();
     if (!leadId) salvarLead();
     showTyping();
     try {
@@ -1696,43 +1527,18 @@ async function sendAudioMessage(mimeType) {
       hideTyping();
       const reply = data && data.reply;
       if (!reply) { addBubble('Oi! Tô com muita mensagem agora 😅 Tenta de novo!','in'); enableInput(); return; }
-      
-      const { cleanContent, isFinal } = processarResposta(reply);
-      aiHistory.push({ role:'assistant', content: cleanContent, type:'text', timestamp: getTime() });
+      aiHistory.push({ role:'assistant', content:reply, type:'text', timestamp: getTime() });
       saveState();
-
-      if (isFinal) {
-        const displayContent = stripFim(cleanContent);
-        const pts = displayContent.split('|').map(p=>p.trim()).filter(Boolean);
-        if (pts.length === 0) pts = [displayContent || 'Conversa encerrada.'];
-        for (let i=0;i<pts.length;i++) {
-          showTyping();
-          await sleep(typingDelay(pts[i]));
-          hideTyping();
-          addBubble(pts[i],'in',false,getTime());
-        }
-        await salvarLead(true);
-        finalizarConversa();
-        return;
-      }
-
-      const parts = cleanContent.split('|').map(p=>p.trim()).filter(Boolean);
-      for (let i=0;i<parts.length;i++) {
-        showTyping(); await sleep(typingDelay(parts[i])); hideTyping(); addBubble(parts[i],'in',false,getTime());
-      }
-      
-      const temPixNormal = /aqui o pix/i.test(cleanContent);
-      const temDesconto  = /um desconto/i.test(cleanContent);
-      const temFoto     = /olha eu aqui/i.test(cleanContent);
-      const temExtra    = /tá pera/i.test(cleanContent);
-
-      if (temPixNormal) { await sleep(600); showCta(false); }
-      if (temDesconto)  { await sleep(600); showCta(true); }
-      if (temFoto)      { await sleep(500); showFotoLead(); }
-      if (temExtra)     { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showImage(IMG_EXTRA_SRC); }
-
-      const houveCta = temPixNormal || temDesconto;
-      salvarLead(houveCta);
+      const parts = reply.split('|').map(p=>p.trim()).filter(Boolean);
+      for (let i=0;i<parts.length;i++) { showTyping(); await sleep(typingDelay(parts[i])); hideTyping(); addBubble(parts[i],'in',false,getTime()); }
+      const temLink = /aqui o pix/i.test(reply) || /um desconto/i.test(reply) || /aqui.*pix/i.test(reply) || /pix.*aqui/i.test(reply);
+      const temDesc = /um desconto/i.test(reply);
+      const temFoto = /olha eu aqui/i.test(reply);
+      const temExtra = /tá, pera ai/i.test(reply);
+      if (temLink) { await sleep(600); showCta(temDesc); }
+      if (temFoto) { await sleep(500); showFotoLead(); }
+      if (temExtra) { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showImage(IMG_EXTRA_SRC); }
+      salvarLead(temLink);
     } catch(e) {
       hideTyping();
       addBubble('Ops, não consegui ouvir o áudio. Pode escrever? 😊','in');
@@ -1743,14 +1549,20 @@ async function sendAudioMessage(mimeType) {
   reader.readAsDataURL(blob);
 }
 
-// ═══ CONTROLE DE VISIBILIDADE DOS BOTÕES (usando a função centralizada) ═══
+// ═══ CONTROLE DE VISIBILIDADE DOS BOTÕES ═══
 inpEl.addEventListener('input', function() {
-  updateSendMicButtons();
+  const hasText = this.value.trim().length > 0;
+  if (hasText) {
+    sendBtn.classList.remove('hidden');
+    micBtn.classList.add('hidden');
+  } else {
+    sendBtn.classList.add('hidden');
+    micBtn.classList.remove('hidden');
+  }
 });
 
-// ═══ ENVIO DE IMAGEM - agora com salvarLead antes de finalizar ═══
+// ═══ ENVIO DE IMAGEM ═══
 async function handleImageSelect(event) {
-  if (conversaEncerrada) return;
   const file = event.target.files && event.target.files[0];
   event.target.value = '';
   if (!file) return;
@@ -1779,6 +1591,7 @@ async function handleImageSelect(event) {
     const base64 = reader.result.split(',')[1];
     const mime = file.type || 'image/jpeg';
     userReplyCount++;
+    if (userReplyCount===2 && !autoCallFired) scheduleAutoCall();
     if (!leadId) salvarLead();
     showTyping();
     try {
@@ -1790,43 +1603,18 @@ async function handleImageSelect(event) {
       hideTyping();
       const reply = data && data.reply;
       if (!reply) { addBubble('Oi! 😊 Pode me escrever o que precisa?','in'); enableInput(); return; }
-      
-      const { cleanContent, isFinal } = processarResposta(reply);
-      aiHistory.push({ role:'assistant', content: cleanContent, type:'text', timestamp: getTime() });
+      aiHistory.push({ role:'assistant', content:reply, type:'text', timestamp: getTime() });
       saveState();
-
-      if (isFinal) {
-        const displayContent = stripFim(cleanContent);
-        const pts = displayContent.split('|').map(p=>p.trim()).filter(Boolean);
-        if (pts.length === 0) pts = [displayContent || 'Conversa encerrada.'];
-        for (let i=0;i<pts.length;i++) {
-          showTyping();
-          await sleep(typingDelay(pts[i]));
-          hideTyping();
-          addBubble(pts[i],'in',false,getTime());
-        }
-        await salvarLead(true);
-        finalizarConversa();
-        return;
-      }
-
-      const parts = cleanContent.split('|').map(p=>p.trim()).filter(Boolean);
-      for (let i=0;i<parts.length;i++) {
-        showTyping(); await sleep(typingDelay(parts[i])); hideTyping(); addBubble(parts[i],'in',false,getTime());
-      }
-      
-      const temPixNormal = /aqui o pix/i.test(cleanContent);
-      const temDesconto  = /um desconto/i.test(cleanContent);
-      const temFoto     = /olha eu aqui/i.test(cleanContent);
-      const temExtra    = /tá pera/i.test(cleanContent);
-
-      if (temPixNormal) { await sleep(600); showCta(false); }
-      if (temDesconto)  { await sleep(600); showCta(true); }
-      if (temFoto)      { await sleep(500); showFotoLead(); }
-      if (temExtra)     { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showImage(IMG_EXTRA_SRC); }
-
-      const houveCta = temPixNormal || temDesconto;
-      salvarLead(houveCta);
+      const parts = reply.split('|').map(p=>p.trim()).filter(Boolean);
+      for (let i=0;i<parts.length;i++) { showTyping(); await sleep(typingDelay(parts[i])); hideTyping(); addBubble(parts[i],'in',false,getTime()); }
+      const temLink = /aqui o pix/i.test(reply) || /um desconto/i.test(reply) || /aqui.*pix/i.test(reply) || /pix.*aqui/i.test(reply);
+      const temDesc = /um desconto/i.test(reply);
+      const temFoto = /olha eu aqui/i.test(reply);
+      const temExtra = /tá, pera ai/i.test(reply);
+      if (temLink) { await sleep(600); showCta(temDesc); }
+      if (temFoto) { await sleep(500); showFotoLead(); }
+      if (temExtra) { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showImage(IMG_EXTRA_SRC); }
+      salvarLead(temLink);
     } catch(e) {
       hideTyping();
       addBubble('Ops, não consegui ver a foto. Pode escrever? 😊','in');
@@ -1895,7 +1683,7 @@ function triggerAutoCall(){
     if(ov.classList.contains('show')){
       dismissAutoCall('declined');
     }
-  }, 20000);
+  }, 25000);
   document.getElementById('auto-call-decline').onclick=function(){
     clearTimeout(autoDismissTimer);
     dismissAutoCall('declined');
@@ -1921,7 +1709,8 @@ function triggerAutoCall(){
 }
 function scheduleAutoCall(){
   if(autoCallFired || autoCallTimer) return;
-  autoCallTimer = setTimeout(triggerAutoCall, 0);
+  const delay = 60000 + Math.random()*60000;
+  autoCallTimer = setTimeout(triggerAutoCall, delay);
 }
 
 // ═══ INÍCIO ═══
@@ -1941,11 +1730,12 @@ async function start() {
       }
     }
     
-    retomarPollingSeNecessario();
-
+    if (userReplyCount >= 2 && !autoCallFired) scheduleAutoCall();
     enableInput();
-    // Garantir que os botões estejam corretos após o rebuild
-    updateSendMicButtons();
+    if (inpEl.value.trim().length === 0) {
+      sendBtn.classList.add('hidden');
+      micBtn.classList.remove('hidden');
+    }
   } else {
     leadCityVal = await fetchLeadCity();
     await sleep(700); showTyping();
@@ -1975,9 +1765,8 @@ async function start() {
 }
 start();
 
-// ═══ FUNÇÕES DOS SHEETS (com bloqueio para conversa encerrada) ═══
+// ═══ FUNÇÕES DOS SHEETS ═══
 function toggleEmoji() {
-  if (conversaEncerrada) return;
   const panel = document.getElementById('emoji-panel');
   const isOpen = panel.style.display !== 'none';
   if (isOpen) {
@@ -1994,7 +1783,6 @@ function toggleEmoji() {
       btn.onmouseover = function() { btn.style.background = 'rgba(255,255,255,0.08)'; };
       btn.onmouseout = function() { btn.style.background = 'none'; };
       btn.onclick = function() {
-        if (conversaEncerrada) return;
         const inp = document.getElementById('inp');
         const pos = inp.selectionStart || inp.value.length;
         inp.value = inp.value.slice(0, pos) + em + inp.value.slice(pos);
@@ -2009,10 +1797,7 @@ function toggleEmoji() {
   panel.style.display = 'block';
 }
 
-function openExitSheet(){ 
-  if (conversaEncerrada) return;
-  document.getElementById('exit-sheet').classList.add('open'); 
-}
+function openExitSheet(){ document.getElementById('exit-sheet').classList.add('open'); }
 function closeExitSheet(){ document.getElementById('exit-sheet').classList.remove('open'); }
 document.getElementById('exit-sheet').addEventListener('click', function(e){ if(e.target===this) closeExitSheet(); });
 function openInfoSheet(){ document.getElementById('info-sheet').classList.add('open'); }
