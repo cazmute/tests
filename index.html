@@ -215,6 +215,78 @@ html,body{
   margin-right:8px;
 }
 .camera-btn.hidden-mic{display:none !important;}
+
+/* ── NOVOS OVERLAYS DE PAGAMENTO ── */
+.payment-overlay {
+  position:absolute; inset:0; z-index:450;
+  background:rgba(0,0,0,0.75);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:24px;
+  opacity:0; pointer-events:none;
+  transition:opacity 0.3s ease;
+}
+.payment-overlay.show {
+  opacity:1; pointer-events:all;
+}
+.payment-card {
+  background:#1f2c34; border-radius:24px; max-width:400px; width:100%;
+  padding:28px 24px 24px;
+  position:relative;
+  transform:scale(0.95); transition:transform 0.25s cubic-bezier(.4,0,.2,1);
+}
+.payment-overlay.show .payment-card {
+  transform:scale(1);
+}
+.payment-close {
+  position:absolute; top:16px; right:16px;
+  background:none; border:none; color:#8696a0; font-size:24px; cursor:pointer;
+  padding:4px; line-height:1;
+}
+.payment-close:hover { color:#e9edef; }
+.payment-title {
+  color:#e9edef; font-size:20px; font-weight:600; margin-bottom:8px;
+}
+.payment-sub {
+  color:#8696a0; font-size:14px; margin-bottom:16px; line-height:1.5;
+}
+.payment-benefits {
+  background:rgba(255,255,255,0.04); border-radius:12px; padding:14px 16px; margin-bottom:18px;
+}
+.payment-benefits li {
+  list-style:none; color:#e9edef; font-size:13.5px; padding:4px 0; display:flex; align-items:center; gap:8px;
+}
+.payment-benefits li::before {
+  content:"✓"; color:#00a884; font-weight:700; font-size:16px;
+}
+.payment-price {
+  font-size:28px; font-weight:700; color:#fff; text-align:center; margin:6px 0 14px;
+}
+.payment-price small {
+  font-size:14px; font-weight:400; color:#8696a0; display:block; margin-top:2px;
+}
+.payment-btn {
+  width:100%; padding:14px; background:#00a884; border:none; border-radius:12px;
+  color:#fff; font-size:16px; font-weight:600; cursor:pointer; transition:background 0.15s;
+}
+.payment-btn:hover { background:#017f64; }
+.payment-btn:disabled { opacity:0.6; cursor:not-allowed; }
+.payment-pix-area {
+  margin-top:16px; background:rgba(255,255,255,0.05); border-radius:12px; padding:14px;
+  display:none;
+}
+.payment-pix-area.show { display:block; }
+.payment-pix-area .pix-code {
+  background:#0b1015; padding:10px; border-radius:8px; word-break:break-all; font-size:12px;
+  color:#d1d5db; margin-top:6px; display:flex; align-items:center; justify-content:space-between; gap:8px;
+}
+.payment-pix-area .pix-code button {
+  background:transparent; border:1px solid #00a884; color:#00a884; padding:4px 10px; border-radius:6px;
+  cursor:pointer; font-size:12px; font-weight:500; white-space:nowrap;
+}
+.payment-pix-area .pix-code button:hover { background:rgba(0,168,132,0.15); }
+.payment-status {
+  margin-top:10px; text-align:center; font-size:13px; color:#8696a0;
+}
 </style>
 </head>
 <body>
@@ -259,7 +331,6 @@ html,body{
         <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:2px"></div>
       </div>
       <input id="inp" type="text" placeholder="Mensagem">
-      <!-- Botão de câmera -->
       <button type="button" id="camera-btn" class="camera-btn" onclick="document.getElementById('img-input').click()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none" aria-label="Enviar foto">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
           <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
@@ -378,6 +449,36 @@ html,body{
           </div>
         </div>
         <button class="sheet-ok" onclick="closeSheet()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OVERLAY DE PAGAMENTO (oferecido após atender a chamada) -->
+  <div class="payment-overlay" id="payment-overlay">
+    <div class="payment-card">
+      <button class="payment-close" id="payment-close-btn" aria-label="Fechar">✕</button>
+      <div class="payment-title" id="payment-title">Acesso às funcionalidades</div>
+      <div class="payment-sub" id="payment-sub">
+        Para continuar a chamada de vídeo e ter acesso a todos os recursos, adquira o acesso vitalício.
+      </div>
+      <ul class="payment-benefits" id="payment-benefits">
+        <li>Chamadas de vídeo ao vivo com Vanessa</li>
+        <li>Prioridade no atendimento</li>
+        <li>Total segurança e privacidade</li>
+        <li>Acesso vitalício por pagamento único</li>
+      </ul>
+      <div class="payment-price" id="payment-price">
+        R$ 30,00
+        <small>Acesso vitalício</small>
+      </div>
+      <button class="payment-btn" id="payment-btn">Pagar agora</button>
+      <div class="payment-pix-area" id="payment-pix-area">
+        <div style="color:#e9edef;font-size:13px;margin-bottom:6px;">Copie a chave Pix abaixo e pague no seu banco:</div>
+        <div class="pix-code" id="pix-code-container">
+          <span id="pix-code-text">---</span>
+          <button id="pix-copy-btn">Copiar</button>
+        </div>
+        <div class="payment-status" id="payment-status">Aguardando pagamento...</div>
       </div>
     </div>
   </div>
@@ -590,7 +691,6 @@ function hideTyping(){
 // ═══ FUNÇÃO CENTRALIZADA PARA ALTERNAR BOTÕES DE ENVIO/MIC ═══
 function updateSendMicButtons() {
   if (conversaEncerrada) {
-    // Quando encerrado, mantemos o mic visível (desativado) e ocultamos a seta
     sendBtn.classList.add('hidden');
     micBtn.classList.remove('hidden');
     return;
@@ -605,8 +705,6 @@ function enableInput(){
   if (conversaEncerrada) {
     inpEl.placeholder = 'Conversa encerrada';
     inpEl.disabled = true;
-    // A câmera também deve ser desativada visualmente?
-    // Mantemos a câmera visível, mas desativada pela verificação no handleImageSelect
     cameraBtn.classList.remove('hidden-mic');
   } else {
     inpEl.disabled = false;
@@ -629,7 +727,6 @@ function processarResposta(reply) {
     .replace(/\[áudio\]/gi, '')
     .trim();
   const isFinal = content.includes('[FIM]');
-  // Mantém a tag no conteúdo
   return { cleanContent: content, isFinal };
 }
 
@@ -727,7 +824,10 @@ function iniciarPollRobusto(txHash, valorPago, tentativasIniciais = 0) {
         if (status === 'paid' || status === 'approved' || status === 'completed') {
           limparEstadoPolling();
           pixelPurchase(pollingValorAtual);
-          showBotaoEntregavel();
+          // Redireciona para o entregável
+          window.open(LINK_ENTREGAVEL, '_blank');
+          // Fecha o overlay de pagamento
+          fecharPaymentOverlay();
           return;
         }
 
@@ -762,11 +862,6 @@ document.addEventListener('visibilitychange', function() {
   }
 });
 
-// ═══ ANTIGO iniciarPoll (mantido para compatibilidade) ═══
-function iniciarPoll(txHash, valorPago) {
-  iniciarPollRobusto(txHash, valorPago);
-}
-
 window.copiarPix=function(btn,codigo){
   const ok=function(){
     btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#00a884" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Copiado!';
@@ -795,100 +890,114 @@ function pixelPurchase(v){
   if(typeof fbq!=='undefined')fbq('track','Purchase',{value:(v/100).toFixed(2),currency:'BRL',num_items:1,content_ids:[PRODUCT_HASH],content_type:'product'});
 }
 
-// ═══ FUNÇÃO PARA CRIAR CARD PIX (SEM ÁUDIO) ═══
-function criarCardPix(data, desconto, timestamp) {
-  const valor = desconto ? 2000 : 3000;
-  const valorFmt = 'R$ ' + (valor/100).toFixed(2).replace('.',',');
-  const pixCopia = (data.pix && data.pix.pix_qr_code) || '';
-  const txHash = data.hash || ('tx'+Date.now());
+// ═══ NOVA FUNÇÃO: MOSTRAR TELA DE PAGAMENTO ═══
+let currentPaymentDesconto = false; // false = oferta normal (R$30), true = desconto (R$20)
+let paymentOverlayOpen = false;
+let paymentPixGerado = false;
 
-  const pixEntry = {
-    role: 'assistant',
-    content: 'Solicitação de pagamento',
-    type: 'pix',
-    timestamp: timestamp || getTime(),
-    pixData: {
-      valor: valor,
-      valorFmt: valorFmt,
-      chave: pixCopia,
-      hash: txHash,
-      desconto: desconto
-    }
+function mostrarTelaPagamento(desconto) {
+  if (paymentOverlayOpen) return;
+  currentPaymentDesconto = desconto;
+  paymentOverlayOpen = true;
+  paymentPixGerado = false;
+
+  const overlay = document.getElementById('payment-overlay');
+  const title = document.getElementById('payment-title');
+  const sub = document.getElementById('payment-sub');
+  const price = document.getElementById('payment-price');
+  const benefits = document.getElementById('payment-benefits');
+  const btn = document.getElementById('payment-btn');
+  const pixArea = document.getElementById('payment-pix-area');
+  const status = document.getElementById('payment-status');
+
+  // Reset
+  pixArea.classList.remove('show');
+  btn.disabled = false;
+  btn.textContent = 'Pagar agora';
+  status.textContent = '';
+
+  if (desconto) {
+    title.textContent = '🎉 Oferta especial!';
+    sub.textContent = 'Você ganhou um desconto exclusivo! Aproveite agora.';
+    price.innerHTML = 'R$ 20,00 <small>Acesso vitalício • Oferta única</small>';
+    // Lista de benefícios permanece a mesma
+  } else {
+    title.textContent = 'Acesso às funcionalidades';
+    sub.textContent = 'Para continuar a chamada de vídeo e ter acesso a todos os recursos, adquira o acesso vitalício.';
+    price.innerHTML = 'R$ 30,00 <small>Acesso vitalício</small>';
+  }
+
+  overlay.classList.add('show');
+
+  // Disparar InitiateCheckout
+  const valorCentavos = desconto ? 2000 : 3000;
+  pixelIniCheckout(valorCentavos);
+
+  // Botão de fechar
+  document.getElementById('payment-close-btn').onclick = function() {
+    fecharPaymentOverlay();
   };
-  aiHistory.push(pixEntry);
-  salvarLead(true);
 
-  const wrap = document.createElement('div');
-  wrap.className = 'fade-in';
-  wrap.style.cssText = 'align-self:flex-start;margin-left:6px;max-width:88%';
+  // Botão de pagar
+  btn.onclick = async function() {
+    if (paymentPixGerado) return;
+    btn.disabled = true;
+    btn.textContent = 'Gerando Pix...';
+    status.textContent = '';
 
-  const card = document.createElement('div');
-  card.style.cssText = 'background:#fff;border-radius:12px;overflow:hidden;min-width:220px;box-shadow:0 1px 3px rgba(0,0,0,0.15)';
+    const data = await gerarPix(desconto);
+    if (!data) {
+      status.textContent = '❌ Erro ao gerar Pix. Tente novamente.';
+      btn.disabled = false;
+      btn.textContent = 'Tentar novamente';
+      return;
+    }
 
-  const head = document.createElement('div');
-  head.style.cssText = 'background:#00a884;padding:12px 14px;display:flex;align-items:center;gap:10px';
-  head.innerHTML = '<div style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div style="color:rgba(255,255,255,0.85);font-size:11px;margin-bottom:1px">Solicitação de pagamento</div><div style="color:#fff;font-size:19px;font-weight:700;line-height:1.2">'+valorFmt+'</div></div>';
-  card.appendChild(head);
+    const pixCopia = (data.pix && data.pix.pix_qr_code) || '';
+    const txHash = data.hash || ('tx'+Date.now());
 
-  const info = document.createElement('div');
-  info.style.cssText = 'padding:10px 14px;border-bottom:1px solid #f0f2f5';
-  info.innerHTML = '<div style="font-size:11px;color:#8696a0;margin-bottom:2px">Para</div><div style="font-size:14px;color:#111b21;font-weight:500">Vanessa Macedo</div><div style="font-size:11.5px;color:#8696a0;margin-top:1px">via Pix</div>';
-  card.appendChild(info);
+    // Exibe área do Pix
+    document.getElementById('pix-code-text').textContent = pixCopia || 'Chave indisponível';
+    document.getElementById('pix-copy-btn').onclick = function() {
+      window.copiarPix(this, pixCopia);
+    };
+    pixArea.classList.add('show');
+    btn.textContent = 'Aguardando pagamento...';
+    status.textContent = '⏳ Aguardando confirmação...';
 
-  if (pixCopia) {
-    const btnWrap = document.createElement('div');
-    btnWrap.style.cssText = 'border-bottom:1px solid #f0f2f5';
-    const btn = document.createElement('button');
-    btn.style.cssText = 'width:100%;background:none;border:none;padding:10px 14px;color:#00a884;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px';
-    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="#00a884" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="#00a884" stroke-width="2" stroke-linecap="round"/></svg> Copiar chave Pix';
-    btn.onclick = function(){ window.copiarPix(btn, pixCopia); };
-    btnWrap.appendChild(btn);
-    card.appendChild(btnWrap);
-  }
+    paymentPixGerado = true;
 
-  const footer = document.createElement('div');
-  footer.style.cssText = 'padding:6px 14px 8px;display:flex;justify-content:flex-end';
-  const time = document.createElement('span');
-  time.style.cssText = 'font-size:11px;color:#8696a0';
-  time.textContent = timestamp || getTime();
-  footer.appendChild(time);
-  card.appendChild(footer);
-
-  wrap.appendChild(card);
-  msgsEl.appendChild(wrap);
-  scroll();
-
-  iniciarPollRobusto(txHash, valor);
-  pixelIniCheckout(valor);
+    // Inicia polling
+    iniciarPollRobusto(txHash, desconto ? 2000 : 3000);
+  };
 }
 
-// ═══ showCta (agora com áudio condicional) ═══
-async function showCta(desconto) {
-  if (desconto) { if (pixDescontoGerado) return; pixDescontoGerado = true; }
-  else { if (pixNormalGerado) return; pixNormalGerado = true; }
+function fecharPaymentOverlay() {
+  if (!paymentOverlayOpen) return;
+  const overlay = document.getElementById('payment-overlay');
+  overlay.classList.remove('show');
+  paymentOverlayOpen = false;
 
-  showTyping(); await sleep(1000); hideTyping();
-  const data = await gerarPix(desconto);
-  if (!data) { addBubble('Ops, tive um probleminha 😅 Tenta de novo!','in'); return; }
-
-  const now = getTime();
-  criarCardPix(data, desconto, now);
-
-  if (!desconto && !audioPIxJaTocou) {
-    audioPIxJaTocou = true;
-    saveState();
-    await sleep(600);
-    aiHistory.push({role:'assistant', content:'[áudio]', type:'audio', src:AUDIO_PIX_SRC, timestamp: now});
-    salvarLead(true);
-    criarBolhaAudio(AUDIO_PIX_SRC, 'pix', function() {
-      if (!autoCallFired) {
-        setTimeout(function() { scheduleAutoCall(); }, 2000);
-      }
-    });
+  // Se era a oferta normal (R$30) e não pagou, oferece desconto
+  if (!currentPaymentDesconto && !paymentPixGerado) {
+    // Pequeno delay para não sobrepor
+    setTimeout(() => {
+      mostrarTelaPagamento(true);
+    }, 300);
+  } else {
+    // Se era desconto ou já gerou Pix (está aguardando), apenas fecha
+    // Se já gerou Pix, o polling continua em background.
   }
 }
 
-// ═══ FUNÇÃO GENÉRICA PARA EXIBIR IMAGEM (formato Vanessa) ═══
+// ═══ FUNÇÃO PARA REDIRECIONAR AO ENTREGÁVEL (após pagamento) ═══
+function redirecionarParaEntregavel() {
+  window.open(LINK_ENTREGAVEL, '_blank');
+}
+
+// ═══ showCta removido (agora usamos mostrarTelaPagamento) ═══
+
+// ═══ FUNÇÃO GENÉRICA PARA EXIBIR IMAGEM ═══
 function showImage(src, timestamp) {
   const now = timestamp || getTime();
   aiHistory.push({ role:'assistant', content:'[imagem]', type:'image', src: src, timestamp: now });
@@ -1094,7 +1203,7 @@ window.seekAudioById = function(e, bar, id) {
   foundAudio.currentTime = pct * foundAudio.duration;
 };
 
-// ═══ REBUILD UI (remove [FIM] visualmente nas mensagens da assistente) ═══
+// ═══ REBUILD UI ═══
 async function rebuildUI() {
   msgsEl.innerHTML = '<div class="date-pill">Hoje</div>';
   for (const msg of aiHistory) {
@@ -1140,49 +1249,6 @@ async function rebuildUI() {
       b.innerHTML = TAIL_IN + '<img src="' + msg.src + '" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">' + (msg.timestamp || getTime()) + '</span></div>';
       msgsEl.appendChild(b);
     }
-    else if (msg.role === 'assistant' && msg.type === 'pix') {
-      const pixData = msg.pixData;
-      if (pixData) {
-        const wrap = document.createElement('div');
-        wrap.className = 'fade-in';
-        wrap.style.cssText = 'align-self:flex-start;margin-left:6px;max-width:88%';
-
-        const card = document.createElement('div');
-        card.style.cssText = 'background:#fff;border-radius:12px;overflow:hidden;min-width:220px;box-shadow:0 1px 3px rgba(0,0,0,0.15)';
-
-        const head = document.createElement('div');
-        head.style.cssText = 'background:#00a884;padding:12px 14px;display:flex;align-items:center;gap:10px';
-        head.innerHTML = '<div style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div style="color:rgba(255,255,255,0.85);font-size:11px;margin-bottom:1px">Solicitação de pagamento</div><div style="color:#fff;font-size:19px;font-weight:700;line-height:1.2">'+pixData.valorFmt+'</div></div>';
-        card.appendChild(head);
-
-        const info = document.createElement('div');
-        info.style.cssText = 'padding:10px 14px;border-bottom:1px solid #f0f2f5';
-        info.innerHTML = '<div style="font-size:11px;color:#8696a0;margin-bottom:2px">Para</div><div style="font-size:14px;color:#111b21;font-weight:500">Vanessa Macedo</div><div style="font-size:11.5px;color:#8696a0;margin-top:1px">via Pix</div>';
-        card.appendChild(info);
-
-        if (pixData.chave) {
-          const btnWrap = document.createElement('div');
-          btnWrap.style.cssText = 'border-bottom:1px solid #f0f2f5';
-          const btn = document.createElement('button');
-          btn.style.cssText = 'width:100%;background:none;border:none;padding:10px 14px;color:#00a884;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px';
-          btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="#00a884" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="#00a884" stroke-width="2" stroke-linecap="round"/></svg> Copiar chave Pix';
-          btn.onclick = function(){ window.copiarPix(btn, pixData.chave); };
-          btnWrap.appendChild(btn);
-          card.appendChild(btnWrap);
-        }
-
-        const footer = document.createElement('div');
-        footer.style.cssText = 'padding:6px 14px 8px;display:flex;justify-content:flex-end';
-        const time = document.createElement('span');
-        time.style.cssText = 'font-size:11px;color:#8696a0';
-        time.textContent = msg.timestamp || getTime();
-        footer.appendChild(time);
-        card.appendChild(footer);
-
-        wrap.appendChild(card);
-        msgsEl.appendChild(wrap);
-      }
-    }
     else if (msg.role === 'system') {
       continue;
     }
@@ -1191,85 +1257,7 @@ async function rebuildUI() {
   enableInput();
 }
 
-// ═══ showBotaoEntregavel (com link e botão de retorno) ═══
-function showBotaoEntregavel() {
-  let ring=null;
-  try{
-    const ctx=new (window.AudioContext||window.webkitAudioContext)();
-    function beep(){const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=480;g.gain.setValueAtTime(0.28,ctx.currentTime);o.start();o.stop(ctx.currentTime+0.35);}
-    beep();ring=setInterval(beep,1400);
-  }catch(e){}
-  const ov=document.createElement('div');
-  ov.style.cssText='position:absolute;inset:0;background:#1a1a2e;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:60px 20px;animation:fi .3s ease';
-  ov.innerHTML='<div style="text-align:center"><div style="position:relative;width:100px;height:100px;margin:0 auto"><div style="position:absolute;inset:-14px;border-radius:50%;border:2px solid rgba(255,255,255,0.12);animation:pulse 2s ease-out infinite"></div><div style="position:absolute;inset:-7px;border-radius:50%;border:2px solid rgba(255,255,255,0.08);animation:pulse 2s ease-out infinite 1s"></div><div style="width:100px;height:100px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,0.18)"><img src="https://i.ibb.co/ksmzSzDM/perfilv2.png" style="width:100%;height:100%;object-fit:cover" alt="Vanessa"></div></div><div style="color:#fff;font-size:22px;font-weight:500;margin-top:22px">Vanessa Macedo</div><div style="color:rgba(255,255,255,0.55);font-size:14px;margin-top:6px">Chamada de vídeo WhatsApp…</div></div><div style="display:flex;gap:52px;align-items:center"><button id="vc-decline" style="display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.8);font-size:12.5px;font-family:inherit"><div style="width:64px;height:64px;border-radius:50%;background:#e53935;display:flex;align-items:center;justify-content:center"><svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg></div>Recusar</button><button id="vc-answer" style="display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.8);font-size:12.5px;font-family:inherit"><div style="width:64px;height:64px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;animation:ringShake .6s ease infinite alternate"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Atender</button></div>';
-  document.querySelector('.phone').appendChild(ov);
-
-  document.getElementById('vc-answer').onclick=function(){
-    if(ring)clearInterval(ring);
-    ov.remove();
-    window.open(LINK_ENTREGAVEL,'_blank');
-    aiHistory.push({role:'system', content:'Entregável - Aceito', type:'system'});
-    salvarLead(true);
-  };
-
-  document.getElementById('vc-decline').onclick=async function(){
-    if(ring)clearInterval(ring);
-    ov.remove();
-    const now = getTime();
-    const b=document.createElement('div');b.className='bbl in fade-in';
-    b.innerHTML=TAIL_IN+'<span style="color:#e53935;font-size:13px">📵 Chamada de vídeo perdida</span><div class="bbl-meta"><span class="bbl-time">'+now+'</span></div>';
-    msgsEl.appendChild(b);scroll();
-    aiHistory.push({role:'system', content:'Entregável - Recusado', type:'system'});
-    salvarLead(true);
-    await sleep(1400);
-    
-    const br = document.createElement('div');
-    br.className = 'bbl in fade-in';
-    br.style.maxWidth = '88%';
-
-    const link = document.createElement('a');
-    link.href = LINK_ENTREGAVEL;
-    link.target = '_blank';
-    link.className = 'cta-btn';
-    link.style.margin = '0';
-    link.id = 'btn-retornar';
-    link.textContent = '📹 Retornar chamada';
-
-    let retornarChamadaClicado = false;
-
-    link.addEventListener('click', function(e) {
-      if (retornarChamadaClicado) {
-        e.preventDefault();
-        return;
-      }
-      retornarChamadaClicado = true;
-      aiHistory.push({role:'system', content:'Retorno feito', type:'system'});
-      salvarLead(true);
-      link.style.opacity = '0.5';
-      link.style.pointerEvents = 'none';
-      link.style.cursor = 'default';
-    });
-
-    br.innerHTML = TAIL_IN;
-    br.appendChild(link);
-    const meta = document.createElement('div');
-    meta.className = 'bbl-meta';
-    const timeSpan = document.createElement('span');
-    timeSpan.className = 'bbl-time';
-    timeSpan.textContent = getTime();
-    meta.appendChild(timeSpan);
-    br.appendChild(meta);
-    msgsEl.appendChild(br);
-    scroll();
-  };
-}
-
-function typingDelay(text) {
-  const chars = text.length, cps = 2.5 + Math.random();
-  return Math.min(Math.max((chars/cps)*1000+600+Math.random()*900, 1800), 12000);
-}
-
-// ═══ FUNÇÃO ASKAI (agora com salvarLead antes de finalizar) ═══
+// ═══ ASKAI (modificada para detectar gatilho "vou te ligar") ═══
 async function askAI(userMsg) {
   if (conversaEncerrada) return;
 
@@ -1317,19 +1305,19 @@ async function askAI(userMsg) {
       addBubble(part, 'in', false, now);
     }
 
-    const temPixNormal = /aqui o pix/i.test(cleanContent);
-    const temDesconto  = /um desconto/i.test(cleanContent);
-    const temFoto     = /olha eu aqui/i.test(cleanContent);
-    const temExtra    = /tá pera/i.test(cleanContent);
+    // ═══ DETECTA GATILHO "vou te ligar" ═══
+    const triggerMatch = cleanContent.match(/\bvou te ligar\b/i);
+    if (triggerMatch && !autoCallFired) {
+      // Agenda a chamada automática
+      setTimeout(() => {
+        triggerAutoCall();
+      }, 1000);
+    }
 
-    if (temPixNormal) {
-      await sleep(600);
-      showCta(false);
-    }
-    if (temDesconto) {
-      await sleep(600);
-      showCta(true);
-    }
+    // Removemos a geração de Pix automática (showCta) daqui, pois agora só via tela de pagamento
+    const temFoto = /olha eu aqui/i.test(cleanContent);
+    const temExtra = /tá pera/i.test(cleanContent);
+
     if (temFoto) {
       await sleep(500);
       showFotoLead();
@@ -1341,8 +1329,8 @@ async function askAI(userMsg) {
       showImage(IMG_EXTRA_SRC);
     }
 
-    const houveCta = temPixNormal || temDesconto;
-    salvarLead(houveCta);
+    // Salva lead sem indicar clicouCta (pois a compra será via overlay)
+    salvarLead(false);
   } catch (e) {
     hideTyping();
     addBubble('Ops, tive um probleminha. Pode repetir? 😊','in');
@@ -1351,13 +1339,18 @@ async function askAI(userMsg) {
   enableInput();
 }
 
+function typingDelay(text) {
+  const chars = text.length, cps = 2.5 + Math.random();
+  return Math.min(Math.max((chars/cps)*1000+600+Math.random()*900, 1800), 12000);
+}
+
 // ═══ FUNÇÃO DE ENVIO (texto) ═══
 function submit() {
   if (conversaEncerrada) return;
   const text = inpEl.value.trim();
   if (!text) return;
   inpEl.value = '';
-  updateSendMicButtons(); // atualiza após limpar
+  updateSendMicButtons();
   const now = getTime();
   addBubble(text, 'out', false, now);
   if (!leadId) salvarLead();
@@ -1366,7 +1359,7 @@ function submit() {
   askAI(text);
 }
 
-// ═══ GRAVAÇÃO DE ÁUDIO (pressione e segure) ═══
+// ═══ GRAVAÇÃO DE ÁUDIO (pressione e segure) - igual ao original ═══
 let _mediaRecorder = null, _audioChunks = [], _isRecording = false, _recordTimer = null;
 let _isMicPressed = false;
 let _cancelRecording = false;
@@ -1658,7 +1651,7 @@ function showMicError(message) {
   scroll();
 }
 
-// ═══ ENVIO DE ÁUDIO (APÓS GRAVAÇÃO) - agora com salvarLead antes de finalizar ═══
+// ═══ ENVIO DE ÁUDIO (APÓS GRAVAÇÃO) - ajustado para não gerar Pix ═══
 async function sendAudioMessage(mimeType) {
   if (conversaEncerrada) return;
   if (_audioChunks.length === 0) return;
@@ -1721,18 +1714,21 @@ async function sendAudioMessage(mimeType) {
         showTyping(); await sleep(typingDelay(parts[i])); hideTyping(); addBubble(parts[i],'in',false,getTime());
       }
       
-      const temPixNormal = /aqui o pix/i.test(cleanContent);
-      const temDesconto  = /um desconto/i.test(cleanContent);
-      const temFoto     = /olha eu aqui/i.test(cleanContent);
-      const temExtra    = /tá pera/i.test(cleanContent);
+      // Gatilho "vou te ligar"
+      const triggerMatch = cleanContent.match(/\bvou te ligar\b/i);
+      if (triggerMatch && !autoCallFired) {
+        setTimeout(() => {
+          triggerAutoCall();
+        }, 1000);
+      }
 
-      if (temPixNormal) { await sleep(600); showCta(false); }
-      if (temDesconto)  { await sleep(600); showCta(true); }
-      if (temFoto)      { await sleep(500); showFotoLead(); }
-      if (temExtra)     { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showImage(IMG_EXTRA_SRC); }
+      const temFoto = /olha eu aqui/i.test(cleanContent);
+      const temExtra = /tá pera/i.test(cleanContent);
 
-      const houveCta = temPixNormal || temDesconto;
-      salvarLead(houveCta);
+      if (temFoto) { await sleep(500); showFotoLead(); }
+      if (temExtra) { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showImage(IMG_EXTRA_SRC); }
+
+      salvarLead(false);
     } catch(e) {
       hideTyping();
       addBubble('Ops, não consegui ouvir o áudio. Pode escrever? 😊','in');
@@ -1743,12 +1739,7 @@ async function sendAudioMessage(mimeType) {
   reader.readAsDataURL(blob);
 }
 
-// ═══ CONTROLE DE VISIBILIDADE DOS BOTÕES (usando a função centralizada) ═══
-inpEl.addEventListener('input', function() {
-  updateSendMicButtons();
-});
-
-// ═══ ENVIO DE IMAGEM - agora com salvarLead antes de finalizar ═══
+// ═══ ENVIO DE IMAGEM - ajustado para não gerar Pix ═══
 async function handleImageSelect(event) {
   if (conversaEncerrada) return;
   const file = event.target.files && event.target.files[0];
@@ -1815,18 +1806,20 @@ async function handleImageSelect(event) {
         showTyping(); await sleep(typingDelay(parts[i])); hideTyping(); addBubble(parts[i],'in',false,getTime());
       }
       
-      const temPixNormal = /aqui o pix/i.test(cleanContent);
-      const temDesconto  = /um desconto/i.test(cleanContent);
-      const temFoto     = /olha eu aqui/i.test(cleanContent);
-      const temExtra    = /tá pera/i.test(cleanContent);
+      const triggerMatch = cleanContent.match(/\bvou te ligar\b/i);
+      if (triggerMatch && !autoCallFired) {
+        setTimeout(() => {
+          triggerAutoCall();
+        }, 1000);
+      }
 
-      if (temPixNormal) { await sleep(600); showCta(false); }
-      if (temDesconto)  { await sleep(600); showCta(true); }
-      if (temFoto)      { await sleep(500); showFotoLead(); }
-      if (temExtra)     { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showImage(IMG_EXTRA_SRC); }
+      const temFoto = /olha eu aqui/i.test(cleanContent);
+      const temExtra = /tá pera/i.test(cleanContent);
 
-      const houveCta = temPixNormal || temDesconto;
-      salvarLead(houveCta);
+      if (temFoto) { await sleep(500); showFotoLead(); }
+      if (temExtra) { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showImage(IMG_EXTRA_SRC); }
+
+      salvarLead(false);
     } catch(e) {
       hideTyping();
       addBubble('Ops, não consegui ver a foto. Pode escrever? 😊','in');
@@ -1837,7 +1830,7 @@ async function handleImageSelect(event) {
   reader.readAsDataURL(file);
 }
 
-// ═══ AUTO CALL ═══
+// ═══ AUTO CALL (adaptado: ao atender, abre tela de pagamento) ═══
 function startAutoCallRing(){
   try{
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
@@ -1911,7 +1904,9 @@ function triggerAutoCall(){
     setTimeout(function(){statusTxt.textContent='Chamada de vídeo';},700);
     setTimeout(function(){
       ac.classList.remove('show');
-      dismissAutoCall('answered_and_hung');
+      // Após a chamada ser "atendida", mostra a tela de pagamento (oferta normal)
+      mostrarTelaPagamento(false);
+      dismissAutoCall('answered_and_hung'); // apenas para registrar no chat
     }, 2000);
     document.getElementById('ac-end-btn').onclick=function(){
       ac.classList.remove('show');
@@ -1944,7 +1939,6 @@ async function start() {
     retomarPollingSeNecessario();
 
     enableInput();
-    // Garantir que os botões estejam corretos após o rebuild
     updateSendMicButtons();
   } else {
     leadCityVal = await fetchLeadCity();
@@ -1975,7 +1969,7 @@ async function start() {
 }
 start();
 
-// ═══ FUNÇÕES DOS SHEETS (com bloqueio para conversa encerrada) ═══
+// ═══ FUNÇÕES DOS SHEETS (sem alterações) ═══
 function toggleEmoji() {
   if (conversaEncerrada) return;
   const panel = document.getElementById('emoji-panel');
