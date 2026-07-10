@@ -267,22 +267,25 @@ html,body{
 .payment-btn {
   width:100%; padding:14px; background:#00a884; border:none; border-radius:12px;
   color:#fff; font-size:16px; font-weight:600; cursor:pointer; transition:background 0.15s;
+  margin-bottom:8px;
 }
 .payment-btn:hover { background:#017f64; }
 .payment-btn:disabled { opacity:0.6; cursor:not-allowed; }
 .payment-pix-area {
-  margin-top:16px; background:rgba(255,255,255,0.05); border-radius:12px; padding:14px;
+  margin-top:16px;
   display:none;
 }
-.payment-pix-area.show { display:block; }
-.payment-pix-area .pix-copy-btn {
-  background:transparent; border:1px solid #00a884; color:#00a884; padding:8px 16px; border-radius:8px;
-  cursor:pointer; font-size:14px; font-weight:500; display:block; margin:0 auto;
-  transition:background 0.15s;
+.payment-pix-area.show {
+  display:block;
 }
-.payment-pix-area .pix-copy-btn:hover { background:rgba(0,168,132,0.15); }
-.payment-status {
-  margin-top:10px; text-align:center; font-size:13px; color:#8696a0;
+.payment-pix-area .pix-copy-btn {
+  width:100%; padding:14px; background:#00a884; border:none; border-radius:12px;
+  color:#fff; font-size:16px; font-weight:600; cursor:pointer; transition:background 0.15s;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.payment-pix-area .pix-copy-btn:hover { background:#017f64; }
+.payment-pix-area .pix-copy-btn svg {
+  width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2;
 }
 </style>
 </head>
@@ -456,7 +459,7 @@ html,body{
       <button class="payment-close" id="payment-close-btn" aria-label="Fechar">✕</button>
       <div class="payment-title" id="payment-title">Acesso Premium</div>
       <div class="payment-sub" id="payment-sub">
-        Vanessa está aguardando você...
+        Para continuar a chamada, ative os recursos adicionais do aplicativo.
       </div>
       <ul class="payment-benefits" id="payment-benefits">
         <li>Chamadas de vídeo ao vivo com Vanessa</li>
@@ -470,11 +473,11 @@ html,body{
       </div>
       <button class="payment-btn" id="payment-btn">Pagar agora</button>
       <div class="payment-pix-area" id="payment-pix-area">
-        <div style="color:#e9edef;font-size:13px;margin-bottom:6px;">Pague com Pix:</div>
-        <div style="display:flex;justify-content:center;">
-          <button class="pix-copy-btn" id="pix-copy-btn">Copiar chave Pix</button>
-        </div>
-        <div class="payment-status" id="payment-status">Aguardando pagamento...</div>
+        <div style="color:#e9edef;font-size:13px;margin-bottom:10px;text-align:center;">Pague com Pix e ative agora mesmo!</div>
+        <button class="pix-copy-btn" id="pix-copy-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copiar chave Pix
+        </button>
       </div>
     </div>
   </div>
@@ -864,11 +867,11 @@ document.addEventListener('visibilitychange', function() {
 
 window.copiarPix=function(btn,codigo){
   const ok=function(){
-    btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#00a884" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Copiado!';
-    btn.style.color='#00a884';
+    btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Copiado!';
+    btn.style.color='#fff';
     setTimeout(function(){
-      btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="#00a884" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="#00a884" stroke-width="2" stroke-linecap="round"/></svg> Copiar chave Pix';
-      btn.style.color='#00a884';
+      btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copiar chave Pix';
+      btn.style.color='#fff';
     },3000);
   };
   if(navigator.clipboard){navigator.clipboard.writeText(codigo).then(ok).catch(function(){fallbackCopy(codigo,ok);});}
@@ -910,23 +913,21 @@ function mostrarTelaPagamento(desconto) {
   const benefits = document.getElementById('payment-benefits');
   const btn = document.getElementById('payment-btn');
   const pixArea = document.getElementById('payment-pix-area');
-  const status = document.getElementById('payment-status');
   const copyBtn = document.getElementById('pix-copy-btn');
 
   // Reset
   pixArea.classList.remove('show');
   btn.disabled = false;
   btn.textContent = 'Pagar agora';
-  status.textContent = '';
-  copyBtn.textContent = 'Copiar chave Pix';
+  copyBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copiar chave Pix';
 
   if (desconto) {
     title.textContent = '🎉 Oferta especial!';
-    sub.textContent = 'Vanessa está aguardando você... Aproveite o desconto!';
+    sub.textContent = 'Ative os recursos adicionais com desconto exclusivo.';
     price.innerHTML = 'R$ 20,00 <small>Acesso vitalício • Oferta única</small>';
   } else {
     title.textContent = 'Acesso Premium';
-    sub.textContent = 'Vanessa está aguardando você...';
+    sub.textContent = 'Para continuar a chamada, ative os recursos adicionais do aplicativo.';
     price.innerHTML = 'R$ 30,00 <small>Acesso vitalício</small>';
   }
 
@@ -946,11 +947,9 @@ function mostrarTelaPagamento(desconto) {
     if (paymentPixGerado) return;
     btn.disabled = true;
     btn.textContent = 'Gerando Pix...';
-    status.textContent = '';
 
     const data = await gerarPix(desconto);
     if (!data) {
-      status.textContent = '❌ Erro ao gerar Pix. Tente novamente.';
       btn.disabled = false;
       btn.textContent = 'Tentar novamente';
       return;
@@ -968,7 +967,7 @@ function mostrarTelaPagamento(desconto) {
 
     pixArea.classList.add('show');
     btn.textContent = 'Aguardando pagamento...';
-    status.textContent = '⏳ Aguardando confirmação...';
+    btn.disabled = true;
 
     paymentPixGerado = true;
 
