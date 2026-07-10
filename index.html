@@ -244,7 +244,7 @@ html,body{
 }
 .payment-close:hover { color:#e9edef; }
 .payment-title {
-  color:#e9edef; font-size:20px; font-weight:600; margin-bottom:8px;
+  color:#e9edef; font-size:20px; font-weight:600; margin-bottom:4px;
 }
 .payment-sub {
   color:#8696a0; font-size:14px; margin-bottom:16px; line-height:1.5;
@@ -275,15 +275,12 @@ html,body{
   display:none;
 }
 .payment-pix-area.show { display:block; }
-.payment-pix-area .pix-code {
-  background:#0b1015; padding:10px; border-radius:8px; word-break:break-all; font-size:12px;
-  color:#d1d5db; margin-top:6px; display:flex; align-items:center; justify-content:space-between; gap:8px;
+.payment-pix-area .pix-copy-btn {
+  background:transparent; border:1px solid #00a884; color:#00a884; padding:8px 16px; border-radius:8px;
+  cursor:pointer; font-size:14px; font-weight:500; display:block; margin:0 auto;
+  transition:background 0.15s;
 }
-.payment-pix-area .pix-code button {
-  background:transparent; border:1px solid #00a884; color:#00a884; padding:4px 10px; border-radius:6px;
-  cursor:pointer; font-size:12px; font-weight:500; white-space:nowrap;
-}
-.payment-pix-area .pix-code button:hover { background:rgba(0,168,132,0.15); }
+.payment-pix-area .pix-copy-btn:hover { background:rgba(0,168,132,0.15); }
 .payment-status {
   margin-top:10px; text-align:center; font-size:13px; color:#8696a0;
 }
@@ -457,9 +454,9 @@ html,body{
   <div class="payment-overlay" id="payment-overlay">
     <div class="payment-card">
       <button class="payment-close" id="payment-close-btn" aria-label="Fechar">✕</button>
-      <div class="payment-title" id="payment-title">Acesso às funcionalidades</div>
+      <div class="payment-title" id="payment-title">Acesso Premium</div>
       <div class="payment-sub" id="payment-sub">
-        Para continuar a chamada de vídeo e ter acesso a todos os recursos, adquira o acesso vitalício.
+        Vanessa está aguardando você...
       </div>
       <ul class="payment-benefits" id="payment-benefits">
         <li>Chamadas de vídeo ao vivo com Vanessa</li>
@@ -473,10 +470,9 @@ html,body{
       </div>
       <button class="payment-btn" id="payment-btn">Pagar agora</button>
       <div class="payment-pix-area" id="payment-pix-area">
-        <div style="color:#e9edef;font-size:13px;margin-bottom:6px;">Copie a chave Pix abaixo e pague no seu banco:</div>
-        <div class="pix-code" id="pix-code-container">
-          <span id="pix-code-text">---</span>
-          <button id="pix-copy-btn">Copiar</button>
+        <div style="color:#e9edef;font-size:13px;margin-bottom:6px;">Pague com Pix:</div>
+        <div style="display:flex;justify-content:center;">
+          <button class="pix-copy-btn" id="pix-copy-btn">Copiar chave Pix</button>
         </div>
         <div class="payment-status" id="payment-status">Aguardando pagamento...</div>
       </div>
@@ -898,12 +894,14 @@ function pixelPurchase(v){
 let currentPaymentDesconto = false; // false = oferta normal (R$30), true = desconto (R$20)
 let paymentOverlayOpen = false;
 let paymentPixGerado = false;
+let pixChaveAtual = ''; // armazena a chave para cópia
 
 function mostrarTelaPagamento(desconto) {
   if (paymentOverlayOpen) return;
   currentPaymentDesconto = desconto;
   paymentOverlayOpen = true;
   paymentPixGerado = false;
+  pixChaveAtual = '';
 
   const overlay = document.getElementById('payment-overlay');
   const title = document.getElementById('payment-title');
@@ -913,21 +911,22 @@ function mostrarTelaPagamento(desconto) {
   const btn = document.getElementById('payment-btn');
   const pixArea = document.getElementById('payment-pix-area');
   const status = document.getElementById('payment-status');
+  const copyBtn = document.getElementById('pix-copy-btn');
 
   // Reset
   pixArea.classList.remove('show');
   btn.disabled = false;
   btn.textContent = 'Pagar agora';
   status.textContent = '';
+  copyBtn.textContent = 'Copiar chave Pix';
 
   if (desconto) {
     title.textContent = '🎉 Oferta especial!';
-    sub.textContent = 'Você ganhou um desconto exclusivo! Aproveite agora.';
+    sub.textContent = 'Vanessa está aguardando você... Aproveite o desconto!';
     price.innerHTML = 'R$ 20,00 <small>Acesso vitalício • Oferta única</small>';
-    // Lista de benefícios permanece a mesma
   } else {
-    title.textContent = 'Acesso às funcionalidades';
-    sub.textContent = 'Para continuar a chamada de vídeo e ter acesso a todos os recursos, adquira o acesso vitalício.';
+    title.textContent = 'Acesso Premium';
+    sub.textContent = 'Vanessa está aguardando você...';
     price.innerHTML = 'R$ 30,00 <small>Acesso vitalício</small>';
   }
 
@@ -960,11 +959,13 @@ function mostrarTelaPagamento(desconto) {
     const pixCopia = (data.pix && data.pix.pix_qr_code) || '';
     const txHash = data.hash || ('tx'+Date.now());
 
-    // Exibe área do Pix
-    document.getElementById('pix-code-text').textContent = pixCopia || 'Chave indisponível';
-    document.getElementById('pix-copy-btn').onclick = function() {
-      window.copiarPix(this, pixCopia);
+    pixChaveAtual = pixCopia;
+
+    // Configura botão de cópia
+    copyBtn.onclick = function() {
+      window.copiarPix(this, pixChaveAtual);
     };
+
     pixArea.classList.add('show');
     btn.textContent = 'Aguardando pagamento...';
     status.textContent = '⏳ Aguardando confirmação...';
@@ -984,13 +985,11 @@ function fecharPaymentOverlay() {
 
   // Se era a oferta normal (R$30) e não pagou, oferece desconto
   if (!currentPaymentDesconto && !paymentPixGerado) {
-    // Pequeno delay para não sobrepor
     setTimeout(() => {
       mostrarTelaPagamento(true);
     }, 300);
   } else {
-    // Se era desconto ou já gerou Pix (está aguardando), apenas fecha
-    // Se já gerou Pix, o polling continua em background.
+    // Se era desconto ou já gerou Pix, apenas fecha
   }
 }
 
@@ -998,8 +997,6 @@ function fecharPaymentOverlay() {
 function redirecionarParaEntregavel() {
   window.open(LINK_ENTREGAVEL, '_blank');
 }
-
-// ═══ showCta removido (agora usamos mostrarTelaPagamento) ═══
 
 // ═══ FUNÇÃO GENÉRICA PARA EXIBIR IMAGEM ═══
 function showImage(src, timestamp) {
@@ -1858,28 +1855,27 @@ function dismissAutoCall(reason){
   const ac=document.getElementById('active-call-overlay');
   ov.classList.remove('show');
   ac.classList.remove('show');
-  setTimeout(function(){
-    const b=document.createElement('div');
-    b.className='bbl in fade-in';
-    if(reason==='declined'){
+  // Não adicionamos mensagem de "Vanessa desligou" no chat, apenas registramos no histórico internamente
+  if (reason === 'declined') {
+    // só adiciona mensagem no chat se recusou
+    setTimeout(function(){
+      const b=document.createElement('div');
+      b.className='bbl in fade-in';
       b.innerHTML=TAIL_IN+
         '<div style="display:flex;align-items:center;gap:8px;color:#e53935;font-size:13.5px">'+
         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><line x1="3" y1="3" x2="21" y2="21" stroke="#e53935" stroke-width="1.75" stroke-linecap="round"/></svg>'+
         'Chamada de vídeo perdida</div>'+
         '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+      msgsEl.appendChild(b);
+      scroll();
       aiHistory.push({role:'system', content:'Ligação Isca - Recusada', type:'system'});
-    } else {
-      b.innerHTML=TAIL_IN+
-        '<div style="display:flex;align-items:center;gap:8px;color:#667781;font-size:13.5px">'+
-        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>'+
-        'Vanessa desligou · 0:02</div>'+
-        '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
-      aiHistory.push({role:'system', content:'Ligação Isca - Aceita', type:'system'});
-    }
-    msgsEl.appendChild(b);
-    scroll();
+      salvarLead();
+    }, 400);
+  } else {
+    // Atendeu: não adiciona mensagem no chat, apenas registra no histórico
+    aiHistory.push({role:'system', content:'Ligação Isca - Aceita', type:'system'});
     salvarLead();
-  }, 400);
+  }
 }
 function triggerAutoCall(){
   if(autoCallFired) return;
@@ -1910,11 +1906,16 @@ function triggerAutoCall(){
       ac.classList.remove('show');
       // Após a chamada ser "atendida", mostra a tela de pagamento (oferta normal)
       mostrarTelaPagamento(false);
-      dismissAutoCall('answered_and_hung'); // apenas para registrar no chat
+      // Não adicionamos mensagem de desligou, apenas registramos aceite
+      dismissAutoCall('answered'); // não gera mensagem no chat
     }, 2000);
     document.getElementById('ac-end-btn').onclick=function(){
       ac.classList.remove('show');
-      dismissAutoCall('answered_and_hung');
+      // Se o usuário desligar antes de pagar, consideramos como recusa?
+      // Mas aqui vamos apenas fechar a chamada e não abrir pagamento
+      // Melhor: se ele clicar em "desligar" durante a chamada ativa, considera como recusa?
+      // Vamos tratar como se ele tivesse recusado a chamada original.
+      dismissAutoCall('declined');
     };
   };
 }
