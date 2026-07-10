@@ -700,6 +700,10 @@ function updateSendMicButtons() {
   micBtn.classList.toggle('hidden', hasText);
 }
 
+// Garantir que ao digitar e ao soltar tecla os botões atualizem
+inpEl.addEventListener('input', updateSendMicButtons);
+inpEl.addEventListener('keyup', updateSendMicButtons);
+
 function enableInput(){
   inpEl.disabled = conversaEncerrada;
   if (conversaEncerrada) {
