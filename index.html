@@ -21,9 +21,7 @@ fbq('track', 'PageView');
   <img height="1" width="1" style="display:none"
   src="https://www.facebook.com/tr?id=981136621185086&ev=PageView&noscript=1"/>
 </noscript>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <style>
-/* ── Estilos do WhatsApp (mantidos) ── */
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --wa-green:#25d366;--wa-teal:#075e54;--wa-teal2:#128c7e;
@@ -98,6 +96,7 @@ html,body{
 .input-pill{flex:1;display:flex;align-items:center;background:#fff;border-radius:24px;padding:0 14px;gap:8px;min-height:44px;position:relative;}
 .input-pill input{flex:1;border:none;outline:none;font-size:16px;color:var(--wa-text);background:transparent;padding:10px 0;font-family:inherit;}
 .input-pill input::placeholder{color:#8696a0}
+.input-pill input:disabled{opacity:0.7;cursor:not-allowed;}
 .send-btn, .mic-btn{
   width:48px;height:48px;border-radius:50%;border:none;cursor:pointer;
   display:flex;align-items:center;justify-content:center;flex-shrink:0;
@@ -173,239 +172,21 @@ html,body{
 .call-btn-circle.decline{background:#e53935}
 .call-btn-circle.answer{background:#25d366;animation:ringShake .6s ease infinite alternate}
 
-/* ── TELA DE CONECTANDO ── */
-#connecting-overlay {
-  display: none;
-  position: absolute;
-  inset: 0;
-  background: #0d0d0d;
-  z-index: 450;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
-  color: #fff;
-  font-family: system-ui, sans-serif;
+/* ── ACTIVE CALL OVERLAY ── */
+#active-call-overlay{
+  position:absolute;inset:0;background:#0b1015;z-index:401;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s ease;
 }
-#connecting-overlay.active {
-  display: flex;
-}
-#connecting-overlay .spinner {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  border: 4px solid rgba(255,255,255,0.1);
-  border-top-color: #25d366;
-  animation: spin 0.9s linear infinite;
-}
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-#connecting-overlay .conn-label {
-  font-size: 18px;
-  font-weight: 500;
-  letter-spacing: 0.2px;
-}
-#connecting-overlay .conn-sub {
-  font-size: 13px;
-  color: rgba(255,255,255,0.5);
-}
+#active-call-overlay.show{opacity:1;pointer-events:all}
+#active-call-overlay .ac-avatar{width:90px;height:90px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,0.2)}
+#active-call-overlay .ac-avatar img{width:100%;height:100%;object-fit:cover}
+#active-call-overlay .ac-name{color:#fff;font-size:20px;font-weight:500}
+#active-call-overlay .ac-status{color:rgba(255,255,255,0.5);font-size:13px}
+#active-call-overlay .ac-end-btn{width:60px;height:60px;border-radius:50%;background:#e53935;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:30px}
 
-/* ── INTERFACE DE CHAMADA DE VÍDEO (integrada) ── */
-#call-interface {
-  display: none;
-  position: absolute;
-  inset: 0;
-  background: #0d0d0d;
-  flex-direction: column;
-  z-index: 500;
-  color: #fff;
-  font-family: system-ui, sans-serif;
-}
-#call-interface.active {
-  display: flex;
-}
-#remote-wrap {
-  position: relative;
-  flex: 1;
-  background: #111;
-  overflow: hidden;
-  min-height: 0;
-}
-#remote-video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-}
-#call-info {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  z-index: 10;
-}
-#caller-name {
-  color: #fff;
-  font-size: 16px;
-  font-weight: 500;
-  text-shadow: 0 1px 6px rgba(0,0,0,.8);
-}
-#call-timer {
-  color: rgba(255,255,255,.7);
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
-}
-#signal {
-  position: absolute;
-  top: 18px;
-  right: 12px;
-  display: flex;
-  gap: 2px;
-  align-items: flex-end;
-  z-index: 10;
-}
-#signal span {
-  width: 4px;
-  border-radius: 1px;
-  background: rgba(255,255,255,.55);
-}
-#local-wrap {
-  position: absolute;
-  bottom: 12px;
-  right: 10px;
-  width: 72px;
-  height: 128px;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 2px solid rgba(255,255,255,.2);
-  background: #1a1a1a;
-  z-index: 10;
-}
-#local-video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  transform: scaleX(-1);
-}
-#cam-off-icon {
-  display: none;
-  position: absolute;
-  inset: 0;
-  align-items: center;
-  justify-content: center;
-  background: #1a1a1a;
-}
-#cam-off-icon i {
-  font-size: 22px;
-  color: #555;
-}
-#controls {
-  background: #0a0a0a;
-  padding: 12px 8px 28px;
-  flex-shrink: 0;
-}
-.ctrl-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-}
-.btn-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-.ctrl-btn {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 21px;
-  color: #fff;
-  background: rgba(255,255,255,.12);
-  -webkit-tap-highlight-color: transparent;
-}
-.ctrl-btn:active {
-  transform: scale(.88);
-}
-.ctrl-btn.off {
-  background: rgba(255,255,255,.06);
-  color: #555;
-}
-.ctrl-btn.danger {
-  background: #e53935;
-  width: 62px;
-  height: 62px;
-  font-size: 24px;
-}
-.ctrl-btn.lit {
-  background: rgba(255,255,255,.22);
-}
-.ctrl-label {
-  font-size: 10px;
-  color: rgba(255,255,255,.45);
-  text-align: center;
-}
-#toast {
-  position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0,0,0,.8);
-  color: #fff;
-  font-size: 12px;
-  padding: 7px 16px;
-  border-radius: 20px;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity .3s;
-  z-index: 20;
-  white-space: nowrap;
-}
-#ended {
-  display: none;
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,.9);
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  z-index: 30;
-}
-#ended i {
-  font-size: 48px;
-  color: #e53935;
-}
-#ended p {
-  color: #ccc;
-  font-size: 15px;
-}
-#ended small {
-  color: #777;
-  font-size: 13px;
-}
-#ended button {
-  margin-top: 4px;
-  padding: 11px 26px;
-  border-radius: 28px;
-  border: none;
-  background: rgba(255,255,255,.13);
-  color: #fff;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-/* Toast de instrução do microfone (já existente) */
+/* Toast de instrução do microfone */
 .mic-toast{
   position:absolute;
   bottom:80px;
@@ -471,7 +252,7 @@ html,body{
 
   <div class="input-wrap">
     <div class="input-pill" style="position:relative;">
-      <button type="button" onclick="toggleEmoji()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none">
+      <button type="button" id="emoji-btn" onclick="toggleEmoji()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#8696a0" stroke-width="1.75"/><path d="M8.5 14s.875 1.5 3.5 1.5 3.5-1.5 3.5-1.5" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round"/><circle cx="9" cy="10" r="1" fill="#8696a0"/><circle cx="15" cy="10" r="1" fill="#8696a0"/></svg>
       </button>
       <div id="emoji-panel" style="display:none;position:absolute;bottom:70px;left:8px;right:8px;background:#1f2c34;border-radius:14px;padding:10px 8px;box-shadow:0 4px 24px rgba(0,0,0,0.4);z-index:100;max-height:200px;overflow-y:auto">
@@ -628,78 +409,15 @@ html,body{
     </div>
   </div>
 
-  <!-- ====== TELA DE CONECTANDO ====== -->
-  <div id="connecting-overlay">
-    <div class="spinner"></div>
-    <div class="conn-label">Conectando...</div>
-    <div class="conn-sub">Aguarde um momento</div>
+  <!-- ACTIVE CALL (brief flash ao atender) -->
+  <div id="active-call-overlay">
+    <div class="ac-avatar"><img src="https://i.ibb.co/ksmzSzDM/perfilv2.png" alt="Vanessa"></div>
+    <div class="ac-name">Vanessa Macedo</div>
+    <div class="ac-status" id="ac-status-text">Conectando…</div>
+    <button class="ac-end-btn" id="ac-end-btn">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>
+    </button>
   </div>
-
-  <!-- ====== INTERFACE DE CHAMADA DE VÍDEO (integrada) ====== -->
-  <div id="call-interface">
-    <div id="remote-wrap">
-      <!-- REMOVI o autoplay para iniciar apenas no atendimento -->
-      <video id="remote-video" muted playsinline preload="metadata">
-        <source src="video/cam.mp4" type="video/mp4">
-      </video>
-      <div id="call-info">
-        <div id="caller-name">Vanessa Macedo</div>
-        <div id="call-timer">00:00</div>
-      </div>
-      <div id="signal">
-        <span style="height:5px"></span>
-        <span style="height:9px"></span>
-        <span style="height:13px"></span>
-        <span style="height:17px"></span>
-      </div>
-      <div id="local-wrap">
-        <video id="local-video" autoplay muted playsinline></video>
-        <div id="cam-off-icon"><i class="ti ti-video-off"></i></div>
-      </div>
-      <div id="toast"></div>
-      <div id="ended">
-        <i class="ti ti-phone-off"></i>
-        <p id="ended-msg">Chamada encerrada</p>
-        <small id="dur-end"></small>
-      </div>
-    </div>
-
-    <div id="controls">
-      <div class="ctrl-row">
-        <div class="btn-wrap">
-          <button class="ctrl-btn" id="btn-mic" onclick="toggleMic()">
-            <i class="ti ti-microphone"></i>
-          </button>
-          <div class="ctrl-label">Mic</div>
-        </div>
-        <div class="btn-wrap">
-          <button class="ctrl-btn" id="btn-cam" onclick="toggleCam()">
-            <i class="ti ti-video"></i>
-          </button>
-          <div class="ctrl-label">Câmera</div>
-        </div>
-        <div class="btn-wrap">
-          <button class="ctrl-btn danger" id="btn-end" onclick="endCall()">
-            <i class="ti ti-phone-off"></i>
-          </button>
-          <div class="ctrl-label" style="color:rgba(255,100,100,.7)">Encerrar</div>
-        </div>
-        <div class="btn-wrap">
-          <button class="ctrl-btn" id="btn-spk" onclick="toggleSpeaker()">
-            <i class="ti ti-volume"></i>
-          </button>
-          <div class="ctrl-label">Viva-voz</div>
-        </div>
-        <div class="btn-wrap">
-          <button class="ctrl-btn" id="btn-flip" onclick="flipCamera()">
-            <i class="ti ti-camera-rotate"></i>
-          </button>
-          <div class="ctrl-label">Virar</div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- ====== FIM DA INTERFACE DE CHAMADA ====== -->
 
 </div>
 
@@ -713,12 +431,18 @@ document.addEventListener('keydown', function (e) {
   if ((e.ctrlKey || e.metaKey) && (e.key === 'U' || e.key === 'u')) { e.preventDefault(); return false; }
 });
 
+// ═══ FUNÇÃO AUXILIAR PARA REMOVER [FIM] VISUALMENTE ═══
+function stripFim(text) {
+  return text ? text.replace(/\[FIM\]/g, '').trim() : '';
+}
+
 // ═══ VARIÁVEIS GLOBAIS ═══
 const msgsEl=document.getElementById('msgs');
 const inpEl=document.getElementById('inp');
 const sendBtn=document.getElementById('send-btn');
 const micBtn=document.getElementById('mic-btn');
 const cameraBtn=document.getElementById('camera-btn');
+const emojiBtn=document.getElementById('emoji-btn');
 const hdrStatus=document.getElementById('hdr-status');
 const micToast=document.getElementById('mic-toast');
 
@@ -736,13 +460,19 @@ const IMG_INICIAL_SRC = 'https://i.ibb.co/XZGMmjcV/0416-D21-A-71-A5-4-C50-A316-A
 const IMG_LEAD_SRC = 'https://i.ibb.co/B2ML9kzf/Img-jpg.jpg';
 const IMG_EXTRA_SRC = 'https://i.ibb.co/mr9LqY60/Prev-jpg.jpg';
 
+let audioPIxJaTocou = false;
 let aiHistory=[], leadId=null, clicouCta=false, leadCityVal=null;
 let pixNormalGerado=false, pixDescontoGerado=false;
 let initiateCheckoutFired=false, typingEl=null;
 const SESSION_ID=Math.random().toString(36).slice(2);
 
+let userReplyCount = 0;
 let autoCallFired = false;
+let autoCallTimer = null;
 let autoCallRingInterval = null;
+
+// ═══ FLAG: CONVERSA ENCERRADA ═══
+let conversaEncerrada = false;
 
 const STATE_KEY = 'wa-conversa-state';
 const AUDIO_LEAD_KEY = 'wa-audio-lead';
@@ -765,8 +495,11 @@ function saveState() {
     leadCityVal,
     pixNormalGerado,
     pixDescontoGerado,
+    userReplyCount,
     autoCallFired,
-    initiateCheckoutFired
+    initiateCheckoutFired,
+    audioPIxJaTocou,
+    conversaEncerrada
   };
   try {
     localStorage.setItem(STATE_KEY, JSON.stringify(state));
@@ -784,8 +517,11 @@ function loadState() {
     leadCityVal = state.leadCityVal || null;
     pixNormalGerado = state.pixNormalGerado || false;
     pixDescontoGerado = state.pixDescontoGerado || false;
+    userReplyCount = state.userReplyCount || 0;
     autoCallFired = state.autoCallFired || false;
     initiateCheckoutFired = state.initiateCheckoutFired || false;
+    audioPIxJaTocou = state.audioPIxJaTocou || false;
+    conversaEncerrada = state.conversaEncerrada || false;
     return true;
   } catch(e) {
     return false;
@@ -815,6 +551,13 @@ function scroll(){msgsEl.scrollTop=msgsEl.scrollHeight}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
 
 function addBubble(html, side, isHTML = false, customTime = null) {
+  let displayHtml = html;
+  if (side === 'in' && !isHTML) {
+    displayHtml = stripFim(html);
+  } else if (side === 'in' && isHTML) {
+    displayHtml = html.replace(/\[FIM\]/g, '');
+  }
+
   const b = document.createElement('div');
   b.className = 'bbl ' + side + ' fade-in';
   const tail = side === 'in' ? TAIL_IN : TAIL_OUT;
@@ -822,9 +565,9 @@ function addBubble(html, side, isHTML = false, customTime = null) {
   const timeStr = customTime || getTime();
 
   if (isHTML) {
-    b.innerHTML = tail + html + '<div class="bbl-meta"><span class="bbl-time">' + timeStr + '</span>' + ticks + '</div>';
+    b.innerHTML = tail + displayHtml + '<div class="bbl-meta"><span class="bbl-time">' + timeStr + '</span>' + ticks + '</div>';
   } else {
-    b.innerHTML = tail + html.replace(/\n/g, '<br>') + '<div class="bbl-meta"><span class="bbl-time">' + timeStr + '</span>' + ticks + '</div>';
+    b.innerHTML = tail + displayHtml.replace(/\n/g, '<br>') + '<div class="bbl-meta"><span class="bbl-time">' + timeStr + '</span>' + ticks + '</div>';
   }
   if (typingEl) { msgsEl.insertBefore(b, typingEl); } else { msgsEl.appendChild(b); }
   scroll();
@@ -844,7 +587,47 @@ function hideTyping(){
   hdrStatus.textContent='online';hdrStatus.className='hdr-status';
 }
 
-function enableInput(){inpEl.disabled=false;inpEl.focus();}
+// ═══ FUNÇÃO CENTRALIZADA PARA ALTERNAR BOTÕES DE ENVIO/MIC ═══
+function updateSendMicButtons() {
+  if (conversaEncerrada) {
+    sendBtn.classList.add('hidden');
+    micBtn.classList.remove('hidden');
+    return;
+  }
+  const hasText = inpEl.value.trim().length > 0;
+  sendBtn.classList.toggle('hidden', !hasText);
+  micBtn.classList.toggle('hidden', hasText);
+}
+
+function enableInput(){
+  inpEl.disabled = conversaEncerrada;
+  if (conversaEncerrada) {
+    inpEl.placeholder = 'Conversa encerrada';
+    inpEl.disabled = true;
+    cameraBtn.classList.remove('hidden-mic');
+  } else {
+    inpEl.disabled = false;
+    inpEl.placeholder = 'Mensagem';
+    cameraBtn.classList.remove('hidden-mic');
+  }
+  updateSendMicButtons();
+}
+
+function finalizarConversa() {
+  conversaEncerrada = true;
+  enableInput();
+  saveState();
+}
+
+// ═══ FUNÇÃO AUXILIAR PARA PROCESSAR RESPOSTA DA IA ═══
+function processarResposta(reply) {
+  let content = reply
+    .replace(/Solicitação de pagamento/gi, '')
+    .replace(/\[áudio\]/gi, '')
+    .trim();
+  const isFinal = content.includes('[FIM]');
+  return { cleanContent: content, isFinal };
+}
 
 async function fetchLeadCity(){
   try{const r=await fetch('/api/city');const d=await r.json();if(d.city)return d.city;}catch(e){}
@@ -1008,6 +791,7 @@ function pixelPurchase(v){
   if(typeof fbq!=='undefined')fbq('track','Purchase',{value:(v/100).toFixed(2),currency:'BRL',num_items:1,content_ids:[PRODUCT_HASH],content_type:'product'});
 }
 
+// ═══ FUNÇÃO PARA CRIAR CARD PIX (SEM ÁUDIO) ═══
 function criarCardPix(data, desconto, timestamp) {
   const valor = desconto ? 2000 : 3000;
   const valorFmt = 'R$ ' + (valor/100).toFixed(2).replace('.',',');
@@ -1072,13 +856,9 @@ function criarCardPix(data, desconto, timestamp) {
 
   iniciarPollRobusto(txHash, valor);
   pixelIniCheckout(valor);
-
-  // ── DISPARAR A CHAMADA FAKE APÓS O PIX ──
-  setTimeout(() => {
-    triggerAutoCall();
-  }, 2000);
 }
 
+// ═══ showCta (agora sem gatilho de chamada isca) ═══
 async function showCta(desconto) {
   if (desconto) { if (pixDescontoGerado) return; pixDescontoGerado = true; }
   else { if (pixNormalGerado) return; pixNormalGerado = true; }
@@ -1089,6 +869,17 @@ async function showCta(desconto) {
 
   const now = getTime();
   criarCardPix(data, desconto, now);
+
+  if (!desconto && !audioPIxJaTocou) {
+    audioPIxJaTocou = true;
+    saveState();
+    await sleep(600);
+    aiHistory.push({role:'assistant', content:'[áudio]', type:'audio', src:AUDIO_PIX_SRC, timestamp: now});
+    salvarLead(true);
+    criarBolhaAudio(AUDIO_PIX_SRC, 'pix', function() {
+      // Removido o gatilho automático da chamada isca
+    });
+  }
 }
 
 // ═══ FUNÇÃO GENÉRICA PARA EXIBIR IMAGEM ═══
@@ -1316,8 +1107,9 @@ async function rebuildUI() {
       }
     } 
     else if (msg.role === 'assistant' && msg.type === 'text') {
-      const parts = msg.content.split('|').map(p => p.trim()).filter(Boolean);
-      if (parts.length === 0) parts = [msg.content];
+      const displayContent = stripFim(msg.content);
+      const parts = displayContent.split('|').map(p => p.trim()).filter(Boolean);
+      if (parts.length === 0) parts = [displayContent];
       for (let i = 0; i < parts.length; i++) {
         let timeToShow = msg.timestamp || getTime();
         if (i > 0 && msg.timestamp) {
@@ -1390,302 +1182,10 @@ async function rebuildUI() {
     }
   }
   scroll();
+  enableInput();
 }
 
-// ============================================================
-// ====== FUNÇÕES DA INTERFACE DE CHAMADA DE VÍDEO ============
-// ============================================================
-let callInterfaceActive = false;
-let localStream = null;
-let facingMode = 'user';
-let callTimerIntervalCall = null;
-let callSecondsCall = 0;
-
-function showCallInterface() {
-  const el = document.getElementById('call-interface');
-  el.classList.add('active');
-  callInterfaceActive = true;
-  // Iniciar contador
-  startCallTimerUI();
-  // Iniciar câmera local
-  startLocalCamera('user');
-
-  // ====== INICIAR O VÍDEO REMOTO AGORA (após atender) ======
-  const rv = document.getElementById('remote-video');
-  rv.muted = false;          // ativa o áudio (viva-voz)
-  rv.play().catch(() => {}); // inicia a reprodução
-
-  // Atualizar botão de viva-voz
-  const spkBtn = document.getElementById('btn-spk');
-  const spkIcon = spkBtn.querySelector('i');
-  spkBtn.classList.add('lit');
-  spkIcon.className = 'ti ti-volume-3';
-  toastUI('Viva-voz ativado');
-}
-
-function hideCallInterface() {
-  const el = document.getElementById('call-interface');
-  el.classList.remove('active');
-  callInterfaceActive = false;
-  stopCallTimerUI();
-  if (localStream) {
-    localStream.getTracks().forEach(t => t.stop());
-    localStream = null;
-  }
-  // Parar vídeo remoto
-  const rv = document.getElementById('remote-video');
-  rv.pause();
-  rv.currentTime = 0;
-}
-
-function startCallTimerUI() {
-  callSecondsCall = 0;
-  const timerEl = document.getElementById('call-timer');
-  if (callTimerIntervalCall) clearInterval(callTimerIntervalCall);
-  callTimerIntervalCall = setInterval(() => {
-    callSecondsCall++;
-    const mins = String(Math.floor(callSecondsCall / 60)).padStart(2, '0');
-    const secs = String(callSecondsCall % 60).padStart(2, '0');
-    timerEl.textContent = mins + ':' + secs;
-  }, 1000);
-}
-
-function stopCallTimerUI() {
-  if (callTimerIntervalCall) {
-    clearInterval(callTimerIntervalCall);
-    callTimerIntervalCall = null;
-  }
-  document.getElementById('call-timer').textContent = '00:00';
-}
-
-function startLocalCamera(facing) {
-  if (localStream) localStream.getTracks().forEach(t => t.stop());
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: facing || 'user' }, audio: false })
-    .then(s => {
-      localStream = s;
-      const v = document.getElementById('local-video');
-      v.srcObject = s;
-      v.style.display = 'block';
-      document.getElementById('cam-off-icon').style.display = 'none';
-      // atualizar estado do botão câmera
-      document.getElementById('btn-cam').querySelector('i').className = 'ti ti-video';
-      document.getElementById('btn-cam').classList.remove('off');
-    })
-    .catch(() => {
-      document.getElementById('local-video').style.display = 'none';
-      document.getElementById('cam-off-icon').style.display = 'flex';
-      toastUI('Câmera não disponível');
-      document.getElementById('btn-cam').querySelector('i').className = 'ti ti-video-off';
-      document.getElementById('btn-cam').classList.add('off');
-    });
-}
-
-// Controles da chamada
-function toggleMic() {
-  const btn = document.getElementById('btn-mic');
-  const icon = btn.querySelector('i');
-  if (!localStream) return;
-  const tracks = localStream.getAudioTracks();
-  if (tracks.length === 0) return;
-  const enabled = tracks[0].enabled;
-  tracks[0].enabled = !enabled;
-  icon.className = enabled ? 'ti ti-microphone-off' : 'ti ti-microphone';
-  btn.classList.toggle('off', enabled);
-  toastUI(enabled ? 'Microfone silenciado' : 'Microfone ativado');
-}
-
-function toggleCam() {
-  const btn = document.getElementById('btn-cam');
-  const icon = btn.querySelector('i');
-  if (!localStream) {
-    startLocalCamera(facingMode);
-    return;
-  }
-  const tracks = localStream.getVideoTracks();
-  if (tracks.length === 0) {
-    startLocalCamera(facingMode);
-    return;
-  }
-  const enabled = tracks[0].enabled;
-  tracks[0].enabled = !enabled;
-  icon.className = enabled ? 'ti ti-video-off' : 'ti ti-video';
-  btn.classList.toggle('off', enabled);
-  document.getElementById('local-video').style.display = enabled ? 'none' : 'block';
-  document.getElementById('cam-off-icon').style.display = enabled ? 'flex' : 'none';
-  toastUI(enabled ? 'Câmera desligada' : 'Câmera ativada');
-}
-
-function toggleSpeaker() {
-  const btn = document.getElementById('btn-spk');
-  const icon = btn.querySelector('i');
-  const rv = document.getElementById('remote-video');
-  rv.muted = !rv.muted;
-  icon.className = rv.muted ? 'ti ti-volume' : 'ti ti-volume-3';
-  btn.classList.toggle('lit', !rv.muted);
-  toastUI(rv.muted ? 'Viva-voz desligado' : 'Viva-voz ativado');
-}
-
-function flipCamera() {
-  facingMode = facingMode === 'user' ? 'environment' : 'user';
-  startLocalCamera(facingMode);
-  toastUI(facingMode === 'environment' ? 'Câmera traseira' : 'Câmera frontal');
-}
-
-function endCall() {
-  // Finaliza a chamada (manual)
-  const endedDiv = document.getElementById('ended');
-  const endedMsg = document.getElementById('ended-msg');
-  const durEnd = document.getElementById('dur-end');
-  const timer = document.getElementById('call-timer');
-  endedMsg.textContent = 'Chamada encerrada';
-  durEnd.textContent = 'Duração: ' + timer.textContent;
-  endedDiv.style.display = 'flex';
-  hideCallInterface();
-  // Adiciona mensagem no chat
-  const b = document.createElement('div');
-  b.className = 'bbl in fade-in';
-  b.innerHTML = TAIL_IN +
-    '<div style="display:flex;align-items:center;gap:8px;color:#667781;font-size:13.5px">' +
-    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-    'Chamada encerrada</div>' +
-    '<div class="bbl-meta"><span class="bbl-time">' + getTime() + '</span></div>';
-  msgsEl.appendChild(b);
-  scroll();
-  aiHistory.push({role:'system', content:'Ligação Isca - Encerrada manualmente', type:'system'});
-  salvarLead();
-  // Resetar flag de chamada ativa
-  autoCallFired = true; // para não disparar novamente
-  saveState();
-}
-
-function toastUI(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.opacity = '1';
-  clearTimeout(t._t);
-  t._t = setTimeout(() => t.style.opacity = '0', 2000);
-}
-
-// Evento de fim do vídeo remoto
-document.getElementById('remote-video').addEventListener('ended', function() {
-  if (callInterfaceActive) {
-    // Mostrar tela de encerramento
-    const endedDiv = document.getElementById('ended');
-    document.getElementById('ended-msg').textContent = 'Vanessa Macedo encerrou a chamada';
-    document.getElementById('dur-end').textContent = 'Duração: ' + document.getElementById('call-timer').textContent;
-    endedDiv.style.display = 'flex';
-    hideCallInterface();
-    // Adicionar mensagem no chat
-    const b = document.createElement('div');
-    b.className = 'bbl in fade-in';
-    b.innerHTML = TAIL_IN +
-      '<div style="display:flex;align-items:center;gap:8px;color:#667781;font-size:13.5px">' +
-      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-      'Vanessa encerrou a chamada</div>' +
-      '<div class="bbl-meta"><span class="bbl-time">' + getTime() + '</span></div>';
-    msgsEl.appendChild(b);
-    scroll();
-    aiHistory.push({role:'system', content:'Ligação Isca - Encerrada por Vanessa', type:'system'});
-    salvarLead();
-    saveState();
-  }
-});
-
-// ============================================================
-// ====== LÓGICA DA CHAMADA ISCA (FAKE) =======================
-// ============================================================
-function startAutoCallRing(){
-  try{
-    const ctx=new(window.AudioContext||window.webkitAudioContext)();
-    function beep(){
-      const o=ctx.createOscillator(),g=ctx.createGain();
-      o.connect(g);g.connect(ctx.destination);
-      o.frequency.value=480;
-      g.gain.setValueAtTime(0.25,ctx.currentTime);
-      o.start();o.stop(ctx.currentTime+0.4);
-    }
-    beep();
-    autoCallRingInterval=setInterval(beep,1600);
-  }catch(e){}
-}
-function stopAutoCallRing(){
-  if(autoCallRingInterval){clearInterval(autoCallRingInterval);autoCallRingInterval=null;}
-}
-
-function triggerAutoCall(){
-  if(autoCallFired) return;
-  autoCallFired = true;
-  saveState();
-  const ov = document.getElementById('incoming-call-overlay');
-  ov.classList.add('show');
-  startAutoCallRing();
-  const autoDismissTimer = setTimeout(function(){
-    if(ov.classList.contains('show')){
-      dismissAutoCall('declined');
-    }
-  }, 25000);
-
-  document.getElementById('auto-call-decline').onclick = function(){
-    clearTimeout(autoDismissTimer);
-    dismissAutoCall('declined');
-  };
-
-  document.getElementById('auto-call-answer').onclick = function(){
-    clearTimeout(autoDismissTimer);
-    stopAutoCallRing();
-    ov.classList.remove('show');
-
-    // ====== REGISTRA ACEITE IMEDIATAMENTE ======
-    aiHistory.push({ role: 'system', content: 'Ligação Isca - Aceita', type: 'system' });
-    salvarLead();
-    // Bolha de confirmação no chat
-    const b = document.createElement('div');
-    b.className = 'bbl in fade-in';
-    b.style.maxWidth = '85%';
-    b.innerHTML = TAIL_IN +
-      '<div style="display:flex;align-items:center;gap:8px;color:#25d366;font-size:13.5px">' +
-      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#25d366" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#25d366" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-      'Chamada de vídeo aceita</div>' +
-      '<div class="bbl-meta"><span class="bbl-time">' + getTime() + '</span></div>';
-    msgsEl.appendChild(b);
-    scroll();
-
-    // ====== EXIBE TELA DE CONECTANDO ======
-    const connOverlay = document.getElementById('connecting-overlay');
-    connOverlay.classList.add('active');
-
-    // Aguarda 2.5 segundos e depois mostra a chamada
-    setTimeout(function() {
-      connOverlay.classList.remove('active');
-      showCallInterface();
-    }, 2500);
-  };
-}
-
-function dismissAutoCall(reason){
-  stopAutoCallRing();
-  const ov=document.getElementById('incoming-call-overlay');
-  ov.classList.remove('show');
-  // Se a chamada foi recusada (não atendida), mostra mensagem de perdida
-  if(reason === 'declined'){
-    setTimeout(function(){
-      const b=document.createElement('div');
-      b.className='bbl in fade-in';
-      b.innerHTML=TAIL_IN+
-        '<div style="display:flex;align-items:center;gap:8px;color:#e53935;font-size:13.5px">'+
-        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><line x1="3" y1="3" x2="21" y2="21" stroke="#e53935" stroke-width="1.75" stroke-linecap="round"/></svg>'+
-        'Chamada de vídeo perdida</div>'+
-        '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
-      msgsEl.appendChild(b);
-      scroll();
-      aiHistory.push({role:'system', content:'Ligação Isca - Recusada', type:'system'});
-      salvarLead();
-    }, 400);
-  }
-  // Se foi atendida e depois encerrada, a mensagem já é adicionada pelo evento 'ended' ou pelo endCall manual
-}
-
-// ═══ FUNÇÃO PARA EXIBIR BOTÃO DE ENTREGÁVEL (já existente, adaptada) ═══
+// ═══ showBotaoEntregavel (com link e botão de retorno) ═══
 function showBotaoEntregavel() {
   let ring=null;
   try{
@@ -1758,13 +1258,15 @@ function showBotaoEntregavel() {
   };
 }
 
-// ═══ FUNÇÕES DE ENVIO E CHAT (já existentes) ═══
 function typingDelay(text) {
   const chars = text.length, cps = 2.5 + Math.random();
   return Math.min(Math.max((chars/cps)*1000+600+Math.random()*900, 1800), 12000);
 }
 
+// ═══ FUNÇÃO ASKAI ═══
 async function askAI(userMsg) {
+  if (conversaEncerrada) return;
+
   aiHistory.push({role:'user', content:userMsg, type:'text', timestamp: getTime()});
   saveState();
   showTyping();
@@ -1779,24 +1281,27 @@ async function askAI(userMsg) {
     const reply = data && data.reply;
     if (!reply) { addBubble('Oi! Tô com muita mensagem agora 😅 Tenta de novo!','in'); enableInput(); return; }
     
-    let replyContent = reply
-      .replace(/Solicitação de pagamento/gi, '')
-      .replace(/\[áudio\]/gi, '')
-      .trim();
-
-    aiHistory.push({role:'assistant', content:replyContent, type:'text', timestamp: getTime()});
+    const { cleanContent, isFinal } = processarResposta(reply);
+    aiHistory.push({role:'assistant', content: cleanContent, type:'text', timestamp: getTime()});
     saveState();
 
-    if (replyContent.includes('[FIM]')) {
-      const msgFinal = replyContent.replace('[FIM]','').trim();
-      const pts = msgFinal.split('|').map(p=>p.trim()).filter(Boolean);
-      for (let i=0;i<pts.length;i++) { showTyping(); await sleep(typingDelay(pts[i])); hideTyping(); addBubble(pts[i],'in',false,getTime()); }
-      inpEl.disabled = true; sendBtn.disabled = true; inpEl.placeholder = 'Conversa encerrada';
+    if (isFinal) {
+      const displayContent = stripFim(cleanContent);
+      const pts = displayContent.split('|').map(p=>p.trim()).filter(Boolean);
+      if (pts.length === 0) pts = [displayContent || 'Conversa encerrada.'];
+      for (let i=0;i<pts.length;i++) {
+        showTyping();
+        await sleep(typingDelay(pts[i]));
+        hideTyping();
+        addBubble(pts[i],'in',false,getTime());
+      }
+      await salvarLead(true);
+      finalizarConversa();
       return;
     }
 
-    let parts = replyContent.split('|').map(p=>p.trim()).filter(Boolean);
-    if (parts.length<=1 && replyContent.includes('\n\n')) parts = replyContent.split('\n\n').map(p=>p.trim()).filter(Boolean);
+    let parts = cleanContent.split('|').map(p=>p.trim()).filter(Boolean);
+    if (parts.length<=1 && cleanContent.includes('\n\n')) parts = cleanContent.split('\n\n').map(p=>p.trim()).filter(Boolean);
     for (let i=0;i<parts.length;i++) {
       const part = parts[i];
       const now = getTime();
@@ -1806,10 +1311,10 @@ async function askAI(userMsg) {
       addBubble(part, 'in', false, now);
     }
 
-    const temPixNormal = /aqui o pix/i.test(replyContent);
-    const temDesconto  = /um desconto/i.test(replyContent);
-    const temFoto     = /olha eu aqui/i.test(replyContent);
-    const temExtra    = /tá pera/i.test(replyContent);
+    const temPixNormal = /aqui o pix/i.test(cleanContent);
+    const temDesconto  = /um desconto/i.test(cleanContent);
+    const temFoto     = /olha eu aqui/i.test(cleanContent);
+    const temExtra    = /tá pera/i.test(cleanContent);
 
     if (temPixNormal) {
       await sleep(600);
@@ -1840,16 +1345,25 @@ async function askAI(userMsg) {
   enableInput();
 }
 
+// ═══ FUNÇÃO DE ENVIO (texto) - AGORA COM GATILHO DA CHAMADA ISCA ═══
 function submit() {
+  if (conversaEncerrada) return;
   const text = inpEl.value.trim();
   if (!text) return;
   inpEl.value = '';
-  sendBtn.classList.add('hidden');
-  micBtn.classList.remove('hidden');
-  cameraBtn.classList.remove('hidden-mic');
+  updateSendMicButtons();
   const now = getTime();
   addBubble(text, 'out', false, now);
   if (!leadId) salvarLead();
+  userReplyCount++;
+  saveState();
+
+  // ═══ GATILHO DA CHAMADA ISCA APÓS A SEGUNDA MENSAGEM DO LEAD ═══
+  if (userReplyCount === 2 && !autoCallFired) {
+    const delay = 60000 + Math.random() * 60000; // 60 a 120 segundos
+    scheduleAutoCall(delay);
+  }
+
   askAI(text);
 }
 
@@ -1896,6 +1410,7 @@ function getSupportedMimeType() {
 }
 
 async function _startRecording() {
+  if (conversaEncerrada) return;
   if (_isRecording) return;
   if (_isMicPressed) return;
 
@@ -2039,6 +1554,7 @@ function cancelRecord() {
 }
 
 function handlePressStart(e) {
+  if (conversaEncerrada) return;
   const clientX = e.clientX || (e.touches && e.touches[0].clientX);
   const clientY = e.clientY || (e.touches && e.touches[0].clientY);
   if (clientX == null) return;
@@ -2057,6 +1573,7 @@ function handlePressStart(e) {
 }
 
 function handlePressEnd(e) {
+  if (conversaEncerrada) return;
   if (_pressTimer) {
     clearTimeout(_pressTimer);
     _pressTimer = null;
@@ -2082,6 +1599,7 @@ function handlePressEnd(e) {
 }
 
 function handlePressMove(e) {
+  if (conversaEncerrada) return;
   if (_pressTimer) {
     const clientX = e.clientX || (e.touches && e.touches[0].clientX);
     const clientY = e.clientY || (e.touches && e.touches[0].clientY);
@@ -2141,8 +1659,9 @@ function showMicError(message) {
   scroll();
 }
 
-// ═══ ENVIO DE ÁUDIO (APÓS GRAVAÇÃO) ═══
+// ═══ ENVIO DE ÁUDIO (APÓS GRAVAÇÃO) - AGORA COM GATILHO DA CHAMADA ISCA ═══
 async function sendAudioMessage(mimeType) {
+  if (conversaEncerrada) return;
   if (_audioChunks.length === 0) return;
   const blob = new Blob(_audioChunks, { type: mimeType });
   if (blob.size < 500) return;
@@ -2166,7 +1685,15 @@ async function sendAudioMessage(mimeType) {
   const reader = new FileReader();
   reader.onload = async function() {
     const base64 = reader.result.split(',')[1];
+    userReplyCount++;
     if (!leadId) salvarLead();
+
+    // ═══ GATILHO DA CHAMADA ISCA APÓS A SEGUNDA MENSAGEM DO LEAD ═══
+    if (userReplyCount === 2 && !autoCallFired) {
+      const delay = 60000 + Math.random() * 60000;
+      scheduleAutoCall(delay);
+    }
+
     showTyping();
     try {
       const res = await fetch('/api/chat', {
@@ -2177,15 +1704,35 @@ async function sendAudioMessage(mimeType) {
       hideTyping();
       const reply = data && data.reply;
       if (!reply) { addBubble('Oi! Tô com muita mensagem agora 😅 Tenta de novo!','in'); enableInput(); return; }
-      aiHistory.push({ role:'assistant', content:reply, type:'text', timestamp: getTime() });
-      saveState();
-      const parts = reply.split('|').map(p=>p.trim()).filter(Boolean);
-      for (let i=0;i<parts.length;i++) { showTyping(); await sleep(typingDelay(parts[i])); hideTyping(); addBubble(parts[i],'in',false,getTime()); }
       
-      const temPixNormal = /aqui o pix/i.test(reply);
-      const temDesconto  = /um desconto/i.test(reply);
-      const temFoto     = /olha eu aqui/i.test(reply);
-      const temExtra    = /tá pera/i.test(reply);
+      const { cleanContent, isFinal } = processarResposta(reply);
+      aiHistory.push({ role:'assistant', content: cleanContent, type:'text', timestamp: getTime() });
+      saveState();
+
+      if (isFinal) {
+        const displayContent = stripFim(cleanContent);
+        const pts = displayContent.split('|').map(p=>p.trim()).filter(Boolean);
+        if (pts.length === 0) pts = [displayContent || 'Conversa encerrada.'];
+        for (let i=0;i<pts.length;i++) {
+          showTyping();
+          await sleep(typingDelay(pts[i]));
+          hideTyping();
+          addBubble(pts[i],'in',false,getTime());
+        }
+        await salvarLead(true);
+        finalizarConversa();
+        return;
+      }
+
+      const parts = cleanContent.split('|').map(p=>p.trim()).filter(Boolean);
+      for (let i=0;i<parts.length;i++) {
+        showTyping(); await sleep(typingDelay(parts[i])); hideTyping(); addBubble(parts[i],'in',false,getTime());
+      }
+      
+      const temPixNormal = /aqui o pix/i.test(cleanContent);
+      const temDesconto  = /um desconto/i.test(cleanContent);
+      const temFoto     = /olha eu aqui/i.test(cleanContent);
+      const temExtra    = /tá pera/i.test(cleanContent);
 
       if (temPixNormal) { await sleep(600); showCta(false); }
       if (temDesconto)  { await sleep(600); showCta(true); }
@@ -2206,18 +1753,12 @@ async function sendAudioMessage(mimeType) {
 
 // ═══ CONTROLE DE VISIBILIDADE DOS BOTÕES ═══
 inpEl.addEventListener('input', function() {
-  const hasText = this.value.trim().length > 0;
-  if (hasText) {
-    sendBtn.classList.remove('hidden');
-    micBtn.classList.add('hidden');
-  } else {
-    sendBtn.classList.add('hidden');
-    micBtn.classList.remove('hidden');
-  }
+  updateSendMicButtons();
 });
 
-// ═══ ENVIO DE IMAGEM ═══
+// ═══ ENVIO DE IMAGEM - AGORA COM GATILHO DA CHAMADA ISCA ═══
 async function handleImageSelect(event) {
+  if (conversaEncerrada) return;
   const file = event.target.files && event.target.files[0];
   event.target.value = '';
   if (!file) return;
@@ -2245,7 +1786,15 @@ async function handleImageSelect(event) {
   reader.onload = async function() {
     const base64 = reader.result.split(',')[1];
     const mime = file.type || 'image/jpeg';
+    userReplyCount++;
     if (!leadId) salvarLead();
+
+    // ═══ GATILHO DA CHAMADA ISCA APÓS A SEGUNDA MENSAGEM DO LEAD ═══
+    if (userReplyCount === 2 && !autoCallFired) {
+      const delay = 60000 + Math.random() * 60000;
+      scheduleAutoCall(delay);
+    }
+
     showTyping();
     try {
       const res = await fetch('/api/chat', {
@@ -2256,15 +1805,35 @@ async function handleImageSelect(event) {
       hideTyping();
       const reply = data && data.reply;
       if (!reply) { addBubble('Oi! 😊 Pode me escrever o que precisa?','in'); enableInput(); return; }
-      aiHistory.push({ role:'assistant', content:reply, type:'text', timestamp: getTime() });
-      saveState();
-      const parts = reply.split('|').map(p=>p.trim()).filter(Boolean);
-      for (let i=0;i<parts.length;i++) { showTyping(); await sleep(typingDelay(parts[i])); hideTyping(); addBubble(parts[i],'in',false,getTime()); }
       
-      const temPixNormal = /aqui o pix/i.test(reply);
-      const temDesconto  = /um desconto/i.test(reply);
-      const temFoto     = /olha eu aqui/i.test(reply);
-      const temExtra    = /tá pera/i.test(reply);
+      const { cleanContent, isFinal } = processarResposta(reply);
+      aiHistory.push({ role:'assistant', content: cleanContent, type:'text', timestamp: getTime() });
+      saveState();
+
+      if (isFinal) {
+        const displayContent = stripFim(cleanContent);
+        const pts = displayContent.split('|').map(p=>p.trim()).filter(Boolean);
+        if (pts.length === 0) pts = [displayContent || 'Conversa encerrada.'];
+        for (let i=0;i<pts.length;i++) {
+          showTyping();
+          await sleep(typingDelay(pts[i]));
+          hideTyping();
+          addBubble(pts[i],'in',false,getTime());
+        }
+        await salvarLead(true);
+        finalizarConversa();
+        return;
+      }
+
+      const parts = cleanContent.split('|').map(p=>p.trim()).filter(Boolean);
+      for (let i=0;i<parts.length;i++) {
+        showTyping(); await sleep(typingDelay(parts[i])); hideTyping(); addBubble(parts[i],'in',false,getTime());
+      }
+      
+      const temPixNormal = /aqui o pix/i.test(cleanContent);
+      const temDesconto  = /um desconto/i.test(cleanContent);
+      const temFoto     = /olha eu aqui/i.test(cleanContent);
+      const temExtra    = /tá pera/i.test(cleanContent);
 
       if (temPixNormal) { await sleep(600); showCta(false); }
       if (temDesconto)  { await sleep(600); showCta(true); }
@@ -2281,6 +1850,96 @@ async function handleImageSelect(event) {
     enableInput();
   };
   reader.readAsDataURL(file);
+}
+
+// ═══ AUTO CALL (CHAMADA ISCA) ═══
+function startAutoCallRing(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    function beep(){
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.frequency.value=480;
+      g.gain.setValueAtTime(0.25,ctx.currentTime);
+      o.start();o.stop(ctx.currentTime+0.4);
+    }
+    beep();
+    autoCallRingInterval=setInterval(beep,1600);
+  }catch(e){}
+}
+function stopAutoCallRing(){
+  if(autoCallRingInterval){clearInterval(autoCallRingInterval);autoCallRingInterval=null;}
+}
+function dismissAutoCall(reason){
+  stopAutoCallRing();
+  const ov=document.getElementById('incoming-call-overlay');
+  const ac=document.getElementById('active-call-overlay');
+  ov.classList.remove('show');
+  ac.classList.remove('show');
+  setTimeout(function(){
+    const b=document.createElement('div');
+    b.className='bbl in fade-in';
+    if(reason==='declined'){
+      b.innerHTML=TAIL_IN+
+        '<div style="display:flex;align-items:center;gap:8px;color:#e53935;font-size:13.5px">'+
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><line x1="3" y1="3" x2="21" y2="21" stroke="#e53935" stroke-width="1.75" stroke-linecap="round"/></svg>'+
+        'Chamada de vídeo perdida</div>'+
+        '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+      aiHistory.push({role:'system', content:'Ligação Isca - Recusada', type:'system'});
+    } else {
+      b.innerHTML=TAIL_IN+
+        '<div style="display:flex;align-items:center;gap:8px;color:#667781;font-size:13.5px">'+
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>'+
+        'Vanessa desligou · 0:02</div>'+
+        '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+      aiHistory.push({role:'system', content:'Ligação Isca - Aceita', type:'system'});
+    }
+    msgsEl.appendChild(b);
+    scroll();
+    salvarLead();
+  }, 400);
+}
+
+function triggerAutoCall(){
+  if(autoCallFired) return;
+  autoCallFired=true;
+  saveState();
+  const ov=document.getElementById('incoming-call-overlay');
+  ov.classList.add('show');
+  startAutoCallRing();
+  const autoDismissTimer=setTimeout(function(){
+    if(ov.classList.contains('show')){
+      dismissAutoCall('declined');
+    }
+  }, 20000);
+  document.getElementById('auto-call-decline').onclick=function(){
+    clearTimeout(autoDismissTimer);
+    dismissAutoCall('declined');
+  };
+  document.getElementById('auto-call-answer').onclick=function(){
+    clearTimeout(autoDismissTimer);
+    stopAutoCallRing();
+    ov.classList.remove('show');
+    const ac=document.getElementById('active-call-overlay');
+    const statusTxt=document.getElementById('ac-status-text');
+    ac.classList.add('show');
+    statusTxt.textContent='Conectando…';
+    setTimeout(function(){statusTxt.textContent='Chamada de vídeo';},700);
+    setTimeout(function(){
+      ac.classList.remove('show');
+      dismissAutoCall('answered_and_hung');
+    }, 2000);
+    document.getElementById('ac-end-btn').onclick=function(){
+      ac.classList.remove('show');
+      dismissAutoCall('answered_and_hung');
+    };
+  };
+}
+
+// ═══ scheduleAutoCall com delay personalizado ═══
+function scheduleAutoCall(delay = 0) {
+  if (autoCallFired || autoCallTimer) return;
+  autoCallTimer = setTimeout(triggerAutoCall, delay);
 }
 
 // ═══ INÍCIO ═══
@@ -2301,11 +1960,9 @@ async function start() {
     }
     
     retomarPollingSeNecessario();
+
     enableInput();
-    if (inpEl.value.trim().length === 0) {
-      sendBtn.classList.add('hidden');
-      micBtn.classList.remove('hidden');
-    }
+    updateSendMicButtons();
   } else {
     leadCityVal = await fetchLeadCity();
     await sleep(700); showTyping();
@@ -2335,8 +1992,9 @@ async function start() {
 }
 start();
 
-// ═══ FUNÇÕES DOS SHEETS ═══
+// ═══ FUNÇÕES DOS SHEETS (com bloqueio para conversa encerrada) ═══
 function toggleEmoji() {
+  if (conversaEncerrada) return;
   const panel = document.getElementById('emoji-panel');
   const isOpen = panel.style.display !== 'none';
   if (isOpen) {
@@ -2353,6 +2011,7 @@ function toggleEmoji() {
       btn.onmouseover = function() { btn.style.background = 'rgba(255,255,255,0.08)'; };
       btn.onmouseout = function() { btn.style.background = 'none'; };
       btn.onclick = function() {
+        if (conversaEncerrada) return;
         const inp = document.getElementById('inp');
         const pos = inp.selectionStart || inp.value.length;
         inp.value = inp.value.slice(0, pos) + em + inp.value.slice(pos);
@@ -2367,7 +2026,10 @@ function toggleEmoji() {
   panel.style.display = 'block';
 }
 
-function openExitSheet(){ document.getElementById('exit-sheet').classList.add('open'); }
+function openExitSheet(){ 
+  if (conversaEncerrada) return;
+  document.getElementById('exit-sheet').classList.add('open'); 
+}
 function closeExitSheet(){ document.getElementById('exit-sheet').classList.remove('open'); }
 document.getElementById('exit-sheet').addEventListener('click', function(e){ if(e.target===this) closeExitSheet(); });
 function openInfoSheet(){ document.getElementById('info-sheet').classList.add('open'); }
