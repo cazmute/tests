@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   const valor = desconto ? VALOR_DESCONTO : VALOR_NORMAL;
 
   try {
-    // 1. Obtém token
+    console.log('[PIX] Obtendo token...');
     const tokenRes = await fetch('https://oauth.livepix.gg/oauth2/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -21,18 +21,20 @@ export default async function handler(req, res) {
       }),
     });
     const tokenData = await tokenRes.json();
+    console.log('[PIX] Token status:', tokenRes.status);
     if (!tokenData.access_token) {
-      console.error('LivePix token error:', tokenData);
-      return res.status(500).json({ error: 'Falha ao autenticar com LivePix' });
+      console.error('[PIX] Token error:', tokenData);
+      return res.status(500).json({ error: 'Falha ao autenticar com LivePix', details: tokenData });
     }
 
-    // 2. Cria pagamento
+    // Fallback para Google (mantido a pedido do usuário)
     const redirectUrl = process.env.LIVEPIX_REDIRECT_URL || 'https://www.google.com/';
     const payload = {
       amount: valor,
       currency: 'BRL',
       redirectUrl,
     };
+    console.log('[PIX] Payload:', payload);
 
     const payRes = await fetch('https://api.livepix.gg/v2/payments', {
       method: 'POST',
@@ -44,20 +46,31 @@ export default async function handler(req, res) {
     });
 
     const payData = await payRes.json();
-    if (!payData.data || !payData.data.id) {
-      console.error('LivePix payment error:', payData);
-      return res.status(500).json({ error: 'Falha ao criar pagamento' });
+    console.log('[PIX] Payment status:', payRes.status);
+    console.log('[PIX] Payment data:', payData);
+
+    if (!payRes.ok) {
+      console.error('[PIX] LivePix error:', payData);
+      return res.status(500).json({
+        error: 'Erro na LivePix ao criar pagamento',
+        status: payRes.status,
+        details: payData,
+      });
     }
 
-    // 3. RETORNA O ID REAL DA TRANSAÇÃO (NÃO O REFERENCE)
+    if (!payData.data || !payData.data.id) {
+      console.error('[PIX] Missing id:', payData);
+      return res.status(500).json({ error: 'Resposta inesperada da LivePix', details: payData });
+    }
+
     return res.status(200).json({
-      paymentId: payData.data.id,        // <- CHAVE CORRETA PARA POLLING
+      paymentId: payData.data.id,
       redirectUrl: payData.data.redirectUrl,
       amount: valor,
       currency: 'BRL',
     });
   } catch (e) {
-    console.error(e);
-    return res.status(500).json({ error: 'LivePix request failed' });
+    console.error('[PIX] Exception:', e);
+    return res.status(500).json({ error: 'LivePix request failed', message: e.message });
   }
 }
