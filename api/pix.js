@@ -4,12 +4,13 @@ export default async function handler(req, res) {
 
   const { desconto } = req.body;
 
+  // VALORES EM CENTAVOS (R$ 30,00 / R$ 20,00)
   const VALOR_NORMAL = 3000;
   const VALOR_DESCONTO = 2000;
   const valor = desconto ? VALOR_DESCONTO : VALOR_NORMAL;
 
   try {
-    // 1. Obtém token
+    // 1. OBTÉM TOKEN OAuth2 (Client Credentials)
     const tokenRes = await fetch('https://oauth.livepix.gg/oauth2/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -26,7 +27,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Falha ao autenticar com LivePix' });
     }
 
-    // 2. Cria pagamento
+    // 2. CRIA SOLICITAÇÃO DE PAGAMENTO
     const redirectUrl = process.env.LIVEPIX_REDIRECT_URL || 'https://www.google.com/';
     const payload = {
       amount: valor,
@@ -44,14 +45,14 @@ export default async function handler(req, res) {
     });
 
     const payData = await payRes.json();
-    if (!payData.data || !payData.data.id) {
+    if (!payData.data || !payData.data.reference) {
       console.error('LivePix payment error:', payData);
       return res.status(500).json({ error: 'Falha ao criar pagamento' });
     }
 
-    // 3. RETORNA O ID REAL DA TRANSAÇÃO (NÃO O REFERENCE)
+    // 3. RETORNA PARA O FRONTEND
     return res.status(200).json({
-      paymentId: payData.data.id,        // <- CHAVE CORRETA PARA POLLING
+      reference: payData.data.reference,
       redirectUrl: payData.data.redirectUrl,
       amount: valor,
       currency: 'BRL',
