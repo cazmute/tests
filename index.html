@@ -776,7 +776,7 @@ function criarCardPix(data, desconto, timestamp) {
     pixData: {
       valor: valor,
       valorFmt: valorFmt,
-      reference: reference,
+      paymentId: paymentId,        // <-- CORRIGIDO: agora salva paymentId
       checkoutUrl: checkoutUrl,
       desconto: desconto
     }
@@ -875,17 +875,18 @@ function criarCardPix(data, desconto, timestamp) {
   msgsEl.appendChild(wrap);
   scroll();
 
- iniciarPollRobusto(paymentId, amount);
+  // CORRIGIDO: usa 'valor' em vez de 'amount'
+  iniciarPollRobusto(paymentId, valor);
   pixelIniCheckout(valor);
 }
 
-// ═══ SHOW CTA (sem delay extra, pois o delay já é controlado pelo askAI) ═══
+// ═══ SHOW CTA (corrigido: verifica paymentId em vez de reference) ═══
 async function showCta(desconto) {
   if (desconto) { if (pixDescontoGerado) return; pixDescontoGerado = true; }
   else { if (pixNormalGerado) return; pixNormalGerado = true; }
 
   const data = await gerarPix(desconto);
-  if (!data || !data.reference) {
+  if (!data || !data.paymentId) {   // <-- CORRIGIDO
     addBubble('Ops, tive um probleminha ao gerar o Pix. Tenta de novo! 😅', 'in');
     return;
   }
