@@ -765,7 +765,7 @@ function pixelPurchase(v){
 function criarCardPix(data, desconto, timestamp) {
   const valor = desconto ? 2000 : 3000;
   const valorFmt = 'R$ ' + (valor/100).toFixed(2).replace('.',',');
-  const reference = data.reference || ('tx'+Date.now());
+  const paymentId = data.paymentId || ('tx'+Date.now());
   const checkoutUrl = data.redirectUrl || '#';
 
   const pixEntry = {
