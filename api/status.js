@@ -1,5 +1,4 @@
 // file: status.js
-// Cache do token OAuth com expiração (1 hora)
 let cachedToken = null;
 let tokenExpiresAt = 0;
 
@@ -36,6 +35,8 @@ export default async function handler(req, res) {
   const { hash } = req.query;
   if (!hash) return res.status(400).json({ error: 'Missing hash' });
 
+  console.log(`[STATUS] Consultando pagamento ${hash}`);
+
   try {
     const token = await getLivePixToken();
 
@@ -43,27 +44,30 @@ export default async function handler(req, res) {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    // Se 404, pagamento ainda não existe (criado mas não confirmado)
+    console.log(`[STATUS] Resposta da LivePix: ${response.status}`);
+
     if (response.status === 404) {
+      console.log('[STATUS] Pagamento não encontrado (pendente)');
       return res.status(200).json({ payment_status: 'pending' });
     }
 
     if (!response.ok) {
-      console.error('LivePix status error:', response.status);
+      console.error('[STATUS] Erro na LivePix:', response.status);
       return res.status(200).json({ payment_status: 'pending' });
     }
 
     const data = await response.json();
+    console.log('[STATUS] Dados do pagamento:', JSON.stringify(data.data, null, 2));
 
-    // Se o campo "proof" existe e tem valor, o pagamento foi confirmado
     if (data.data && data.data.proof && data.data.proof.trim().length > 0) {
-      return res.status(200).json({ payment_status: 'paid' });
+      console.log('[STATUS] Pagamento CONFIRMADO! Proof:', data.data.proof);
+      return res.status(200).json({ payment_status: 'paid', proof: data.data.proof });
     }
 
-    // Pagamento existe mas ainda não foi pago
+    console.log('[STATUS] Pagamento ainda pendente');
     return res.status(200).json({ payment_status: 'pending' });
   } catch (e) {
-    console.error(e);
-    return res.status(500).json({ error: 'Status check failed' });
+    console.error('[STATUS] Exception:', e);
+    return res.status(500).json({ error: 'Status check failed', message: e.message });
   }
 }
