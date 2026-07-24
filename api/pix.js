@@ -27,7 +27,6 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Falha ao autenticar com LivePix', details: tokenData });
     }
 
-    // Fallback para Google (mantido a pedido do usuário)
     const redirectUrl = process.env.LIVEPIX_REDIRECT_URL || 'https://www.google.com/';
     const payload = {
       amount: valor,
@@ -58,13 +57,14 @@ export default async function handler(req, res) {
       });
     }
 
-    if (!payData.data || !payData.data.id) {
-      console.error('[PIX] Missing id:', payData);
+    // ⭐ CORREÇÃO: a LivePix retorna 'reference' como identificador único
+    if (!payData.data || !payData.data.reference) {
+      console.error('[PIX] Missing reference:', payData);
       return res.status(500).json({ error: 'Resposta inesperada da LivePix', details: payData });
     }
 
     return res.status(200).json({
-      paymentId: payData.data.id,
+      paymentId: payData.data.reference,   // <-- Usamos 'reference'
       redirectUrl: payData.data.redirectUrl,
       amount: valor,
       currency: 'BRL',
