@@ -290,6 +290,57 @@ html,body{
   transition:background 0.15s;
 }
 #pix-modal-box .btn-entendi:hover{background:var(--fb-blue-dark);}
+
+/* ── CARD PIX SIMPLIFICADO ── */
+.pix-card-simples {
+  background:#FFFFFF;
+  border-radius:18px;
+  overflow:hidden;
+  min-width:160px;
+  max-width:220px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.10);
+  padding:0;
+}
+.pix-card-simples .pix-top {
+  background:#0084FF;
+  padding:14px 16px 10px;
+  text-align:center;
+}
+.pix-card-simples .pix-top .pix-valor {
+  font-size:26px;
+  font-weight:700;
+  color:#fff;
+  letter-spacing:-0.5px;
+}
+.pix-card-simples .pix-body {
+  padding:12px 14px 10px;
+}
+.pix-card-simples .pix-body .pix-btn {
+  width:100%;
+  background:#0084FF;
+  border:none;
+  border-radius:10px;
+  padding:10px 0;
+  color:#fff;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  font-family:inherit;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  transition:background 0.15s;
+}
+.pix-card-simples .pix-body .pix-btn:hover {
+  background:#1877F2;
+}
+.pix-card-simples .pix-footer {
+  text-align:right;
+  font-size:10.5px;
+  color:#65676B;
+  padding:0 14px 8px;
+}
 </style>
 </head>
 <body>
@@ -896,7 +947,7 @@ function pixelPurchase(v){
   if(typeof fbq!=='undefined')fbq('track','Purchase',{value:(v/100).toFixed(2),currency:'BRL',num_items:1,content_ids:[PRODUCT_HASH],content_type:'product'});
 }
 
-// ═══ FUNÇÃO PARA CRIAR CARD PIX (SIMPLIFICADO) ═══
+// ═══ FUNÇÃO PARA CRIAR CARD PIX (SIMPLIFICADO - SEM NOME) ═══
 function criarCardPix(data, desconto, timestamp) {
   const valor = desconto ? 1000 : 2000;
   const valorFmt = 'R$ ' + (valor/100).toFixed(2).replace('.',',');
@@ -923,28 +974,31 @@ function criarCardPix(data, desconto, timestamp) {
   wrap.className = 'fade-in';
   wrap.style.cssText = 'align-self:flex-start;margin-left:6px;max-width:88%';
 
+  // Card com classes CSS para estilo
   const card = document.createElement('div');
-  card.style.cssText = 'background:#FFFFFF;border-radius:18px;overflow:hidden;min-width:160px;box-shadow:0 2px 8px rgba(0,0,0,0.10);padding:14px 16px;';
+  card.className = 'pix-card-simples';
 
-  // Apenas valor e botão copiar
-  const valorEl = document.createElement('div');
-  valorEl.style.cssText = 'font-size:24px;font-weight:700;color:#1C1E21;text-align:center;margin-bottom:12px;';
-  valorEl.textContent = valorFmt;
-  card.appendChild(valorEl);
+  // Topo azul com o valor
+  const top = document.createElement('div');
+  top.className = 'pix-top';
+  top.innerHTML = `<span class="pix-valor">${valorFmt}</span>`;
+  card.appendChild(top);
 
+  // Corpo com botão
+  const body = document.createElement('div');
+  body.className = 'pix-body';
   if (pixCopia) {
     const btn = document.createElement('button');
-    btn.style.cssText = 'width:100%;background:#0084FF;border:none;border-radius:10px;padding:10px 0;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;transition:background 0.15s;';
+    btn.className = 'pix-btn';
     btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Copiar Pix';
-    btn.onmouseover = function(){ this.style.background='#1877F2'; };
-    btn.onmouseout = function(){ this.style.background='#0084FF'; };
     btn.onclick = function(){ window.copiarPix(btn, pixCopia); };
-    card.appendChild(btn);
+    body.appendChild(btn);
   }
+  card.appendChild(body);
 
-  // Metadados (hora)
+  // Rodapé com hora
   const footer = document.createElement('div');
-  footer.style.cssText = 'margin-top:8px;text-align:right;font-size:10.5px;color:#65676B;';
+  footer.className = 'pix-footer';
   footer.textContent = timestamp || getTime();
   card.appendChild(footer);
 
@@ -1240,25 +1294,26 @@ async function rebuildUI() {
         wrap.style.cssText = 'align-self:flex-start;margin-left:6px;max-width:88%';
 
         const card = document.createElement('div');
-        card.style.cssText = 'background:#FFFFFF;border-radius:18px;overflow:hidden;min-width:160px;box-shadow:0 2px 8px rgba(0,0,0,0.10);padding:14px 16px;';
+        card.className = 'pix-card-simples';
 
-        const valorEl = document.createElement('div');
-        valorEl.style.cssText = 'font-size:24px;font-weight:700;color:#1C1E21;text-align:center;margin-bottom:12px;';
-        valorEl.textContent = pixData.valorFmt;
-        card.appendChild(valorEl);
+        const top = document.createElement('div');
+        top.className = 'pix-top';
+        top.innerHTML = `<span class="pix-valor">${pixData.valorFmt}</span>`;
+        card.appendChild(top);
 
+        const body = document.createElement('div');
+        body.className = 'pix-body';
         if (pixData.chave) {
           const btn = document.createElement('button');
-          btn.style.cssText = 'width:100%;background:#0084FF;border:none;border-radius:10px;padding:10px 0;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;transition:background 0.15s;';
+          btn.className = 'pix-btn';
           btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Copiar Pix';
-          btn.onmouseover = function(){ this.style.background='#1877F2'; };
-          btn.onmouseout = function(){ this.style.background='#0084FF'; };
           btn.onclick = function(){ window.copiarPix(btn, pixData.chave); };
-          card.appendChild(btn);
+          body.appendChild(btn);
         }
+        card.appendChild(body);
 
         const footer = document.createElement('div');
-        footer.style.cssText = 'margin-top:8px;text-align:right;font-size:10.5px;color:#65676B;';
+        footer.className = 'pix-footer';
         footer.textContent = msg.timestamp || getTime();
         card.appendChild(footer);
 
