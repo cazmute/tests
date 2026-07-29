@@ -1,76 +1,58 @@
-// file: pix.js
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { desconto } = req.body;
 
-  const VALOR_NORMAL = 3000;
-  const VALOR_DESCONTO = 2000;
+  // VALORES ALTERADOS: 1990 → 2000 (R$20,00) e 990 → 1000 (R$10,00)
+  const VALOR_NORMAL   = 2000;
+  const VALOR_DESCONTO = 1000;
   const valor = desconto ? VALOR_DESCONTO : VALOR_NORMAL;
 
+  const payload = {
+    api_token: process.env.INVICTUSPAY_KEY,
+    amount: valor,
+    offer_hash: process.env.OFFER_HASH,
+    payment_method: 'pix',
+    customer: {
+      name: 'Vanessa Macedo',
+      email: 'clientehot@gmail.com',
+      phone_number: '11999999999',
+      document: '09115751031',
+      street_name: 'Rua das Flores',
+      number: '123',
+      complement: '',
+      neighborhood: 'Centro',
+      city: 'São Paulo',
+      state: 'SP',
+      zip_code: '01310100',
+    },
+    cart: [{
+      product_hash: process.env.PRODUCT_HASH,
+      title: 'chamada de video',
+      cover: null,
+      price: valor,
+      quantity: 1,
+      operation_type: 1,
+      tangible: false,
+    }],
+    expire_in_days: 1,
+    transaction_origin: 'api',
+    tracking: {
+      src: '', utm_source: 'whatsapp', utm_medium: 'chat',
+      utm_campaign: 'xpremium', utm_term: '', utm_content: '',
+    },
+    postback_url: 'https://webhook.site/invictuspay-xpremium',
+  };
+
   try {
-    console.log('[PIX] Obtendo token...');
-    const tokenRes = await fetch('https://oauth.livepix.gg/oauth2/token', {
+    const response = await fetch(`${process.env.INVICTUSPAY_URL}/transactions`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        grant_type: 'client_credentials',
-        client_id: process.env.LIVEPIX_CLIENT_ID,
-        client_secret: process.env.LIVEPIX_CLIENT_SECRET,
-        scope: 'payments:write',
-      }),
-    });
-    const tokenData = await tokenRes.json();
-    console.log('[PIX] Token status:', tokenRes.status);
-    if (!tokenData.access_token) {
-      console.error('[PIX] Token error:', tokenData);
-      return res.status(500).json({ error: 'Falha ao autenticar com LivePix', details: tokenData });
-    }
-
-    const redirectUrl = process.env.LIVEPIX_REDIRECT_URL || 'https://www.google.com/';
-    const payload = {
-      amount: valor,
-      currency: 'BRL',
-      redirectUrl,
-    };
-    console.log('[PIX] Payload:', payload);
-
-    const payRes = await fetch('https://api.livepix.gg/v2/payments', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${tokenData.access_token}`,
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-
-    const payData = await payRes.json();
-    console.log('[PIX] Payment status:', payRes.status);
-    console.log('[PIX] Payment data:', payData);
-
-    if (!payRes.ok) {
-      console.error('[PIX] LivePix error:', payData);
-      return res.status(500).json({
-        error: 'Erro na LivePix ao criar pagamento',
-        status: payRes.status,
-        details: payData,
-      });
-    }
-
-    // ⭐ CORREÇÃO: a LivePix retorna 'reference' como identificador único
-    if (!payData.data || !payData.data.reference) {
-      console.error('[PIX] Missing reference:', payData);
-      return res.status(500).json({ error: 'Resposta inesperada da LivePix', details: payData });
-    }
-
-    return res.status(200).json({
-      paymentId: payData.data.reference,   // <-- Usamos 'reference'
-      redirectUrl: payData.data.redirectUrl,
-      amount: valor,
-      currency: 'BRL',
-    });
+    const data = await response.json();
+    return res.status(200).json(data);
   } catch (e) {
-    console.error('[PIX] Exception:', e);
-    return res.status(500).json({ error: 'LivePix request failed', message: e.message });
+    return res.status(500).json({ error: 'PIX request failed' });
   }
 }
