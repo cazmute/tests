@@ -942,8 +942,7 @@ function pixelPurchase(v){
 function criarCardPix(data, desconto, timestamp) {
   const valor = desconto ? 1000 : 2000;
   const valorFmt = 'R$ ' + (valor/100).toFixed(2).replace('.',',');
-  // FALLBACK: tenta pix_qr_code, depois chave, depois pix.chave
-  const pixCopia = (data.pix && data.pix.pix_qr_code) || data.chave || (data.pix && data.pix.chave) || '';
+  const pixCopia = (data.pix && data.pix.pix_qr_code) || '';
   const txHash = data.hash || ('tx'+Date.now());
 
   const pixEntry = {
