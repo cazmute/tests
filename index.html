@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Messenger</title>
-<!-- Meta Pixel (mantido) -->
+<!-- Meta Pixel -->
 <script>
 !function(f,b,e,v,n,t,s)
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -291,55 +291,49 @@ html,body{
 }
 #pix-modal-box .btn-entendi:hover{background:var(--fb-blue-dark);}
 
-/* ── CARD PIX SIMPLIFICADO ── */
+/* ── CARD PIX RETANGULAR HORIZONTAL ── */
 .pix-card-simples {
   background:#FFFFFF;
-  border-radius:18px;
-  overflow:hidden;
-  min-width:160px;
-  max-width:220px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.10);
-  padding:0;
+  border-radius:12px;
+  box-shadow:0 1px 3px rgba(0,0,0,0.10);
+  padding:10px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  min-width:200px;
+  max-width:280px;
 }
-.pix-card-simples .pix-top {
-  background:#0084FF;
-  padding:14px 16px 10px;
-  text-align:center;
-}
-.pix-card-simples .pix-top .pix-valor {
-  font-size:26px;
+.pix-card-simples .pix-valor {
+  font-size:20px;
   font-weight:700;
-  color:#fff;
-  letter-spacing:-0.5px;
+  color:#1C1E21;
+  white-space:nowrap;
 }
-.pix-card-simples .pix-body {
-  padding:12px 14px 10px;
-}
-.pix-card-simples .pix-body .pix-btn {
-  width:100%;
+.pix-card-simples .pix-btn {
   background:#0084FF;
   border:none;
-  border-radius:10px;
-  padding:10px 0;
+  border-radius:8px;
+  padding:8px 14px;
   color:#fff;
-  font-size:14px;
+  font-size:13px;
   font-weight:600;
   cursor:pointer;
   font-family:inherit;
   display:flex;
   align-items:center;
-  justify-content:center;
-  gap:6px;
+  gap:5px;
   transition:background 0.15s;
+  white-space:nowrap;
 }
-.pix-card-simples .pix-body .pix-btn:hover {
+.pix-card-simples .pix-btn:hover {
   background:#1877F2;
 }
 .pix-card-simples .pix-footer {
-  text-align:right;
-  font-size:10.5px;
+  font-size:10px;
   color:#65676B;
-  padding:0 14px 8px;
+  margin-left:auto;
+  padding-left:8px;
 }
 </style>
 </head>
@@ -901,31 +895,29 @@ document.addEventListener('visibilitychange', function() {
   }
 });
 
-// ═══ ANTIGO iniciarPoll (mantido para compatibilidade) ═══
-function iniciarPoll(txHash, valorPago) {
-  iniciarPollRobusto(txHash, valorPago);
-}
-
-window.copiarPix=function(btn,codigo){
-  const ok=function(){
-    btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#0084FF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Copiado!';
-    btn.style.color='#0084FF';
-    // Abrir modal de instruções
+// ═══ COPIA PIX (sem alterar o botão) ═══
+window.copiarPix = function(btn, codigo) {
+  const copiar = function() {
+    // Apenas copia e abre modal - não modifica o botão
     openPixModal();
-    setTimeout(function(){
-      btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="#0084FF" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="#0084FF" stroke-width="2" stroke-linecap="round"/></svg> Copiar Pix';
-      btn.style.color='#0084FF';
-    },3000);
   };
-  if(navigator.clipboard){navigator.clipboard.writeText(codigo).then(ok).catch(function(){fallbackCopy(codigo,ok);});}
-  else{fallbackCopy(codigo,ok);}
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(codigo).then(copiar).catch(function() { fallbackCopy(codigo, copiar); });
+  } else {
+    fallbackCopy(codigo, copiar);
+  }
 };
-function fallbackCopy(texto,cb){
-  const ta=document.createElement('textarea');ta.value=texto;
-  ta.style.cssText='position:fixed;opacity:0';
-  document.body.appendChild(ta);ta.focus();ta.select();
-  try{document.execCommand('copy');}catch(e){}
-  document.body.removeChild(ta);cb();
+
+function fallbackCopy(texto, cb) {
+  const ta = document.createElement('textarea');
+  ta.value = texto;
+  ta.style.cssText = 'position:fixed;opacity:0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try { document.execCommand('copy'); } catch(e) {}
+  document.body.removeChild(ta);
+  cb();
 }
 
 function openPixModal() {
@@ -934,7 +926,6 @@ function openPixModal() {
 function closePixModal() {
   document.getElementById('pix-modal-overlay').classList.remove('show');
 }
-// Fechar modal clicando fora
 document.getElementById('pix-modal-overlay').addEventListener('click', function(e) {
   if (e.target === this) closePixModal();
 });
@@ -947,7 +938,7 @@ function pixelPurchase(v){
   if(typeof fbq!=='undefined')fbq('track','Purchase',{value:(v/100).toFixed(2),currency:'BRL',num_items:1,content_ids:[PRODUCT_HASH],content_type:'product'});
 }
 
-// ═══ FUNÇÃO PARA CRIAR CARD PIX (SIMPLIFICADO - SEM NOME) ═══
+// ═══ FUNÇÃO PARA CRIAR CARD PIX RETANGULAR HORIZONTAL ═══
 function criarCardPix(data, desconto, timestamp) {
   const valor = desconto ? 1000 : 2000;
   const valorFmt = 'R$ ' + (valor/100).toFixed(2).replace('.',',');
@@ -974,33 +965,26 @@ function criarCardPix(data, desconto, timestamp) {
   wrap.className = 'fade-in';
   wrap.style.cssText = 'align-self:flex-start;margin-left:6px;max-width:88%';
 
-  // Card com classes CSS para estilo
   const card = document.createElement('div');
   card.className = 'pix-card-simples';
 
-  // Topo azul com o valor
-  const top = document.createElement('div');
-  top.className = 'pix-top';
-  top.innerHTML = `<span class="pix-valor">${valorFmt}</span>`;
-  card.appendChild(top);
+  // Valor à esquerda
+  const valorSpan = document.createElement('span');
+  valorSpan.className = 'pix-valor';
+  valorSpan.textContent = valorFmt;
+  card.appendChild(valorSpan);
 
-  // Corpo com botão
-  const body = document.createElement('div');
-  body.className = 'pix-body';
+  // Botão à direita
   if (pixCopia) {
     const btn = document.createElement('button');
     btn.className = 'pix-btn';
     btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Copiar Pix';
-    btn.onclick = function(){ window.copiarPix(btn, pixCopia); };
-    body.appendChild(btn);
+    btn.onclick = function(e) {
+      e.stopPropagation();
+      window.copiarPix(btn, pixCopia);
+    };
+    card.appendChild(btn);
   }
-  card.appendChild(body);
-
-  // Rodapé com hora
-  const footer = document.createElement('div');
-  footer.className = 'pix-footer';
-  footer.textContent = timestamp || getTime();
-  card.appendChild(footer);
 
   wrap.appendChild(card);
   msgsEl.appendChild(wrap);
@@ -1010,7 +994,7 @@ function criarCardPix(data, desconto, timestamp) {
   pixelIniCheckout(valor);
 }
 
-// ═══ showCta (agora sem gatilho de chamada isca) ═══
+// ═══ showCta ═══
 async function showCta(desconto) {
   if (desconto) { if (pixDescontoGerado) return; pixDescontoGerado = true; }
   else { if (pixNormalGerado) return; pixNormalGerado = true; }
@@ -1028,9 +1012,7 @@ async function showCta(desconto) {
     await sleep(600);
     aiHistory.push({role:'assistant', content:'[áudio]', type:'audio', src:AUDIO_PIX_SRC, timestamp: now});
     salvarLead(true);
-    criarBolhaAudio(AUDIO_PIX_SRC, 'pix', function() {
-      // Removido o gatilho automático da chamada isca
-    });
+    criarBolhaAudio(AUDIO_PIX_SRC, 'pix', function() {});
   }
 }
 
@@ -1296,26 +1278,21 @@ async function rebuildUI() {
         const card = document.createElement('div');
         card.className = 'pix-card-simples';
 
-        const top = document.createElement('div');
-        top.className = 'pix-top';
-        top.innerHTML = `<span class="pix-valor">${pixData.valorFmt}</span>`;
-        card.appendChild(top);
+        const valorSpan = document.createElement('span');
+        valorSpan.className = 'pix-valor';
+        valorSpan.textContent = pixData.valorFmt;
+        card.appendChild(valorSpan);
 
-        const body = document.createElement('div');
-        body.className = 'pix-body';
         if (pixData.chave) {
           const btn = document.createElement('button');
           btn.className = 'pix-btn';
           btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Copiar Pix';
-          btn.onclick = function(){ window.copiarPix(btn, pixData.chave); };
-          body.appendChild(btn);
+          btn.onclick = function(e) {
+            e.stopPropagation();
+            window.copiarPix(btn, pixData.chave);
+          };
+          card.appendChild(btn);
         }
-        card.appendChild(body);
-
-        const footer = document.createElement('div');
-        footer.className = 'pix-footer';
-        footer.textContent = msg.timestamp || getTime();
-        card.appendChild(footer);
 
         wrap.appendChild(card);
         msgsEl.appendChild(wrap);
@@ -1329,7 +1306,7 @@ async function rebuildUI() {
   enableInput();
 }
 
-// ═══ showBotaoEntregavel (com link e botão de retorno) ═══
+// ═══ showBotaoEntregavel ═══
 function showBotaoEntregavel() {
   let ring=null;
   try{
@@ -1489,7 +1466,7 @@ async function askAI(userMsg) {
   enableInput();
 }
 
-// ═══ FUNÇÃO DE ENVIO (texto) - AGORA COM GATILHO DA CHAMADA ISCA ═══
+// ═══ FUNÇÃO DE ENVIO (texto) ═══
 function submit() {
   if (conversaEncerrada) return;
   const text = inpEl.value.trim();
@@ -1502,9 +1479,8 @@ function submit() {
   userReplyCount++;
   saveState();
 
-  // ═══ GATILHO DA CHAMADA ISCA APÓS A SEGUNDA MENSAGEM DO LEAD ═══
   if (userReplyCount === 2 && !autoCallFired) {
-    const delay = 60000 + Math.random() * 60000; // 60 a 120 segundos
+    const delay = 60000 + Math.random() * 60000;
     scheduleAutoCall(delay);
   }
 
@@ -1803,7 +1779,7 @@ function showMicError(message) {
   scroll();
 }
 
-// ═══ ENVIO DE ÁUDIO (APÓS GRAVAÇÃO) - AGORA COM GATILHO DA CHAMADA ISCA ═══
+// ═══ ENVIO DE ÁUDIO (APÓS GRAVAÇÃO) ═══
 async function sendAudioMessage(mimeType) {
   if (conversaEncerrada) return;
   if (_audioChunks.length === 0) return;
@@ -1832,7 +1808,6 @@ async function sendAudioMessage(mimeType) {
     userReplyCount++;
     if (!leadId) salvarLead();
 
-    // ═══ GATILHO DA CHAMADA ISCA APÓS A SEGUNDA MENSAGEM DO LEAD ═══
     if (userReplyCount === 2 && !autoCallFired) {
       const delay = 60000 + Math.random() * 60000;
       scheduleAutoCall(delay);
@@ -1900,7 +1875,7 @@ inpEl.addEventListener('input', function() {
   updateSendMicButtons();
 });
 
-// ═══ ENVIO DE IMAGEM - AGORA COM GATILHO DA CHAMADA ISCA ═══
+// ═══ ENVIO DE IMAGEM ═══
 async function handleImageSelect(event) {
   if (conversaEncerrada) return;
   const file = event.target.files && event.target.files[0];
@@ -1933,7 +1908,6 @@ async function handleImageSelect(event) {
     userReplyCount++;
     if (!leadId) salvarLead();
 
-    // ═══ GATILHO DA CHAMADA ISCA APÓS A SEGUNDA MENSAGEM DO LEAD ═══
     if (userReplyCount === 2 && !autoCallFired) {
       const delay = 60000 + Math.random() * 60000;
       scheduleAutoCall(delay);
@@ -2080,7 +2054,7 @@ function triggerAutoCall(){
   };
 }
 
-// ═══ scheduleAutoCall com delay personalizado ═══
+// ═══ scheduleAutoCall ═══
 function scheduleAutoCall(delay = 0) {
   if (autoCallFired || autoCallTimer) return;
   autoCallTimer = setTimeout(triggerAutoCall, delay);
@@ -2136,7 +2110,7 @@ async function start() {
 }
 start();
 
-// ═══ FUNÇÕES DOS SHEETS (com bloqueio para conversa encerrada) ═══
+// ═══ FUNÇÕES DOS SHEETS ═══
 function toggleEmoji() {
   if (conversaEncerrada) return;
   const panel = document.getElementById('emoji-panel');
