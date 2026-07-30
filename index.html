@@ -966,7 +966,7 @@ html,body{
         </div>
       </div>
       <div class="pix-value" id="pix-value-display">R$ 30,00</div>
-      <button class="btn-primary" id="btn-copy-pix">
+      <button class="btn-primary" id="btn-copy-pix" onclick="copyPixKey()">
         <svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" stroke="currentColor" stroke-width="2"/><path d="M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z" stroke="currentColor" stroke-width="2"/></svg>
         Copiar chave Pix
       </button>
@@ -1671,8 +1671,8 @@ function submit() {
   askAI(text);
 }
 
-// ═══ GRAVAÇÃO DE ÁUDIO ═══
-// [Código de gravação omitido por brevidade – manter o mesmo do original]
+// ═══ GRAVAÇÃO DE ÁUDIO (mantida, omitida para evitar repetição) ═══
+// (Código de gravação permanece o mesmo do original)
 
 // ═══ FUNÇÕES PARA CONTROLE DE ÁUDIO DA CHAMADA ═══
 function muteRemoteAudio() {
@@ -1920,7 +1920,65 @@ document.getElementById('remote-video').addEventListener('ended', function(){
   }
 });
 
-// ═══ NOVAS FUNÇÕES DOS MODAIS (ATUALIZADAS) ═══
+// ═══ FUNÇÕES DOS MODAIS (ATUALIZADAS) ═══
+
+// ── Função global para copiar a chave Pix ──
+window.copyPixKey = function() {
+  const btn = document.getElementById('btn-copy-pix');
+  const chave = btn.dataset.chave;
+  if (!chave || chave === '') {
+    toastUI('❌ Nenhuma chave disponível');
+    return;
+  }
+  // Usa a API de clipboard se disponível, senão fallback
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(chave).then(() => {
+      btn.innerHTML = `
+        <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+        Copiado!
+      `;
+      toastUI('✅ Chave Pix copiada!');
+      setTimeout(() => {
+        btn.innerHTML = `
+          <svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" stroke="currentColor" stroke-width="2"/><path d="M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z" stroke="currentColor" stroke-width="2"/></svg>
+          Copiar chave Pix
+        `;
+      }, 3000);
+    }).catch(() => {
+      fallbackCopy(chave);
+    });
+  } else {
+    fallbackCopy(chave);
+  }
+};
+
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;opacity:0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try {
+    document.execCommand('copy');
+    toastUI('✅ Chave Pix copiada!');
+    const btn = document.getElementById('btn-copy-pix');
+    btn.innerHTML = `
+      <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+      Copiado!
+    `;
+    setTimeout(() => {
+      btn.innerHTML = `
+        <svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" stroke="currentColor" stroke-width="2"/><path d="M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z" stroke="currentColor" stroke-width="2"/></svg>
+        Copiar chave Pix
+      `;
+    }, 3000);
+  } catch(e) {
+    toastUI('❌ Erro ao copiar');
+  }
+  document.body.removeChild(ta);
+}
+
 function showPaymentModal() {
   if (paymentModalShown || paymentResolved) return;
   paymentModalShown = true;
@@ -2011,55 +2069,6 @@ document.getElementById('exit-discount-no').onclick = function() {
   hidePaymentModal();
   endCall();
 };
-
-// ═══ COPIA DA CHAVE PIX (ATUALIZADA) ═══
-window.copyPixKey = function() {
-  const btn = document.getElementById('btn-copy-pix');
-  const chave = btn.dataset.chave;
-  if (!chave || chave === '') {
-    toastUI('❌ Nenhuma chave disponível');
-    return;
-  }
-  navigator.clipboard.writeText(chave).then(() => {
-    btn.innerHTML = `
-      <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-      Copiado!
-    `;
-    toastUI('✅ Chave Pix copiada!');
-    setTimeout(() => {
-      btn.innerHTML = `
-        <svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" stroke="currentColor" stroke-width="2"/><path d="M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z" stroke="currentColor" stroke-width="2"/></svg>
-        Copiar chave Pix
-      `;
-    }, 3000);
-  }).catch(() => {
-    fallbackCopy(chave, () => {
-      btn.innerHTML = `
-        <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-        Copiado!
-      `;
-      toastUI('✅ Chave Pix copiada!');
-      setTimeout(() => {
-        btn.innerHTML = `
-          <svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" stroke="currentColor" stroke-width="2"/><path d="M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z" stroke="currentColor" stroke-width="2"/></svg>
-          Copiar chave Pix
-        `;
-      }, 3000);
-    });
-  });
-};
-
-function fallbackCopy(text, cb) {
-  const ta = document.createElement('textarea');
-  ta.value = text;
-  ta.style.cssText = 'position:fixed;opacity:0';
-  document.body.appendChild(ta);
-  ta.focus();
-  ta.select();
-  try { document.execCommand('copy'); } catch(e) {}
-  document.body.removeChild(ta);
-  cb();
-}
 
 // ═══ INÍCIO ═══
 async function start() {
