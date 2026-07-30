@@ -405,12 +405,12 @@ html,body{
   cursor: pointer;
 }
 
-/* ── MODAL DE PAGAMENTO (fundo mais escuro) ── */
+/* ── MODAL DE PAGAMENTO (fundo escuro absoluto) ── */
 #payment-modal {
   display: none;
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.92);  /* quase totalmente escuro */
+  background: rgba(0,0,0,0.98); /* praticamente preto */
   z-index: 600;
   align-items: center;
   justify-content: center;
@@ -470,38 +470,8 @@ html,body{
   color: #00a884;
   margin-bottom: 14px;
 }
-/* Área da chave: escondemos a chave e a label, mantendo apenas o botão */
-#payment-modal .pix-key-area {
-  background: rgba(255,255,255,0.06);
-  border-radius: 10px;
-  padding: 10px 14px;
-  margin-bottom: 12px;
-  border: 1px dashed rgba(255,255,255,0.15);
-  text-align: center;
-}
-#payment-modal .pix-key-area .label,
-#payment-modal .pix-key-area .key {
-  display: none; /* esconde a label e a chave visível */
-}
-#payment-modal .btn-copy {
-  background: rgba(0,168,132,0.2);
-  border: none;
-  color: #00a884;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: background .15s;
-  margin: 0 auto;
-}
-#payment-modal .btn-copy:hover {
-  background: rgba(0,168,132,0.35);
-}
-#payment-modal .btn-verify {
+/* Área da chave antiga removida – agora o botão de copiar é o principal */
+#payment-modal .btn-copy-pix {
   background: #00a884;
   border: none;
   color: #fff;
@@ -513,11 +483,12 @@ html,body{
   cursor: pointer;
   transition: background .15s;
   margin-top: 6px;
+  text-align: center;
 }
-#payment-modal .btn-verify:hover {
+#payment-modal .btn-copy-pix:hover {
   background: #017f64;
 }
-#payment-modal .btn-verify:disabled {
+#payment-modal .btn-copy-pix:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -904,13 +875,7 @@ html,body{
       <div class="modal-title">🔒 Pagamento necessário</div>
       <div class="modal-sub" id="payment-sub">Vanessa está aguardando você concluir o pagamento para continuar a chamada.</div>
       <div class="pix-value" id="pix-value-display">R$ 30,00</div>
-      <div id="pix-key-area" class="pix-key-area" style="display:none;">
-        <!-- label e key estão ocultos via CSS; mantemos apenas o botão copiar -->
-        <div class="label">Chave Pix</div>
-        <div class="key" id="pix-key-text">---</div>
-        <button class="btn-copy" onclick="copyPixKey()">📋 Copiar chave</button>
-      </div>
-      <button class="btn-verify" id="btn-verify-payment" onclick="verifyPayment()">✅ Já paguei, verificar</button>
+      <button class="btn-copy-pix" id="btn-copy-pix" onclick="copyPixKey()">copiar chave Pix</button>
       <div class="status-msg" id="payment-status"></div>
     </div>
   </div>
@@ -986,6 +951,7 @@ let callSecondsCall = 0;
 let paymentModalShown = false;
 let paymentData = null; // {hash, valor, desconto, chave}
 let paymentResolved = false;
+let remoteAudioWasMuted = false; // para restaurar o estado do áudio
 
 const STATE_KEY = 'wa-conversa-state';
 const AUDIO_LEAD_KEY = 'wa-audio-lead';
@@ -1613,6 +1579,25 @@ function submit() {
 // [Código completo de gravação – mesmo do index original – deve ser mantido]
 // Para não alongar, assumimos que está presente. Se necessário, reutilize o código já existente.
 
+// ═══ FUNÇÕES PARA CONTROLE DE ÁUDIO DA CHAMADA ═══
+function muteRemoteAudio() {
+  const rv = document.getElementById('remote-video');
+  if (rv && !rv.muted) {
+    rv.muted = true;
+    remoteAudioWasMuted = true;
+  } else {
+    remoteAudioWasMuted = false;
+  }
+}
+
+function restoreRemoteAudio() {
+  const rv = document.getElementById('remote-video');
+  if (rv && remoteAudioWasMuted) {
+    rv.muted = false;
+    remoteAudioWasMuted = false;
+  }
+}
+
 // ═══ INTERFACE DA CHAMADA ISCA (FORTE) ═══
 
 function startAutoCallRing(){
@@ -1727,6 +1712,8 @@ function hideCallInterface() {
   const rv=document.getElementById('remote-video');
   rv.pause();
   rv.currentTime=0;
+  // Restaura áudio se estava mudo
+  restoreRemoteAudio();
 }
 
 function startCallTimerUI() {
@@ -1840,11 +1827,14 @@ document.getElementById('remote-video').addEventListener('ended', function(){
   }
 });
 
-// ═══ MODAL DE PAGAMENTO (chave oculta) ═══
+// ═══ MODAL DE PAGAMENTO (com controle de áudio) ═══
 function showPaymentModal() {
   if (paymentModalShown || paymentResolved) return;
   paymentModalShown = true;
   saveState();
+  // Silencia o áudio remoto enquanto o modal estiver aberto
+  muteRemoteAudio();
+
   const modal=document.getElementById('payment-modal');
   modal.classList.add('active');
 
@@ -1855,10 +1845,8 @@ function showPaymentModal() {
       const hash = data.hash || 'tx'+Date.now();
       paymentData = { hash, valor, desconto: false, chave };
       document.getElementById('pix-value-display').textContent = 'R$ 30,00';
-      // Atualiza a chave no elemento oculto
-      document.getElementById('pix-key-text').textContent = chave;
-      document.getElementById('pix-key-area').style.display = 'block';
-      document.getElementById('btn-verify-payment').disabled = false;
+      document.getElementById('btn-copy-pix').dataset.chave = chave;
+      document.getElementById('btn-copy-pix').disabled = false;
       document.getElementById('payment-status').textContent = '';
       iniciarPollRobusto(hash, valor);
       pixelIniCheckout(valor);
@@ -1881,6 +1869,10 @@ function showPaymentModal() {
 function hidePaymentModal() {
   document.getElementById('payment-modal').classList.remove('active');
   paymentModalShown = false;
+  // Restaura o áudio se a chamada ainda estiver ativa
+  if (callInterfaceActive) {
+    restoreRemoteAudio();
+  }
 }
 
 function handleModalClose() {
@@ -1908,14 +1900,15 @@ document.getElementById('exit-discount-yes').onclick = function() {
       const hash = data.hash || 'tx'+Date.now();
       paymentData = { hash, valor, desconto: true, chave };
       document.getElementById('pix-value-display').textContent = 'R$ 20,00';
-      document.getElementById('pix-key-text').textContent = chave;
-      document.getElementById('pix-key-area').style.display = 'block';
-      document.getElementById('btn-verify-payment').disabled = false;
+      document.getElementById('btn-copy-pix').dataset.chave = chave;
+      document.getElementById('btn-copy-pix').disabled = false;
       document.getElementById('payment-status').textContent = '✅ Desconto aplicado!';
       document.getElementById('payment-status').className = 'status-msg ok';
       iniciarPollRobusto(hash, valor);
       pixelIniCheckout(valor);
       document.getElementById('payment-modal').classList.add('active');
+      // Silencia áudio novamente ao reabrir o modal
+      muteRemoteAudio();
     } else {
       document.getElementById('payment-status').textContent = '❌ Erro ao gerar Pix com desconto. Tente novamente.';
       document.getElementById('payment-status').className = 'status-msg err';
@@ -1929,17 +1922,28 @@ document.getElementById('exit-discount-no').onclick = function() {
   endCall();
 };
 
+// ═══ COPIA DA CHAVE PIX (botão principal) ═══
 window.copyPixKey = function() {
-  const key = document.getElementById('pix-key-text').textContent;
-  if (!key || key === '---') return;
-  navigator.clipboard.writeText(key).then(() => {
-    const btn = document.querySelector('.btn-copy');
-    btn.innerHTML = '✅ Copiado!';
+  const btn = document.getElementById('btn-copy-pix');
+  const chave = btn.dataset.chave;
+  if (!chave || chave === '') {
+    toastUI('❌ Nenhuma chave disponível');
+    return;
+  }
+  navigator.clipboard.writeText(chave).then(() => {
+    btn.textContent = '✅ Copiado!';
+    toastUI('✅ Chave Pix copiada!');
     setTimeout(() => {
-      btn.innerHTML = '📋 Copiar chave';
+      btn.textContent = 'copiar chave Pix';
     }, 3000);
   }).catch(() => {
-    fallbackCopy(key, () => {});
+    fallbackCopy(chave, () => {
+      btn.textContent = '✅ Copiado!';
+      toastUI('✅ Chave Pix copiada!');
+      setTimeout(() => {
+        btn.textContent = 'copiar chave Pix';
+      }, 3000);
+    });
   });
 };
 
@@ -1954,28 +1958,6 @@ function fallbackCopy(text, cb) {
   document.body.removeChild(ta);
   cb();
 }
-
-window.verifyPayment = function() {
-  if (!paymentData) return;
-  const statusEl = document.getElementById('payment-status');
-  statusEl.textContent = '⏳ Verificando...';
-  statusEl.className = 'status-msg';
-  checarStatus(paymentData.hash).then(status => {
-    if (status === 'paid' || status === 'approved' || status === 'completed') {
-      paymentResolved = true;
-      saveState();
-      hidePaymentModal();
-      pixelPurchase(paymentData.valor);
-      toastUI('✅ Pagamento confirmado!');
-    } else {
-      statusEl.textContent = '❌ Pagamento ainda não confirmado. Tente novamente em alguns segundos.';
-      statusEl.className = 'status-msg err';
-    }
-  }).catch(() => {
-    statusEl.textContent = '❌ Erro ao verificar. Tente novamente.';
-    statusEl.className = 'status-msg err';
-  });
-};
 
 // ═══ INÍCIO ═══
 async function start() {
