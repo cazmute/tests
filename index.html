@@ -314,7 +314,7 @@ html,body{
   background: rgba(255,255,255,0.06);
 }
 
-/* ── MODAL DE RETENÇÃO ── */
+/* ── MODAL DE RETENÇÃO (DESCONTO) ── */
 #exit-confirm-modal {
   display: none;
   position: absolute;
@@ -374,7 +374,7 @@ html,body{
 #exit-confirm-modal .btn-group .btn-discount-no {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.7);
   padding: 11px;
   border-radius: 12px;
   font-size: 13px;
@@ -383,6 +383,87 @@ html,body{
 }
 #exit-confirm-modal .btn-group .btn-discount-no:hover {
   background: rgba(255, 255, 255, 0.05);
+}
+
+/* ── MODAL DE AVISO (segunda tentativa) ── */
+#payment-warning-modal {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  z-index: 750;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+#payment-warning-modal.active {
+  display: flex;
+}
+#payment-warning-modal .modal-card {
+  background: #1f2c34;
+  border-radius: 24px;
+  max-width: 330px;
+  width: 100%;
+  padding: 28px 20px 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+  color: #e9edef;
+  animation: fi .25s ease;
+  text-align: center;
+}
+#payment-warning-modal .modal-icon-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+#payment-warning-modal .modal-icon {
+  width: 60px;
+  height: 60px;
+  background: rgba(229, 57, 53, 0.12);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#payment-warning-modal .modal-icon svg {
+  width: 32px;
+  height: 32px;
+  stroke: #e53935;
+  stroke-width: 1.8;
+  fill: none;
+}
+#payment-warning-modal .modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 4px;
+}
+#payment-warning-modal .modal-sub {
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.65);
+  text-align: center;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+#payment-warning-modal .modal-sub strong {
+  color: #e9edef;
+  font-weight: 500;
+}
+#payment-warning-modal .btn-primary {
+  background: #00a884;
+  border: none;
+  color: #fff;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  width: 100%;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+#payment-warning-modal .btn-primary:hover {
+  background: #017f64;
 }
 
 /* ── INCOMING CALL OVERLAY ── */
@@ -932,7 +1013,7 @@ html,body{
     </div>
   </div>
 
-  <!-- ─── MODAL DE PAGAMENTO (ATUALIZADO) ─── -->
+  <!-- ─── MODAL DE PAGAMENTO ─── -->
   <div id="payment-modal">
     <div class="modal-card">
       <button class="modal-close-btn" id="payment-modal-close">✕</button>
@@ -974,7 +1055,7 @@ html,body{
     </div>
   </div>
 
-  <!-- ─── MODAL DE RETENÇÃO (ATUALIZADO) ─── -->
+  <!-- ─── MODAL DE RETENÇÃO (DESCONTO) ─── -->
   <div id="exit-confirm-modal">
     <div class="modal-card">
       <div class="modal-title">⏳ Oferta relâmpago</div>
@@ -984,8 +1065,28 @@ html,body{
       </div>
       <div class="btn-group">
         <button class="btn-discount-yes" id="exit-discount-yes">Sim, quero o desconto</button>
-        <button class="btn-discount-no" id="exit-discount-no">Não, encerrar chamada</button>
+        <button class="btn-discount-no" id="exit-discount-no">Voltar ao valor normal</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ─── MODAL DE AVISO (segunda tentativa) ─── -->
+  <div id="payment-warning-modal">
+    <div class="modal-card">
+      <div class="modal-icon-wrap">
+        <div class="modal-icon">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            <path d="M12 8v5M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="modal-title">Aguardando pagamento</div>
+      <div class="modal-sub">
+        Vanessa está em chamada com você agora.<br />
+        Ela está aguardando você <strong>finalizar o pagamento</strong> para continuar.
+      </div>
+      <button class="btn-primary" id="warning-ok">Entendi</button>
     </div>
   </div>
 
@@ -1033,6 +1134,7 @@ let audioPIxJaTocou = false;
 let aiHistory=[], leadId=null, clicouCta=false, leadCityVal=null;
 let pixNormalGerado=false, pixDescontoGerado=false;
 let initiateCheckoutFired=false, typingEl=null;
+let discountOffered = false; // Flag para saber se o desconto já foi oferecido
 const SESSION_ID=Math.random().toString(36).slice(2);
 
 let conversaEncerrada = false;
@@ -1070,7 +1172,8 @@ function saveState() {
     initiateCheckoutFired,
     paymentResolved,
     paymentModalShown,
-    paymentSystemLogged
+    paymentSystemLogged,
+    discountOffered
   };
   try {
     localStorage.setItem(STATE_KEY, JSON.stringify(state));
@@ -1095,6 +1198,7 @@ function loadState() {
     paymentResolved = state.paymentResolved || false;
     paymentModalShown = state.paymentModalShown || false;
     paymentSystemLogged = state.paymentSystemLogged || false;
+    discountOffered = state.discountOffered || false;
     return true;
   } catch(e) {
     return false;
@@ -1162,7 +1266,7 @@ function enableInput(){
   if (conversaEncerrada) {
     inpEl.placeholder = 'Conversa encerrada';
     inpEl.disabled = true;
-    cameraBtn.classList.remove('hidden-mic');
+    cameraBtn.classList.add('hidden-mic');
   } else {
     inpEl.disabled = false;
     inpEl.placeholder = 'Mensagem';
@@ -1730,7 +1834,6 @@ function dismissAutoCall(reason){
   const ov=document.getElementById('incoming-call-overlay');
   ov.classList.remove('show');
   if (reason === 'declined') {
-    // Já existe registro de recusada, mas vou garantir que salve
     const jaExiste = aiHistory.some(m => m.content === 'Ligação Isca - Recusada');
     if (!jaExiste) {
       aiHistory.push({role:'system', content:'Ligação Isca - Recusada', type:'system'});
@@ -1776,7 +1879,6 @@ function triggerAutoCall(){
     stopAutoCallRing();
     ov.classList.remove('show');
 
-    // 🔥 MARCA QUE A LIGAÇÃO FOI ACEITA
     const jaExiste = aiHistory.some(m => m.content === 'Ligação Isca - Aceita');
     if (!jaExiste) {
       aiHistory.push({role:'system', content:'Ligação Isca - Aceita', type:'system'});
@@ -1921,6 +2023,7 @@ window.endCall=function(){
   hideCallInterface();
   hidePaymentModal();
   hideExitConfirmModal();
+  hidePaymentWarningModal();
   autoCallFired=true;
   saveState();
 };
@@ -1941,6 +2044,7 @@ document.getElementById('remote-video').addEventListener('ended', function(){
     hideCallInterface();
     hidePaymentModal();
     hideExitConfirmModal();
+    hidePaymentWarningModal();
     autoCallFired=true;
     saveState();
   }
@@ -2054,7 +2158,13 @@ function handleModalClose() {
     hidePaymentModal();
     return;
   }
-  showExitConfirmModal();
+  if (!discountOffered) {
+    discountOffered = true;
+    saveState();
+    showExitConfirmModal();
+  } else {
+    showPaymentWarningModal();
+  }
 }
 
 function showExitConfirmModal() {
@@ -2064,13 +2174,26 @@ function hideExitConfirmModal() {
   document.getElementById('exit-confirm-modal').classList.remove('active');
 }
 
-// ── Eventos dos botões do modal de retenção ──
+function showPaymentWarningModal() {
+  document.getElementById('payment-warning-modal').classList.add('active');
+}
+function hidePaymentWarningModal() {
+  document.getElementById('payment-warning-modal').classList.remove('active');
+}
+
+// ── Evento do botão "Entendi" do aviso ──
+document.getElementById('warning-ok').onclick = function() {
+  hidePaymentWarningModal();
+  // Mantém o modal de pagamento aberto
+};
+
+// ── Evento do "Sim, quero o desconto" ──
 document.getElementById('exit-discount-yes').onclick = function() {
   hideExitConfirmModal();
   gerarPix(true).then(data => {
     if (data) {
       const valor = 2000;
-      const chave = data.pix && data.pix.pix_qr_code || '';
+      const chave = data.pix?.pix_qr_code || '';
       const hash = data.hash || 'tx'+Date.now();
       paymentData = { hash, valor, desconto: true, chave };
       document.getElementById('pix-value-display').textContent = 'R$ 20,00';
@@ -2089,11 +2212,64 @@ document.getElementById('exit-discount-yes').onclick = function() {
   });
 };
 
+// ── Evento do "Voltar ao valor normal" ──
 document.getElementById('exit-discount-no').onclick = function() {
   hideExitConfirmModal();
-  hidePaymentModal();
-  endCall();
+  // Reabre o modal de pagamento com valor normal
+  reopenPaymentModalNormal();
 };
+
+function reopenPaymentModalNormal() {
+  // Garante que o modal de pagamento está visível
+  const modal = document.getElementById('payment-modal');
+  modal.classList.add('active');
+  // Se já existe paymentData, restaura o valor normal se estava com desconto
+  if (paymentData && paymentData.desconto) {
+    // Gerar novo pix sem desconto
+    gerarPix(false).then(data => {
+      if (data) {
+        const valor = 3000;
+        const chave = data.pix?.pix_qr_code || '';
+        const hash = data.hash || 'tx'+Date.now();
+        paymentData = { hash, valor, desconto: false, chave };
+        document.getElementById('pix-value-display').textContent = 'R$ 30,00';
+        document.getElementById('btn-copy-pix').dataset.chave = chave;
+        document.getElementById('btn-copy-pix').disabled = false;
+        document.getElementById('payment-status').textContent = '';
+        iniciarPollRobusto(hash, valor);
+        pixelIniCheckout(valor);
+      } else {
+        document.getElementById('payment-status').textContent = '❌ Erro ao gerar Pix. Tente novamente.';
+        document.getElementById('payment-status').className = 'status-msg err';
+      }
+    });
+  } else if (!paymentData) {
+    // Se não há dados, gera novo pix normal
+    gerarPix(false).then(data => {
+      if (data) {
+        const valor = 3000;
+        const chave = data.pix?.pix_qr_code || '';
+        const hash = data.hash || 'tx'+Date.now();
+        paymentData = { hash, valor, desconto: false, chave };
+        document.getElementById('pix-value-display').textContent = 'R$ 30,00';
+        document.getElementById('btn-copy-pix').dataset.chave = chave;
+        document.getElementById('btn-copy-pix').disabled = false;
+        document.getElementById('payment-status').textContent = '';
+        iniciarPollRobusto(hash, valor);
+        pixelIniCheckout(valor);
+      } else {
+        document.getElementById('payment-status').textContent = '❌ Erro ao gerar Pix. Tente novamente.';
+        document.getElementById('payment-status').className = 'status-msg err';
+      }
+    });
+  } else {
+    // Já está normal, apenas reexibe
+    document.getElementById('pix-value-display').textContent = 'R$ 30,00';
+    document.getElementById('btn-copy-pix').dataset.chave = paymentData.chave;
+    document.getElementById('payment-status').textContent = '';
+  }
+  restoreRemoteAudio();
+}
 
 // ═══ INÍCIO ═══
 async function start() {
