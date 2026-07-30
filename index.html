@@ -314,7 +314,7 @@ html,body{
   background: rgba(255,255,255,0.06);
 }
 
-/* ── MODAL DE RETENÇÃO (DESCONTO) ── */
+/* ── MODAL DE RETENÇÃO ── */
 #exit-confirm-modal {
   display: none;
   position: absolute;
@@ -374,7 +374,7 @@ html,body{
 #exit-confirm-modal .btn-group .btn-discount-no {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.8);
   padding: 11px;
   border-radius: 12px;
   font-size: 13px;
@@ -382,7 +382,7 @@ html,body{
   transition: background 0.15s;
 }
 #exit-confirm-modal .btn-group .btn-discount-no:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 /* ── MODAL DE AVISO (segunda tentativa) ── */
@@ -390,7 +390,7 @@ html,body{
   display: none;
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
   z-index: 750;
@@ -434,21 +434,15 @@ html,body{
   fill: none;
 }
 #payment-warning-modal .modal-title {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 600;
-  text-align: center;
   margin-bottom: 4px;
 }
 #payment-warning-modal .modal-sub {
-  font-size: 13.5px;
-  color: rgba(255, 255, 255, 0.65);
-  text-align: center;
-  line-height: 1.5;
-  margin-bottom: 20px;
-}
-#payment-warning-modal .modal-sub strong {
-  color: #e9edef;
-  font-weight: 500;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+  margin-bottom: 18px;
 }
 #payment-warning-modal .btn-primary {
   background: #00a884;
@@ -1134,13 +1128,12 @@ let audioPIxJaTocou = false;
 let aiHistory=[], leadId=null, clicouCta=false, leadCityVal=null;
 let pixNormalGerado=false, pixDescontoGerado=false;
 let initiateCheckoutFired=false, typingEl=null;
-let discountOffered = false; // Flag para saber se o desconto já foi oferecido
 const SESSION_ID=Math.random().toString(36).slice(2);
 
 let conversaEncerrada = false;
 
-// flags da chamada isca
-let autoCallFired = false;
+// flags da chamada isca - agora sem trava única
+let callInProgress = false; // controle de sobreposição
 let autoCallRingInterval = null;
 let callInterfaceActive = false;
 let localStream = null;
@@ -1151,7 +1144,8 @@ let paymentModalShown = false;
 let paymentData = null;
 let paymentResolved = false;
 let remoteAudioWasMuted = false;
-let paymentSystemLogged = false; // evitar duplicar mensagem de sistema
+let paymentSystemLogged = false;
+let discountOffered = false; // controle do fluxo de desconto
 
 const STATE_KEY = 'wa-conversa-state';
 const AUDIO_LEAD_KEY = 'wa-audio-lead';
@@ -1168,7 +1162,6 @@ function saveState() {
     pixDescontoGerado,
     audioPIxJaTocou,
     conversaEncerrada,
-    autoCallFired,
     initiateCheckoutFired,
     paymentResolved,
     paymentModalShown,
@@ -1193,7 +1186,6 @@ function loadState() {
     pixDescontoGerado = state.pixDescontoGerado || false;
     audioPIxJaTocou = state.audioPIxJaTocou || false;
     conversaEncerrada = state.conversaEncerrada || false;
-    autoCallFired = state.autoCallFired || false;
     initiateCheckoutFired = state.initiateCheckoutFired || false;
     paymentResolved = state.paymentResolved || false;
     paymentModalShown = state.paymentModalShown || false;
@@ -1397,11 +1389,10 @@ function iniciarPollRobusto(txHash, valorPago, tentativasIniciais = 0) {
           limparEstadoPolling();
           pixelPurchase(pollingValorAtual);
           
-          // 🔥 MARCA QUE O PAGAMENTO FOI ACEITO
           if (!paymentSystemLogged) {
             paymentSystemLogged = true;
             aiHistory.push({role:'system', content:'Entregável - Aceito', type:'system'});
-            salvarLead(); // salva com a nova mensagem
+            salvarLead();
             saveState();
           }
           
@@ -1699,7 +1690,7 @@ function typingDelay(text) {
   return Math.min(Math.max((chars/cps)*1000+600+Math.random()*900, 1800), 12000);
 }
 
-// ═══ ASK AI (com correção: salvarLead a cada resposta) ═══
+// ═══ ASK AI ═══
 async function askAI(userMsg) {
   if (conversaEncerrada) return;
 
@@ -1719,12 +1710,13 @@ async function askAI(userMsg) {
     
     const { cleanContent, isFinal } = processarResposta(reply);
     aiHistory.push({role:'assistant', content: cleanContent, type:'text', timestamp: getTime()});
-    salvarLead(); // envia todas as mensagens para o Supabase
+    salvarLead();
     saveState();
 
     const lower = cleanContent.toLowerCase();
-    if ((lower.includes('vou te ligar') || lower.includes('vou te ligar agora')) && !autoCallFired && !paymentResolved) {
-      setTimeout(() => triggerAutoCall(), 5000);
+    // Gatilho da chamada – agora SEMPRE chama, se não houver chamada em andamento
+    if ((lower.includes('vou te ligar') || lower.includes('vou te ligar agora')) && !callInProgress && !paymentResolved) {
+      triggerAutoCall();
     }
 
     if (isFinal) {
@@ -1788,8 +1780,8 @@ function submit() {
   askAI(text);
 }
 
-// ═══ GRAVAÇÃO DE ÁUDIO (mantida, omitida para evitar repetição) ═══
-// (Código de gravação permanece o mesmo do original)
+// ═══ GRAVAÇÃO DE ÁUDIO (omitido para brevidade, manter igual) ═══
+// ... (código de gravação mantido do original)
 
 // ═══ FUNÇÕES PARA CONTROLE DE ÁUDIO DA CHAMADA ═══
 function muteRemoteAudio() {
@@ -1810,7 +1802,7 @@ function restoreRemoteAudio() {
   }
 }
 
-// ═══ INTERFACE DA CHAMADA ISCA ═══
+// ═══ INTERFACE DA CHAMADA ISCA (agora com múltiplos disparos) ═══
 function startAutoCallRing(){
   try{
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
@@ -1833,6 +1825,7 @@ function dismissAutoCall(reason){
   stopAutoCallRing();
   const ov=document.getElementById('incoming-call-overlay');
   ov.classList.remove('show');
+  callInProgress = false; // libera para nova chamada
   if (reason === 'declined') {
     const jaExiste = aiHistory.some(m => m.content === 'Ligação Isca - Recusada');
     if (!jaExiste) {
@@ -1857,12 +1850,18 @@ function dismissAutoCall(reason){
 }
 
 function triggerAutoCall(){
-  if(autoCallFired) return;
-  autoCallFired=true;
-  saveState();
+  // Se já houver chamada em andamento ou overlay visível, não dispara novamente
+  if (callInProgress) return;
+  // Se já pagou, não precisa mais
+  if (paymentResolved) return;
+  
   const ov=document.getElementById('incoming-call-overlay');
+  if (ov.classList.contains('show')) return; // já está tocando
+
+  callInProgress = true;
   ov.classList.add('show');
   startAutoCallRing();
+  
   const autoDismissTimer=setTimeout(function(){
     if(ov.classList.contains('show')){
       dismissAutoCall('declined');
@@ -1900,6 +1899,7 @@ function showCallInterface() {
   const el=document.getElementById('call-interface');
   el.classList.add('active');
   callInterfaceActive=true;
+  callInProgress = true; // mantém ocupado
   startCallTimerUI();
   startLocalCamera('user');
 
@@ -1926,6 +1926,7 @@ function hideCallInterface() {
   const el=document.getElementById('call-interface');
   el.classList.remove('active');
   callInterfaceActive=false;
+  callInProgress = false; // libera para nova chamada
   stopCallTimerUI();
   if (localStream) {
     localStream.getTracks().forEach(t=>t.stop());
@@ -2024,7 +2025,7 @@ window.endCall=function(){
   hidePaymentModal();
   hideExitConfirmModal();
   hidePaymentWarningModal();
-  autoCallFired=true;
+  callInProgress = false;
   saveState();
 };
 function toastUI(msg){
@@ -2045,7 +2046,7 @@ document.getElementById('remote-video').addEventListener('ended', function(){
     hidePaymentModal();
     hideExitConfirmModal();
     hidePaymentWarningModal();
-    autoCallFired=true;
+    callInProgress = false;
     saveState();
   }
 });
@@ -2153,6 +2154,42 @@ function hidePaymentModal() {
   }
 }
 
+// ── Função para reabrir modal com valor normal ──
+function reopenPaymentModalNormal() {
+  hideExitConfirmModal();
+  // Fecha o aviso se estiver aberto
+  hidePaymentWarningModal();
+  // Garante que o modal de pagamento está visível
+  document.getElementById('payment-modal').classList.add('active');
+  // Se não houver paymentData ou estiver com desconto, gera novo pix normal
+  if (!paymentData || paymentData.desconto) {
+    gerarPix(false).then(data => {
+      if (data) {
+        const valor = 3000;
+        const chave = data.pix?.pix_qr_code || '';
+        const hash = data.hash || 'tx'+Date.now();
+        paymentData = { hash, valor, desconto: false, chave };
+        document.getElementById('pix-value-display').textContent = 'R$ 30,00';
+        document.getElementById('btn-copy-pix').dataset.chave = chave;
+        document.getElementById('btn-copy-pix').disabled = false;
+        document.getElementById('payment-status').textContent = '';
+        iniciarPollRobusto(hash, valor);
+        pixelIniCheckout(valor);
+      } else {
+        document.getElementById('payment-status').textContent = '❌ Erro ao gerar Pix. Tente novamente.';
+        document.getElementById('payment-status').className = 'status-msg err';
+      }
+    });
+  } else {
+    // Já tem pix normal
+    document.getElementById('pix-value-display').textContent = 'R$ 30,00';
+    document.getElementById('btn-copy-pix').dataset.chave = paymentData.chave;
+    document.getElementById('payment-status').textContent = '';
+  }
+  restoreRemoteAudio();
+}
+
+// ── handleModalClose (fluxo de fechamento) ──
 function handleModalClose() {
   if (paymentResolved) {
     hidePaymentModal();
@@ -2167,13 +2204,13 @@ function handleModalClose() {
   }
 }
 
+// ── Modais ──
 function showExitConfirmModal() {
   document.getElementById('exit-confirm-modal').classList.add('active');
 }
 function hideExitConfirmModal() {
   document.getElementById('exit-confirm-modal').classList.remove('active');
 }
-
 function showPaymentWarningModal() {
   document.getElementById('payment-warning-modal').classList.add('active');
 }
@@ -2181,13 +2218,7 @@ function hidePaymentWarningModal() {
   document.getElementById('payment-warning-modal').classList.remove('active');
 }
 
-// ── Evento do botão "Entendi" do aviso ──
-document.getElementById('warning-ok').onclick = function() {
-  hidePaymentWarningModal();
-  // Mantém o modal de pagamento aberto
-};
-
-// ── Evento do "Sim, quero o desconto" ──
+// ── Eventos dos botões ──
 document.getElementById('exit-discount-yes').onclick = function() {
   hideExitConfirmModal();
   gerarPix(true).then(data => {
@@ -2212,64 +2243,14 @@ document.getElementById('exit-discount-yes').onclick = function() {
   });
 };
 
-// ── Evento do "Voltar ao valor normal" ──
 document.getElementById('exit-discount-no').onclick = function() {
-  hideExitConfirmModal();
-  // Reabre o modal de pagamento com valor normal
   reopenPaymentModalNormal();
 };
 
-function reopenPaymentModalNormal() {
-  // Garante que o modal de pagamento está visível
-  const modal = document.getElementById('payment-modal');
-  modal.classList.add('active');
-  // Se já existe paymentData, restaura o valor normal se estava com desconto
-  if (paymentData && paymentData.desconto) {
-    // Gerar novo pix sem desconto
-    gerarPix(false).then(data => {
-      if (data) {
-        const valor = 3000;
-        const chave = data.pix?.pix_qr_code || '';
-        const hash = data.hash || 'tx'+Date.now();
-        paymentData = { hash, valor, desconto: false, chave };
-        document.getElementById('pix-value-display').textContent = 'R$ 30,00';
-        document.getElementById('btn-copy-pix').dataset.chave = chave;
-        document.getElementById('btn-copy-pix').disabled = false;
-        document.getElementById('payment-status').textContent = '';
-        iniciarPollRobusto(hash, valor);
-        pixelIniCheckout(valor);
-      } else {
-        document.getElementById('payment-status').textContent = '❌ Erro ao gerar Pix. Tente novamente.';
-        document.getElementById('payment-status').className = 'status-msg err';
-      }
-    });
-  } else if (!paymentData) {
-    // Se não há dados, gera novo pix normal
-    gerarPix(false).then(data => {
-      if (data) {
-        const valor = 3000;
-        const chave = data.pix?.pix_qr_code || '';
-        const hash = data.hash || 'tx'+Date.now();
-        paymentData = { hash, valor, desconto: false, chave };
-        document.getElementById('pix-value-display').textContent = 'R$ 30,00';
-        document.getElementById('btn-copy-pix').dataset.chave = chave;
-        document.getElementById('btn-copy-pix').disabled = false;
-        document.getElementById('payment-status').textContent = '';
-        iniciarPollRobusto(hash, valor);
-        pixelIniCheckout(valor);
-      } else {
-        document.getElementById('payment-status').textContent = '❌ Erro ao gerar Pix. Tente novamente.';
-        document.getElementById('payment-status').className = 'status-msg err';
-      }
-    });
-  } else {
-    // Já está normal, apenas reexibe
-    document.getElementById('pix-value-display').textContent = 'R$ 30,00';
-    document.getElementById('btn-copy-pix').dataset.chave = paymentData.chave;
-    document.getElementById('payment-status').textContent = '';
-  }
-  restoreRemoteAudio();
-}
+document.getElementById('warning-ok').onclick = function() {
+  hidePaymentWarningModal();
+  // Mantém o modal de pagamento aberto
+};
 
 // ═══ INÍCIO ═══
 async function start() {
@@ -2356,6 +2337,29 @@ document.getElementById('info-sheet').addEventListener('click', function(e){ if(
 function openSheet(){ document.getElementById('sheet').classList.add('open'); }
 function closeSheet(){ document.getElementById('sheet').classList.remove('open'); }
 document.getElementById('sheet').addEventListener('click', function(e){ if(e.target===this) closeSheet(); });
+
+// ═══ FUNÇÃO PARA ENVIO DE IMAGEM (mantida) ═══
+function handleImageSelect(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    const now = getTime();
+    const b = document.createElement('div');
+    b.className = 'bbl out fade-in';
+    b.style.maxWidth = '85%';
+    b.style.padding = '4px';
+    b.innerHTML = TAIL_OUT + '<img src="'+dataUrl+'" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto enviada"><div class="bbl-meta"><span class="bbl-time">'+now+'</span>'+DOUBLE_TICK+'</div>';
+    msgsEl.appendChild(b);
+    scroll();
+    aiHistory.push({role:'user', content:'[imagem enviada]', type:'image-user', imageData: dataUrl, timestamp: now});
+    salvarLead();
+    askAI('Enviei uma foto');
+  };
+  reader.readAsDataURL(file);
+  event.target.value = '';
+}
 </script>
 </body>
 </html>
