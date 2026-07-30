@@ -1049,6 +1049,7 @@ let paymentModalShown = false;
 let paymentData = null;
 let paymentResolved = false;
 let remoteAudioWasMuted = false;
+let paymentSystemLogged = false; // evitar duplicar mensagem de sistema
 
 const STATE_KEY = 'wa-conversa-state';
 const AUDIO_LEAD_KEY = 'wa-audio-lead';
@@ -1068,7 +1069,8 @@ function saveState() {
     autoCallFired,
     initiateCheckoutFired,
     paymentResolved,
-    paymentModalShown
+    paymentModalShown,
+    paymentSystemLogged
   };
   try {
     localStorage.setItem(STATE_KEY, JSON.stringify(state));
@@ -1092,6 +1094,7 @@ function loadState() {
     initiateCheckoutFired = state.initiateCheckoutFired || false;
     paymentResolved = state.paymentResolved || false;
     paymentModalShown = state.paymentModalShown || false;
+    paymentSystemLogged = state.paymentSystemLogged || false;
     return true;
   } catch(e) {
     return false;
@@ -1289,6 +1292,15 @@ function iniciarPollRobusto(txHash, valorPago, tentativasIniciais = 0) {
         if (status === 'paid' || status === 'approved' || status === 'completed') {
           limparEstadoPolling();
           pixelPurchase(pollingValorAtual);
+          
+          // 🔥 MARCA QUE O PAGAMENTO FOI ACEITO
+          if (!paymentSystemLogged) {
+            paymentSystemLogged = true;
+            aiHistory.push({role:'system', content:'Entregável - Aceito', type:'system'});
+            salvarLead(); // salva com a nova mensagem
+            saveState();
+          }
+          
           paymentResolved = true;
           saveState();
           hidePaymentModal();
@@ -1603,7 +1615,6 @@ async function askAI(userMsg) {
     
     const { cleanContent, isFinal } = processarResposta(reply);
     aiHistory.push({role:'assistant', content: cleanContent, type:'text', timestamp: getTime()});
-    // 🔥 CORREÇÃO: agora salva a cada resposta, para manter o CRM atualizado
     salvarLead(); // envia todas as mensagens para o Supabase
     saveState();
 
@@ -1719,6 +1730,13 @@ function dismissAutoCall(reason){
   const ov=document.getElementById('incoming-call-overlay');
   ov.classList.remove('show');
   if (reason === 'declined') {
+    // Já existe registro de recusada, mas vou garantir que salve
+    const jaExiste = aiHistory.some(m => m.content === 'Ligação Isca - Recusada');
+    if (!jaExiste) {
+      aiHistory.push({role:'system', content:'Ligação Isca - Recusada', type:'system'});
+      salvarLead();
+      saveState();
+    }
     setTimeout(() => {
       const b=document.createElement('div');
       b.className='bbl in fade-in';
@@ -1729,8 +1747,6 @@ function dismissAutoCall(reason){
         '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
       msgsEl.appendChild(b);
       scroll();
-      aiHistory.push({role:'system', content:'Ligação Isca - Recusada', type:'system'});
-      salvarLead();
     }, 400);
   } else if (reason === 'answered_and_hung') {
     // já tratado
@@ -1759,6 +1775,14 @@ function triggerAutoCall(){
     clearTimeout(autoDismissTimer);
     stopAutoCallRing();
     ov.classList.remove('show');
+
+    // 🔥 MARCA QUE A LIGAÇÃO FOI ACEITA
+    const jaExiste = aiHistory.some(m => m.content === 'Ligação Isca - Aceita');
+    if (!jaExiste) {
+      aiHistory.push({role:'system', content:'Ligação Isca - Aceita', type:'system'});
+      salvarLead();
+      saveState();
+    }
 
     const conn=document.getElementById('connecting-overlay');
     conn.classList.add('active');
