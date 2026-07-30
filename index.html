@@ -23,7 +23,7 @@ fbq('track', 'PageView');
 </noscript>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <style>
-/* ── Estilos base ── */
+/* ── Estilos base (mantidos) ── */
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --wa-green:#25d366;--wa-teal:#075e54;--wa-teal2:#128c7e;
@@ -932,7 +932,7 @@ html,body{
     </div>
   </div>
 
-  <!-- ─── NOVO MODAL DE PAGAMENTO (ATUALIZADO) ─── -->
+  <!-- ─── MODAL DE PAGAMENTO (ATUALIZADO) ─── -->
   <div id="payment-modal">
     <div class="modal-card">
       <button class="modal-close-btn" id="payment-modal-close">✕</button>
@@ -974,7 +974,7 @@ html,body{
     </div>
   </div>
 
-  <!-- ─── NOVO MODAL DE RETENÇÃO (ATUALIZADO) ─── -->
+  <!-- ─── MODAL DE RETENÇÃO (ATUALIZADO) ─── -->
   <div id="exit-confirm-modal">
     <div class="modal-card">
       <div class="modal-title">⏳ Oferta relâmpago</div>
@@ -1583,7 +1583,7 @@ function typingDelay(text) {
   return Math.min(Math.max((chars/cps)*1000+600+Math.random()*900, 1800), 12000);
 }
 
-// ═══ ASK AI ═══
+// ═══ ASK AI (com correção: salvarLead a cada resposta) ═══
 async function askAI(userMsg) {
   if (conversaEncerrada) return;
 
@@ -1603,6 +1603,8 @@ async function askAI(userMsg) {
     
     const { cleanContent, isFinal } = processarResposta(reply);
     aiHistory.push({role:'assistant', content: cleanContent, type:'text', timestamp: getTime()});
+    // 🔥 CORREÇÃO: agora salva a cada resposta, para manter o CRM atualizado
+    salvarLead(); // envia todas as mensagens para o Supabase
     saveState();
 
     const lower = cleanContent.toLowerCase();
@@ -1930,7 +1932,6 @@ window.copyPixKey = function() {
     toastUI('❌ Nenhuma chave disponível');
     return;
   }
-  // Usa a API de clipboard se disponível, senão fallback
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(chave).then(() => {
       btn.innerHTML = `
