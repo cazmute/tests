@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Mensagem</title>
+<title>Conversa</title>
 <!-- Meta Pixel -->
 <script>
 !function(f,b,e,v,n,t,s)
@@ -21,9 +21,7 @@ fbq('track', 'PageView');
   <img height="1" width="1" style="display:none"
   src="https://www.facebook.com/tr?id=981136621185086&ev=PageView&noscript=1"/>
 </noscript>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <style>
-/* ── Estilos base (mantidos) ── */
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --wa-green:#25d366;--wa-teal:#075e54;--wa-teal2:#128c7e;
@@ -152,314 +150,6 @@ html,body{
 .sheet-ok:hover{background:#017f64}
 @keyframes ringShake{from{transform:rotate(-10deg)}to{transform:rotate(10deg)}}
 
-/* ── NOVOS ESTILOS DOS MODAIS DE PAGAMENTO / RETENÇÃO ── */
-#payment-modal {
-  display: none;
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  z-index: 600;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-#payment-modal.active {
-  display: flex;
-}
-#payment-modal .modal-card {
-  background: #1f2c34;
-  border-radius: 24px;
-  max-width: 360px;
-  width: 100%;
-  padding: 28px 22px 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
-  color: #e9edef;
-  animation: fi .25s ease;
-  position: relative;
-}
-#payment-modal .modal-icon-wrap {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 12px;
-}
-#payment-modal .modal-icon {
-  width: 60px;
-  height: 60px;
-  background: rgba(0, 168, 132, 0.15);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-#payment-modal .modal-icon svg {
-  width: 32px;
-  height: 32px;
-  stroke: #00a884;
-  stroke-width: 1.8;
-  fill: none;
-}
-#payment-modal .modal-title {
-  font-size: 18px;
-  font-weight: 600;
-  text-align: center;
-  margin-bottom: 4px;
-}
-#payment-modal .modal-sub {
-  font-size: 13.5px;
-  color: rgba(255, 255, 255, 0.65);
-  text-align: center;
-  line-height: 1.5;
-  margin-bottom: 16px;
-}
-#payment-modal .modal-sub strong {
-  color: #e9edef;
-  font-weight: 500;
-}
-#payment-modal .feature-list {
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 14px;
-  padding: 14px 16px;
-  margin-bottom: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-#payment-modal .feature-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.8);
-}
-#payment-modal .feature-item svg {
-  width: 18px;
-  height: 18px;
-  stroke: #00a884;
-  stroke-width: 2;
-  fill: none;
-  flex-shrink: 0;
-}
-#payment-modal .feature-item span {
-  line-height: 1.4;
-}
-#payment-modal .pix-value {
-  background: rgba(0, 168, 132, 0.12);
-  border-radius: 12px;
-  padding: 10px;
-  text-align: center;
-  font-size: 20px;
-  font-weight: 600;
-  color: #00a884;
-  margin-bottom: 16px;
-}
-#payment-modal .btn-primary {
-  background: #00a884;
-  border: none;
-  color: #fff;
-  padding: 14px;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 600;
-  width: 100%;
-  cursor: pointer;
-  transition: background 0.15s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-#payment-modal .btn-primary:hover {
-  background: #017f64;
-}
-#payment-modal .btn-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-#payment-modal .btn-primary svg {
-  width: 18px;
-  height: 18px;
-  stroke: #fff;
-  stroke-width: 2;
-  fill: none;
-}
-#payment-modal .status-msg {
-  font-size: 12.5px;
-  color: #8696a0;
-  text-align: center;
-  margin-top: 12px;
-  min-height: 18px;
-}
-#payment-modal .status-msg.ok {
-  color: #25d366;
-}
-#payment-modal .status-msg.err {
-  color: #e53935;
-}
-#payment-modal .modal-close-btn {
-  position: absolute;
-  top: 12px;
-  right: 14px;
-  background: none;
-  border: none;
-  color: rgba(255,255,255,0.4);
-  font-size: 20px;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 50%;
-  transition: background 0.15s;
-}
-#payment-modal .modal-close-btn:hover {
-  background: rgba(255,255,255,0.06);
-}
-
-/* ── MODAL DE RETENÇÃO ── */
-#exit-confirm-modal {
-  display: none;
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-  z-index: 700;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-#exit-confirm-modal.active {
-  display: flex;
-}
-#exit-confirm-modal .modal-card {
-  background: #1f2c34;
-  border-radius: 24px;
-  max-width: 330px;
-  width: 100%;
-  padding: 26px 20px 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
-  color: #e9edef;
-  animation: fi .25s ease;
-  text-align: center;
-}
-#exit-confirm-modal .modal-title {
-  font-size: 17px;
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-#exit-confirm-modal .modal-sub {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.65);
-  line-height: 1.5;
-  margin-bottom: 18px;
-}
-#exit-confirm-modal .btn-group {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-#exit-confirm-modal .btn-group .btn-discount-yes {
-  background: #00a884;
-  border: none;
-  color: #fff;
-  padding: 13px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-#exit-confirm-modal .btn-group .btn-discount-yes:hover {
-  background: #017f64;
-}
-#exit-confirm-modal .btn-group .btn-discount-no {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.8);
-  padding: 11px;
-  border-radius: 12px;
-  font-size: 13px;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-#exit-confirm-modal .btn-group .btn-discount-no:hover {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-/* ── MODAL DE AVISO (segunda tentativa) ── */
-#payment-warning-modal {
-  display: none;
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-  z-index: 750;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-#payment-warning-modal.active {
-  display: flex;
-}
-#payment-warning-modal .modal-card {
-  background: #1f2c34;
-  border-radius: 24px;
-  max-width: 330px;
-  width: 100%;
-  padding: 28px 20px 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
-  color: #e9edef;
-  animation: fi .25s ease;
-  text-align: center;
-}
-#payment-warning-modal .modal-icon-wrap {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 12px;
-}
-#payment-warning-modal .modal-icon {
-  width: 60px;
-  height: 60px;
-  background: rgba(229, 57, 53, 0.12);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-#payment-warning-modal .modal-icon svg {
-  width: 32px;
-  height: 32px;
-  stroke: #e53935;
-  stroke-width: 1.8;
-  fill: none;
-}
-#payment-warning-modal .modal-title {
-  font-size: 17px;
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-#payment-warning-modal .modal-sub {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.7);
-  line-height: 1.6;
-  margin-bottom: 18px;
-}
-#payment-warning-modal .btn-primary {
-  background: #00a884;
-  border: none;
-  color: #fff;
-  padding: 14px;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 600;
-  width: 100%;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-#payment-warning-modal .btn-primary:hover {
-  background: #017f64;
-}
-
 /* ── INCOMING CALL OVERLAY ── */
 #incoming-call-overlay{
   position:absolute;inset:0;background:#1a1a2e;z-index:400;
@@ -482,236 +172,19 @@ html,body{
 .call-btn-circle.decline{background:#e53935}
 .call-btn-circle.answer{background:#25d366;animation:ringShake .6s ease infinite alternate}
 
-/* ── TELA DE CONECTANDO ── */
-#connecting-overlay {
-  display: none;
-  position: absolute;
-  inset: 0;
-  background: #0d0d0d;
-  z-index: 450;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
-  color: #fff;
-  font-family: system-ui, sans-serif;
+/* ── ACTIVE CALL OVERLAY ── */
+#active-call-overlay{
+  position:absolute;inset:0;background:#0b1015;z-index:401;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s ease;
 }
-#connecting-overlay.active {
-  display: flex;
-}
-#connecting-overlay .spinner {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  border: 4px solid rgba(255,255,255,0.1);
-  border-top-color: #25d366;
-  animation: spin 0.9s linear infinite;
-}
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-#connecting-overlay .conn-label {
-  font-size: 18px;
-  font-weight: 500;
-}
-#connecting-overlay .conn-sub {
-  font-size: 13px;
-  color: rgba(255,255,255,0.5);
-}
-
-/* ── INTERFACE DE CHAMADA DE VÍDEO ── */
-#call-interface {
-  display: none;
-  position: absolute;
-  inset: 0;
-  background: #0d0d0d;
-  flex-direction: column;
-  z-index: 500;
-  color: #fff;
-  font-family: system-ui, sans-serif;
-}
-#call-interface.active {
-  display: flex;
-}
-#remote-wrap {
-  position: relative;
-  flex: 1;
-  background: #111;
-  overflow: hidden;
-  min-height: 0;
-}
-#remote-video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-}
-#call-info {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  z-index: 10;
-}
-#caller-name {
-  color: #fff;
-  font-size: 16px;
-  font-weight: 500;
-  text-shadow: 0 1px 6px rgba(0,0,0,.8);
-}
-#call-timer {
-  color: rgba(255,255,255,.7);
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
-}
-#signal {
-  position: absolute;
-  top: 18px;
-  right: 12px;
-  display: flex;
-  gap: 2px;
-  align-items: flex-end;
-  z-index: 10;
-}
-#signal span {
-  width: 4px;
-  border-radius: 1px;
-  background: rgba(255,255,255,.55);
-}
-#local-wrap {
-  position: absolute;
-  bottom: 12px;
-  right: 10px;
-  width: 72px;
-  height: 128px;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 2px solid rgba(255,255,255,.2);
-  background: #1a1a1a;
-  z-index: 10;
-}
-#local-video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  transform: scaleX(-1);
-}
-#cam-off-icon {
-  display: none;
-  position: absolute;
-  inset: 0;
-  align-items: center;
-  justify-content: center;
-  background: #1a1a1a;
-}
-#cam-off-icon i {
-  font-size: 22px;
-  color: #555;
-}
-#controls {
-  background: #0a0a0a;
-  padding: 12px 8px 28px;
-  flex-shrink: 0;
-}
-.ctrl-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-}
-.btn-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-.ctrl-btn {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 21px;
-  color: #fff;
-  background: rgba(255,255,255,.12);
-  -webkit-tap-highlight-color: transparent;
-}
-.ctrl-btn:active {
-  transform: scale(.88);
-}
-.ctrl-btn.off {
-  background: rgba(255,255,255,.06);
-  color: #555;
-}
-.ctrl-btn.danger {
-  background: #e53935;
-  width: 62px;
-  height: 62px;
-  font-size: 24px;
-}
-.ctrl-btn.lit {
-  background: rgba(255,255,255,.22);
-}
-.ctrl-label {
-  font-size: 10px;
-  color: rgba(255,255,255,.45);
-  text-align: center;
-}
-#toast {
-  position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0,0,0,.8);
-  color: #fff;
-  font-size: 12px;
-  padding: 7px 16px;
-  border-radius: 20px;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity .3s;
-  z-index: 20;
-  white-space: nowrap;
-}
-#ended {
-  display: none;
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,.9);
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  z-index: 30;
-}
-#ended i {
-  font-size: 48px;
-  color: #e53935;
-}
-#ended p {
-  color: #ccc;
-  font-size: 15px;
-}
-#ended small {
-  color: #777;
-  font-size: 13px;
-}
-#ended button {
-  margin-top: 4px;
-  padding: 11px 26px;
-  border-radius: 28px;
-  border: none;
-  background: rgba(255,255,255,.13);
-  color: #fff;
-  font-size: 14px;
-  cursor: pointer;
-}
+#active-call-overlay.show{opacity:1;pointer-events:all}
+#active-call-overlay .ac-avatar{width:90px;height:90px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,0.2)}
+#active-call-overlay .ac-avatar img{width:100%;height:100%;object-fit:cover}
+#active-call-overlay .ac-name{color:#fff;font-size:20px;font-weight:500}
+#active-call-overlay .ac-status{color:rgba(255,255,255,0.5);font-size:13px}
+#active-call-overlay .ac-end-btn{width:60px;height:60px;border-radius:50%;background:#e53935;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:30px}
 
 /* Toast de instrução do microfone */
 .mic-toast{
@@ -909,7 +382,7 @@ html,body{
     </div>
   </div>
 
-  <!-- INCOMING VIDEO CALL OVERLAY -->
+  <!-- INCOMING VIDEO CALL OVERLAY (automático) -->
   <div id="incoming-call-overlay">
     <div style="text-align:center">
       <div class="call-avatar-wrap">
@@ -936,152 +409,14 @@ html,body{
     </div>
   </div>
 
-  <!-- TELA DE CONECTANDO -->
-  <div id="connecting-overlay">
-    <div class="spinner"></div>
-    <div class="conn-label">Conectando...</div>
-    <div class="conn-sub">Aguarde um momento</div>
-  </div>
-
-  <!-- INTERFACE DE CHAMADA DE VÍDEO (integrada) -->
-  <div id="call-interface">
-    <div id="remote-wrap">
-      <video id="remote-video" muted playsinline preload="metadata">
-        <source src="video/cam.mp4" type="video/mp4">
-      </video>
-      <div id="call-info">
-        <div id="caller-name">Vanessa Macedo</div>
-        <div id="call-timer">00:00</div>
-      </div>
-      <div id="signal">
-        <span style="height:5px"></span>
-        <span style="height:9px"></span>
-        <span style="height:13px"></span>
-        <span style="height:17px"></span>
-      </div>
-      <div id="local-wrap">
-        <video id="local-video" autoplay muted playsinline></video>
-        <div id="cam-off-icon"><i class="ti ti-video-off"></i></div>
-      </div>
-      <div id="toast"></div>
-      <div id="ended">
-        <i class="ti ti-phone-off"></i>
-        <p id="ended-msg">Chamada encerrada</p>
-        <small id="dur-end"></small>
-      </div>
-    </div>
-
-    <div id="controls">
-      <div class="ctrl-row">
-        <div class="btn-wrap">
-          <button class="ctrl-btn" id="btn-mic" onclick="toggleMic()">
-            <i class="ti ti-microphone"></i>
-          </button>
-          <div class="ctrl-label">Mic</div>
-        </div>
-        <div class="btn-wrap">
-          <button class="ctrl-btn" id="btn-cam" onclick="toggleCam()">
-            <i class="ti ti-video"></i>
-          </button>
-          <div class="ctrl-label">Câmera</div>
-        </div>
-        <div class="btn-wrap">
-          <button class="ctrl-btn danger" id="btn-end" onclick="endCall()">
-            <i class="ti ti-phone-off"></i>
-          </button>
-          <div class="ctrl-label" style="color:rgba(255,100,100,.7)">Encerrar</div>
-        </div>
-        <div class="btn-wrap">
-          <button class="ctrl-btn" id="btn-spk" onclick="toggleSpeaker()">
-            <i class="ti ti-volume"></i>
-          </button>
-          <div class="ctrl-label">Viva-voz</div>
-        </div>
-        <div class="btn-wrap">
-          <button class="ctrl-btn" id="btn-flip" onclick="flipCamera()">
-            <i class="ti ti-camera-rotate"></i>
-          </button>
-          <div class="ctrl-label">Virar</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ─── MODAL DE PAGAMENTO ─── -->
-  <div id="payment-modal">
-    <div class="modal-card">
-      <button class="modal-close-btn" id="payment-modal-close">✕</button>
-      <div class="modal-icon-wrap">
-        <div class="modal-icon">
-          <svg viewBox="0 0 24 24">
-            <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="1.8" />
-            <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="1.8" />
-            <circle cx="12" cy="15" r="1.5" fill="currentColor" />
-            <path d="M12 15v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-          </svg>
-        </div>
-      </div>
-      <div class="modal-title">Ativar Recurso Premium</div>
-      <div class="modal-sub">
-        Para continuar esta chamada, ative o recurso de <strong>criptografia avançada e conexão prioritária</strong>.<br />
-        Isso garante privacidade total e estabilidade durante a comunicação.
-      </div>
-      <div class="feature-list">
-        <div class="feature-item">
-          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          <span>Criptografia de ponta a ponta <strong>plus</strong></span>
-        </div>
-        <div class="feature-item">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          <span>Prioridade de conexão e baixa latência</span>
-        </div>
-        <div class="feature-item">
-          <svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" stroke="currentColor" stroke-width="2"/><path d="M19 10a7 7 0 0 1-14 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="19" x2="12" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="23" x2="16" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          <span>Proteção contra interceptação e ruídos</span>
-        </div>
-      </div>
-      <div class="pix-value" id="pix-value-display">R$ 30,00</div>
-      <button class="btn-primary" id="btn-copy-pix" onclick="copyPixKey()">
-        <svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" stroke="currentColor" stroke-width="2"/><path d="M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z" stroke="currentColor" stroke-width="2"/></svg>
-        Copiar chave Pix
-      </button>
-      <div class="status-msg" id="payment-status"></div>
-    </div>
-  </div>
-
-  <!-- ─── MODAL DE RETENÇÃO (DESCONTO) ─── -->
-  <div id="exit-confirm-modal">
-    <div class="modal-card">
-      <div class="modal-title">⏳ Oferta relâmpago</div>
-      <div class="modal-sub">
-        Ative o recurso agora com <strong>33% de desconto</strong>.<br />
-        Válido apenas para esta chamada.
-      </div>
-      <div class="btn-group">
-        <button class="btn-discount-yes" id="exit-discount-yes">Sim, quero o desconto</button>
-        <button class="btn-discount-no" id="exit-discount-no">Voltar ao valor normal</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ─── MODAL DE AVISO (segunda tentativa) ─── -->
-  <div id="payment-warning-modal">
-    <div class="modal-card">
-      <div class="modal-icon-wrap">
-        <div class="modal-icon">
-          <svg viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-            <path d="M12 8v5M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </div>
-      </div>
-      <div class="modal-title">Aguardando pagamento</div>
-      <div class="modal-sub">
-        Vanessa está em chamada com você agora.<br />
-        Ela está aguardando você <strong>finalizar o pagamento</strong> para continuar.
-      </div>
-      <button class="btn-primary" id="warning-ok">Entendi</button>
-    </div>
+  <!-- ACTIVE CALL (brief flash ao atender) -->
+  <div id="active-call-overlay">
+    <div class="ac-avatar"><img src="https://i.ibb.co/ksmzSzDM/perfilv2.png" alt="Vanessa"></div>
+    <div class="ac-name">Vanessa Macedo</div>
+    <div class="ac-status" id="ac-status-text">Conectando…</div>
+    <button class="ac-end-btn" id="ac-end-btn">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>
+    </button>
   </div>
 
 </div>
@@ -1113,6 +448,7 @@ const micToast=document.getElementById('mic-toast');
 
 const MENSAGEM_INICIAL="Oi, Tudo bem?";
 const PRODUCT_HASH="7p8h95hghd";
+const LINK_ENTREGAVEL="https://chamadadevideo-wa.netlify.app";
 const CIDADES_FB=['Fortaleza','Recife','Salvador','Belo Horizonte','Curitiba','Manaus','Belém','Porto Alegre','Campinas'];
 const TAIL_IN='';
 const TAIL_OUT='';
@@ -1130,26 +466,25 @@ let pixNormalGerado=false, pixDescontoGerado=false;
 let initiateCheckoutFired=false, typingEl=null;
 const SESSION_ID=Math.random().toString(36).slice(2);
 
-let conversaEncerrada = false;
-
-// flags da chamada isca - agora sem trava única
-let callInProgress = false; // controle de sobreposição
+let userReplyCount = 0;
+let autoCallFired = false;
+let autoCallTimer = null;
 let autoCallRingInterval = null;
-let callInterfaceActive = false;
-let localStream = null;
-let facingMode = 'user';
-let callTimerIntervalCall = null;
-let callSecondsCall = 0;
-let paymentModalShown = false;
-let paymentData = null;
-let paymentResolved = false;
-let remoteAudioWasMuted = false;
-let paymentSystemLogged = false;
-let discountOffered = false; // controle do fluxo de desconto
+
+// ═══ FLAG: CONVERSA ENCERRADA ═══
+let conversaEncerrada = false;
 
 const STATE_KEY = 'wa-conversa-state';
 const AUDIO_LEAD_KEY = 'wa-audio-lead';
-const POLL_STATE_KEY = 'poll_state';
+
+// ═══ VERIFICA PERMISSÃO DO MICROFONE AO CARREGAR ═══
+if (navigator.permissions) {
+  navigator.permissions.query({ name: 'microphone' }).then(perm => {
+    if (perm.state === 'denied') {
+      console.warn('Microfone bloqueado pelo usuário.');
+    }
+  }).catch(() => {});
+}
 
 // ═══ PERSISTÊNCIA ═══
 function saveState() {
@@ -1160,13 +495,11 @@ function saveState() {
     leadCityVal,
     pixNormalGerado,
     pixDescontoGerado,
-    audioPIxJaTocou,
-    conversaEncerrada,
+    userReplyCount,
+    autoCallFired,
     initiateCheckoutFired,
-    paymentResolved,
-    paymentModalShown,
-    paymentSystemLogged,
-    discountOffered
+    audioPIxJaTocou,
+    conversaEncerrada
   };
   try {
     localStorage.setItem(STATE_KEY, JSON.stringify(state));
@@ -1184,13 +517,11 @@ function loadState() {
     leadCityVal = state.leadCityVal || null;
     pixNormalGerado = state.pixNormalGerado || false;
     pixDescontoGerado = state.pixDescontoGerado || false;
+    userReplyCount = state.userReplyCount || 0;
+    autoCallFired = state.autoCallFired || false;
+    initiateCheckoutFired = state.initiateCheckoutFired || false;
     audioPIxJaTocou = state.audioPIxJaTocou || false;
     conversaEncerrada = state.conversaEncerrada || false;
-    initiateCheckoutFired = state.initiateCheckoutFired || false;
-    paymentResolved = state.paymentResolved || false;
-    paymentModalShown = state.paymentModalShown || false;
-    paymentSystemLogged = state.paymentSystemLogged || false;
-    discountOffered = state.discountOffered || false;
     return true;
   } catch(e) {
     return false;
@@ -1203,12 +534,15 @@ function salvarAudioLead(src, timestamp) {
     localStorage.setItem(AUDIO_LEAD_KEY, JSON.stringify({ src, timestamp }));
   } catch(e) { /* ignorar */ }
 }
+
 function carregarAudioLead() {
   try {
     const raw = localStorage.getItem(AUDIO_LEAD_KEY);
     if (!raw) return null;
     return JSON.parse(raw);
-  } catch(e) { return null; }
+  } catch(e) {
+    return null;
+  }
 }
 
 // ═══ FUNÇÕES AUXILIARES ═══
@@ -1253,12 +587,24 @@ function hideTyping(){
   hdrStatus.textContent='online';hdrStatus.className='hdr-status';
 }
 
+// ═══ FUNÇÃO CENTRALIZADA PARA ALTERNAR BOTÕES DE ENVIO/MIC ═══
+function updateSendMicButtons() {
+  if (conversaEncerrada) {
+    sendBtn.classList.add('hidden');
+    micBtn.classList.remove('hidden');
+    return;
+  }
+  const hasText = inpEl.value.trim().length > 0;
+  sendBtn.classList.toggle('hidden', !hasText);
+  micBtn.classList.toggle('hidden', hasText);
+}
+
 function enableInput(){
   inpEl.disabled = conversaEncerrada;
   if (conversaEncerrada) {
     inpEl.placeholder = 'Conversa encerrada';
     inpEl.disabled = true;
-    cameraBtn.classList.add('hidden-mic');
+    cameraBtn.classList.remove('hidden-mic');
   } else {
     inpEl.disabled = false;
     inpEl.placeholder = 'Mensagem';
@@ -1273,30 +619,16 @@ function finalizarConversa() {
   saveState();
 }
 
-// ═══ CONTROLE DE VISIBILIDADE DOS BOTÕES ═══
-function updateSendMicButtons() {
-  if (conversaEncerrada) {
-    sendBtn.classList.add('hidden');
-    micBtn.classList.remove('hidden');
-    return;
-  }
-  const hasText = inpEl.value.trim().length > 0;
-  if (hasText) {
-    sendBtn.classList.remove('hidden');
-    micBtn.classList.add('hidden');
-  } else {
-    sendBtn.classList.add('hidden');
-    micBtn.classList.remove('hidden');
-  }
+// ═══ FUNÇÃO AUXILIAR PARA PROCESSAR RESPOSTA DA IA ═══
+function processarResposta(reply) {
+  let content = reply
+    .replace(/Solicitação de pagamento/gi, '')
+    .replace(/\[áudio\]/gi, '')
+    .trim();
+  const isFinal = content.includes('[FIM]');
+  return { cleanContent: content, isFinal };
 }
 
-// ── Eventos para alternar botões ──
-inpEl.addEventListener('input', updateSendMicButtons);
-inpEl.addEventListener('keyup', updateSendMicButtons);
-inpEl.addEventListener('focus', updateSendMicButtons);
-inpEl.addEventListener('blur', updateSendMicButtons);
-
-// ═══ API HELPERS ═══
 async function fetchLeadCity(){
   try{const r=await fetch('/api/city');const d=await r.json();if(d.city)return d.city;}catch(e){}
   return CIDADES_FB[Math.floor(Math.random()*CIDADES_FB.length)];
@@ -1320,7 +652,7 @@ async function checarStatus(txHash){
   try{const r=await fetch('/api/status?hash='+txHash);const d=await r.json();return d.payment_status||null;}catch(e){return null;}
 }
 
-// ═══ POLLING ═══
+// ═══ POLLING COM TIMEOUT E PERSISTÊNCIA ═══
 async function checarStatusComTimeout(txHash, timeout = 10000) {
   return Promise.race([
     checarStatus(txHash),
@@ -1338,12 +670,14 @@ const MAX_TENTATIVAS = 720;
 const INTERVALO_INICIAL = 5000;
 const INTERVALO_MAXIMO = 30000;
 const BACKOFF_MULTIPLICADOR = 1.2;
+const POLL_STATE_KEY = 'poll_state';
 
 function salvarEstadoPolling(hash, tentativas, valor) {
   try {
     localStorage.setItem(POLL_STATE_KEY, JSON.stringify({ hash, tentativas, valor, timestamp: Date.now() }));
   } catch(e) {}
 }
+
 function carregarEstadoPolling() {
   try {
     const raw = localStorage.getItem(POLL_STATE_KEY);
@@ -1351,6 +685,7 @@ function carregarEstadoPolling() {
     return JSON.parse(raw);
   } catch(e) { return null; }
 }
+
 function limparEstadoPolling() {
   try { localStorage.removeItem(POLL_STATE_KEY); } catch(e) {}
 }
@@ -1388,18 +723,7 @@ function iniciarPollRobusto(txHash, valorPago, tentativasIniciais = 0) {
         if (status === 'paid' || status === 'approved' || status === 'completed') {
           limparEstadoPolling();
           pixelPurchase(pollingValorAtual);
-          
-          if (!paymentSystemLogged) {
-            paymentSystemLogged = true;
-            aiHistory.push({role:'system', content:'Entregável - Aceito', type:'system'});
-            salvarLead();
-            saveState();
-          }
-          
-          paymentResolved = true;
-          saveState();
-          hidePaymentModal();
-          toastUI('✅ Pagamento confirmado!');
+          showBotaoEntregavel();
           return;
         }
 
@@ -1425,20 +749,158 @@ function retomarPollingSeNecessario() {
   }
 }
 
+// ═══ VISIBILIDADE DA ABA ═══
 document.addEventListener('visibilitychange', function() {
-  pollingPausado = document.hidden;
+  if (document.hidden) {
+    pollingPausado = true;
+  } else {
+    pollingPausado = false;
+  }
 });
 
-// ═══ PIXEL ═══
+// ═══ ANTIGO iniciarPoll (mantido para compatibilidade) ═══
+function iniciarPoll(txHash, valorPago) {
+  iniciarPollRobusto(txHash, valorPago);
+}
+
+window.copiarPix=function(btn,codigo){
+  const ok=function(){
+    btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#00a884" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Copiado!';
+    btn.style.color='#00a884';
+    setTimeout(function(){
+      btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="#00a884" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="#00a884" stroke-width="2" stroke-linecap="round"/></svg> Copiar chave Pix';
+      btn.style.color='#00a884';
+    },3000);
+  };
+  if(navigator.clipboard){navigator.clipboard.writeText(codigo).then(ok).catch(function(){fallbackCopy(codigo,ok);});}
+  else{fallbackCopy(codigo,ok);}
+};
+function fallbackCopy(texto,cb){
+  const ta=document.createElement('textarea');ta.value=texto;
+  ta.style.cssText='position:fixed;opacity:0';
+  document.body.appendChild(ta);ta.focus();ta.select();
+  try{document.execCommand('copy');}catch(e){}
+  document.body.removeChild(ta);cb();
+}
+
 function pixelIniCheckout(v){
-  if(initiateCheckoutFired)return; initiateCheckoutFired=true;
+  if(initiateCheckoutFired)return;initiateCheckoutFired=true;
   if(typeof fbq!=='undefined')fbq('track','InitiateCheckout',{value:(v/100).toFixed(2),currency:'BRL',num_items:1,content_ids:[PRODUCT_HASH],content_type:'product'});
 }
 function pixelPurchase(v){
   if(typeof fbq!=='undefined')fbq('track','Purchase',{value:(v/100).toFixed(2),currency:'BRL',num_items:1,content_ids:[PRODUCT_HASH],content_type:'product'});
 }
 
-// ═══ BOLHA DE ÁUDIO (lead) ═══
+// ═══ FUNÇÃO PARA CRIAR CARD PIX (SEM ÁUDIO) ═══
+function criarCardPix(data, desconto, timestamp) {
+  const valor = desconto ? 2000 : 3000;
+  const valorFmt = 'R$ ' + (valor/100).toFixed(2).replace('.',',');
+  const pixCopia = (data.pix && data.pix.pix_qr_code) || '';
+  const txHash = data.hash || ('tx'+Date.now());
+
+  const pixEntry = {
+    role: 'assistant',
+    content: 'Solicitação de pagamento',
+    type: 'pix',
+    timestamp: timestamp || getTime(),
+    pixData: {
+      valor: valor,
+      valorFmt: valorFmt,
+      chave: pixCopia,
+      hash: txHash,
+      desconto: desconto
+    }
+  };
+  aiHistory.push(pixEntry);
+  salvarLead(true);
+
+  const wrap = document.createElement('div');
+  wrap.className = 'fade-in';
+  wrap.style.cssText = 'align-self:flex-start;margin-left:6px;max-width:88%';
+
+  const card = document.createElement('div');
+  card.style.cssText = 'background:#fff;border-radius:12px;overflow:hidden;min-width:220px;box-shadow:0 1px 3px rgba(0,0,0,0.15)';
+
+  const head = document.createElement('div');
+  head.style.cssText = 'background:#00a884;padding:12px 14px;display:flex;align-items:center;gap:10px';
+  head.innerHTML = '<div style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div style="color:rgba(255,255,255,0.85);font-size:11px;margin-bottom:1px">Solicitação de pagamento</div><div style="color:#fff;font-size:19px;font-weight:700;line-height:1.2">'+valorFmt+'</div></div>';
+  card.appendChild(head);
+
+  const info = document.createElement('div');
+  info.style.cssText = 'padding:10px 14px;border-bottom:1px solid #f0f2f5';
+  info.innerHTML = '<div style="font-size:11px;color:#8696a0;margin-bottom:2px">Para</div><div style="font-size:14px;color:#111b21;font-weight:500">Vanessa Macedo</div><div style="font-size:11.5px;color:#8696a0;margin-top:1px">via Pix</div>';
+  card.appendChild(info);
+
+  if (pixCopia) {
+    const btnWrap = document.createElement('div');
+    btnWrap.style.cssText = 'border-bottom:1px solid #f0f2f5';
+    const btn = document.createElement('button');
+    btn.style.cssText = 'width:100%;background:none;border:none;padding:10px 14px;color:#00a884;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px';
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="#00a884" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="#00a884" stroke-width="2" stroke-linecap="round"/></svg> Copiar chave Pix';
+    btn.onclick = function(){ window.copiarPix(btn, pixCopia); };
+    btnWrap.appendChild(btn);
+    card.appendChild(btnWrap);
+  }
+
+  const footer = document.createElement('div');
+  footer.style.cssText = 'padding:6px 14px 8px;display:flex;justify-content:flex-end';
+  const time = document.createElement('span');
+  time.style.cssText = 'font-size:11px;color:#8696a0';
+  time.textContent = timestamp || getTime();
+  footer.appendChild(time);
+  card.appendChild(footer);
+
+  wrap.appendChild(card);
+  msgsEl.appendChild(wrap);
+  scroll();
+
+  iniciarPollRobusto(txHash, valor);
+  pixelIniCheckout(valor);
+}
+
+// ═══ showCta (agora sem gatilho de chamada isca) ═══
+async function showCta(desconto) {
+  if (desconto) { if (pixDescontoGerado) return; pixDescontoGerado = true; }
+  else { if (pixNormalGerado) return; pixNormalGerado = true; }
+
+  showTyping(); await sleep(1000); hideTyping();
+  const data = await gerarPix(desconto);
+  if (!data) { addBubble('Ops, tive um probleminha 😅 Tenta de novo!','in'); return; }
+
+  const now = getTime();
+  criarCardPix(data, desconto, now);
+
+  if (!desconto && !audioPIxJaTocou) {
+    audioPIxJaTocou = true;
+    saveState();
+    await sleep(600);
+    aiHistory.push({role:'assistant', content:'[áudio]', type:'audio', src:AUDIO_PIX_SRC, timestamp: now});
+    salvarLead(true);
+    criarBolhaAudio(AUDIO_PIX_SRC, 'pix', function() {
+      // Removido o gatilho automático da chamada isca
+    });
+  }
+}
+
+// ═══ FUNÇÃO GENÉRICA PARA EXIBIR IMAGEM ═══
+function showImage(src, timestamp) {
+  const now = timestamp || getTime();
+  aiHistory.push({ role:'assistant', content:'[imagem]', type:'image', src: src, timestamp: now });
+  salvarLead();
+  const b = document.createElement('div');
+  b.className = 'bbl in fade-in';
+  b.style.maxWidth = '85%';
+  b.style.padding = '4px';
+  b.innerHTML = TAIL_IN + '<img src="'+src+'" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">'+now+'</span></div>';
+  msgsEl.appendChild(b);
+  scroll();
+}
+
+function showFotoLead() {
+  showImage(IMG_LEAD_SRC);
+}
+
+// ═══ FUNÇÃO PARA CRIAR BOLHA DE ÁUDIO DO LEAD ═══
 function criarBolhaAudio(src, id, onEnded) {
   const now = getTime();
   const b = document.createElement('div');
@@ -1518,7 +980,7 @@ function criarBolhaAudio(src, id, onEnded) {
   }
 }
 
-// ═══ BOLHA DE ÁUDIO (usuário) ═══
+// ═══ FUNÇÃO PARA CRIAR BOLHA DE ÁUDIO DO USUÁRIO ═══
 function criarBolhaAudioUsuario(url, id, timestamp) {
   const now = timestamp || getTime();
   const b = document.createElement('div');
@@ -1556,17 +1018,17 @@ function criarBolhaAudioUsuario(url, id, timestamp) {
     const dur = document.getElementById('audio-dur-'+id);
     if (prog) prog.style.width = pct + '%';
     if (thumb) thumb.style.left = pct + '%';
-    if (dur) {
-      const t = Math.floor(this.currentTime);
-      dur.textContent = Math.floor(t/60)+':'+String(t%60).padStart(2,'0');
+    if (dur) { 
+      const t = Math.floor(this.currentTime); 
+      dur.textContent = Math.floor(t/60)+':'+String(t%60).padStart(2,'0'); 
     }
   });
 
   audio.addEventListener('play', function() {
     const pi = document.getElementById('play-icon-'+id);
     const pau = document.getElementById('pause-icon-'+id);
-    if(pi) pi.style.display = '';
-    if(pau) pau.style.display = 'none';
+    if(pi) pi.style.display = 'none';
+    if(pau) pau.style.display = '';
   });
 
   audio.addEventListener('pause', function() {
@@ -1591,6 +1053,7 @@ function criarBolhaAudioUsuario(url, id, timestamp) {
   });
 }
 
+// ═══ FUNÇÃO GLOBAL PARA CONTROLAR ÁUDIO ═══
 let _audioInstances = {};
 window.toggleAudioById = function(id) {
   let foundAudio = null;
@@ -1600,10 +1063,17 @@ window.toggleAudioById = function(id) {
       break;
     }
   }
-  if (!foundAudio) return;
-  if (foundAudio.paused) foundAudio.play();
-  else foundAudio.pause();
+  if (!foundAudio) {
+    console.warn('Áudio não encontrado:', id);
+    return;
+  }
+  if (foundAudio.paused) {
+    foundAudio.play();
+  } else {
+    foundAudio.pause();
+  }
 };
+
 window.seekAudioById = function(e, bar, id) {
   let foundAudio = null;
   for (const key in _audioInstances) {
@@ -1617,20 +1087,6 @@ window.seekAudioById = function(e, bar, id) {
   const pct = (e.clientX - rect.left) / rect.width;
   foundAudio.currentTime = pct * foundAudio.duration;
 };
-
-function showImage(src, timestamp) {
-  const now = timestamp || getTime();
-  aiHistory.push({ role:'assistant', content:'[imagem]', type:'image', src: src, timestamp: now });
-  salvarLead();
-  const b = document.createElement('div');
-  b.className = 'bbl in fade-in';
-  b.style.maxWidth = '85%';
-  b.style.padding = '4px';
-  b.innerHTML = TAIL_IN + '<img src="'+src+'" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">'+now+'</span></div>';
-  msgsEl.appendChild(b);
-  scroll();
-}
-function showFotoLead() { showImage(IMG_LEAD_SRC); }
 
 // ═══ REBUILD UI ═══
 async function rebuildUI() {
@@ -1678,19 +1134,136 @@ async function rebuildUI() {
       b.innerHTML = TAIL_IN + '<img src="' + msg.src + '" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">' + (msg.timestamp || getTime()) + '</span></div>';
       msgsEl.appendChild(b);
     }
-    else if (msg.role === 'system') continue;
+    else if (msg.role === 'assistant' && msg.type === 'pix') {
+      const pixData = msg.pixData;
+      if (pixData) {
+        const wrap = document.createElement('div');
+        wrap.className = 'fade-in';
+        wrap.style.cssText = 'align-self:flex-start;margin-left:6px;max-width:88%';
+
+        const card = document.createElement('div');
+        card.style.cssText = 'background:#fff;border-radius:12px;overflow:hidden;min-width:220px;box-shadow:0 1px 3px rgba(0,0,0,0.15)';
+
+        const head = document.createElement('div');
+        head.style.cssText = 'background:#00a884;padding:12px 14px;display:flex;align-items:center;gap:10px';
+        head.innerHTML = '<div style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div style="color:rgba(255,255,255,0.85);font-size:11px;margin-bottom:1px">Solicitação de pagamento</div><div style="color:#fff;font-size:19px;font-weight:700;line-height:1.2">'+pixData.valorFmt+'</div></div>';
+        card.appendChild(head);
+
+        const info = document.createElement('div');
+        info.style.cssText = 'padding:10px 14px;border-bottom:1px solid #f0f2f5';
+        info.innerHTML = '<div style="font-size:11px;color:#8696a0;margin-bottom:2px">Para</div><div style="font-size:14px;color:#111b21;font-weight:500">Vanessa Macedo</div><div style="font-size:11.5px;color:#8696a0;margin-top:1px">via Pix</div>';
+        card.appendChild(info);
+
+        if (pixData.chave) {
+          const btnWrap = document.createElement('div');
+          btnWrap.style.cssText = 'border-bottom:1px solid #f0f2f5';
+          const btn = document.createElement('button');
+          btn.style.cssText = 'width:100%;background:none;border:none;padding:10px 14px;color:#00a884;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px';
+          btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="#00a884" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="#00a884" stroke-width="2" stroke-linecap="round"/></svg> Copiar chave Pix';
+          btn.onclick = function(){ window.copiarPix(btn, pixData.chave); };
+          btnWrap.appendChild(btn);
+          card.appendChild(btnWrap);
+        }
+
+        const footer = document.createElement('div');
+        footer.style.cssText = 'padding:6px 14px 8px;display:flex;justify-content:flex-end';
+        const time = document.createElement('span');
+        time.style.cssText = 'font-size:11px;color:#8696a0';
+        time.textContent = msg.timestamp || getTime();
+        footer.appendChild(time);
+        card.appendChild(footer);
+
+        wrap.appendChild(card);
+        msgsEl.appendChild(wrap);
+      }
+    }
+    else if (msg.role === 'system') {
+      continue;
+    }
   }
   scroll();
   enableInput();
 }
 
-// ═══ TYPING DELAY ═══
+// ═══ showBotaoEntregavel (com link e botão de retorno) ═══
+function showBotaoEntregavel() {
+  let ring=null;
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    function beep(){const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=480;g.gain.setValueAtTime(0.28,ctx.currentTime);o.start();o.stop(ctx.currentTime+0.35);}
+    beep();ring=setInterval(beep,1400);
+  }catch(e){}
+  const ov=document.createElement('div');
+  ov.style.cssText='position:absolute;inset:0;background:#1a1a2e;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:60px 20px;animation:fi .3s ease';
+  ov.innerHTML='<div style="text-align:center"><div style="position:relative;width:100px;height:100px;margin:0 auto"><div style="position:absolute;inset:-14px;border-radius:50%;border:2px solid rgba(255,255,255,0.12);animation:pulse 2s ease-out infinite"></div><div style="position:absolute;inset:-7px;border-radius:50%;border:2px solid rgba(255,255,255,0.08);animation:pulse 2s ease-out infinite 1s"></div><div style="width:100px;height:100px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,0.18)"><img src="https://i.ibb.co/ksmzSzDM/perfilv2.png" style="width:100%;height:100%;object-fit:cover" alt="Vanessa"></div></div><div style="color:#fff;font-size:22px;font-weight:500;margin-top:22px">Vanessa Macedo</div><div style="color:rgba(255,255,255,0.55);font-size:14px;margin-top:6px">Chamada de vídeo…</div></div><div style="display:flex;gap:52px;align-items:center"><button id="vc-decline" style="display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.8);font-size:12.5px;font-family:inherit"><div style="width:64px;height:64px;border-radius:50%;background:#e53935;display:flex;align-items:center;justify-content:center"><svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg></div>Recusar</button><button id="vc-answer" style="display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.8);font-size:12.5px;font-family:inherit"><div style="width:64px;height:64px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;animation:ringShake .6s ease infinite alternate"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Atender</button></div>';
+  document.querySelector('.phone').appendChild(ov);
+
+  document.getElementById('vc-answer').onclick=function(){
+    if(ring)clearInterval(ring);
+    ov.remove();
+    window.open(LINK_ENTREGAVEL,'_blank');
+    aiHistory.push({role:'system', content:'Entregável - Aceito', type:'system'});
+    salvarLead(true);
+  };
+
+  document.getElementById('vc-decline').onclick=async function(){
+    if(ring)clearInterval(ring);
+    ov.remove();
+    const now = getTime();
+    const b=document.createElement('div');b.className='bbl in fade-in';
+    b.innerHTML=TAIL_IN+'<span style="color:#e53935;font-size:13px">📵 Chamada de vídeo perdida</span><div class="bbl-meta"><span class="bbl-time">'+now+'</span></div>';
+    msgsEl.appendChild(b);scroll();
+    aiHistory.push({role:'system', content:'Entregável - Recusado', type:'system'});
+    salvarLead(true);
+    await sleep(1400);
+    
+    const br = document.createElement('div');
+    br.className = 'bbl in fade-in';
+    br.style.maxWidth = '88%';
+
+    const link = document.createElement('a');
+    link.href = LINK_ENTREGAVEL;
+    link.target = '_blank';
+    link.className = 'cta-btn';
+    link.style.margin = '0';
+    link.id = 'btn-retornar';
+    link.textContent = '📹 Retornar chamada';
+
+    let retornarChamadaClicado = false;
+
+    link.addEventListener('click', function(e) {
+      if (retornarChamadaClicado) {
+        e.preventDefault();
+        return;
+      }
+      retornarChamadaClicado = true;
+      aiHistory.push({role:'system', content:'Retorno feito', type:'system'});
+      salvarLead(true);
+      link.style.opacity = '0.5';
+      link.style.pointerEvents = 'none';
+      link.style.cursor = 'default';
+    });
+
+    br.innerHTML = TAIL_IN;
+    br.appendChild(link);
+    const meta = document.createElement('div');
+    meta.className = 'bbl-meta';
+    const timeSpan = document.createElement('span');
+    timeSpan.className = 'bbl-time';
+    timeSpan.textContent = getTime();
+    meta.appendChild(timeSpan);
+    br.appendChild(meta);
+    msgsEl.appendChild(br);
+    scroll();
+  };
+}
+
 function typingDelay(text) {
   const chars = text.length, cps = 2.5 + Math.random();
   return Math.min(Math.max((chars/cps)*1000+600+Math.random()*900, 1800), 12000);
 }
 
-// ═══ ASK AI ═══
+// ═══ FUNÇÃO ASKAI ═══
 async function askAI(userMsg) {
   if (conversaEncerrada) return;
 
@@ -1710,14 +1283,7 @@ async function askAI(userMsg) {
     
     const { cleanContent, isFinal } = processarResposta(reply);
     aiHistory.push({role:'assistant', content: cleanContent, type:'text', timestamp: getTime()});
-    salvarLead();
     saveState();
-
-    const lower = cleanContent.toLowerCase();
-    // Gatilho da chamada – agora SEMPRE chama, se não houver chamada em andamento
-    if ((lower.includes('vou te ligar') || lower.includes('vou te ligar agora')) && !callInProgress && !paymentResolved) {
-      triggerAutoCall();
-    }
 
     if (isFinal) {
       const displayContent = stripFim(cleanContent);
@@ -1745,11 +1311,32 @@ async function askAI(userMsg) {
       addBubble(part, 'in', false, now);
     }
 
+    const temPixNormal = /aqui o pix/i.test(cleanContent);
+    const temDesconto  = /um desconto/i.test(cleanContent);
     const temFoto     = /olha eu aqui/i.test(cleanContent);
     const temExtra    = /tá pera/i.test(cleanContent);
-    if (temFoto) { await sleep(500); showFotoLead(); }
-    if (temExtra) { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showImage(IMG_EXTRA_SRC); }
 
+    if (temPixNormal) {
+      await sleep(600);
+      showCta(false);
+    }
+    if (temDesconto) {
+      await sleep(600);
+      showCta(true);
+    }
+    if (temFoto) {
+      await sleep(500);
+      showFotoLead();
+    }
+    if (temExtra) {
+      showTyping();
+      await sleep(3000 + Math.random() * 2000);
+      hideTyping();
+      showImage(IMG_EXTRA_SRC);
+    }
+
+    const houveCta = temPixNormal || temDesconto;
+    salvarLead(houveCta);
   } catch (e) {
     hideTyping();
     addBubble('Ops, tive um probleminha. Pode repetir? 😊','in');
@@ -1758,16 +1345,7 @@ async function askAI(userMsg) {
   enableInput();
 }
 
-function processarResposta(reply) {
-  let content = reply
-    .replace(/Solicitação de pagamento/gi, '')
-    .replace(/\[áudio\]/gi, '')
-    .trim();
-  const isFinal = content.includes('[FIM]');
-  return { cleanContent: content, isFinal };
-}
-
-// ═══ SUBMIT (texto) ═══
+// ═══ FUNÇÃO DE ENVIO (texto) - AGORA COM GATILHO DA CHAMADA ISCA ═══
 function submit() {
   if (conversaEncerrada) return;
   const text = inpEl.value.trim();
@@ -1777,32 +1355,504 @@ function submit() {
   const now = getTime();
   addBubble(text, 'out', false, now);
   if (!leadId) salvarLead();
+  userReplyCount++;
+  saveState();
+
+  // ═══ GATILHO DA CHAMADA ISCA APÓS A SEGUNDA MENSAGEM DO LEAD ═══
+  if (userReplyCount === 2 && !autoCallFired) {
+    const delay = 60000 + Math.random() * 60000; // 60 a 120 segundos
+    scheduleAutoCall(delay);
+  }
+
   askAI(text);
 }
 
-// ═══ GRAVAÇÃO DE ÁUDIO (omitido para brevidade, manter igual) ═══
-// ... (código de gravação mantido do original)
+// ═══ GRAVAÇÃO DE ÁUDIO (pressione e segure) ═══
+let _mediaRecorder = null, _audioChunks = [], _isRecording = false, _recordTimer = null;
+let _isMicPressed = false;
+let _cancelRecording = false;
+let _recordStartTime = null;
+let _timerInterval = null;
 
-// ═══ FUNÇÕES PARA CONTROLE DE ÁUDIO DA CHAMADA ═══
-function muteRemoteAudio() {
-  const rv = document.getElementById('remote-video');
-  if (rv && !rv.muted) {
-    rv.muted = true;
-    remoteAudioWasMuted = true;
+let _pressTimer = null;
+let _pressStartX = 0, _pressStartY = 0;
+const PRESS_THRESHOLD = 200;
+const MOVE_THRESHOLD = 15;
+
+function showMicToast() {
+  micToast.classList.add('show');
+  clearTimeout(window._toastTimeout);
+  window._toastTimeout = setTimeout(() => {
+    micToast.classList.remove('show');
+  }, 2500);
+}
+
+function getSupportedMimeType() {
+  const types = [
+    'audio/webm;codecs=opus',
+    'audio/webm',
+    'audio/ogg;codecs=opus',
+    'audio/ogg',
+    'audio/mp4',
+    'audio/mpeg',
+    'audio/wav'
+  ];
+  if (typeof MediaRecorder !== 'undefined' && typeof MediaRecorder.isTypeSupported === 'function') {
+    for (const type of types) {
+      if (MediaRecorder.isTypeSupported(type)) {
+        return type;
+      }
+    }
   } else {
-    remoteAudioWasMuted = false;
+    return 'audio/webm';
+  }
+  return null;
+}
+
+async function _startRecording() {
+  if (conversaEncerrada) return;
+  if (_isRecording) return;
+  if (_isMicPressed) return;
+
+  _isMicPressed = true;
+  _cancelRecording = false;
+  micBtn.classList.add('recording');
+  cameraBtn.classList.add('hidden-mic');
+
+  if (navigator.vibrate) navigator.vibrate(50);
+
+  try {
+    let permissionState = 'prompt';
+    try {
+      const perm = await navigator.permissions.query({ name: 'microphone' });
+      permissionState = perm.state;
+    } catch(e) {}
+    if (permissionState === 'denied') {
+      showMicError('Microfone bloqueado. Desbloqueie nas configurações do navegador.');
+      _isMicPressed = false;
+      micBtn.classList.remove('recording');
+      cameraBtn.classList.remove('hidden-mic');
+      return;
+    }
+
+    if (typeof MediaRecorder === 'undefined') {
+      showMicError('Seu navegador não suporta gravação de áudio.');
+      _isMicPressed = false;
+      micBtn.classList.remove('recording');
+      cameraBtn.classList.remove('hidden-mic');
+      return;
+    }
+
+    const mimeType = getSupportedMimeType();
+    if (!mimeType) {
+      showMicError('Nenhum formato de áudio suportado.');
+      _isMicPressed = false;
+      micBtn.classList.remove('recording');
+      cameraBtn.classList.remove('hidden-mic');
+      return;
+    }
+
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+    });
+
+    _mediaRecorder = new MediaRecorder(stream, { mimeType });
+    _audioChunks = [];
+    _mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) _audioChunks.push(e.data); };
+    _mediaRecorder.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      if (_audioChunks.length > 0 && !_cancelRecording) {
+        sendAudioMessage(mimeType);
+      } else {
+        _audioChunks = [];
+      }
+      _cancelRecording = false;
+      _isRecording = false;
+      micBtn.classList.remove('recording');
+      micBtn.classList.remove('cancel');
+      cameraBtn.classList.remove('hidden-mic');
+      _isMicPressed = false;
+      if (_timerInterval) {
+        clearInterval(_timerInterval);
+        _timerInterval = null;
+      }
+      inpEl.placeholder = 'Mensagem';
+    };
+
+    _mediaRecorder.start();
+    _isRecording = true;
+
+    _recordStartTime = Date.now();
+    inpEl.placeholder = '🔴 0:00 • Deslize para cancelar';
+    if (_timerInterval) clearInterval(_timerInterval);
+    _timerInterval = setInterval(() => {
+      if (!_isRecording) {
+        clearInterval(_timerInterval);
+        _timerInterval = null;
+        return;
+      }
+      const elapsed = Math.floor((Date.now() - _recordStartTime) / 1000);
+      const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
+      const secs = String(elapsed % 60).padStart(2, '0');
+      inpEl.placeholder = `🔴 ${mins}:${secs} • Deslize para cancelar`;
+    }, 1000);
+
+    _recordTimer = setTimeout(() => {
+      if (_isRecording) stopRecord(false);
+    }, 60000);
+
+  } catch (err) {
+    console.error(err);
+    let msg = 'Não foi possível gravar áudio. ';
+    if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+      msg += 'Permissão negada. Clique no ícone do cadeado e permita o microfone.';
+    } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+      msg += 'Nenhum microfone encontrado.';
+    } else {
+      msg += err.message;
+    }
+    showMicError(msg);
+    _isMicPressed = false;
+    micBtn.classList.remove('recording');
+    micBtn.classList.remove('cancel');
+    cameraBtn.classList.remove('hidden-mic');
+    _isRecording = false;
+    if (_timerInterval) {
+      clearInterval(_timerInterval);
+      _timerInterval = null;
+    }
+    inpEl.placeholder = 'Mensagem';
   }
 }
 
-function restoreRemoteAudio() {
-  const rv = document.getElementById('remote-video');
-  if (rv && remoteAudioWasMuted) {
-    rv.muted = false;
-    remoteAudioWasMuted = false;
+function stopRecord(send = true) {
+  if (!_isRecording || !_mediaRecorder) return;
+  clearTimeout(_recordTimer);
+  if (_timerInterval) {
+    clearInterval(_timerInterval);
+    _timerInterval = null;
+  }
+  if (!send) {
+    _cancelRecording = true;
+    _audioChunks = [];
+    inpEl.placeholder = 'Cancelado';
+    setTimeout(() => { inpEl.placeholder = 'Mensagem'; }, 500);
+  }
+  _mediaRecorder.stop();
+}
+
+function cancelRecord() {
+  if (_isRecording) {
+    _cancelRecording = true;
+    if (navigator.vibrate) navigator.vibrate(30);
+    stopRecord(false);
+    micBtn.classList.add('cancel');
+    setTimeout(() => {
+      micBtn.classList.remove('cancel');
+    }, 300);
   }
 }
 
-// ═══ INTERFACE DA CHAMADA ISCA (agora com múltiplos disparos) ═══
+function handlePressStart(e) {
+  if (conversaEncerrada) return;
+  const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+  const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+  if (clientX == null) return;
+
+  if (_pressTimer) return;
+
+  _pressStartX = clientX;
+  _pressStartY = clientY;
+
+  micToast.classList.remove('show');
+
+  _pressTimer = setTimeout(() => {
+    _pressTimer = null;
+    _startRecording();
+  }, PRESS_THRESHOLD);
+}
+
+function handlePressEnd(e) {
+  if (conversaEncerrada) return;
+  if (_pressTimer) {
+    clearTimeout(_pressTimer);
+    _pressTimer = null;
+    const clientX = e.clientX || (e.changedTouches && e.changedTouches[0].clientX);
+    const clientY = e.clientY || (e.changedTouches && e.changedTouches[0].clientY);
+    if (clientX != null) {
+      const dx = clientX - _pressStartX;
+      const dy = clientY - _pressStartY;
+      if (Math.sqrt(dx*dx + dy*dy) < MOVE_THRESHOLD) {
+        showMicToast();
+      }
+    } else {
+      showMicToast();
+    }
+    return;
+  }
+
+  if (_isRecording) {
+    if (!_cancelRecording) {
+      stopRecord(true);
+    }
+  }
+}
+
+function handlePressMove(e) {
+  if (conversaEncerrada) return;
+  if (_pressTimer) {
+    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+    const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+    if (clientX != null) {
+      const dx = clientX - _pressStartX;
+      const dy = clientY - _pressStartY;
+      if (Math.sqrt(dx*dx + dy*dy) > MOVE_THRESHOLD) {
+        clearTimeout(_pressTimer);
+        _pressTimer = null;
+      }
+    }
+  }
+
+  if (_isRecording) {
+    const rect = micBtn.getBoundingClientRect();
+    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+    if (clientX != null && clientX < rect.left - 30) {
+      cancelRecord();
+    }
+  }
+}
+
+micBtn.addEventListener('mousedown', handlePressStart);
+micBtn.addEventListener('mouseup', handlePressEnd);
+micBtn.addEventListener('mouseleave', function(e) {
+  if (_pressTimer) {
+    clearTimeout(_pressTimer);
+    _pressTimer = null;
+  }
+  if (_isRecording) {
+    cancelRecord();
+  }
+});
+micBtn.addEventListener('mousemove', handlePressMove);
+
+micBtn.addEventListener('touchstart', handlePressStart, { passive: true });
+micBtn.addEventListener('touchend', handlePressEnd, { passive: true });
+micBtn.addEventListener('touchcancel', function(e) {
+  if (_pressTimer) {
+    clearTimeout(_pressTimer);
+    _pressTimer = null;
+  }
+  if (_isRecording) {
+    cancelRecord();
+  }
+}, { passive: true });
+micBtn.addEventListener('touchmove', handlePressMove, { passive: true });
+
+function showMicError(message) {
+  const b = document.createElement('div');
+  b.className = 'bbl in fade-in';
+  b.style.maxWidth = '85%';
+  b.style.background = '#fde7e7';
+  b.style.color = '#b33';
+  b.innerHTML = TAIL_IN + '⚠️ ' + message + '<div class="bbl-meta"><span class="bbl-time">' + getTime() + '</span></div>';
+  msgsEl.appendChild(b);
+  scroll();
+}
+
+// ═══ ENVIO DE ÁUDIO (APÓS GRAVAÇÃO) - AGORA COM GATILHO DA CHAMADA ISCA ═══
+async function sendAudioMessage(mimeType) {
+  if (conversaEncerrada) return;
+  if (_audioChunks.length === 0) return;
+  const blob = new Blob(_audioChunks, { type: mimeType });
+  if (blob.size < 500) return;
+
+  const url = URL.createObjectURL(blob);
+  const audioId = 'user-' + Date.now();
+  const now = getTime();
+
+  const audioData = { url: url, id: audioId };
+  aiHistory.push({ 
+    role: 'user', 
+    content: '[áudio enviado pelo usuário]', 
+    type: 'audio-user', 
+    timestamp: now,
+    audioData: audioData
+  });
+  salvarLead();
+
+  criarBolhaAudioUsuario(url, audioId, now);
+
+  const reader = new FileReader();
+  reader.onload = async function() {
+    const base64 = reader.result.split(',')[1];
+    userReplyCount++;
+    if (!leadId) salvarLead();
+
+    // ═══ GATILHO DA CHAMADA ISCA APÓS A SEGUNDA MENSAGEM DO LEAD ═══
+    if (userReplyCount === 2 && !autoCallFired) {
+      const delay = 60000 + Math.random() * 60000;
+      scheduleAutoCall(delay);
+    }
+
+    showTyping();
+    try {
+      const res = await fetch('/api/chat', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ history: aiHistory, city: leadCityVal, audio: base64, audioMime: mimeType })
+      });
+      const data = await res.json();
+      hideTyping();
+      const reply = data && data.reply;
+      if (!reply) { addBubble('Oi! Tô com muita mensagem agora 😅 Tenta de novo!','in'); enableInput(); return; }
+      
+      const { cleanContent, isFinal } = processarResposta(reply);
+      aiHistory.push({ role:'assistant', content: cleanContent, type:'text', timestamp: getTime() });
+      saveState();
+
+      if (isFinal) {
+        const displayContent = stripFim(cleanContent);
+        const pts = displayContent.split('|').map(p=>p.trim()).filter(Boolean);
+        if (pts.length === 0) pts = [displayContent || 'Conversa encerrada.'];
+        for (let i=0;i<pts.length;i++) {
+          showTyping();
+          await sleep(typingDelay(pts[i]));
+          hideTyping();
+          addBubble(pts[i],'in',false,getTime());
+        }
+        await salvarLead(true);
+        finalizarConversa();
+        return;
+      }
+
+      const parts = cleanContent.split('|').map(p=>p.trim()).filter(Boolean);
+      for (let i=0;i<parts.length;i++) {
+        showTyping(); await sleep(typingDelay(parts[i])); hideTyping(); addBubble(parts[i],'in',false,getTime());
+      }
+      
+      const temPixNormal = /aqui o pix/i.test(cleanContent);
+      const temDesconto  = /um desconto/i.test(cleanContent);
+      const temFoto     = /olha eu aqui/i.test(cleanContent);
+      const temExtra    = /tá pera/i.test(cleanContent);
+
+      if (temPixNormal) { await sleep(600); showCta(false); }
+      if (temDesconto)  { await sleep(600); showCta(true); }
+      if (temFoto)      { await sleep(500); showFotoLead(); }
+      if (temExtra)     { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showImage(IMG_EXTRA_SRC); }
+
+      const houveCta = temPixNormal || temDesconto;
+      salvarLead(houveCta);
+    } catch(e) {
+      hideTyping();
+      addBubble('Ops, não consegui ouvir o áudio. Pode escrever? 😊','in');
+      aiHistory.pop();
+    }
+    enableInput();
+  };
+  reader.readAsDataURL(blob);
+}
+
+// ═══ CONTROLE DE VISIBILIDADE DOS BOTÕES ═══
+inpEl.addEventListener('input', function() {
+  updateSendMicButtons();
+});
+
+// ═══ ENVIO DE IMAGEM - AGORA COM GATILHO DA CHAMADA ISCA ═══
+async function handleImageSelect(event) {
+  if (conversaEncerrada) return;
+  const file = event.target.files && event.target.files[0];
+  event.target.value = '';
+  if (!file) return;
+
+  const now = getTime();
+  const localUrl = URL.createObjectURL(file);
+
+  aiHistory.push({ 
+    role: 'user', 
+    content: '[imagem enviada pelo usuário]', 
+    type: 'image-user', 
+    timestamp: now,
+    imageData: localUrl
+  });
+  salvarLead();
+
+  const b = document.createElement('div');
+  b.className = 'bbl out fade-in';
+  b.style.maxWidth = '85%';
+  b.style.padding = '4px';
+  b.innerHTML = TAIL_OUT + '<img src="'+localUrl+'" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto enviada"><div class="bbl-meta"><span class="bbl-time">'+now+'</span>'+DOUBLE_TICK+'</div>';
+  msgsEl.appendChild(b); scroll();
+
+  const reader = new FileReader();
+  reader.onload = async function() {
+    const base64 = reader.result.split(',')[1];
+    const mime = file.type || 'image/jpeg';
+    userReplyCount++;
+    if (!leadId) salvarLead();
+
+    // ═══ GATILHO DA CHAMADA ISCA APÓS A SEGUNDA MENSAGEM DO LEAD ═══
+    if (userReplyCount === 2 && !autoCallFired) {
+      const delay = 60000 + Math.random() * 60000;
+      scheduleAutoCall(delay);
+    }
+
+    showTyping();
+    try {
+      const res = await fetch('/api/chat', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ history: aiHistory, city: leadCityVal, image: base64, imageMime: mime })
+      });
+      const data = await res.json();
+      hideTyping();
+      const reply = data && data.reply;
+      if (!reply) { addBubble('Oi! 😊 Pode me escrever o que precisa?','in'); enableInput(); return; }
+      
+      const { cleanContent, isFinal } = processarResposta(reply);
+      aiHistory.push({ role:'assistant', content: cleanContent, type:'text', timestamp: getTime() });
+      saveState();
+
+      if (isFinal) {
+        const displayContent = stripFim(cleanContent);
+        const pts = displayContent.split('|').map(p=>p.trim()).filter(Boolean);
+        if (pts.length === 0) pts = [displayContent || 'Conversa encerrada.'];
+        for (let i=0;i<pts.length;i++) {
+          showTyping();
+          await sleep(typingDelay(pts[i]));
+          hideTyping();
+          addBubble(pts[i],'in',false,getTime());
+        }
+        await salvarLead(true);
+        finalizarConversa();
+        return;
+      }
+
+      const parts = cleanContent.split('|').map(p=>p.trim()).filter(Boolean);
+      for (let i=0;i<parts.length;i++) {
+        showTyping(); await sleep(typingDelay(parts[i])); hideTyping(); addBubble(parts[i],'in',false,getTime());
+      }
+      
+      const temPixNormal = /aqui o pix/i.test(cleanContent);
+      const temDesconto  = /um desconto/i.test(cleanContent);
+      const temFoto     = /olha eu aqui/i.test(cleanContent);
+      const temExtra    = /tá pera/i.test(cleanContent);
+
+      if (temPixNormal) { await sleep(600); showCta(false); }
+      if (temDesconto)  { await sleep(600); showCta(true); }
+      if (temFoto)      { await sleep(500); showFotoLead(); }
+      if (temExtra)     { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showImage(IMG_EXTRA_SRC); }
+
+      const houveCta = temPixNormal || temDesconto;
+      salvarLead(houveCta);
+    } catch(e) {
+      hideTyping();
+      addBubble('Ops, não consegui ver a foto. Pode escrever? 😊','in');
+      aiHistory.pop();
+    }
+    enableInput();
+  };
+  reader.readAsDataURL(file);
+}
+
+// ═══ AUTO CALL (CHAMADA ISCA) ═══
 function startAutoCallRing(){
   try{
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
@@ -1820,437 +1870,77 @@ function startAutoCallRing(){
 function stopAutoCallRing(){
   if(autoCallRingInterval){clearInterval(autoCallRingInterval);autoCallRingInterval=null;}
 }
-
 function dismissAutoCall(reason){
   stopAutoCallRing();
   const ov=document.getElementById('incoming-call-overlay');
+  const ac=document.getElementById('active-call-overlay');
   ov.classList.remove('show');
-  callInProgress = false; // libera para nova chamada
-  if (reason === 'declined') {
-    const jaExiste = aiHistory.some(m => m.content === 'Ligação Isca - Recusada');
-    if (!jaExiste) {
-      aiHistory.push({role:'system', content:'Ligação Isca - Recusada', type:'system'});
-      salvarLead();
-      saveState();
-    }
-    setTimeout(() => {
-      const b=document.createElement('div');
-      b.className='bbl in fade-in';
+  ac.classList.remove('show');
+  setTimeout(function(){
+    const b=document.createElement('div');
+    b.className='bbl in fade-in';
+    if(reason==='declined'){
       b.innerHTML=TAIL_IN+
         '<div style="display:flex;align-items:center;gap:8px;color:#e53935;font-size:13.5px">'+
         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><line x1="3" y1="3" x2="21" y2="21" stroke="#e53935" stroke-width="1.75" stroke-linecap="round"/></svg>'+
         'Chamada de vídeo perdida</div>'+
         '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
-      msgsEl.appendChild(b);
-      scroll();
-    }, 400);
-  } else if (reason === 'answered_and_hung') {
-    // já tratado
-  }
+      aiHistory.push({role:'system', content:'Ligação Isca - Recusada', type:'system'});
+    } else {
+      b.innerHTML=TAIL_IN+
+        '<div style="display:flex;align-items:center;gap:8px;color:#667781;font-size:13.5px">'+
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>'+
+        'Vanessa desligou · 0:02</div>'+
+        '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+      aiHistory.push({role:'system', content:'Ligação Isca - Aceita', type:'system'});
+    }
+    msgsEl.appendChild(b);
+    scroll();
+    salvarLead();
+  }, 400);
 }
 
 function triggerAutoCall(){
-  // Se já houver chamada em andamento ou overlay visível, não dispara novamente
-  if (callInProgress) return;
-  // Se já pagou, não precisa mais
-  if (paymentResolved) return;
-  
+  if(autoCallFired) return;
+  autoCallFired=true;
+  saveState();
   const ov=document.getElementById('incoming-call-overlay');
-  if (ov.classList.contains('show')) return; // já está tocando
-
-  callInProgress = true;
   ov.classList.add('show');
   startAutoCallRing();
-  
   const autoDismissTimer=setTimeout(function(){
     if(ov.classList.contains('show')){
       dismissAutoCall('declined');
     }
-  }, 25000);
-
+  }, 20000);
   document.getElementById('auto-call-decline').onclick=function(){
     clearTimeout(autoDismissTimer);
     dismissAutoCall('declined');
   };
-
   document.getElementById('auto-call-answer').onclick=function(){
     clearTimeout(autoDismissTimer);
     stopAutoCallRing();
     ov.classList.remove('show');
-
-    const jaExiste = aiHistory.some(m => m.content === 'Ligação Isca - Aceita');
-    if (!jaExiste) {
-      aiHistory.push({role:'system', content:'Ligação Isca - Aceita', type:'system'});
-      salvarLead();
-      saveState();
-    }
-
-    const conn=document.getElementById('connecting-overlay');
-    conn.classList.add('active');
-    setTimeout(() => {
-      conn.classList.remove('active');
-      showCallInterface();
-    }, 2500);
+    const ac=document.getElementById('active-call-overlay');
+    const statusTxt=document.getElementById('ac-status-text');
+    ac.classList.add('show');
+    statusTxt.textContent='Conectando…';
+    setTimeout(function(){statusTxt.textContent='Chamada de vídeo';},700);
+    setTimeout(function(){
+      ac.classList.remove('show');
+      dismissAutoCall('answered_and_hung');
+    }, 2000);
+    document.getElementById('ac-end-btn').onclick=function(){
+      ac.classList.remove('show');
+      dismissAutoCall('answered_and_hung');
+    };
   };
 }
 
-// ── showCallInterface ──
-function showCallInterface() {
-  const el=document.getElementById('call-interface');
-  el.classList.add('active');
-  callInterfaceActive=true;
-  callInProgress = true; // mantém ocupado
-  startCallTimerUI();
-  startLocalCamera('user');
-
-  const rv=document.getElementById('remote-video');
-  rv.muted=false;
-  rv.play().catch(()=>{});
-
-  const spkBtn=document.getElementById('btn-spk');
-  const spkIcon=spkBtn.querySelector('i');
-  spkBtn.classList.add('lit');
-  spkIcon.className='ti ti-volume-3';
-  toastUI('Viva-voz ativado');
-
-  if (!paymentResolved && !paymentModalShown) {
-    setTimeout(() => {
-      if (callInterfaceActive && !paymentResolved) {
-        showPaymentModal();
-      }
-    }, 5000);
-  }
+// ═══ scheduleAutoCall com delay personalizado ═══
+function scheduleAutoCall(delay = 0) {
+  if (autoCallFired || autoCallTimer) return;
+  autoCallTimer = setTimeout(triggerAutoCall, delay);
 }
-
-function hideCallInterface() {
-  const el=document.getElementById('call-interface');
-  el.classList.remove('active');
-  callInterfaceActive=false;
-  callInProgress = false; // libera para nova chamada
-  stopCallTimerUI();
-  if (localStream) {
-    localStream.getTracks().forEach(t=>t.stop());
-    localStream=null;
-  }
-  const rv=document.getElementById('remote-video');
-  rv.pause();
-  rv.currentTime=0;
-  restoreRemoteAudio();
-}
-
-function startCallTimerUI() {
-  callSecondsCall=0;
-  const timerEl=document.getElementById('call-timer');
-  if(callTimerIntervalCall) clearInterval(callTimerIntervalCall);
-  callTimerIntervalCall=setInterval(()=>{
-    callSecondsCall++;
-    const mins=String(Math.floor(callSecondsCall/60)).padStart(2,'0');
-    const secs=String(callSecondsCall%60).padStart(2,'0');
-    timerEl.textContent=mins+':'+secs;
-  },1000);
-}
-function stopCallTimerUI(){
-  if(callTimerIntervalCall){clearInterval(callTimerIntervalCall); callTimerIntervalCall=null;}
-  document.getElementById('call-timer').textContent='00:00';
-}
-
-function startLocalCamera(facing) {
-  if (localStream) localStream.getTracks().forEach(t=>t.stop());
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: facing || 'user' }, audio: false })
-    .then(s=>{
-      localStream=s;
-      const v=document.getElementById('local-video');
-      v.srcObject=s;
-      v.style.display='block';
-      document.getElementById('cam-off-icon').style.display='none';
-      document.getElementById('btn-cam').querySelector('i').className='ti ti-video';
-      document.getElementById('btn-cam').classList.remove('off');
-    })
-    .catch(()=>{
-      document.getElementById('local-video').style.display='none';
-      document.getElementById('cam-off-icon').style.display='flex';
-      toastUI('Câmera não disponível');
-      document.getElementById('btn-cam').querySelector('i').className='ti ti-video-off';
-      document.getElementById('btn-cam').classList.add('off');
-    });
-}
-
-// ── CONTROLES DA CHAMADA ──
-window.toggleMic=function(){
-  const btn=document.getElementById('btn-mic');
-  const icon=btn.querySelector('i');
-  if(!localStream) return;
-  const tracks=localStream.getAudioTracks();
-  if(tracks.length===0) return;
-  const enabled=tracks[0].enabled;
-  tracks[0].enabled=!enabled;
-  icon.className=enabled?'ti ti-microphone-off':'ti ti-microphone';
-  btn.classList.toggle('off', enabled);
-  toastUI(enabled?'Microfone silenciado':'Microfone ativado');
-};
-window.toggleCam=function(){
-  const btn=document.getElementById('btn-cam');
-  const icon=btn.querySelector('i');
-  if(!localStream){ startLocalCamera(facingMode); return; }
-  const tracks=localStream.getVideoTracks();
-  if(tracks.length===0){ startLocalCamera(facingMode); return; }
-  const enabled=tracks[0].enabled;
-  tracks[0].enabled=!enabled;
-  icon.className=enabled?'ti ti-video-off':'ti ti-video';
-  btn.classList.toggle('off', enabled);
-  document.getElementById('local-video').style.display=enabled?'none':'block';
-  document.getElementById('cam-off-icon').style.display=enabled?'flex':'none';
-  toastUI(enabled?'Câmera desligada':'Câmera ativada');
-};
-window.toggleSpeaker=function(){
-  const btn=document.getElementById('btn-spk');
-  const icon=btn.querySelector('i');
-  const rv=document.getElementById('remote-video');
-  rv.muted=!rv.muted;
-  icon.className=rv.muted?'ti ti-volume':'ti ti-volume-3';
-  btn.classList.toggle('lit', !rv.muted);
-  toastUI(rv.muted?'Viva-voz desligado':'Viva-voz ativado');
-};
-window.flipCamera=function(){
-  facingMode=facingMode==='user'?'environment':'user';
-  startLocalCamera(facingMode);
-  toastUI(facingMode==='environment'?'Câmera traseira':'Câmera frontal');
-};
-window.endCall=function(){
-  const endedDiv=document.getElementById('ended');
-  document.getElementById('ended-msg').textContent='Chamada encerrada';
-  document.getElementById('dur-end').textContent='Duração: '+document.getElementById('call-timer').textContent;
-  endedDiv.style.display='flex';
-  hideCallInterface();
-  hidePaymentModal();
-  hideExitConfirmModal();
-  hidePaymentWarningModal();
-  callInProgress = false;
-  saveState();
-};
-function toastUI(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg;
-  t.style.opacity='1';
-  clearTimeout(t._t);
-  t._t=setTimeout(()=>t.style.opacity='0',2000);
-}
-
-document.getElementById('remote-video').addEventListener('ended', function(){
-  if(callInterfaceActive){
-    const endedDiv=document.getElementById('ended');
-    document.getElementById('ended-msg').textContent='Vanessa Macedo encerrou a chamada';
-    document.getElementById('dur-end').textContent='Duração: '+document.getElementById('call-timer').textContent;
-    endedDiv.style.display='flex';
-    hideCallInterface();
-    hidePaymentModal();
-    hideExitConfirmModal();
-    hidePaymentWarningModal();
-    callInProgress = false;
-    saveState();
-  }
-});
-
-// ═══ FUNÇÕES DOS MODAIS (ATUALIZADAS) ═══
-
-// ── Função global para copiar a chave Pix ──
-window.copyPixKey = function() {
-  const btn = document.getElementById('btn-copy-pix');
-  const chave = btn.dataset.chave;
-  if (!chave || chave === '') {
-    toastUI('❌ Nenhuma chave disponível');
-    return;
-  }
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(chave).then(() => {
-      btn.innerHTML = `
-        <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-        Copiado!
-      `;
-      toastUI('✅ Chave Pix copiada!');
-      setTimeout(() => {
-        btn.innerHTML = `
-          <svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" stroke="currentColor" stroke-width="2"/><path d="M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z" stroke="currentColor" stroke-width="2"/></svg>
-          Copiar chave Pix
-        `;
-      }, 3000);
-    }).catch(() => {
-      fallbackCopy(chave);
-    });
-  } else {
-    fallbackCopy(chave);
-  }
-};
-
-function fallbackCopy(text) {
-  const ta = document.createElement('textarea');
-  ta.value = text;
-  ta.style.cssText = 'position:fixed;opacity:0';
-  document.body.appendChild(ta);
-  ta.focus();
-  ta.select();
-  try {
-    document.execCommand('copy');
-    toastUI('✅ Chave Pix copiada!');
-    const btn = document.getElementById('btn-copy-pix');
-    btn.innerHTML = `
-      <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-      Copiado!
-    `;
-    setTimeout(() => {
-      btn.innerHTML = `
-        <svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" stroke="currentColor" stroke-width="2"/><path d="M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z" stroke="currentColor" stroke-width="2"/></svg>
-        Copiar chave Pix
-      `;
-    }, 3000);
-  } catch(e) {
-    toastUI('❌ Erro ao copiar');
-  }
-  document.body.removeChild(ta);
-}
-
-function showPaymentModal() {
-  if (paymentModalShown || paymentResolved) return;
-  paymentModalShown = true;
-  saveState();
-  muteRemoteAudio();
-
-  const modal=document.getElementById('payment-modal');
-  modal.classList.add('active');
-
-  gerarPix(false).then(data => {
-    if (data) {
-      const valor = 3000;
-      const chave = data.pix && data.pix.pix_qr_code || '';
-      const hash = data.hash || 'tx'+Date.now();
-      paymentData = { hash, valor, desconto: false, chave };
-      document.getElementById('pix-value-display').textContent = 'R$ 30,00';
-      document.getElementById('btn-copy-pix').dataset.chave = chave;
-      document.getElementById('btn-copy-pix').disabled = false;
-      document.getElementById('payment-status').textContent = '';
-      iniciarPollRobusto(hash, valor);
-      pixelIniCheckout(valor);
-    } else {
-      document.getElementById('payment-status').textContent = '❌ Erro ao gerar Pix. Tente novamente.';
-      document.getElementById('payment-status').className = 'status-msg err';
-    }
-  });
-
-  document.getElementById('payment-modal-close').onclick = function() {
-    handleModalClose();
-  };
-  modal.onclick = function(e) {
-    if (e.target === modal) {
-      handleModalClose();
-    }
-  };
-}
-
-function hidePaymentModal() {
-  document.getElementById('payment-modal').classList.remove('active');
-  paymentModalShown = false;
-  if (callInterfaceActive) {
-    restoreRemoteAudio();
-  }
-}
-
-// ── Função para reabrir modal com valor normal ──
-function reopenPaymentModalNormal() {
-  hideExitConfirmModal();
-  // Fecha o aviso se estiver aberto
-  hidePaymentWarningModal();
-  // Garante que o modal de pagamento está visível
-  document.getElementById('payment-modal').classList.add('active');
-  // Se não houver paymentData ou estiver com desconto, gera novo pix normal
-  if (!paymentData || paymentData.desconto) {
-    gerarPix(false).then(data => {
-      if (data) {
-        const valor = 3000;
-        const chave = data.pix?.pix_qr_code || '';
-        const hash = data.hash || 'tx'+Date.now();
-        paymentData = { hash, valor, desconto: false, chave };
-        document.getElementById('pix-value-display').textContent = 'R$ 30,00';
-        document.getElementById('btn-copy-pix').dataset.chave = chave;
-        document.getElementById('btn-copy-pix').disabled = false;
-        document.getElementById('payment-status').textContent = '';
-        iniciarPollRobusto(hash, valor);
-        pixelIniCheckout(valor);
-      } else {
-        document.getElementById('payment-status').textContent = '❌ Erro ao gerar Pix. Tente novamente.';
-        document.getElementById('payment-status').className = 'status-msg err';
-      }
-    });
-  } else {
-    // Já tem pix normal
-    document.getElementById('pix-value-display').textContent = 'R$ 30,00';
-    document.getElementById('btn-copy-pix').dataset.chave = paymentData.chave;
-    document.getElementById('payment-status').textContent = '';
-  }
-  restoreRemoteAudio();
-}
-
-// ── handleModalClose (fluxo de fechamento) ──
-function handleModalClose() {
-  if (paymentResolved) {
-    hidePaymentModal();
-    return;
-  }
-  if (!discountOffered) {
-    discountOffered = true;
-    saveState();
-    showExitConfirmModal();
-  } else {
-    showPaymentWarningModal();
-  }
-}
-
-// ── Modais ──
-function showExitConfirmModal() {
-  document.getElementById('exit-confirm-modal').classList.add('active');
-}
-function hideExitConfirmModal() {
-  document.getElementById('exit-confirm-modal').classList.remove('active');
-}
-function showPaymentWarningModal() {
-  document.getElementById('payment-warning-modal').classList.add('active');
-}
-function hidePaymentWarningModal() {
-  document.getElementById('payment-warning-modal').classList.remove('active');
-}
-
-// ── Eventos dos botões ──
-document.getElementById('exit-discount-yes').onclick = function() {
-  hideExitConfirmModal();
-  gerarPix(true).then(data => {
-    if (data) {
-      const valor = 2000;
-      const chave = data.pix?.pix_qr_code || '';
-      const hash = data.hash || 'tx'+Date.now();
-      paymentData = { hash, valor, desconto: true, chave };
-      document.getElementById('pix-value-display').textContent = 'R$ 20,00';
-      document.getElementById('btn-copy-pix').dataset.chave = chave;
-      document.getElementById('btn-copy-pix').disabled = false;
-      document.getElementById('payment-status').textContent = '✅ Desconto aplicado!';
-      document.getElementById('payment-status').className = 'status-msg ok';
-      iniciarPollRobusto(hash, valor);
-      pixelIniCheckout(valor);
-      document.getElementById('payment-modal').classList.add('active');
-      muteRemoteAudio();
-    } else {
-      document.getElementById('payment-status').textContent = '❌ Erro ao gerar Pix com desconto. Tente novamente.';
-      document.getElementById('payment-status').className = 'status-msg err';
-    }
-  });
-};
-
-document.getElementById('exit-discount-no').onclick = function() {
-  reopenPaymentModalNormal();
-};
-
-document.getElementById('warning-ok').onclick = function() {
-  hidePaymentWarningModal();
-  // Mantém o modal de pagamento aberto
-};
 
 // ═══ INÍCIO ═══
 async function start() {
@@ -2258,6 +1948,7 @@ async function start() {
   if (restored && aiHistory.length > 0) {
     leadCityVal = leadCityVal || await fetchLeadCity();
     await rebuildUI();
+    
     const audioLeadSalvo = carregarAudioLead();
     if (audioLeadSalvo && audioLeadSalvo.src) {
       const audioExistente = aiHistory.some(msg => msg.type === 'audio' && msg.src === audioLeadSalvo.src);
@@ -2267,8 +1958,11 @@ async function start() {
         criarBolhaAudio(audioLeadSalvo.src, 'lead-audio', null);
       }
     }
+    
     retomarPollingSeNecessario();
+
     enableInput();
+    updateSendMicButtons();
   } else {
     leadCityVal = await fetchLeadCity();
     await sleep(700); showTyping();
@@ -2292,17 +1986,21 @@ async function start() {
         msgsEl.appendChild(imgBbl); scroll();
       }, 1200);
     });
+    
     salvarAudioLead(AUDIO_SRC, now);
   }
 }
 start();
 
-// ═══ SHEETS E EMOJI ═══
+// ═══ FUNÇÕES DOS SHEETS (com bloqueio para conversa encerrada) ═══
 function toggleEmoji() {
   if (conversaEncerrada) return;
   const panel = document.getElementById('emoji-panel');
   const isOpen = panel.style.display !== 'none';
-  if (isOpen) { panel.style.display = 'none'; return; }
+  if (isOpen) {
+    panel.style.display = 'none';
+    return;
+  }
   const grid = panel.querySelector('div');
   if (grid.children.length === 0) {
     const emojis = ['😀','😂','🤣','😍','🥰','😘','😊','🥺','😢','😭','😤','😡','🤔','🤭','😏','😎','🤩','😴','🥳','😇','❤️','🔥','💕','💞','👏','🙌','🤝','👍','🙏','💪','😈','👀','💋','🫦','😻','🥵','😜','🤪','😝','💀','🫣','🤫','🫶','💘','💝','💖','💗','💓','💟','❣️','🎉','✨','⭐','🌹','🍑','🍆','💦','🌊','😩','🫠','🥴','😮‍💨','😋'];
@@ -2328,7 +2026,10 @@ function toggleEmoji() {
   panel.style.display = 'block';
 }
 
-function openExitSheet(){ if (conversaEncerrada) return; document.getElementById('exit-sheet').classList.add('open'); }
+function openExitSheet(){ 
+  if (conversaEncerrada) return;
+  document.getElementById('exit-sheet').classList.add('open'); 
+}
 function closeExitSheet(){ document.getElementById('exit-sheet').classList.remove('open'); }
 document.getElementById('exit-sheet').addEventListener('click', function(e){ if(e.target===this) closeExitSheet(); });
 function openInfoSheet(){ document.getElementById('info-sheet').classList.add('open'); }
@@ -2337,29 +2038,6 @@ document.getElementById('info-sheet').addEventListener('click', function(e){ if(
 function openSheet(){ document.getElementById('sheet').classList.add('open'); }
 function closeSheet(){ document.getElementById('sheet').classList.remove('open'); }
 document.getElementById('sheet').addEventListener('click', function(e){ if(e.target===this) closeSheet(); });
-
-// ═══ FUNÇÃO PARA ENVIO DE IMAGEM (mantida) ═══
-function handleImageSelect(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const dataUrl = e.target.result;
-    const now = getTime();
-    const b = document.createElement('div');
-    b.className = 'bbl out fade-in';
-    b.style.maxWidth = '85%';
-    b.style.padding = '4px';
-    b.innerHTML = TAIL_OUT + '<img src="'+dataUrl+'" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto enviada"><div class="bbl-meta"><span class="bbl-time">'+now+'</span>'+DOUBLE_TICK+'</div>';
-    msgsEl.appendChild(b);
-    scroll();
-    aiHistory.push({role:'user', content:'[imagem enviada]', type:'image-user', imageData: dataUrl, timestamp: now});
-    salvarLead();
-    askAI('Enviei uma foto');
-  };
-  reader.readAsDataURL(file);
-  event.target.value = '';
-}
 </script>
 </body>
 </html>
