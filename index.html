@@ -455,12 +455,13 @@ const TAIL_OUT='';
 const DOUBLE_TICK=`<svg class="ticks" width="16" height="11" viewBox="0 0 16 11" fill="none"><path d="M11.0714 1L4.5 7.57143L1 4.14286" stroke="#53bdeb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 1L8.42857 7.57143" stroke="#53bdeb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
 const AUDIO_SRC = 'https://res.cloudinary.com/do59kzkec/video/upload/v1781646818/Apresenta%C3%A7%C3%A3o_kgfag3.mp3';
-// REMOVIDO: const AUDIO_PIX_SRC = ...
 const IMG_INICIAL_SRC = 'https://i.ibb.co/XZGMmjcV/0416-D21-A-71-A5-4-C50-A316-AB8-DEE7-F5641.jpg';
 const IMG_LEAD_SRC = 'https://i.ibb.co/B2ML9kzf/Img-jpg.jpg';
 const IMG_EXTRA_SRC = 'https://i.ibb.co/mr9LqY60/Prev-jpg.jpg';
 
-let leadId=null, clicouCta=false, leadCityVal=null;
+// Removeu-se a variável audioPIxJaTocou e a constante AUDIO_PIX_SRC
+
+let aiHistory=[], leadId=null, clicouCta=false, leadCityVal=null;
 let pixNormalGerado=false, pixDescontoGerado=false;
 let initiateCheckoutFired=false, typingEl=null;
 const SESSION_ID=Math.random().toString(36).slice(2);
@@ -498,7 +499,7 @@ function saveState() {
     autoCallFired,
     initiateCheckoutFired,
     conversaEncerrada
-    // REMOVIDO: audioPIxJaTocou
+    // audioPIxJaTocou removido
   };
   try {
     localStorage.setItem(STATE_KEY, JSON.stringify(state));
@@ -520,7 +521,7 @@ function loadState() {
     autoCallFired = state.autoCallFired || false;
     initiateCheckoutFired = state.initiateCheckoutFired || false;
     conversaEncerrada = state.conversaEncerrada || false;
-    // REMOVIDO: audioPIxJaTocou
+    // audioPIxJaTocou removido
     return true;
   } catch(e) {
     return false;
@@ -868,7 +869,6 @@ async function showCta(desconto) {
 
   const now = getTime();
   criarCardPix(data, desconto, now);
-  // ÁUDIO REMOVIDO
 }
 
 // ═══ FUNÇÃO GENÉRICA PARA EXIBIR IMAGEM ═══
