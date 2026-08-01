@@ -698,186 +698,6 @@ html, body {
   transform: scale(0.97);
 }
 
-/* ── INCOMING CALL OVERLAY ── */
-#incoming-call-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(10, 10, 18, 0.9);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  z-index: 400;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 70px 20px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .3s ease;
-}
-
-#incoming-call-overlay.show {
-  opacity: 1;
-  pointer-events: all;
-}
-
-#incoming-call-overlay .call-avatar-wrap {
-  position: relative;
-  width: 100px;
-  height: 100px;
-  margin: 0 auto;
-}
-
-#incoming-call-overlay .ring1 {
-  position: absolute;
-  inset: -14px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.12);
-  animation: pulse 2s ease-out infinite;
-}
-
-#incoming-call-overlay .ring2 {
-  position: absolute;
-  inset: -7px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.08);
-  animation: pulse 2s ease-out infinite 1s;
-}
-
-#incoming-call-overlay .call-avatar {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 3px solid rgba(255, 255, 255, 0.2);
-}
-
-#incoming-call-overlay .call-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-#incoming-call-overlay .call-name {
-  color: #fff;
-  font-size: 24px;
-  font-weight: 600;
-  margin-top: 24px;
-  text-align: center;
-}
-
-#incoming-call-overlay .call-sub {
-  color: rgba(255, 255, 255, 0.55);
-  font-size: 15px;
-  margin-top: 8px;
-  text-align: center;
-}
-
-#incoming-call-overlay .call-actions {
-  display: flex;
-  gap: 60px;
-  align-items: center;
-}
-
-.call-btn-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 13px;
-  font-family: var(--font-stack);
-}
-
-.call-btn-circle {
-  width: 68px;
-  height: 68px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-}
-
-.call-btn-circle.decline {
-  background: var(--danger);
-}
-
-.call-btn-circle.answer {
-  background: #34C759;
-  animation: ringShake .6s ease infinite alternate;
-}
-
-@keyframes ringShake {
-  from { transform: rotate(-8deg); }
-  to { transform: rotate(8deg); }
-}
-
-/* ── ACTIVE CALL OVERLAY ── */
-#active-call-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(8, 8, 14, 0.95);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  z-index: 401;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .3s ease;
-}
-
-#active-call-overlay.show {
-  opacity: 1;
-  pointer-events: all;
-}
-
-#active-call-overlay .ac-avatar {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 3px solid rgba(255, 255, 255, 0.2);
-}
-
-#active-call-overlay .ac-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-#active-call-overlay .ac-name {
-  color: #fff;
-  font-size: 22px;
-  font-weight: 600;
-}
-
-#active-call-overlay .ac-status {
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 14px;
-}
-
-#active-call-overlay .ac-end-btn {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: var(--danger);
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 40px;
-  box-shadow: 0 8px 24px rgba(255, 69, 58, 0.4);
-}
-
 /* Toast de instrução do microfone */
 .mic-toast {
   position: absolute;
@@ -1090,43 +910,6 @@ html, body {
     </div>
   </div>
 
-  <!-- INCOMING VIDEO CALL OVERLAY (automático) -->
-  <div id="incoming-call-overlay">
-    <div style="text-align:center">
-      <div class="call-avatar-wrap">
-        <div class="ring1"></div>
-        <div class="ring2"></div>
-        <div class="call-avatar"><img src="https://i.ibb.co/ksmzSzDM/perfilv2.png" alt="Vanessa"></div>
-      </div>
-      <div class="call-name">Vanessa Macedo</div>
-      <div class="call-sub">Chamada de vídeo…</div>
-    </div>
-    <div class="call-actions">
-      <div class="call-btn-wrap">
-        <button class="call-btn-circle decline" id="auto-call-decline">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>
-        </button>
-        <span>Recusar</span>
-      </div>
-      <div class="call-btn-wrap">
-        <button class="call-btn-circle answer" id="auto-call-answer">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-        <span>Atender</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- ACTIVE CALL (brief flash ao atender) -->
-  <div id="active-call-overlay">
-    <div class="ac-avatar"><img src="https://i.ibb.co/ksmzSzDM/perfilv2.png" alt="Vanessa"></div>
-    <div class="ac-name">Vanessa Macedo</div>
-    <div class="ac-status" id="ac-status-text">Conectando…</div>
-    <button class="ac-end-btn" id="ac-end-btn">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>
-    </button>
-  </div>
-
 </div>
 
 <script>
@@ -1175,9 +958,6 @@ let initiateCheckoutFired=false, typingEl=null;
 const SESSION_ID=Math.random().toString(36).slice(2);
 
 let userReplyCount = 0;
-let autoCallFired = false;
-let autoCallTimer = null;
-let autoCallRingInterval = null;
 
 // ═══ FLAG: CONVERSA ENCERRADA ═══
 let conversaEncerrada = false;
@@ -1204,7 +984,6 @@ function saveState() {
     pixNormalGerado,
     pixDescontoGerado,
     userReplyCount,
-    autoCallFired,
     initiateCheckoutFired,
     audioPIxJaTocou,
     conversaEncerrada
@@ -1226,7 +1005,6 @@ function loadState() {
     pixNormalGerado = state.pixNormalGerado || false;
     pixDescontoGerado = state.pixDescontoGerado || false;
     userReplyCount = state.userReplyCount || 0;
-    autoCallFired = state.autoCallFired || false;
     initiateCheckoutFired = state.initiateCheckoutFired || false;
     audioPIxJaTocou = state.audioPIxJaTocou || false;
     conversaEncerrada = state.conversaEncerrada || false;
@@ -1534,11 +1312,8 @@ function criarCardPix(data, desconto, timestamp) {
   head.innerHTML = '<div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div style="color:rgba(255,255,255,0.85);font-size:12px;margin-bottom:2px">Solicitação de pagamento</div><div style="color:#fff;font-size:22px;font-weight:700;line-height:1.2">'+valorFmt+'</div></div>';
   card.appendChild(head);
 
-  const info = document.createElement('div');
-  info.style.cssText = 'padding:12px 16px;border-bottom:1px solid rgba(0,0,0,0.06)';
-  info.innerHTML = '<div style="font-size:12px;color:#8e8e93;margin-bottom:3px">Para</div><div style="font-size:15px;color:#1d1d1f;font-weight:600">Vanessa Macedo</div><div style="font-size:12px;color:#8e8e93;margin-top:2px">via Pix</div>';
-  card.appendChild(info);
-
+  // Nome do recebedor removido: a seção "Para" foi eliminada.
+  // Mantém-se apenas o botão de copiar a chave Pix, se disponível.
   if (pixCopia) {
     const btnWrap = document.createElement('div');
     btnWrap.style.cssText = 'border-bottom:1px solid rgba(0,0,0,0.06)';
@@ -1585,7 +1360,7 @@ async function showCta(desconto) {
     aiHistory.push({role:'assistant', content:'[áudio]', type:'audio', src:AUDIO_PIX_SRC, timestamp: now});
     salvarLead(true);
     criarBolhaAudio(AUDIO_PIX_SRC, 'pix', function() {
-      // Removido o gatilho automático da chamada isca
+      // Nada mais aqui.
     });
   }
 }
@@ -1857,11 +1632,7 @@ async function rebuildUI() {
         head.innerHTML = '<div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div style="color:rgba(255,255,255,0.85);font-size:12px;margin-bottom:2px">Solicitação de pagamento</div><div style="color:#fff;font-size:22px;font-weight:700;line-height:1.2">'+pixData.valorFmt+'</div></div>';
         card.appendChild(head);
 
-        const info = document.createElement('div');
-        info.style.cssText = 'padding:12px 16px;border-bottom:1px solid rgba(0,0,0,0.06)';
-        info.innerHTML = '<div style="font-size:12px;color:#8e8e93;margin-bottom:3px">Para</div><div style="font-size:15px;color:#1d1d1f;font-weight:600">Vanessa Macedo</div><div style="font-size:12px;color:#8e8e93;margin-top:2px">via Pix</div>';
-        card.appendChild(info);
-
+        // Nome do recebedor removido
         if (pixData.chave) {
           const btnWrap = document.createElement('div');
           btnWrap.style.cssText = 'border-bottom:1px solid rgba(0,0,0,0.06)';
@@ -2053,7 +1824,7 @@ async function askAI(userMsg) {
   enableInput();
 }
 
-// ═══ FUNÇÃO DE ENVIO (texto) - AGORA COM GATILHO DA CHAMADA ISCA ═══
+// ═══ FUNÇÃO DE ENVIO (texto) ═══
 function submit() {
   if (conversaEncerrada) return;
   const text = inpEl.value.trim();
@@ -2065,12 +1836,6 @@ function submit() {
   if (!leadId) salvarLead();
   userReplyCount++;
   saveState();
-
-  // ═══ GATILHO DA CHAMADA ISCA APÓS A SEGUNDA MENSAGEM DO LEAD ═══
-  if (userReplyCount === 2 && !autoCallFired) {
-    const delay = 60000 + Math.random() * 60000; // 60 a 120 segundos
-    scheduleAutoCall(delay);
-  }
 
   askAI(text);
 }
@@ -2367,7 +2132,7 @@ function showMicError(message) {
   scroll();
 }
 
-// ═══ ENVIO DE ÁUDIO (APÓS GRAVAÇÃO) - AGORA COM GATILHO DA CHAMADA ISCA ═══
+// ═══ ENVIO DE ÁUDIO (APÓS GRAVAÇÃO) ═══
 async function sendAudioMessage(mimeType) {
   if (conversaEncerrada) return;
   if (_audioChunks.length === 0) return;
@@ -2395,12 +2160,6 @@ async function sendAudioMessage(mimeType) {
     const base64 = reader.result.split(',')[1];
     userReplyCount++;
     if (!leadId) salvarLead();
-
-    // ═══ GATILHO DA CHAMADA ISCA APÓS A SEGUNDA MENSAGEM DO LEAD ═══
-    if (userReplyCount === 2 && !autoCallFired) {
-      const delay = 60000 + Math.random() * 60000;
-      scheduleAutoCall(delay);
-    }
 
     showTyping();
     try {
@@ -2464,7 +2223,7 @@ inpEl.addEventListener('input', function() {
   updateSendMicButtons();
 });
 
-// ═══ ENVIO DE IMAGEM - AGORA COM GATILHO DA CHAMADA ISCA ═══
+// ═══ ENVIO DE IMAGEM ═══
 async function handleImageSelect(event) {
   if (conversaEncerrada) return;
   const file = event.target.files && event.target.files[0];
@@ -2496,12 +2255,6 @@ async function handleImageSelect(event) {
     const mime = file.type || 'image/jpeg';
     userReplyCount++;
     if (!leadId) salvarLead();
-
-    // ═══ GATILHO DA CHAMADA ISCA APÓS A SEGUNDA MENSAGEM DO LEAD ═══
-    if (userReplyCount === 2 && !autoCallFired) {
-      const delay = 60000 + Math.random() * 60000;
-      scheduleAutoCall(delay);
-    }
 
     showTyping();
     try {
@@ -2558,95 +2311,6 @@ async function handleImageSelect(event) {
     enableInput();
   };
   reader.readAsDataURL(file);
-}
-
-// ═══ AUTO CALL (CHAMADA ISCA) ═══
-function startAutoCallRing(){
-  try{
-    const ctx=new(window.AudioContext||window.webkitAudioContext)();
-    function beep(){
-      const o=ctx.createOscillator(),g=ctx.createGain();
-      o.connect(g);g.connect(ctx.destination);
-      o.frequency.value=480;
-      g.gain.setValueAtTime(0.25,ctx.currentTime);
-      o.start();o.stop(ctx.currentTime+0.4);
-    }
-    beep();
-    autoCallRingInterval=setInterval(beep,1600);
-  }catch(e){}
-}
-function stopAutoCallRing(){
-  if(autoCallRingInterval){clearInterval(autoCallRingInterval);autoCallRingInterval=null;}
-}
-function dismissAutoCall(reason){
-  stopAutoCallRing();
-  const ov=document.getElementById('incoming-call-overlay');
-  const ac=document.getElementById('active-call-overlay');
-  ov.classList.remove('show');
-  ac.classList.remove('show');
-  setTimeout(function(){
-    const b=document.createElement('div');
-    b.className='bbl in fade-in';
-    if(reason==='declined'){
-      b.innerHTML=TAIL_IN+
-        '<div style="display:flex;align-items:center;gap:8px;color:#FF453A;font-size:14px">'+
-        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#FF453A" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#FF453A" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><line x1="3" y1="3" x2="21" y2="21" stroke="#FF453A" stroke-width="1.75" stroke-linecap="round"/></svg>'+
-        'Chamada de vídeo perdida</div>'+
-        '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
-      aiHistory.push({role:'system', content:'Ligação Isca - Recusada', type:'system'});
-    } else {
-      b.innerHTML=TAIL_IN+
-        '<div style="display:flex;align-items:center;gap:8px;color:#8e8e93;font-size:14px">'+
-        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#8e8e93" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#8e8e93" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>'+
-        'Vanessa desligou · 0:02</div>'+
-        '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
-      aiHistory.push({role:'system', content:'Ligação Isca - Aceita', type:'system'});
-    }
-    msgsEl.appendChild(b);
-    scroll();
-    salvarLead();
-  }, 400);
-}
-
-function triggerAutoCall(){
-  if(autoCallFired) return;
-  autoCallFired=true;
-  saveState();
-  const ov=document.getElementById('incoming-call-overlay');
-  ov.classList.add('show');
-  startAutoCallRing();
-  const autoDismissTimer=setTimeout(function(){
-    if(ov.classList.contains('show')){
-      dismissAutoCall('declined');
-    }
-  }, 20000);
-  document.getElementById('auto-call-decline').onclick=function(){
-    clearTimeout(autoDismissTimer);
-    dismissAutoCall('declined');
-  };
-  document.getElementById('auto-call-answer').onclick=function(){
-    clearTimeout(autoDismissTimer);
-    stopAutoCallRing();
-    ov.classList.remove('show');
-    const ac=document.getElementById('active-call-overlay');
-    const statusTxt=document.getElementById('ac-status-text');
-    ac.classList.add('show');
-    statusTxt.textContent='Conectando…';
-    setTimeout(function(){statusTxt.textContent='Chamada de vídeo';},700);
-    setTimeout(function(){
-      ac.classList.remove('show');
-      dismissAutoCall('answered_and_hung');
-    }, 2000);
-    document.getElementById('ac-end-btn').onclick=function(){
-      ac.classList.remove('show');
-      dismissAutoCall('answered_and_hung');
-    };
-  };
-}
-
-function scheduleAutoCall(delay = 0) {
-  if (autoCallFired || autoCallTimer) return;
-  autoCallTimer = setTimeout(triggerAutoCall, delay);
 }
 
 // ═══ INÍCIO ═══
