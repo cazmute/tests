@@ -939,7 +939,7 @@ async function rebuildUI() {
       }
     } 
     else if (msg.role === 'assistant' && msg.type === 'text') {
-      const parts = msg.content.split(',').map(p => p.trim()).filter(Boolean);
+      const parts = msg.content.split('|').map(p => p.trim()).filter(Boolean);
       if (parts.length === 0) parts = [msg.content];
       for (let i = 0; i < parts.length; i++) {
         let timeToShow = msg.timestamp || getTime();
@@ -1116,7 +1116,7 @@ async function askAI(userMsg) {
 
     if (replyContent.includes('[FIM]')) {
       const msgFinal = replyContent.replace('[FIM]','').trim();
-      const pts = msgFinal.split(',').map(p=>p.trim()).filter(Boolean);
+      const pts = msgFinal.split('|').map(p=>p.trim()).filter(Boolean);
       for (let i=0;i<pts.length;i++) {
         showTyping(); hideTyping();
         addBubble(pts[i],'in',false,getTime());
@@ -1125,7 +1125,7 @@ async function askAI(userMsg) {
       return;
     }
 
-    let parts = replyContent.split(',').map(p=>p.trim()).filter(Boolean);
+    let parts = replyContent.split('|').map(p=>p.trim()).filter(Boolean);
     if (parts.length<=1 && replyContent.includes('\n\n')) parts = replyContent.split('\n\n').map(p=>p.trim()).filter(Boolean);
     for (let i=0;i<parts.length;i++) {
       const part = parts[i];
