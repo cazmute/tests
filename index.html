@@ -1,274 +1,529 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>WhatsApp</title>
-<!-- Meta Pixel -->
-<script>
-!function(f,b,e,v,n,t,s)
-{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];
-s.parentNode.insertBefore(t,s)}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '981136621185086');
-fbq('track', 'PageView');
-</script>
-<noscript>
-  <img height="1" width="1" style="display:none"
-  src="https://www.facebook.com/tr?id=981136621185086&ev=PageView&noscript=1"/>
-</noscript>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --wa-green:#25d366;--wa-teal:#075e54;--wa-teal2:#128c7e;
-  --wa-bg:#ece5dd;--wa-msg-in:#ffffff;--wa-msg-out:#d9fdd3;
-  --wa-header:#1f2c34;--wa-text:#111b21;--wa-text2:#667781;
-  --wa-tick:#53bdeb;--wa-border:#e9edef;--wa-input:#f0f2f5;
-  --wa-surface:#ffffff;--wa-icon:#8696a0;
-}
-html,body{
-  height:100%;height:100dvh;background:#111b21;overflow:hidden;
-  font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
-  position:fixed;width:100%;top:0;left:0;
-  display:flex;align-items:center;justify-content:center;
-}
-.phone{
-  width:100%;max-width:480px;
-  height:100%;height:100dvh;
-  background:var(--wa-bg);display:flex;flex-direction:column;
-  position:relative;overflow:hidden;
-  border-left:1px solid #2a3942;border-right:1px solid #2a3942;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-}
-.phone img {
-  -webkit-user-drag: none;
-  user-drag: none;
-}
-.hdr{
-  background:var(--wa-header);display:flex;align-items:center;
-  padding:10px 4px 10px 8px;gap:10px;flex-shrink:0;min-height:58px;
-}
-.hdr-back{background:none;border:none;cursor:pointer;padding:4px 2px;color:#e9edef;display:flex;align-items:center;flex-shrink:0}
-.hdr-avatar{width:40px;height:40px;border-radius:50%;overflow:hidden;flex-shrink:0;cursor:pointer;background:#374248;}
-.hdr-avatar img{width:100%;height:100%;object-fit:cover;display:block}
-.hdr-info{flex:1;min-width:0;cursor:pointer}
-.hdr-name{color:#e9edef;font-size:16px;font-weight:500;letter-spacing:0.1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hdr-status{color:#8696a0;font-size:13px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hdr-actions{display:flex;gap:0;align-items:center;flex-shrink:0}
-.hdr-btn{background:none;border:none;cursor:pointer;color:#e9edef;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:background 0.15s;}
-.hdr-btn:hover{background:rgba(255,255,255,0.08)}
-.hdr-btn:active{background:rgba(255,255,255,0.15)}
-.msgs{
-  flex:1;overflow-y:auto;padding:6px 8px 8px;display:flex;flex-direction:column;gap:2px;
-  background-color:#e5ddd5;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-  scroll-behavior:smooth;-webkit-overflow-scrolling:touch;
-}
-.msgs::-webkit-scrollbar{width:3px}
-.msgs::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.18);border-radius:2px}
-.date-pill{align-self:center;background:rgba(11,20,26,0.25);color:rgba(255,255,255,0.65);font-size:12px;padding:4px 10px;border-radius:100px;margin:6px 0 4px;letter-spacing:0.2px;}
-.bbl{max-width:75%;padding:6px 10px 4px;border-radius:8px;font-size:14.5px;line-height:1.5;position:relative;word-break:break-word;color:var(--wa-text);}
-.bbl.in{background:var(--wa-msg-in);align-self:flex-start;border-top-left-radius:0;box-shadow:0 1px 0.5px rgba(11,20,26,.13);margin-left:6px;}
-.bbl.in::before{content:'';position:absolute;top:0;left:-6px;width:0;height:0;border-top:6px solid var(--wa-msg-in);border-left:6px solid transparent;}
-.bbl.out{background:var(--wa-msg-out);align-self:flex-end;border-top-right-radius:0;box-shadow:0 1px 0.5px rgba(11,20,26,.13);margin-right:6px;}
-.bbl.out::before{content:'';position:absolute;top:0;right:-6px;width:0;height:0;border-top:6px solid var(--wa-msg-out);border-right:6px solid transparent;}
-.bbl-meta{display:flex;align-items:center;justify-content:flex-end;gap:3px;margin-top:2px;float:right;margin-left:10px;margin-bottom:-2px}
-.bbl-time{font-size:11px;color:var(--wa-text2);white-space:nowrap}
-.bbl.out .bbl-time{color:#667781}
-.ticks{display:flex;align-items:center}
-.typing-bbl{background:var(--wa-msg-in);align-self:flex-start;border-radius:8px;border-bottom-left-radius:2px;padding:10px 14px;box-shadow:0 1px 0.5px rgba(11,20,26,.13);display:none;}
-.typing-bbl.show{display:flex;align-items:center;gap:4px}
-.dot{width:5px;height:5px;border-radius:50%;background:#8696a0;animation:bop 1.4s ease-in-out infinite}
-.dot:nth-child(2){animation-delay:.2s}
-.dot:nth-child(3){animation-delay:.4s}
-@keyframes bop{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
-.fade-in{animation:fi .2s ease}
-@keyframes fi{from{opacity:0;transform:translateY(3px)}to{opacity:1}}
-.cta-btn{display:block;background:var(--wa-teal2);color:#fff;border:none;border-radius:8px;padding:9px 14px;font-size:14px;font-weight:500;cursor:pointer;text-align:center;text-decoration:none;margin-top:6px;letter-spacing:0.1px;transition:background 0.15s;}
-.cta-btn:hover{background:var(--wa-teal)}
-.input-wrap{flex-shrink:0;background:var(--wa-input);padding:6px 8px;padding-bottom:max(6px, env(safe-area-inset-bottom));display:flex;align-items:flex-end;gap:8px;}
-.input-pill{flex:1;display:flex;align-items:center;background:#fff;border-radius:24px;padding:0 14px;gap:8px;min-height:44px;position:relative;}
-.input-pill input{flex:1;border:none;outline:none;font-size:16px;color:var(--wa-text);background:transparent;padding:10px 0;font-family:inherit;}
-.input-pill input::placeholder{color:#8696a0}
-.input-pill input:disabled{opacity:0.7;cursor:not-allowed;}
-.send-btn, .mic-btn{
-  width:48px;height:48px;border-radius:50%;border:none;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
-  transition:background 0.15s, transform 0.1s;
-}
-.send-btn{
-  background:var(--wa-teal2);box-shadow:0 1px 3px rgba(0,0,0,0.25);
-}
-.send-btn:hover{background:var(--wa-teal)}
-.send-btn:active{transform:scale(0.94)}
-.mic-btn{
-  background:var(--wa-green);
-  color:#fff;
-  box-shadow:0 1px 3px rgba(0,0,0,0.25);
-}
-.mic-btn:hover{background:var(--wa-teal2)}
-.mic-btn:active{transform:scale(0.92)}
-.mic-btn.recording{
-  background:var(--wa-green);
-  animation:pulse-mic 1.2s ease-in-out infinite;
-}
-.mic-btn.cancel{
-  background:#e53935;
-  animation:none;
-}
-@keyframes pulse-mic{
-  0%{transform:scale(1);box-shadow:0 0 0 0 rgba(37,211,102,0.4)}
-  50%{transform:scale(1.08);box-shadow:0 0 0 8px rgba(37,211,102,0)}
-  100%{transform:scale(1);box-shadow:0 0 0 0 rgba(37,211,102,0)}
-}
-.hidden{display:none !important;}
-.sheet-overlay{position:absolute;inset:0;background:rgba(11,20,26,0.55);z-index:200;display:flex;flex-direction:column;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .2s;}
-.sheet-overlay.open{opacity:1;pointer-events:all}
-.sheet{background:#1f2c34;border-radius:16px 16px 0 0;transform:translateY(40px);transition:transform .22s cubic-bezier(.4,0,.2,1);}
-.sheet-overlay.open .sheet{transform:translateY(0)}
-.sheet-handle{width:36px;height:4px;background:rgba(255,255,255,0.18);border-radius:2px;margin:12px auto 0}
-.sheet-hdr{display:flex;align-items:center;gap:12px;padding:16px 18px 14px;border-bottom:0.5px solid rgba(255,255,255,0.08)}
-.sheet-av-wrap{position:relative;width:48px;height:48px;flex-shrink:0}
-.sheet-av-ring{position:absolute;inset:-5px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.14);animation:pulse 2.4s ease-out infinite;}
-@keyframes pulse{0%{transform:scale(.88);opacity:1}100%{transform:scale(1.42);opacity:0}}
-.sheet-av{width:48px;height:48px;border-radius:50%;overflow:hidden;position:relative;z-index:1}
-.sheet-av img{width:100%;height:100%;object-fit:cover;display:block}
-.sheet-name{color:#e9edef;font-size:15px;font-weight:500;margin-bottom:2px}
-.sheet-sub{color:#8696a0;font-size:12.5px;display:flex;align-items:center;gap:5px}
-.sheet-body{padding:16px 18px 20px}
-.sheet-notice{display:flex;align-items:flex-start;gap:12px;background:rgba(255,255,255,0.05);border-left:3px solid #128c7e;border-radius:0 8px 8px 0;padding:13px 14px;margin-bottom:18px;}
-.sheet-notice-icon{width:30px;height:30px;border-radius:50%;background:rgba(18,140,126,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.sheet-notice p{color:#e9edef;font-size:13.5px;line-height:1.55;margin-bottom:3px}
-.sheet-notice small{color:rgba(255,255,255,0.38);font-size:11.5px}
-.sheet-ok{width:100%;background:#00a884;color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:background .15s;letter-spacing:0.1px;}
-.sheet-ok:hover{background:#017f64}
-@keyframes ringShake{from{transform:rotate(-10deg)}to{transform:rotate(10deg)}}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>WhatsApp</title>
+  <!-- Meta Pixel -->
+  <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '981136621185086');
+    fbq('track', 'PageView');
+  </script>
+  <noscript>
+    <img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=981136621185086&ev=PageView&noscript=1"/>
+  </noscript>
+  <style>
+    /* ===== RESET E BASE ===== */
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --wa-green:#25d366; --wa-teal:#075e54; --wa-teal2:#128c7e;
+      --wa-bg:#ece5dd; --wa-msg-in:#ffffff; --wa-msg-out:#d9fdd3;
+      --wa-header:#1f2c34; --wa-text:#111b21; --wa-text2:#667781;
+      --wa-tick:#53bdeb; --wa-border:#e9edef; --wa-input:#f0f2f5;
+      --wa-surface:#ffffff; --wa-icon:#8696a0;
+      --glass-bg:rgba(255,255,255,0.65);
+      --glass-border:rgba(255,255,255,0.3);
+      --shadow-sm:0 4px 20px rgba(0,0,0,0.08);
+      --shadow-md:0 8px 40px rgba(0,0,0,0.12);
+      --shadow-lg:0 20px 60px rgba(0,0,0,0.2);
+      --radius-card:20px;
+      --radius-modal:28px;
+    }
+    html,body{
+      height:100%;height:100dvh;background:#111b21;overflow:hidden;
+      font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+      position:fixed;width:100%;top:0;left:0;
+      display:flex;align-items:center;justify-content:center;
+      -webkit-font-smoothing:antialiased;
+    }
+    .phone{
+      width:100%;max-width:480px;
+      height:100%;height:100dvh;
+      background:var(--wa-bg);
+      display:flex;flex-direction:column;
+      position:relative;overflow:hidden;
+      border-left:1px solid #2a3942;border-right:1px solid #2a3942;
+      user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+      font-family:inherit;
+    }
+    .phone img{-webkit-user-drag:none;user-drag:none;}
 
-/* Toast de instrução do microfone */
-.mic-toast{
-  position:absolute;
-  bottom:80px;
-  left:50%;
-  transform:translateX(-50%);
-  background:rgba(0,0,0,0.85);
-  color:#fff;
-  padding:10px 18px;
-  border-radius:30px;
-  font-size:14px;
-  font-weight:500;
-  z-index:500;
-  white-space:nowrap;
-  pointer-events:none;
-  opacity:0;
-  transition:opacity 0.25s ease, transform 0.25s ease;
-  transform:translateX(-50%) translateY(10px);
-}
-.mic-toast.show{
-  opacity:1;
-  transform:translateX(-50%) translateY(0);
-}
-.mic-toast svg{
-  display:inline-block;
-  vertical-align:middle;
-  margin-right:8px;
-}
-.camera-btn.hidden-mic{display:none !important;}
+    /* ===== HEADER ===== */
+    .hdr{
+      background:var(--wa-header);display:flex;align-items:center;
+      padding:10px 4px 10px 8px;gap:10px;flex-shrink:0;min-height:58px;
+    }
+    .hdr-back{background:none;border:none;cursor:pointer;padding:4px 2px;color:#e9edef;display:flex;align-items:center;flex-shrink:0}
+    .hdr-avatar{width:40px;height:40px;border-radius:50%;overflow:hidden;flex-shrink:0;cursor:pointer;background:#374248;}
+    .hdr-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+    .hdr-info{flex:1;min-width:0;cursor:pointer}
+    .hdr-name{color:#e9edef;font-size:16px;font-weight:500;letter-spacing:0.1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .hdr-status{color:#8696a0;font-size:13px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .hdr-actions{display:flex;gap:0;align-items:center;flex-shrink:0}
+    .hdr-btn{background:none;border:none;cursor:pointer;color:#e9edef;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:background 0.15s;}
+    .hdr-btn:hover{background:rgba(255,255,255,0.08)}
+    .hdr-btn:active{background:rgba(255,255,255,0.15)}
 
-/* VISUALIZAÇÃO ÚNICA */
-.view-once-blur {
-  position: relative;
-  cursor: pointer;
-  border-radius: 6px;
-  overflow: hidden;
-  width: 220px;
-  max-width: 100%;
-  display: inline-block;
-}
-.view-once-blur img {
-  width: 100%;
-  display: block;
-  filter: blur(12px);
-  transition: filter 0.2s;
-}
-.view-once-badge {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: rgba(0,0,0,0.6);
-  color: #fff;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: 700;
-  pointer-events: none;
-}
-.view-once-placeholder {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  background: rgba(0,0,0,0.04);
-  border-radius: 8px;
-  color: #667781;
-  font-size: 13px;
-}
-/* Modal visualizador de imagem */
-.image-viewer-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.92);
-  z-index: 400;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s;
-}
-.image-viewer-overlay.open {
-  opacity: 1;
-  pointer-events: all;
-}
-.image-viewer-content {
-  max-width: 95%;
-  max-height: 90%;
-  position: relative;
-}
-.image-viewer-content img {
-  width: auto;
-  max-width: 100%;
-  max-height: 80vh;
-  border-radius: 8px;
-  display: block;
-}
-.image-viewer-close {
-  position: absolute;
-  top: -40px;
-  right: 0;
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 28px;
-  cursor: pointer;
-  padding: 5px;
-  line-height: 1;
-  opacity: 0.8;
-}
-</style>
+    /* ===== MESSAGES ===== */
+    .msgs{
+      flex:1;overflow-y:auto;padding:6px 8px 8px;display:flex;flex-direction:column;gap:2px;
+      background-color:#e5ddd5;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      scroll-behavior:smooth;-webkit-overflow-scrolling:touch;
+    }
+    .msgs::-webkit-scrollbar{width:3px}
+    .msgs::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.18);border-radius:2px}
+    .date-pill{align-self:center;background:rgba(11,20,26,0.25);color:rgba(255,255,255,0.65);font-size:12px;padding:4px 10px;border-radius:100px;margin:6px 0 4px;letter-spacing:0.2px;}
+    .bbl{max-width:75%;padding:6px 10px 4px;border-radius:8px;font-size:14.5px;line-height:1.5;position:relative;word-break:break-word;color:var(--wa-text);}
+    .bbl.in{background:var(--wa-msg-in);align-self:flex-start;border-top-left-radius:0;box-shadow:0 1px 0.5px rgba(11,20,26,.13);margin-left:6px;}
+    .bbl.in::before{content:'';position:absolute;top:0;left:-6px;width:0;height:0;border-top:6px solid var(--wa-msg-in);border-left:6px solid transparent;}
+    .bbl.out{background:var(--wa-msg-out);align-self:flex-end;border-top-right-radius:0;box-shadow:0 1px 0.5px rgba(11,20,26,.13);margin-right:6px;}
+    .bbl.out::before{content:'';position:absolute;top:0;right:-6px;width:0;height:0;border-top:6px solid var(--wa-msg-out);border-right:6px solid transparent;}
+    .bbl-meta{display:flex;align-items:center;justify-content:flex-end;gap:3px;margin-top:2px;float:right;margin-left:10px;margin-bottom:-2px}
+    .bbl-time{font-size:11px;color:var(--wa-text2);white-space:nowrap}
+    .bbl.out .bbl-time{color:#667781}
+    .ticks{display:flex;align-items:center}
+    .typing-bbl{background:var(--wa-msg-in);align-self:flex-start;border-radius:8px;border-bottom-left-radius:2px;padding:10px 14px;box-shadow:0 1px 0.5px rgba(11,20,26,.13);display:none;}
+    .typing-bbl.show{display:flex;align-items:center;gap:4px}
+    .dot{width:5px;height:5px;border-radius:50%;background:#8696a0;animation:bop 1.4s ease-in-out infinite}
+    .dot:nth-child(2){animation-delay:.2s}
+    .dot:nth-child(3){animation-delay:.4s}
+    @keyframes bop{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+    .fade-in{animation:fi .2s ease}
+    @keyframes fi{from{opacity:0;transform:translateY(3px)}to{opacity:1}}
+    .cta-btn{display:block;background:var(--wa-teal2);color:#fff;border:none;border-radius:8px;padding:9px 14px;font-size:14px;font-weight:500;cursor:pointer;text-align:center;text-decoration:none;margin-top:6px;letter-spacing:0.1px;transition:background 0.15s;}
+    .cta-btn:hover{background:var(--wa-teal)}
+
+    /* ===== INPUT ===== */
+    .input-wrap{flex-shrink:0;background:var(--wa-input);padding:6px 8px;padding-bottom:max(6px, env(safe-area-inset-bottom));display:flex;align-items:flex-end;gap:8px;}
+    .input-pill{flex:1;display:flex;align-items:center;background:#fff;border-radius:24px;padding:0 14px;gap:8px;min-height:44px;position:relative;}
+    .input-pill input{flex:1;border:none;outline:none;font-size:16px;color:var(--wa-text);background:transparent;padding:10px 0;font-family:inherit;}
+    .input-pill input::placeholder{color:#8696a0}
+    .input-pill input:disabled{opacity:0.7;cursor:not-allowed;}
+    .send-btn,.mic-btn{
+      width:48px;height:48px;border-radius:50%;border:none;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;
+      transition:background 0.15s, transform 0.1s;
+    }
+    .send-btn{background:var(--wa-teal2);box-shadow:0 1px 3px rgba(0,0,0,0.25);}
+    .send-btn:hover{background:var(--wa-teal)}
+    .send-btn:active{transform:scale(0.94)}
+    .mic-btn{background:var(--wa-green);color:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.25);}
+    .mic-btn:hover{background:var(--wa-teal2)}
+    .mic-btn:active{transform:scale(0.92)}
+    .mic-btn.recording{background:var(--wa-green);animation:pulse-mic 1.2s ease-in-out infinite;}
+    .mic-btn.cancel{background:#e53935;animation:none;}
+    @keyframes pulse-mic{
+      0%{transform:scale(1);box-shadow:0 0 0 0 rgba(37,211,102,0.4)}
+      50%{transform:scale(1.08);box-shadow:0 0 0 8px rgba(37,211,102,0)}
+      100%{transform:scale(1);box-shadow:0 0 0 0 rgba(37,211,102,0)}
+    }
+    .hidden{display:none !important;}
+    .camera-btn.hidden-mic{display:none !important;}
+
+    /* ===== SHEETS ===== */
+    .sheet-overlay{position:absolute;inset:0;background:rgba(11,20,26,0.55);z-index:200;display:flex;flex-direction:column;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .2s;}
+    .sheet-overlay.open{opacity:1;pointer-events:all}
+    .sheet{background:#1f2c34;border-radius:16px 16px 0 0;transform:translateY(40px);transition:transform .22s cubic-bezier(.4,0,.2,1);}
+    .sheet-overlay.open .sheet{transform:translateY(0)}
+    .sheet-handle{width:36px;height:4px;background:rgba(255,255,255,0.18);border-radius:2px;margin:12px auto 0}
+    .sheet-hdr{display:flex;align-items:center;gap:12px;padding:16px 18px 14px;border-bottom:0.5px solid rgba(255,255,255,0.08)}
+    .sheet-av-wrap{position:relative;width:48px;height:48px;flex-shrink:0}
+    .sheet-av-ring{position:absolute;inset:-5px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.14);animation:pulse 2.4s ease-out infinite;}
+    @keyframes pulse{0%{transform:scale(.88);opacity:1}100%{transform:scale(1.42);opacity:0}}
+    .sheet-av{width:48px;height:48px;border-radius:50%;overflow:hidden;position:relative;z-index:1}
+    .sheet-av img{width:100%;height:100%;object-fit:cover;display:block}
+    .sheet-name{color:#e9edef;font-size:15px;font-weight:500;margin-bottom:2px}
+    .sheet-sub{color:#8696a0;font-size:12.5px;display:flex;align-items:center;gap:5px}
+    .sheet-body{padding:16px 18px 20px}
+    .sheet-notice{display:flex;align-items:flex-start;gap:12px;background:rgba(255,255,255,0.05);border-left:3px solid #128c7e;border-radius:0 8px 8px 0;padding:13px 14px;margin-bottom:18px;}
+    .sheet-notice-icon{width:30px;height:30px;border-radius:50%;background:rgba(18,140,126,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .sheet-notice p{color:#e9edef;font-size:13.5px;line-height:1.55;margin-bottom:3px}
+    .sheet-notice small{color:rgba(255,255,255,0.38);font-size:11.5px}
+    .sheet-ok{width:100%;background:#00a884;color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:background .15s;letter-spacing:0.1px;}
+    .sheet-ok:hover{background:#017f64}
+    @keyframes ringShake{from{transform:rotate(-10deg)}to{transform:rotate(10deg)}}
+
+    /* ===== MIC TOAST ===== */
+    .mic-toast{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);color:#fff;padding:10px 18px;border-radius:30px;font-size:14px;font-weight:500;z-index:500;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity 0.25s ease, transform 0.25s ease;transform:translateX(-50%) translateY(10px);}
+    .mic-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+    .mic-toast svg{display:inline-block;vertical-align:middle;margin-right:8px;}
+
+    /* ===== UNIQUE VIEW ===== */
+    .bbl-unique-placeholder{display:flex;align-items:center;gap:10px;padding:8px 0;cursor:pointer;}
+    .bbl-unique-placeholder .icon{width:36px;height:36px;border-radius:50%;background:rgba(0,168,132,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .bbl-unique-placeholder .label{font-size:13px;color:var(--wa-text2);}
+    .bbl-unique-placeholder .label strong{color:var(--wa-text);}
+    .bbl-unique-placeholder .viewed-label{color:#8696a0;font-size:12px;}
+    .unique-viewer{position:absolute;inset:0;background:rgba(0,0,0,0.92);z-index:400;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;animation:fi .25s ease;}
+    .unique-viewer img{max-width:100%;max-height:70vh;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,0.6);object-fit:contain;}
+    .unique-viewer .close-btn{margin-top:24px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.18);color:#fff;padding:12px 32px;border-radius:30px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;transition:background .15s;}
+    .unique-viewer .close-btn:hover{background:rgba(255,255,255,0.2);}
+
+    /* ===== CALL OVERLAYS ===== */
+    #incoming-call-overlay{position:absolute;inset:0;background:#1a1a2e;z-index:400;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:60px 20px;opacity:0;pointer-events:none;transition:opacity .3s ease;}
+    #incoming-call-overlay.show{opacity:1;pointer-events:all}
+    #incoming-call-overlay .call-avatar-wrap{position:relative;width:100px;height:100px;margin:0 auto}
+    #incoming-call-overlay .ring1{position:absolute;inset:-14px;border-radius:50%;border:2px solid rgba(255,255,255,0.12);animation:pulse 2s ease-out infinite}
+    #incoming-call-overlay .ring2{position:absolute;inset:-7px;border-radius:50%;border:2px solid rgba(255,255,255,0.08);animation:pulse 2s ease-out infinite 1s}
+    #incoming-call-overlay .call-avatar{width:100px;height:100px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,0.18)}
+    #incoming-call-overlay .call-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+    #incoming-call-overlay .call-name{color:#fff;font-size:22px;font-weight:500;margin-top:22px;text-align:center}
+    #incoming-call-overlay .call-sub{color:rgba(255,255,255,0.55);font-size:14px;margin-top:6px;text-align:center}
+    #incoming-call-overlay .call-actions{display:flex;gap:52px;align-items:center}
+    .call-btn-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;color:rgba(255,255,255,0.8);font-size:12.5px;font-family:inherit}
+    .call-btn-circle{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;}
+    .call-btn-circle.decline{background:#e53935}
+    .call-btn-circle.answer{background:#25d366;animation:ringShake .6s ease infinite alternate}
+    #active-call-overlay{position:absolute;inset:0;background:#0b1015;z-index:401;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;opacity:0;pointer-events:none;transition:opacity .3s ease;}
+    #active-call-overlay.show{opacity:1;pointer-events:all}
+    #active-call-overlay .ac-avatar{width:90px;height:90px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,0.2)}
+    #active-call-overlay .ac-avatar img{width:100%;height:100%;object-fit:cover}
+    #active-call-overlay .ac-name{color:#fff;font-size:20px;font-weight:500}
+    #active-call-overlay .ac-status{color:rgba(255,255,255,0.5);font-size:13px}
+    #active-call-overlay .ac-end-btn{width:60px;height:60px;border-radius:50%;background:#e53935;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:30px}
+
+    /* ============================================================
+       NOVOS ESTILOS: CARD PIX LUXO E MODAL DE PAGAMENTO
+       ============================================================ */
+
+    /* Card Pix - Liquid Glass */
+    .pix-card {
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(18px) saturate(1.2);
+      -webkit-backdrop-filter: blur(18px) saturate(1.2);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.04);
+      padding: 20px 18px 18px;
+      min-width: 240px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .pix-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.14);
+    }
+    .pix-card .pix-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .pix-card .pix-header .icon-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(145deg, #00a884, #007a5e);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0,168,132,0.3);
+    }
+    .pix-card .pix-header .icon-badge svg {
+      width: 22px;
+      height: 22px;
+      fill: white;
+    }
+    .pix-card .pix-header .pix-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #111b21;
+      letter-spacing: -0.2px;
+    }
+    .pix-card .pix-header .pix-title small {
+      display: block;
+      font-weight: 400;
+      font-size: 12px;
+      color: #667781;
+      letter-spacing: 0px;
+    }
+    .pix-card .pix-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #111b21;
+      margin: 8px 0 14px;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .pix-card .pix-value .currency {
+      font-size: 16px;
+      font-weight: 500;
+      color: #667781;
+    }
+    .pix-card .pix-value .badge-desconto {
+      font-size: 12px;
+      font-weight: 600;
+      color: #00a884;
+      background: rgba(0,168,132,0.12);
+      padding: 2px 10px;
+      border-radius: 30px;
+      margin-left: 8px;
+    }
+    .pix-card .pix-btn {
+      width: 100%;
+      background: #00a884;
+      border: none;
+      border-radius: 14px;
+      padding: 14px 10px;
+      font-size: 16px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: inherit;
+      box-shadow: 0 4px 16px rgba(0,168,132,0.3);
+    }
+    .pix-card .pix-btn:hover {
+      background: #007a5e;
+      transform: scale(1.02);
+      box-shadow: 0 6px 24px rgba(0,168,132,0.35);
+    }
+    .pix-card .pix-btn:active {
+      transform: scale(0.97);
+    }
+    .pix-card .pix-footer {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 8px;
+      font-size: 11px;
+      color: #8696a0;
+    }
+
+    /* MODAL DE PAGAMENTO (Liquid Glass) */
+    .payment-modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .payment-modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .payment-modal {
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(30px) saturate(1.4);
+      -webkit-backdrop-filter: blur(30px) saturate(1.4);
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 28px;
+      max-width: 380px;
+      width: 100%;
+      padding: 28px 24px 32px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+      transform: scale(0.95) translateY(20px);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+      opacity: 0;
+    }
+    .payment-modal-overlay.open .payment-modal {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+    .payment-modal .modal-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .payment-modal .modal-header .modal-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      background: linear-gradient(145deg, #00a884, #007a5e);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 16px rgba(0,168,132,0.25);
+    }
+    .payment-modal .modal-header .modal-icon svg {
+      width: 24px;
+      height: 24px;
+      fill: white;
+    }
+    .payment-modal .modal-header .modal-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #111b21;
+      letter-spacing: -0.3px;
+    }
+    .payment-modal .modal-header .modal-title small {
+      display: block;
+      font-weight: 400;
+      font-size: 13px;
+      color: #667781;
+      letter-spacing: 0px;
+    }
+    .payment-modal .modal-body {
+      margin: 8px 0 20px;
+    }
+    .payment-modal .modal-body .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+    .payment-modal .modal-body .step:last-child {
+      border-bottom: none;
+    }
+    .payment-modal .modal-body .step .step-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: rgba(0,168,132,0.12);
+      color: #00a884;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .payment-modal .modal-body .step .step-text {
+      font-size: 14px;
+      color: #111b21;
+      line-height: 1.5;
+    }
+    .payment-modal .modal-body .step .step-text strong {
+      color: #00a884;
+      font-weight: 600;
+    }
+    .payment-modal .modal-body .pix-key-box {
+      background: rgba(0,0,0,0.04);
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin: 12px 0 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border: 1px dashed rgba(0,168,132,0.3);
+    }
+    .payment-modal .modal-body .pix-key-box .key-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: #111b21;
+      word-break: break-all;
+      font-family: 'SF Mono', 'Menlo', monospace;
+      letter-spacing: 0.3px;
+      flex: 1;
+    }
+    .payment-modal .modal-body .pix-key-box .copy-btn {
+      background: #00a884;
+      border: none;
+      border-radius: 10px;
+      padding: 6px 16px;
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .payment-modal .modal-body .pix-key-box .copy-btn:hover {
+      background: #007a5e;
+    }
+    .payment-modal .modal-footer {
+      display: flex;
+      gap: 12px;
+      margin-top: 6px;
+    }
+    .payment-modal .modal-footer .btn-close-modal {
+      flex: 1;
+      background: rgba(0,0,0,0.05);
+      border: none;
+      border-radius: 14px;
+      padding: 12px;
+      font-size: 15px;
+      font-weight: 500;
+      color: #111b21;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-family: inherit;
+    }
+    .payment-modal .modal-footer .btn-close-modal:hover {
+      background: rgba(0,0,0,0.1);
+    }
+    .payment-modal .modal-footer .btn-pay {
+      flex: 1.5;
+      background: #00a884;
+      border: none;
+      border-radius: 14px;
+      padding: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .payment-modal .modal-footer .btn-pay:hover {
+      background: #007a5e;
+    }
+    .payment-modal .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,168,132,0.10);
+      padding: 6px 14px;
+      border-radius: 30px;
+      font-size: 13px;
+      color: #00a884;
+      font-weight: 500;
+      margin-top: 4px;
+    }
+    .payment-modal .status-badge .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(0,168,132,0.2);
+      border-top: 2px solid #00a884;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Responsividade */
+    @media (max-width: 420px) {
+      .pix-card .pix-value { font-size: 24px; }
+      .payment-modal { padding: 20px 16px 24px; }
+    }
+  </style>
 </head>
 <body>
 <div class="phone">
 
+  <!-- ===== HEADER ===== -->
   <div class="hdr">
     <button class="hdr-back" aria-label="Voltar" onclick="openExitSheet()">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M20 12H4M4 12L10 6M4 12L10 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -295,10 +550,12 @@ html,body{
     </div>
   </div>
 
+  <!-- ===== MESSAGES ===== -->
   <div class="msgs" id="msgs">
     <div class="date-pill">Hoje</div>
   </div>
 
+  <!-- ===== INPUT ===== -->
   <div class="input-wrap">
     <div class="input-pill" style="position:relative;">
       <button type="button" id="emoji-btn" onclick="toggleEmoji()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none">
@@ -308,7 +565,6 @@ html,body{
         <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:2px"></div>
       </div>
       <input id="inp" type="text" placeholder="Mensagem">
-      <!-- Botão de câmera -->
       <button type="button" id="camera-btn" class="camera-btn" onclick="document.getElementById('img-input').click()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none" aria-label="Enviar foto">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
           <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
@@ -335,7 +591,7 @@ html,body{
     </div>
   </div>
 
-  <!-- Toast de instrução do microfone -->
+  <!-- ===== MIC TOAST ===== -->
   <div class="mic-toast" id="mic-toast">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
@@ -346,15 +602,8 @@ html,body{
     Pressione e segure para gravar
   </div>
 
-  <!-- Modal visualizador de imagem (view once) -->
-  <div class="image-viewer-overlay" id="image-viewer">
-    <div class="image-viewer-content">
-      <button class="image-viewer-close" id="image-viewer-close">&times;</button>
-      <img id="image-viewer-img" src="" alt="Visualização única">
-    </div>
-  </div>
-
-  <!-- SHEET: sair -->
+  <!-- ===== SHEETS ===== -->
+  <!-- Exit Sheet -->
   <div class="sheet-overlay" id="exit-sheet">
     <div class="sheet" style="border-radius:20px 20px 0 0">
       <div class="sheet-handle"></div>
@@ -375,7 +624,7 @@ html,body{
     </div>
   </div>
 
-  <!-- SHEET: info conta -->
+  <!-- Info Sheet -->
   <div class="sheet-overlay" id="info-sheet">
     <div class="sheet" style="border-radius:20px 20px 0 0">
       <div class="sheet-handle"></div>
@@ -407,7 +656,7 @@ html,body{
     </div>
   </div>
 
-  <!-- SHEET: chamada de vídeo (manual) -->
+  <!-- Video Call Sheet -->
   <div class="sheet-overlay" id="sheet">
     <div class="sheet">
       <div class="sheet-handle"></div>
@@ -439,6 +688,93 @@ html,body{
     </div>
   </div>
 
+  <!-- ===== INCOMING CALL ===== -->
+  <div id="incoming-call-overlay">
+    <div style="text-align:center">
+      <div class="call-avatar-wrap">
+        <div class="ring1"></div>
+        <div class="ring2"></div>
+        <div class="call-avatar"><img src="https://i.ibb.co/ksmzSzDM/perfilv2.png" alt="Vanessa"></div>
+      </div>
+      <div class="call-name">Vanessa Macedo</div>
+      <div class="call-sub">Videochamada WhatsApp…</div>
+    </div>
+    <div class="call-actions">
+      <div class="call-btn-wrap">
+        <button class="call-btn-circle decline" id="auto-call-decline">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>
+        </button>
+        <span>Recusar</span>
+      </div>
+      <div class="call-btn-wrap">
+        <button class="call-btn-circle answer" id="auto-call-answer">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <span>Atender</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ACTIVE CALL ===== -->
+  <div id="active-call-overlay">
+    <div class="ac-avatar"><img src="https://i.ibb.co/ksmzSzDM/perfilv2.png" alt="Vanessa"></div>
+    <div class="ac-name">Vanessa Macedo</div>
+    <div class="ac-status" id="ac-status-text">Conectando…</div>
+    <button class="ac-end-btn" id="ac-end-btn">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>
+    </button>
+  </div>
+
+  <!-- ===== PAYMENT MODAL (Liquid Glass) ===== -->
+  <div class="payment-modal-overlay" id="payment-modal">
+    <div class="payment-modal">
+      <div class="modal-header">
+        <div class="modal-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <div class="modal-title">
+          Pagar com Pix
+          <small>Confirme os dados e finalize</small>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+          <span style="font-size:24px;font-weight:700;color:#111b21;" id="modal-pix-value">R$ 30,00</span>
+          <span class="status-badge" id="modal-status-badge">
+            <span class="spinner"></span> Aguardando pagamento
+          </span>
+        </div>
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">Abra o app do seu <strong>banco</strong> e selecione <strong>Pix Copia e Cola</strong>.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">Cole a chave abaixo e confirme o valor.</div>
+        </div>
+        <div class="pix-key-box">
+          <span class="key-text" id="modal-pix-key">chave-pix-copia-e-cola</span>
+          <button class="copy-btn" id="modal-copy-btn">Copiar</button>
+        </div>
+        <div class="step" style="border-bottom:none;padding-bottom:0;">
+          <div class="step-num">3</div>
+          <div class="step-text">Autorize o pagamento. Você receberá a confirmação em instantes.</div>
+        </div>
+        <div style="margin-top:14px;font-size:12px;color:#667781;display:flex;align-items:center;gap:6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00a884" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+          Pagamento seguro com criptografia de ponta a ponta
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-close-modal" id="modal-close-btn">Fechar</button>
+        <button class="btn-pay" id="modal-pay-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>
+          Já paguei
+        </button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -465,9 +801,6 @@ const cameraBtn=document.getElementById('camera-btn');
 const emojiBtn=document.getElementById('emoji-btn');
 const hdrStatus=document.getElementById('hdr-status');
 const micToast=document.getElementById('mic-toast');
-const imageViewer = document.getElementById('image-viewer');
-const imageViewerImg = document.getElementById('image-viewer-img');
-const imageViewerClose = document.getElementById('image-viewer-close');
 
 const MENSAGEM_INICIAL="Oi, Tudo bem?";
 const PRODUCT_HASH="7p8h95hghd";
@@ -492,6 +825,12 @@ const SESSION_ID=Math.random().toString(36).slice(2);
 // ═══ FLAG: CONVERSA ENCERRADA ═══
 let conversaEncerrada = false;
 
+// ═══ CHAMADA ISCA ═══
+let userReplyCount = 0;
+let autoCallFired = false;
+let autoCallTimer = null;
+let autoCallRingInterval = null;
+
 const STATE_KEY = 'wa-conversa-state';
 const AUDIO_LEAD_KEY = 'wa-audio-lead';
 
@@ -515,7 +854,9 @@ function saveState() {
     pixDescontoGerado,
     initiateCheckoutFired,
     audioPIxJaTocou,
-    conversaEncerrada
+    conversaEncerrada,
+    userReplyCount,
+    autoCallFired
   };
   try {
     localStorage.setItem(STATE_KEY, JSON.stringify(state));
@@ -536,6 +877,8 @@ function loadState() {
     initiateCheckoutFired = state.initiateCheckoutFired || false;
     audioPIxJaTocou = state.audioPIxJaTocou || false;
     conversaEncerrada = state.conversaEncerrada || false;
+    userReplyCount = state.userReplyCount || 0;
+    autoCallFired = state.autoCallFired || false;
     return true;
   } catch(e) {
     return false;
@@ -652,7 +995,7 @@ async function salvarLead(clicou=false){
   clicouCta=clicou||clicouCta;
   try{
     const res=await fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({session_id:SESSION_ID,mensagens:aiHistory.map(m=>({role:m.role,text:m.content,type:m.type||'text',src:m.src||null, timestamp:m.timestamp||null, viewed:m.viewed||false})),clicou_cta:clicouCta,ultima_mensagem:new Date().toISOString(),lead_id:leadId})});
+      body:JSON.stringify({session_id:SESSION_ID,mensagens:aiHistory.map(m=>({role:m.role,text:m.content,type:m.type||'text',src:m.src||null, timestamp:m.timestamp||null})),clicou_cta:clicouCta,ultima_mensagem:new Date().toISOString(),lead_id:leadId})});
     const d=await res.json();if(!leadId&&d&&d.lead_id)leadId=d.lead_id;
   }catch(e){}
   saveState();
@@ -726,6 +1069,12 @@ function iniciarPollRobusto(txHash, valorPago, tentativasIniciais = 0) {
 
     if (pollingTentativas >= MAX_TENTATIVAS) {
       limparEstadoPolling();
+      // Atualiza modal se estiver aberto
+      const badge = document.getElementById('modal-status-badge');
+      if (badge) {
+        badge.innerHTML = '⏱️ Tempo esgotado';
+        badge.style.color = '#e53935';
+      }
       return;
     }
 
@@ -738,6 +1087,8 @@ function iniciarPollRobusto(txHash, valorPago, tentativasIniciais = 0) {
           limparEstadoPolling();
           pixelPurchase(pollingValorAtual);
           showBotaoEntregavel();
+          // Fecha modal se aberto
+          closePaymentModal();
           return;
         }
 
@@ -772,23 +1123,11 @@ document.addEventListener('visibilitychange', function() {
   }
 });
 
-// ═══ ANTIGO iniciarPoll (mantido para compatibilidade) ═══
 function iniciarPoll(txHash, valorPago) {
   iniciarPollRobusto(txHash, valorPago);
 }
 
-window.copiarPix=function(btn,codigo){
-  const ok=function(){
-    btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#00a884" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Copiado!';
-    btn.style.color='#00a884';
-    setTimeout(function(){
-      btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="#00a884" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="#00a884" stroke-width="2" stroke-linecap="round"/></svg> Copiar chave Pix';
-      btn.style.color='#00a884';
-    },3000);
-  };
-  if(navigator.clipboard){navigator.clipboard.writeText(codigo).then(ok).catch(function(){fallbackCopy(codigo,ok);});}
-  else{fallbackCopy(codigo,ok);}
-};
+// ═══ FUNÇÃO PARA COPIAR TEXTO (fallback) ═══
 function fallbackCopy(texto,cb){
   const ta=document.createElement('textarea');ta.value=texto;
   ta.style.cssText='position:fixed;opacity:0';
@@ -805,13 +1144,23 @@ function pixelPurchase(v){
   if(typeof fbq!=='undefined')fbq('track','Purchase',{value:(v/100).toFixed(2),currency:'BRL',num_items:1,content_ids:[PRODUCT_HASH],content_type:'product'});
 }
 
-// ═══ FUNÇÃO PARA CRIAR CARD PIX (SEM ÁUDIO) ═══
+// ════════════════════════════════════════════════════
+// ═══ NOVO: CARD PIX LUXO COM MODAL DE PAGAMENTO ═══
+// ════════════════════════════════════════════════════
+
+// Variáveis do modal
+let currentPixKey = '';
+let currentPixHash = '';
+let currentPixValor = 0;
+let currentPixDesconto = false;
+
 function criarCardPix(data, desconto, timestamp) {
-  const valor = desconto ? 2700 : 4700;
+  const valor = desconto ? 2000 : 3000;
   const valorFmt = 'R$ ' + (valor/100).toFixed(2).replace('.',',');
   const pixCopia = (data.pix && data.pix.pix_qr_code) || '';
   const txHash = data.hash || ('tx'+Date.now());
 
+  // Salva no histórico
   const pixEntry = {
     role: 'assistant',
     content: 'Solicitação de pagamento',
@@ -828,51 +1177,182 @@ function criarCardPix(data, desconto, timestamp) {
   aiHistory.push(pixEntry);
   salvarLead(true);
 
+  // Cria o card liquid glass
   const wrap = document.createElement('div');
   wrap.className = 'fade-in';
   wrap.style.cssText = 'align-self:flex-start;margin-left:6px;max-width:88%';
 
   const card = document.createElement('div');
-  card.style.cssText = 'background:#fff;border-radius:12px;overflow:hidden;min-width:220px;box-shadow:0 1px 3px rgba(0,0,0,0.15)';
+  card.className = 'pix-card';
 
-  const head = document.createElement('div');
-  head.style.cssText = 'background:#00a884;padding:12px 14px;display:flex;align-items:center;gap:10px';
-  head.innerHTML = '<div style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div style="color:rgba(255,255,255,0.85);font-size:11px;margin-bottom:1px">Solicitação de pagamento</div><div style="color:#fff;font-size:19px;font-weight:700;line-height:1.2">'+valorFmt+'</div></div>';
-  card.appendChild(head);
+  // Header
+  const header = document.createElement('div');
+  header.className = 'pix-header';
+  header.innerHTML = `
+    <div class="icon-badge">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    <div class="pix-title">
+      Pagamento via Pix
+      <small>Instantâneo e seguro</small>
+    </div>
+  `;
+  card.appendChild(header);
 
-  const info = document.createElement('div');
-  info.style.cssText = 'padding:10px 14px;border-bottom:1px solid #f0f2f5';
-  info.innerHTML = '<div style="font-size:11px;color:#8696a0;margin-bottom:2px">Para</div><div style="font-size:14px;color:#111b21;font-weight:500">Vanessa Macedo</div><div style="font-size:11.5px;color:#8696a0;margin-top:1px">via Pix</div>';
-  card.appendChild(info);
+  // Valor
+  const valueDiv = document.createElement('div');
+  valueDiv.className = 'pix-value';
+  valueDiv.innerHTML = `
+    <span class="currency">R$</span> ${(valor/100).toFixed(2).replace('.',',')}
+    ${desconto ? '<span class="badge-desconto">⚡ Desconto</span>' : ''}
+  `;
+  card.appendChild(valueDiv);
 
-  if (pixCopia) {
-    const btnWrap = document.createElement('div');
-    btnWrap.style.cssText = 'border-bottom:1px solid #f0f2f5';
-    const btn = document.createElement('button');
-    btn.style.cssText = 'width:100%;background:none;border:none;padding:10px 14px;color:#00a884;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px';
-    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="#00a884" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="#00a884" stroke-width="2" stroke-linecap="round"/></svg> Copiar chave Pix';
-    btn.onclick = function(){ window.copiarPix(btn, pixCopia); };
-    btnWrap.appendChild(btn);
-    card.appendChild(btnWrap);
-  }
+  // Botão Pagar com Pix
+  const btn = document.createElement('button');
+  btn.className = 'pix-btn';
+  btn.innerHTML = `
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>
+    Pagar com Pix
+  `;
+  btn.onclick = function() {
+    // Abre o modal com os dados do Pix
+    abrirPaymentModal(valorFmt, pixCopia, txHash, valor, desconto);
+  };
+  card.appendChild(btn);
 
+  // Footer (horário)
   const footer = document.createElement('div');
-  footer.style.cssText = 'padding:6px 14px 8px;display:flex;justify-content:flex-end';
-  const time = document.createElement('span');
-  time.style.cssText = 'font-size:11px;color:#8696a0';
-  time.textContent = timestamp || getTime();
-  footer.appendChild(time);
+  footer.className = 'pix-footer';
+  footer.textContent = timestamp || getTime();
   card.appendChild(footer);
 
   wrap.appendChild(card);
+
+  // Insere na lista de mensagens
   msgsEl.appendChild(wrap);
   scroll();
 
+  // Inicia polling
   iniciarPollRobusto(txHash, valor);
   pixelIniCheckout(valor);
 }
 
-// ═══ showCta ═══
+// ═══ ABRIR MODAL DE PAGAMENTO ═══
+function abrirPaymentModal(valorFmt, chave, hash, valor, desconto) {
+  const modal = document.getElementById('payment-modal');
+  const keyEl = document.getElementById('modal-pix-key');
+  const valueEl = document.getElementById('modal-pix-value');
+  const statusBadge = document.getElementById('modal-status-badge');
+  const copyBtn = document.getElementById('modal-copy-btn');
+
+  // Preenche dados
+  valueEl.textContent = valorFmt;
+  keyEl.textContent = chave;
+  currentPixKey = chave;
+  currentPixHash = hash;
+  currentPixValor = valor;
+  currentPixDesconto = desconto;
+
+  // Status inicial
+  statusBadge.innerHTML = `<span class="spinner"></span> Aguardando pagamento`;
+  statusBadge.style.color = '#00a884';
+
+  // Abre modal
+  modal.classList.add('open');
+
+  // Foco no botão copiar
+  setTimeout(() => copyBtn.focus(), 100);
+}
+
+// ═══ FECHAR MODAL ═══
+function closePaymentModal() {
+  document.getElementById('payment-modal').classList.remove('open');
+}
+
+// ═══ EVENTOS DO MODAL ═══
+document.addEventListener('DOMContentLoaded', function() {
+  const modal = document.getElementById('payment-modal');
+  const closeBtn = document.getElementById('modal-close-btn');
+  const copyBtn = document.getElementById('modal-copy-btn');
+  const payBtn = document.getElementById('modal-pay-btn');
+  const keyEl = document.getElementById('modal-pix-key');
+
+  // Fechar modal
+  closeBtn.addEventListener('click', closePaymentModal);
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) closePaymentModal();
+  });
+
+  // Copiar chave
+  copyBtn.addEventListener('click', function() {
+    const chave = keyEl.textContent;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(chave).then(() => {
+        copyBtn.textContent = 'Copiado!';
+        copyBtn.style.background = '#007a5e';
+        setTimeout(() => {
+          copyBtn.textContent = 'Copiar';
+          copyBtn.style.background = '#00a884';
+        }, 2000);
+      }).catch(() => {
+        fallbackCopy(chave, () => {
+          copyBtn.textContent = 'Copiado!';
+          copyBtn.style.background = '#007a5e';
+          setTimeout(() => {
+            copyBtn.textContent = 'Copiar';
+            copyBtn.style.background = '#00a884';
+          }, 2000);
+        });
+      });
+    } else {
+      fallbackCopy(chave, () => {
+        copyBtn.textContent = 'Copiado!';
+        copyBtn.style.background = '#007a5e';
+        setTimeout(() => {
+          copyBtn.textContent = 'Copiar';
+          copyBtn.style.background = '#00a884';
+        }, 2000);
+      });
+    }
+  });
+
+  // Botão "Já paguei" – checa status manualmente
+  payBtn.addEventListener('click', function() {
+    if (!currentPixHash) return;
+    const statusBadge = document.getElementById('modal-status-badge');
+    statusBadge.innerHTML = `<span class="spinner"></span> Verificando...`;
+    statusBadge.style.color = '#00a884';
+
+    checarStatusComTimeout(currentPixHash, 8000)
+      .then(status => {
+        if (status === 'paid' || status === 'approved' || status === 'completed') {
+          statusBadge.innerHTML = '✅ Pagamento confirmado!';
+          statusBadge.style.color = '#00a884';
+          pixelPurchase(currentPixValor);
+          showBotaoEntregavel();
+          setTimeout(closePaymentModal, 1200);
+        } else {
+          statusBadge.innerHTML = '⏳ Ainda não identificamos o pagamento. Aguarde um momento.';
+          statusBadge.style.color = '#e53935';
+          setTimeout(() => {
+            statusBadge.innerHTML = `<span class="spinner"></span> Aguardando pagamento`;
+            statusBadge.style.color = '#00a884';
+          }, 3000);
+        }
+      })
+      .catch(() => {
+        statusBadge.innerHTML = '⚠️ Erro ao verificar. Tente novamente em instantes.';
+        statusBadge.style.color = '#e53935';
+        setTimeout(() => {
+          statusBadge.innerHTML = `<span class="spinner"></span> Aguardando pagamento`;
+          statusBadge.style.color = '#00a884';
+        }, 3000);
+      });
+  });
+});
+
+// ═══ SHOW CTA (chamado pela IA) ═══
 async function showCta(desconto) {
   if (desconto) { if (pixDescontoGerado) return; pixDescontoGerado = true; }
   else { if (pixNormalGerado) return; pixNormalGerado = true; }
@@ -894,141 +1374,141 @@ async function showCta(desconto) {
   }
 }
 
-// ═══ FUNÇÃO GENÉRICA PARA EXIBIR IMAGEM (NÃO VIEW ONCE) ═══
-function showImage(src, timestamp) {
+// ═══ FUNÇÃO PARA EXIBIR IMAGEM (NORMAL) ═══
+function showImage(src, timestamp, unique = false) {
   const now = timestamp || getTime();
-  aiHistory.push({ role:'assistant', content:'[imagem]', type:'image', src: src, timestamp: now });
-  salvarLead();
+  if (unique) {
+    aiHistory.push({
+      role: 'assistant',
+      content: '[imagem]',
+      type: 'image_unique',
+      src: src,
+      timestamp: now,
+      viewed: false
+    });
+    salvarLead();
+    criarBolhaImagemUnica(src, now);
+  } else {
+    aiHistory.push({ role:'assistant', content:'[imagem]', type:'image', src: src, timestamp: now });
+    salvarLead();
+    const b = document.createElement('div');
+    b.className = 'bbl in fade-in';
+    b.style.maxWidth = '85%';
+    b.style.padding = '4px';
+    b.innerHTML = TAIL_IN + '<img src="'+src+'" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">'+now+'</span></div>';
+    msgsEl.appendChild(b);
+    scroll();
+  }
+}
+
+// ═══ CRIA BOLHA DE VISUALIZAÇÃO ÚNICA ═══
+function criarBolhaImagemUnica(src, timestamp) {
+  const now = timestamp || getTime();
   const b = document.createElement('div');
   b.className = 'bbl in fade-in';
   b.style.maxWidth = '85%';
-  b.style.padding = '4px';
-  b.innerHTML = TAIL_IN + '<img src="'+src+'" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">'+now+'</span></div>';
-  msgsEl.appendChild(b);
+  b.style.cursor = 'pointer';
+  b.style.padding = '8px 12px 6px';
+  b.dataset.uniqueSrc = src;
+  b.dataset.viewed = 'false';
+
+  b.innerHTML = `
+    ${TAIL_IN}
+    <div class="bbl-unique-placeholder" onclick="abrirVisualizacaoUnica(this.parentElement)">
+      <div class="icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00a884" stroke-width="2">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      </div>
+      <div class="label"><strong>Visualização única</strong><br><span style="font-size:12px;color:#667781">Toque para abrir</span></div>
+    </div>
+    <div class="bbl-meta">
+      <span class="bbl-time">${now}</span>
+    </div>
+  `;
+
+  if (typingEl) { msgsEl.insertBefore(b, typingEl); } else { msgsEl.appendChild(b); }
   scroll();
+}
+
+// ═══ ABRE VISUALIZADOR DE IMAGEM ÚNICA ═══
+window.abrirVisualizacaoUnica = function(bubble) {
+  if (!bubble) return;
+  if (bubble.dataset.viewed === 'true') {
+    const label = bubble.querySelector('.label');
+    if (label) {
+      label.innerHTML = '<span style="color:#8696a0;font-size:13px">⚠️ Visualização única expirada</span>';
+    }
+    return;
+  }
+
+  const src = bubble.dataset.uniqueSrc;
+  if (!src) return;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'unique-viewer';
+  overlay.innerHTML = `
+    <img src="${src}" alt="Visualização única">
+    <button class="close-btn" onclick="fecharVisualizacaoUnica(this.parentElement)">Fechar</button>
+  `;
+  const phone = document.querySelector('.phone');
+  phone.appendChild(overlay);
+  document.body.style.overflow = 'hidden';
+};
+
+window.fecharVisualizacaoUnica = function(overlay) {
+  if (!overlay) return;
+  const img = overlay.querySelector('img');
+  if (!img) { overlay.remove(); document.body.style.overflow = ''; return; }
+  const src = img.src;
+  const bubbles = document.querySelectorAll('.bbl[data-unique-src]');
+  let targetBubble = null;
+  for (const b of bubbles) {
+    if (b.dataset.uniqueSrc === src && b.dataset.viewed === 'false') {
+      targetBubble = b;
+      break;
+    }
+  }
+
+  if (targetBubble) {
+    targetBubble.dataset.viewed = 'true';
+    const placeholder = targetBubble.querySelector('.bbl-unique-placeholder');
+    if (placeholder) {
+      placeholder.innerHTML = `
+        <div class="icon" style="background:rgba(134,150,160,0.12)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8696a0" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </div>
+        <div class="viewed-label">🕒 Visualização única<br><span style="font-size:11px;color:#8696a0">Aberto</span></div>
+      `;
+    }
+    targetBubble.style.cursor = 'default';
+    targetBubble.onclick = null;
+
+    for (let i = 0; i < aiHistory.length; i++) {
+      const msg = aiHistory[i];
+      if (msg.type === 'image_unique' && msg.src === src && msg.viewed === false) {
+        msg.viewed = true;
+        salvarLead();
+        break;
+      }
+    }
+  }
+
+  overlay.remove();
+  document.body.style.overflow = '';
+};
+
+function showUniqueImage(src, timestamp) {
+  showImage(src, timestamp, true);
 }
 
 function showFotoLead() {
-  showImage(IMG_LEAD_SRC);
+  showImage(IMG_LEAD_SRC, getTime(), false);
 }
-
-// ═══ IMAGEM COM VISUALIZAÇÃO ÚNICA ═══
-function showViewOnceImage(src, timestamp) {
-  const now = timestamp || getTime();
-  const msgIndex = aiHistory.length;
-  aiHistory.push({ role:'assistant', content:'[imagem de visualização única]', type:'image-view-once', src: src, timestamp: now, viewed: false });
-  salvarLead();
-  renderViewOnceBubble(aiHistory[msgIndex], msgIndex);
-}
-
-function renderViewOnceBubble(msg, msgIndex) {
-  const now = msg.timestamp || getTime();
-  const wrapper = document.createElement('div');
-  wrapper.className = 'fade-in';
-  wrapper.style.cssText = 'align-self:flex-start;margin-left:6px;max-width:88%';
-  wrapper.setAttribute('data-view-once-index', msgIndex);
-
-  if (msg.viewed) {
-    // Placeholder após visualizada
-    wrapper.innerHTML = `
-      <div class="bbl in" style="padding:10px 14px;">
-        ${TAIL_IN}
-        <div class="view-once-placeholder">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#667781" stroke-width="2">
-            <rect x="3" y="3" width="18" height="18" rx="2"/>
-            <circle cx="8.5" cy="8.5" r="1.5"/>
-            <path d="M21 15l-5-5L5 21"/>
-          </svg>
-          <span>Imagem de visualização única</span>
-        </div>
-        <div class="bbl-meta"><span class="bbl-time">${now}</span></div>
-      </div>
-    `;
-  } else {
-    // Blur + badge "1"
-    wrapper.innerHTML = `
-      <div class="bbl in" style="padding:4px;">
-        ${TAIL_IN}
-        <div class="view-once-blur" onclick="openViewOnceImage(${msgIndex})">
-          <img src="${msg.src}" alt="Visualização única">
-          <div class="view-once-badge">1</div>
-        </div>
-        <div class="bbl-meta"><span class="bbl-time">${now}</span></div>
-      </div>
-    `;
-  }
-  msgsEl.appendChild(wrapper);
-  scroll();
-}
-
-function openViewOnceImage(msgIndex) {
-  if (msgIndex < 0 || msgIndex >= aiHistory.length) return;
-  const msg = aiHistory[msgIndex];
-  if (!msg || msg.type !== 'image-view-once' || msg.viewed) return;
-
-  // Abre o modal
-  imageViewerImg.src = msg.src;
-  imageViewer.classList.add('open');
-
-  // Fecha o modal e marca como visualizada
-  const closeHandler = () => {
-    imageViewer.classList.remove('open');
-    imageViewerClose.removeEventListener('click', closeHandler);
-    imageViewer.removeEventListener('click', overlayClickHandler);
-
-    // Marcar como visualizada no histórico
-    msg.viewed = true;
-    saveState();
-
-    // Substituir a bolha no DOM
-    const oldWrapper = document.querySelector(`[data-view-once-index="${msgIndex}"]`);
-    if (oldWrapper) {
-      const newWrapper = document.createElement('div');
-      newWrapper.className = 'fade-in';
-      newWrapper.style.cssText = 'align-self:flex-start;margin-left:6px;max-width:88%';
-      newWrapper.setAttribute('data-view-once-index', msgIndex);
-      newWrapper.innerHTML = `
-        <div class="bbl in" style="padding:10px 14px;">
-          ${TAIL_IN}
-          <div class="view-once-placeholder">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#667781" stroke-width="2">
-              <rect x="3" y="3" width="18" height="18" rx="2"/>
-              <circle cx="8.5" cy="8.5" r="1.5"/>
-              <path d="M21 15l-5-5L5 21"/>
-            </svg>
-            <span>Imagem de visualização única</span>
-          </div>
-          <div class="bbl-meta"><span class="bbl-time">${msg.timestamp || getTime()}</span></div>
-        </div>
-      `;
-      oldWrapper.replaceWith(newWrapper);
-      scroll();
-    }
-  };
-
-  const overlayClickHandler = (e) => {
-    if (e.target === imageViewer) {
-      closeHandler();
-    }
-  };
-
-  imageViewerClose.addEventListener('click', closeHandler);
-  imageViewer.addEventListener('click', overlayClickHandler);
-}
-
-// Fechar modal também ao clicar no overlay (já tratado no openViewOnceImage)
-// Mas podemos adicionar um fallback global
-imageViewer.addEventListener('click', function(e) {
-  if (e.target === imageViewer && imageViewer.classList.contains('open')) {
-    // O handler será registrado por openViewOnceImage, mas podemos ter um fallback
-    const img = imageViewerImg;
-    if (img.src && img.src !== '') {
-      // Procura o índice atual (não sabemos, mas podemos fechar e não marcar viewed)
-      // Apenas fecha o modal sem alterar estado (caso seja acionado fora do fluxo normal)
-      imageViewer.classList.remove('open');
-    }
-  }
-});
 
 // ═══ FUNÇÃO PARA CRIAR BOLHA DE ÁUDIO DO LEAD ═══
 function criarBolhaAudio(src, id, onEnded) {
@@ -1221,8 +1701,7 @@ window.seekAudioById = function(e, bar, id) {
 // ═══ REBUILD UI ═══
 async function rebuildUI() {
   msgsEl.innerHTML = '<div class="date-pill">Hoje</div>';
-  for (let i = 0; i < aiHistory.length; i++) {
-    const msg = aiHistory[i];
+  for (const msg of aiHistory) {
     if (msg.role === 'user') {
       if (msg.type === 'audio-user' && msg.audioData) {
         criarBolhaAudioUsuario(msg.audioData.url, msg.audioData.id, msg.timestamp);
@@ -1241,16 +1720,16 @@ async function rebuildUI() {
       const displayContent = stripFim(msg.content);
       const parts = displayContent.split('|').map(p => p.trim()).filter(Boolean);
       if (parts.length === 0) parts = [displayContent];
-      for (let j = 0; j < parts.length; j++) {
+      for (let i = 0; i < parts.length; i++) {
         let timeToShow = msg.timestamp || getTime();
-        if (j > 0 && msg.timestamp) {
+        if (i > 0 && msg.timestamp) {
           const [h, m] = msg.timestamp.split(':').map(Number);
-          const totalMin = h * 60 + m + j;
+          const totalMin = h * 60 + m + i;
           const hh = String(Math.floor(totalMin / 60) % 24).padStart(2, '0');
           const mm = String(totalMin % 60).padStart(2, '0');
           timeToShow = hh + ':' + mm;
         }
-        addBubble(parts[j], 'in', false, timeToShow);
+        addBubble(parts[i], 'in', false, timeToShow);
         await sleep(30);
       }
     }
@@ -1265,8 +1744,50 @@ async function rebuildUI() {
       b.innerHTML = TAIL_IN + '<img src="' + msg.src + '" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto"><div class="bbl-meta"><span class="bbl-time">' + (msg.timestamp || getTime()) + '</span></div>';
       msgsEl.appendChild(b);
     }
-    else if (msg.role === 'assistant' && msg.type === 'image-view-once') {
-      renderViewOnceBubble(msg, i);
+    else if (msg.role === 'assistant' && msg.type === 'image_unique') {
+      const viewed = msg.viewed || false;
+      const b = document.createElement('div');
+      b.className = 'bbl in fade-in';
+      b.style.maxWidth = '85%';
+      b.style.cursor = viewed ? 'default' : 'pointer';
+      b.style.padding = '8px 12px 6px';
+      b.dataset.uniqueSrc = msg.src;
+      b.dataset.viewed = viewed ? 'true' : 'false';
+
+      if (viewed) {
+        b.innerHTML = `
+          ${TAIL_IN}
+          <div class="bbl-unique-placeholder" style="cursor:default">
+            <div class="icon" style="background:rgba(134,150,160,0.12)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8696a0" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </div>
+            <div class="viewed-label">🕒 Visualização única<br><span style="font-size:11px;color:#8696a0">Aberto</span></div>
+          </div>
+          <div class="bbl-meta"><span class="bbl-time">${msg.timestamp || getTime()}</span></div>
+        `;
+      } else {
+        b.innerHTML = `
+          ${TAIL_IN}
+          <div class="bbl-unique-placeholder" onclick="abrirVisualizacaoUnica(this.parentElement)">
+            <div class="icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00a884" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </div>
+            <div class="label"><strong>Visualização única</strong><br><span style="font-size:12px;color:#667781">Toque para abrir</span></div>
+          </div>
+          <div class="bbl-meta"><span class="bbl-time">${msg.timestamp || getTime()}</span></div>
+        `;
+        b.onclick = function(e) {
+          if (e.target.closest('.bbl-unique-placeholder')) return;
+          abrirVisualizacaoUnica(this);
+        };
+      }
+      msgsEl.appendChild(b);
     }
     else if (msg.role === 'assistant' && msg.type === 'pix') {
       const pixData = msg.pixData;
@@ -1276,35 +1797,43 @@ async function rebuildUI() {
         wrap.style.cssText = 'align-self:flex-start;margin-left:6px;max-width:88%';
 
         const card = document.createElement('div');
-        card.style.cssText = 'background:#fff;border-radius:12px;overflow:hidden;min-width:220px;box-shadow:0 1px 3px rgba(0,0,0,0.15)';
+        card.className = 'pix-card';
 
-        const head = document.createElement('div');
-        head.style.cssText = 'background:#00a884;padding:12px 14px;display:flex;align-items:center;gap:10px';
-        head.innerHTML = '<div style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div style="color:rgba(255,255,255,0.85);font-size:11px;margin-bottom:1px">Solicitação de pagamento</div><div style="color:#fff;font-size:19px;font-weight:700;line-height:1.2">'+pixData.valorFmt+'</div></div>';
-        card.appendChild(head);
+        const header = document.createElement('div');
+        header.className = 'pix-header';
+        header.innerHTML = `
+          <div class="icon-badge">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          </div>
+          <div class="pix-title">
+            Pagamento via Pix
+            <small>Instantâneo e seguro</small>
+          </div>
+        `;
+        card.appendChild(header);
 
-        const info = document.createElement('div');
-        info.style.cssText = 'padding:10px 14px;border-bottom:1px solid #f0f2f5';
-        info.innerHTML = '<div style="font-size:11px;color:#8696a0;margin-bottom:2px">Para</div><div style="font-size:14px;color:#111b21;font-weight:500">Vanessa Macedo</div><div style="font-size:11.5px;color:#8696a0;margin-top:1px">via Pix</div>';
-        card.appendChild(info);
+        const valueDiv = document.createElement('div');
+        valueDiv.className = 'pix-value';
+        valueDiv.innerHTML = `
+          <span class="currency">R$</span> ${(pixData.valor/100).toFixed(2).replace('.',',')}
+          ${pixData.desconto ? '<span class="badge-desconto">⚡ Desconto</span>' : ''}
+        `;
+        card.appendChild(valueDiv);
 
-        if (pixData.chave) {
-          const btnWrap = document.createElement('div');
-          btnWrap.style.cssText = 'border-bottom:1px solid #f0f2f5';
-          const btn = document.createElement('button');
-          btn.style.cssText = 'width:100%;background:none;border:none;padding:10px 14px;color:#00a884;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px';
-          btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="#00a884" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="#00a884" stroke-width="2" stroke-linecap="round"/></svg> Copiar chave Pix';
-          btn.onclick = function(){ window.copiarPix(btn, pixData.chave); };
-          btnWrap.appendChild(btn);
-          card.appendChild(btnWrap);
-        }
+        const btn = document.createElement('button');
+        btn.className = 'pix-btn';
+        btn.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>
+          Pagar com Pix
+        `;
+        btn.onclick = function() {
+          abrirPaymentModal(pixData.valorFmt, pixData.chave, pixData.hash, pixData.valor, pixData.desconto);
+        };
+        card.appendChild(btn);
 
         const footer = document.createElement('div');
-        footer.style.cssText = 'padding:6px 14px 8px;display:flex;justify-content:flex-end';
-        const time = document.createElement('span');
-        time.style.cssText = 'font-size:11px;color:#8696a0';
-        time.textContent = msg.timestamp || getTime();
-        footer.appendChild(time);
+        footer.className = 'pix-footer';
+        footer.textContent = msg.timestamp || getTime();
         card.appendChild(footer);
 
         wrap.appendChild(card);
@@ -1466,7 +1995,7 @@ async function askAI(userMsg) {
       showTyping();
       await sleep(3000 + Math.random() * 2000);
       hideTyping();
-      showViewOnceImage(IMG_EXTRA_SRC);  // VIEW ONCE para a prévia
+      showUniqueImage(IMG_EXTRA_SRC);
     }
 
     const houveCta = temPixNormal || temDesconto;
@@ -1489,7 +2018,14 @@ function submit() {
   const now = getTime();
   addBubble(text, 'out', false, now);
   if (!leadId) salvarLead();
+  userReplyCount++;
   saveState();
+
+  if (userReplyCount === 2 && !autoCallFired) {
+    const delay = 60000 + Math.random() * 60000;
+    scheduleAutoCall(delay);
+  }
+
   askAI(text);
 }
 
@@ -1811,7 +2347,13 @@ async function sendAudioMessage(mimeType) {
   const reader = new FileReader();
   reader.onload = async function() {
     const base64 = reader.result.split(',')[1];
+    userReplyCount++;
     if (!leadId) salvarLead();
+
+    if (userReplyCount === 2 && !autoCallFired) {
+      const delay = 60000 + Math.random() * 60000;
+      scheduleAutoCall(delay);
+    }
 
     showTyping();
     try {
@@ -1856,7 +2398,7 @@ async function sendAudioMessage(mimeType) {
       if (temPixNormal) { await sleep(600); showCta(false); }
       if (temDesconto)  { await sleep(600); showCta(true); }
       if (temFoto)      { await sleep(500); showFotoLead(); }
-      if (temExtra)     { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showViewOnceImage(IMG_EXTRA_SRC); }
+      if (temExtra)     { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showUniqueImage(IMG_EXTRA_SRC); }
 
       const houveCta = temPixNormal || temDesconto;
       salvarLead(houveCta);
@@ -1905,7 +2447,13 @@ async function handleImageSelect(event) {
   reader.onload = async function() {
     const base64 = reader.result.split(',')[1];
     const mime = file.type || 'image/jpeg';
+    userReplyCount++;
     if (!leadId) salvarLead();
+
+    if (userReplyCount === 2 && !autoCallFired) {
+      const delay = 60000 + Math.random() * 60000;
+      scheduleAutoCall(delay);
+    }
 
     showTyping();
     try {
@@ -1950,7 +2498,7 @@ async function handleImageSelect(event) {
       if (temPixNormal) { await sleep(600); showCta(false); }
       if (temDesconto)  { await sleep(600); showCta(true); }
       if (temFoto)      { await sleep(500); showFotoLead(); }
-      if (temExtra)     { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showViewOnceImage(IMG_EXTRA_SRC); }
+      if (temExtra)     { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showUniqueImage(IMG_EXTRA_SRC); }
 
       const houveCta = temPixNormal || temDesconto;
       salvarLead(houveCta);
@@ -1962,6 +2510,100 @@ async function handleImageSelect(event) {
     enableInput();
   };
   reader.readAsDataURL(file);
+}
+
+// ═══════════════════════════════════════
+// ═══ CHAMADA ISCA ═══
+// ═══════════════════════════════════════
+
+function startAutoCallRing(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    function beep(){
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.frequency.value=480;
+      g.gain.setValueAtTime(0.25,ctx.currentTime);
+      o.start();o.stop(ctx.currentTime+0.4);
+    }
+    beep();
+    autoCallRingInterval=setInterval(beep,1600);
+  }catch(e){}
+}
+
+function stopAutoCallRing(){
+  if(autoCallRingInterval){clearInterval(autoCallRingInterval);autoCallRingInterval=null;}
+}
+
+function dismissAutoCall(reason){
+  stopAutoCallRing();
+  const ov=document.getElementById('incoming-call-overlay');
+  const ac=document.getElementById('active-call-overlay');
+  ov.classList.remove('show');
+  ac.classList.remove('show');
+  setTimeout(function(){
+    const b=document.createElement('div');
+    b.className='bbl in fade-in';
+    if(reason==='declined'){
+      b.innerHTML=TAIL_IN+
+        '<div style="display:flex;align-items:center;gap:8px;color:#e53935;font-size:13.5px">'+
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><line x1="3" y1="3" x2="21" y2="21" stroke="#e53935" stroke-width="1.75" stroke-linecap="round"/></svg>'+
+        'Chamada de vídeo perdida</div>'+
+        '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+      aiHistory.push({role:'system', content:'Ligação Isca - Recusada', type:'system'});
+    } else {
+      b.innerHTML=TAIL_IN+
+        '<div style="display:flex;align-items:center;gap:8px;color:#667781;font-size:13.5px">'+
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>'+
+        'Vanessa desligou · 0:02</div>'+
+        '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+      aiHistory.push({role:'system', content:'Ligação Isca - Aceita', type:'system'});
+    }
+    msgsEl.appendChild(b);
+    scroll();
+    salvarLead();
+  }, 400);
+}
+
+function triggerAutoCall(){
+  if(autoCallFired) return;
+  autoCallFired=true;
+  saveState();
+  const ov=document.getElementById('incoming-call-overlay');
+  ov.classList.add('show');
+  startAutoCallRing();
+  const autoDismissTimer=setTimeout(function(){
+    if(ov.classList.contains('show')){
+      dismissAutoCall('declined');
+    }
+  }, 20000);
+  document.getElementById('auto-call-decline').onclick=function(){
+    clearTimeout(autoDismissTimer);
+    dismissAutoCall('declined');
+  };
+  document.getElementById('auto-call-answer').onclick=function(){
+    clearTimeout(autoDismissTimer);
+    stopAutoCallRing();
+    ov.classList.remove('show');
+    const ac=document.getElementById('active-call-overlay');
+    const statusTxt=document.getElementById('ac-status-text');
+    ac.classList.add('show');
+    statusTxt.textContent='Conectando…';
+    setTimeout(function(){statusTxt.textContent='Chamada de vídeo';},700);
+    setTimeout(function(){
+      ac.classList.remove('show');
+      dismissAutoCall('answered_and_hung');
+    }, 2000);
+    document.getElementById('ac-end-btn').onclick=function(){
+      ac.classList.remove('show');
+      dismissAutoCall('answered_and_hung');
+    };
+  };
+}
+
+function scheduleAutoCall(delay = 0) {
+  if (autoCallFired || autoCallTimer) return;
+  autoCallTimer = setTimeout(triggerAutoCall, delay);
 }
 
 // ═══ INÍCIO ═══
@@ -1997,8 +2639,7 @@ async function start() {
       if (imgJaEnviada) return;
       imgJaEnviada = true;
       const imgNow = getTime();
-      // Envia a primeira imagem como visualização única
-      showViewOnceImage(IMG_INICIAL_SRC, imgNow);
+      showUniqueImage(IMG_INICIAL_SRC, imgNow);
     });
     
     salvarAudioLead(AUDIO_SRC, now);
