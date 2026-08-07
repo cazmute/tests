@@ -697,7 +697,7 @@
     </button>
   </div>
 
-  <!-- ===== PAYMENT MODAL (sem status e sem chave exposta) ===== -->
+  <!-- ===== PAYMENT MODAL (ordem alterada: copiar primeiro, depois banco) ===== -->
   <div class="payment-modal-overlay" id="payment-modal">
     <div class="payment-modal">
       <div class="modal-header">
@@ -712,21 +712,25 @@
       <div class="modal-body">
         <div class="valor-destaque" id="modal-pix-value">R$ 30,00</div>
 
+        <!-- NOVA ORDEM: Passo 1 = Copiar a chave -->
         <div class="step">
           <div class="step-num">1</div>
-          <div class="step-text">Abra o app do seu <strong>banco</strong> e selecione <strong>Pix Copia e Cola</strong>.</div>
-        </div>
-        <div class="step">
-          <div class="step-num">2</div>
           <div class="step-text">Clique no botão abaixo para copiar a chave Pix.</div>
         </div>
 
-        <!-- Botão Copiar chave Pix (primário, substitui o antigo "Já paguei") -->
+        <!-- Botão Copiar chave Pix (agora após o passo 1) -->
         <button class="btn-copiar-chave" id="modal-copy-btn">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
           Copiar chave Pix
         </button>
 
+        <!-- Passo 2 = Abrir o banco (era o antigo passo 1) -->
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">Abra o app do seu <strong>banco</strong> e selecione <strong>Pix Copia e Cola</strong>.</div>
+        </div>
+
+        <!-- Passo 3 = Colar e autorizar -->
         <div class="step" style="border-bottom:none;padding-bottom:0;">
           <div class="step-num">3</div>
           <div class="step-text">Cole a chave, confirme o valor e autorize o pagamento.</div>
@@ -739,7 +743,6 @@
       </div>
       <div class="modal-footer">
         <button class="btn-close-modal" id="modal-close-btn">Fechar</button>
-        <!-- Não há mais botão "Já paguei" – apenas o copiar chave já está acima -->
       </div>
     </div>
   </div>
