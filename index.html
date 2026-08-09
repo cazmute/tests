@@ -192,64 +192,108 @@
     #active-call-overlay .ac-status{color:rgba(255,255,255,0.5);font-size:13px}
     #active-call-overlay .ac-end-btn{width:60px;height:60px;border-radius:50%;background:#e53935;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:30px}
 
-    /* ===== CARD PIX (versão sutil) ===== */
-    .pix-card-sutil {
-      background: var(--wa-msg-in);
-      border-radius: 8px;
-      padding: 10px 12px 6px;
-      box-shadow: 0 1px 0.5px rgba(11,20,26,.13);
+    /* ===== CARD PIX (estilo original) ===== */
+    .pix-card {
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(18px) saturate(1.2);
+      -webkit-backdrop-filter: blur(18px) saturate(1.2);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 16px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+      padding: 14px 14px 12px;
       min-width: 200px;
-      max-width: 260px;
-      border-left: 3px solid #128c7e;
-      margin: 2px 0;
+      max-width: 280px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    .pix-card-sutil .pix-destaque {
-      font-size: 18px;
+    .pix-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+    }
+    .pix-card .pix-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .pix-card .pix-header .icon-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: linear-gradient(145deg, #00a884, #007a5e);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 3px 10px rgba(0,168,132,0.25);
+    }
+    .pix-card .pix-header .icon-badge svg {
+      width: 18px;
+      height: 18px;
+      fill: white;
+    }
+    .pix-card .pix-header .pix-title {
+      font-size: 13px;
       font-weight: 600;
       color: #111b21;
-      margin: 4px 0 2px;
+      letter-spacing: -0.2px;
     }
-    .pix-card-sutil .pix-chave {
-      font-size: 13px;
+    .pix-card .pix-header .pix-title small {
+      display: block;
+      font-weight: 400;
+      font-size: 10.5px;
       color: #667781;
-      word-break: break-all;
-      margin-bottom: 6px;
-      font-family: monospace;
-      background: #f0f2f5;
-      padding: 4px 8px;
-      border-radius: 6px;
-      display: inline-block;
+      letter-spacing: 0px;
     }
-    .pix-card-sutil .pix-botoes {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 6px;
-    }
-    .pix-card-sutil .pix-botoes button {
-      background: #128c7e;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 6px 12px;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      font-family: inherit;
-      transition: background 0.15s;
-    }
-    .pix-card-sutil .pix-botoes button:hover {
-      background: #075e54;
-    }
-    .pix-card-sutil .pix-botoes button.copiar {
-      background: #e9edef;
+    .pix-card .pix-value {
+      font-size: 22px;
+      font-weight: 700;
       color: #111b21;
+      margin: 4px 0 10px;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
     }
-    .pix-card-sutil .pix-botoes button.copiar:hover {
-      background: #d1d7db;
+    .pix-card .pix-value .currency {
+      font-size: 14px;
+      font-weight: 500;
+      color: #667781;
+    }
+    .pix-card .pix-btn {
+      width: 100%;
+      background: #00a884;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-family: inherit;
+      box-shadow: 0 3px 12px rgba(0,168,132,0.25);
+    }
+    .pix-card .pix-btn:hover {
+      background: #007a5e;
+      transform: scale(1.02);
+      box-shadow: 0 4px 16px rgba(0,168,132,0.3);
+    }
+    .pix-card .pix-btn:active {
+      transform: scale(0.97);
+    }
+    .pix-card .pix-footer {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 4px;
+      font-size: 10px;
+      color: #8696a0;
     }
 
-    /* ===== MODAL DE PAGAMENTO (versão pessoal) ===== */
+    /* ===== MODAL DE PAGAMENTO ===== */
     .payment-modal-overlay {
       position: absolute;
       inset: 0;
@@ -270,7 +314,7 @@
       pointer-events: all;
     }
     .payment-modal {
-      background: rgba(255,255,255,0.92);
+      background: rgba(255,255,255,0.88);
       backdrop-filter: blur(30px) saturate(1.4);
       -webkit-backdrop-filter: blur(30px) saturate(1.4);
       border: 1px solid rgba(255,255,255,0.4);
@@ -291,17 +335,18 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
     .payment-modal .modal-header .modal-icon {
       width: 44px;
       height: 44px;
       border-radius: 14px;
-      background: #128c7e;
+      background: linear-gradient(145deg, #00a884, #007a5e);
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(0,168,132,0.25);
     }
     .payment-modal .modal-header .modal-icon svg {
       width: 22px;
@@ -319,6 +364,7 @@
       font-weight: 400;
       font-size: 12px;
       color: #667781;
+      letter-spacing: 0px;
     }
     .payment-modal .modal-body {
       margin: 6px 0 16px;
@@ -334,7 +380,7 @@
       display: flex;
       align-items: flex-start;
       gap: 12px;
-      padding: 8px 0;
+      padding: 10px 0;
       border-bottom: 1px solid rgba(0,0,0,0.04);
     }
     .payment-modal .modal-body .step:last-child {
@@ -344,8 +390,8 @@
       width: 24px;
       height: 24px;
       border-radius: 50%;
-      background: rgba(18,140,126,0.12);
-      color: #128c7e;
+      background: rgba(0,168,132,0.12);
+      color: #00a884;
       font-size: 12px;
       font-weight: 700;
       display: flex;
@@ -360,12 +406,12 @@
       line-height: 1.5;
     }
     .payment-modal .modal-body .step .step-text strong {
-      color: #128c7e;
+      color: #00a884;
       font-weight: 600;
     }
     .payment-modal .modal-body .btn-copiar-chave {
       width: 100%;
-      background: #128c7e;
+      background: #00a884;
       border: none;
       border-radius: 14px;
       padding: 14px 10px;
@@ -379,35 +425,18 @@
       justify-content: center;
       gap: 8px;
       font-family: inherit;
-      box-shadow: 0 4px 16px rgba(18,140,126,0.3);
+      box-shadow: 0 4px 16px rgba(0,168,132,0.3);
       margin: 10px 0 6px;
     }
     .payment-modal .modal-body .btn-copiar-chave:hover {
-      background: #075e54;
+      background: #007a5e;
+      transform: scale(1.02);
     }
     .payment-modal .modal-body .btn-copiar-chave:active {
       transform: scale(0.97);
     }
     .payment-modal .modal-body .btn-copiar-chave.copiado {
-      background: #075e54;
-    }
-    .payment-modal .modal-body .campo-nome {
-      margin: 8px 0 12px;
-    }
-    .payment-modal .modal-body .campo-nome input {
-      width: 100%;
-      padding: 10px 14px;
-      border: 1px solid #e9edef;
-      border-radius: 12px;
-      font-size: 14px;
-      font-family: inherit;
-      background: #f0f2f5;
-      outline: none;
-      transition: border 0.2s;
-    }
-    .payment-modal .modal-body .campo-nome input:focus {
-      border-color: #128c7e;
-      background: #fff;
+      background: #007a5e;
     }
     .payment-modal .modal-footer {
       display: flex;
@@ -438,8 +467,11 @@
       color: #667781;
       margin: 6px 0 2px;
     }
+    .payment-modal .security-badge svg {
+      flex-shrink: 0;
+    }
 
-    /* ===== PERFIL (sem badge no cabeçalho) ===== */
+    /* ===== PERFIL (sem badge no cabeçalho e sem telefone) ===== */
     .profile-overlay {
       position: absolute;
       inset: 0;
@@ -606,7 +638,7 @@
     }
 
     @media (max-width: 420px) {
-      .pix-card-sutil { min-width: 160px; }
+      .pix-card { min-width: 160px; }
       .payment-modal { padding: 20px 16px 22px; }
       .payment-modal .modal-body .valor-destaque { font-size: 22px; }
       .profile-card { padding: 24px 16px 20px; }
@@ -727,7 +759,6 @@
           <img src="https://i.ibb.co/ksmzSzDM/perfilv2.png" style="width:100%;height:100%;object-fit:cover" alt="Vanessa">
         </div>
         <div style="color:#e9edef;font-size:16px;font-weight:600">Vanessa Macedo</div>
-        <!-- Verificação removida do cabeçalho (ponto 16) -->
       </div>
       <div style="padding:18px 18px 22px;display:flex;flex-direction:column;gap:12px">
         <div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.04);border-radius:12px;padding:13px 14px">
@@ -816,7 +847,7 @@
     </button>
   </div>
 
-  <!-- ===== PAYMENT MODAL (versão pessoal) ===== -->
+  <!-- ===== PAYMENT MODAL ===== -->
   <div class="payment-modal-overlay" id="payment-modal">
     <div class="payment-modal">
       <div class="modal-header">
@@ -824,35 +855,31 @@
           <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
         </div>
         <div class="modal-title">
-          Confirmar pagamento
-          <small>Pix copia e cola</small>
+          Pagar com Pix
+          <small>Confirme os dados e finalize</small>
         </div>
       </div>
       <div class="modal-body">
         <div class="valor-destaque" id="modal-pix-value">R$ 30,00</div>
         <div class="step">
           <div class="step-num">1</div>
-          <div class="step-text">Copia a chave abaixo e abre o app do seu <strong>banco</strong>.</div>
+          <div class="step-text">Clique no botão abaixo para copiar a chave Pix.</div>
         </div>
         <button class="btn-copiar-chave" id="modal-copy-btn">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-          Copiar chave
+          Copiar chave Pix
         </button>
         <div class="step">
           <div class="step-num">2</div>
-          <div class="step-text">Cole a chave, confere o valor e <strong>autoriza</strong> o Pix.</div>
+          <div class="step-text">Abra o app do seu <strong>banco</strong> e selecione <strong>Pix Copia e Cola</strong>.</div>
         </div>
         <div class="step" style="border-bottom:none;padding-bottom:0;">
           <div class="step-num">3</div>
-          <div class="step-text">Depois me avisa que já libero tudo pra você 😉</div>
-        </div>
-        <!-- Campo opcional de nome -->
-        <div class="campo-nome">
-          <input type="text" id="payer-name" placeholder="Seu nome (opcional)" maxlength="40">
+          <div class="step-text">Cole a chave, confirme o valor e autorize o pagamento.</div>
         </div>
         <div class="security-badge">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00a884" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
-          Pagamento seguro com criptografia
+          Pagamento seguro com criptografia de ponta a ponta
         </div>
       </div>
       <div class="modal-footer">
@@ -862,7 +889,7 @@
   </div>
 
   <!-- ============================================================
-       PERFIL (com verificação apenas aqui – ponto 16)
+       PERFIL (sem badge no cabeçalho e sem telefone)
        ============================================================ -->
   <div class="profile-overlay" id="profile-overlay" onclick="if(event.target===this) closeProfileSheet()">
     <div class="profile-card">
@@ -882,7 +909,7 @@
 
       <div class="profile-divider"></div>
 
-      <!-- Localização (buscada via API) -->
+      <!-- Apenas localização -->
       <div class="profile-info-item">
         <div class="info-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -893,16 +920,7 @@
         </div>
       </div>
 
-      <!-- Telefone fictício para dar credibilidade -->
-      <div class="profile-info-item">
-        <div class="info-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
-        </div>
-        <div class="info-content">
-          <div class="info-label">Telefone</div>
-          <div class="info-value">(11) 9 9999-9999</div>
-        </div>
-      </div>
+      <!-- Telefone removido -->
 
       <button class="profile-close-btn" onclick="closeProfileSheet()">Fechar</button>
     </div>
@@ -1274,7 +1292,7 @@ function pixelPurchase(v){
 }
 
 // ════════════════════════════════════════════════════
-// ═══ CARD PIX (versão sutil – ponto 6) ═══
+// ═══ CARD PIX (estilo original) ═══
 // ════════════════════════════════════════════════════
 
 let currentPixKey = '';
@@ -1304,75 +1322,53 @@ function criarCardPix(data, desconto, timestamp) {
   aiHistory.push(pixEntry);
   salvarLead(true);
 
-  // Cria bolha com card sutil
+  // Cria bolha com card original
   const wrap = document.createElement('div');
   wrap.className = 'fade-in';
   wrap.style.cssText = 'align-self:flex-start;margin-left:6px;max-width:88%';
 
   const card = document.createElement('div');
-  card.className = 'pix-card-sutil';
+  card.className = 'pix-card';
 
-  // Texto introdutório
-  const intro = document.createElement('div');
-  intro.style.cssText = 'font-size:13px;color:#111b21;margin-bottom:4px';
-  intro.textContent = desconto ? '👉 Te mandei um Pix com desconto especial:' : '👉 Segue a chave Pix:';
-  card.appendChild(intro);
+  // Header
+  const header = document.createElement('div');
+  header.className = 'pix-header';
+  header.innerHTML = `
+    <div class="icon-badge">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    <div class="pix-title">
+      Pagamento via Pix
+      <small>Instantâneo e seguro</small>
+    </div>
+  `;
+  card.appendChild(header);
 
-  const valorDiv = document.createElement('div');
-  valorDiv.className = 'pix-destaque';
-  valorDiv.textContent = valorFmt;
-  card.appendChild(valorDiv);
+  // Valor
+  const valueDiv = document.createElement('div');
+  valueDiv.className = 'pix-value';
+  valueDiv.innerHTML = `
+    <span class="currency">R$</span> ${(valor/100).toFixed(2).replace('.',',')}
+  `;
+  card.appendChild(valueDiv);
 
-  const chaveDiv = document.createElement('div');
-  chaveDiv.className = 'pix-chave';
-  chaveDiv.textContent = pixCopia || 'vanessa@email.com';
-  card.appendChild(chaveDiv);
-
-  // Botões: copiar e abrir modal
-  const botoes = document.createElement('div');
-  botoes.className = 'pix-botoes';
-
-  const btnCopiar = document.createElement('button');
-  btnCopiar.className = 'copiar';
-  btnCopiar.innerHTML = '📋 Copiar chave';
-  btnCopiar.onclick = function(e) {
-    e.stopPropagation();
-    const chave = pixCopia || 'vanessa@email.com';
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(chave).then(() => {
-        btnCopiar.textContent = '✅ Copiado!';
-        setTimeout(() => { btnCopiar.innerHTML = '📋 Copiar chave'; }, 2000);
-      }).catch(() => fallbackCopy(chave, () => {
-        btnCopiar.textContent = '✅ Copiado!';
-        setTimeout(() => { btnCopiar.innerHTML = '📋 Copiar chave'; }, 2000);
-      }));
-    } else {
-      fallbackCopy(chave, () => {
-        btnCopiar.textContent = '✅ Copiado!';
-        setTimeout(() => { btnCopiar.innerHTML = '📋 Copiar chave'; }, 2000);
-      });
-    }
-  };
-  botoes.appendChild(btnCopiar);
-
-  const btnPagar = document.createElement('button');
-  btnPagar.textContent = '💳 Abrir pagamento';
-  btnPagar.onclick = function() {
+  // Botão Pagar
+  const btn = document.createElement('button');
+  btn.className = 'pix-btn';
+  btn.innerHTML = `
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>
+    Pagar com Pix
+  `;
+  btn.onclick = function() {
     abrirPaymentModal(valorFmt, pixCopia, txHash, valor, desconto);
   };
-  botoes.appendChild(btnPagar);
+  card.appendChild(btn);
 
-  card.appendChild(botoes);
-
-  // Meta com horário
-  const meta = document.createElement('div');
-  meta.className = 'bbl-meta';
-  meta.style.cssText = 'margin-top:6px;float:none;text-align:right';
-  const timeSpan = document.createElement('span');
-  timeSpan.className = 'bbl-time';
-  timeSpan.textContent = timestamp || getTime();
-  meta.appendChild(timeSpan);
-  card.appendChild(meta);
+  // Footer com horário
+  const footer = document.createElement('div');
+  footer.className = 'pix-footer';
+  footer.textContent = timestamp || getTime();
+  card.appendChild(footer);
 
   wrap.appendChild(card);
   msgsEl.appendChild(wrap);
@@ -1395,12 +1391,9 @@ function abrirPaymentModal(valorFmt, chave, hash, valor, desconto) {
 
   copyBtn.innerHTML = `
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-    Copiar chave
+    Copiar chave Pix
   `;
   copyBtn.classList.remove('copiado');
-
-  // Limpa campo nome
-  document.getElementById('payer-name').value = '';
 
   modal.classList.add('open');
 }
@@ -1409,12 +1402,11 @@ function closePaymentModal() {
   document.getElementById('payment-modal').classList.remove('open');
 }
 
-// Eventos do modal (ponto 10)
+// Eventos do modal
 document.addEventListener('DOMContentLoaded', function() {
   const modal = document.getElementById('payment-modal');
   const closeBtn = document.getElementById('modal-close-btn');
   const copyBtn = document.getElementById('modal-copy-btn');
-  const nomeInput = document.getElementById('payer-name');
 
   closeBtn.addEventListener('click', closePaymentModal);
   modal.addEventListener('click', function(e) {
@@ -1434,7 +1426,7 @@ document.addEventListener('DOMContentLoaded', function() {
       setTimeout(() => {
         copyBtn.innerHTML = `
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-          Copiar chave
+          Copiar chave Pix
         `;
         copyBtn.classList.remove('copiado');
       }, 2000);
@@ -1445,13 +1437,6 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
       fallbackCopy(chave, copiar);
     }
-
-    // Salva nome (opcional)
-    const nome = nomeInput.value.trim();
-    if (nome) {
-      aiHistory.push({ role: 'user', content: `Meu nome: ${nome}`, type: 'text', timestamp: getTime() });
-      salvarLead();
-    }
   });
 });
 
@@ -1460,7 +1445,7 @@ async function showCta(desconto) {
   if (desconto) { if (pixDescontoGerado) return; pixDescontoGerado = true; }
   else { if (pixNormalGerado) return; pixNormalGerado = true; }
 
-  showTyping(); await sleep(800); hideTyping();
+  showTyping(); await sleep(1000); hideTyping();
   const data = await gerarPix(desconto);
   if (!data) { addBubble('Ops, tive um probleminha 😅 Tenta de novo!','in'); return; }
 
@@ -1504,7 +1489,7 @@ function showImage(src, timestamp, unique = false) {
   }
 }
 
-// ═══ CRIA BOLHA DE VISUALIZAÇÃO ÚNICA ═══
+// ═══ CRIA BOLHA DE VISUALIZAÇÃO ÚNICA (revisado) ═══
 function criarBolhaImagemUnica(src, timestamp) {
   const now = timestamp || getTime();
   const b = document.createElement('div');
@@ -1515,27 +1500,44 @@ function criarBolhaImagemUnica(src, timestamp) {
   b.dataset.uniqueSrc = src;
   b.dataset.viewed = 'false';
 
-  b.innerHTML = `
-    ${TAIL_IN}
-    <div class="bbl-unique-placeholder" onclick="abrirVisualizacaoUnica(this.parentElement)">
-      <div class="icon">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00a884" stroke-width="2">
-          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-          <circle cx="12" cy="12" r="3"/>
-        </svg>
-      </div>
-      <div class="label"><strong>Visualização única</strong><br><span style="font-size:12px;color:#667781">Toque para abrir</span></div>
+  // Conteúdo interno
+  const placeholder = document.createElement('div');
+  placeholder.className = 'bbl-unique-placeholder';
+  placeholder.innerHTML = `
+    <div class="icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00a884" stroke-width="2">
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+        <circle cx="12" cy="12" r="3"/>
+      </svg>
     </div>
-    <div class="bbl-meta">
-      <span class="bbl-time">${now}</span>
-    </div>
+    <div class="label"><strong>Visualização única</strong><br><span style="font-size:12px;color:#667781">Toque para abrir</span></div>
   `;
+  // Adiciona evento de clique no placeholder e na própria bolha
+  const openFn = function(e) {
+    e.stopPropagation();
+    abrirVisualizacaoUnica(b);
+  };
+  placeholder.addEventListener('click', openFn);
+  b.addEventListener('click', function(e) {
+    // Se clicou no placeholder, já tratamos; senão, abre também
+    if (!e.target.closest('.bbl-unique-placeholder')) {
+      abrirVisualizacaoUnica(b);
+    }
+  });
+
+  b.appendChild(placeholder);
+
+  // Meta
+  const meta = document.createElement('div');
+  meta.className = 'bbl-meta';
+  meta.innerHTML = `<span class="bbl-time">${now}</span>`;
+  b.appendChild(meta);
 
   if (typingEl) { msgsEl.insertBefore(b, typingEl); } else { msgsEl.appendChild(b); }
   scroll();
 }
 
-// ═══ ABRE VISUALIZADOR DE IMAGEM ÚNICA ═══
+// ═══ ABRE VISUALIZADOR DE IMAGEM ÚNICA (revisado) ═══
 window.abrirVisualizacaoUnica = function(bubble) {
   if (!bubble) return;
   if (bubble.dataset.viewed === 'true') {
@@ -1549,6 +1551,7 @@ window.abrirVisualizacaoUnica = function(bubble) {
   const src = bubble.dataset.uniqueSrc;
   if (!src) return;
 
+  // Cria overlay
   const overlay = document.createElement('div');
   overlay.className = 'unique-viewer';
   overlay.innerHTML = `
@@ -1595,8 +1598,10 @@ window.fecharVisualizacaoUnica = function(overlay) {
       `;
     }
     targetBubble.style.cursor = 'default';
+    // Remove eventos de clique antigos
     targetBubble.onclick = null;
 
+    // Atualiza histórico
     for (let i = 0; i < aiHistory.length; i++) {
       const msg = aiHistory[i];
       if (msg.type === 'image_unique' && msg.src === src && msg.viewed === false) {
@@ -1863,45 +1868,50 @@ async function rebuildUI() {
       b.dataset.uniqueSrc = msg.src;
       b.dataset.viewed = viewed ? 'true' : 'false';
 
+      const placeholder = document.createElement('div');
+      placeholder.className = 'bbl-unique-placeholder';
       if (viewed) {
-        b.innerHTML = `
-          ${TAIL_IN}
-          <div class="bbl-unique-placeholder" style="cursor:default">
-            <div class="icon" style="background:rgba(134,150,160,0.12)">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8696a0" stroke-width="2">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                <circle cx="12" cy="12" r="3"/>
-              </svg>
-            </div>
-            <div class="viewed-label">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8696a0" stroke-width="2" style="vertical-align:middle;margin-right:4px;">
-                <circle cx="12" cy="12" r="10"/>
-                <polyline points="12 6 12 12 16 14"/>
-              </svg>
-              Visualização única<br><span style="font-size:11px;color:#8696a0">Aberto</span>
-            </div>
+        placeholder.innerHTML = `
+          <div class="icon" style="background:rgba(134,150,160,0.12)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8696a0" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
           </div>
-          <div class="bbl-meta"><span class="bbl-time">${msg.timestamp || getTime()}</span></div>
+          <div class="viewed-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8696a0" stroke-width="2" style="vertical-align:middle;margin-right:4px;">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            Visualização única<br><span style="font-size:11px;color:#8696a0">Aberto</span>
+          </div>
         `;
       } else {
-        b.innerHTML = `
-          ${TAIL_IN}
-          <div class="bbl-unique-placeholder" onclick="abrirVisualizacaoUnica(this.parentElement)">
-            <div class="icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00a884" stroke-width="2">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                <circle cx="12" cy="12" r="3"/>
-              </svg>
-            </div>
-            <div class="label"><strong>Visualização única</strong><br><span style="font-size:12px;color:#667781">Toque para abrir</span></div>
+        placeholder.innerHTML = `
+          <div class="icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00a884" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
           </div>
-          <div class="bbl-meta"><span class="bbl-time">${msg.timestamp || getTime()}</span></div>
+          <div class="label"><strong>Visualização única</strong><br><span style="font-size:12px;color:#667781">Toque para abrir</span></div>
         `;
-        b.onclick = function(e) {
-          if (e.target.closest('.bbl-unique-placeholder')) return;
-          abrirVisualizacaoUnica(this);
-        };
+        placeholder.addEventListener('click', function(e) {
+          e.stopPropagation();
+          abrirVisualizacaoUnica(b);
+        });
+        b.addEventListener('click', function(e) {
+          if (!e.target.closest('.bbl-unique-placeholder')) {
+            abrirVisualizacaoUnica(b);
+          }
+        });
       }
+      b.appendChild(placeholder);
+
+      const meta = document.createElement('div');
+      meta.className = 'bbl-meta';
+      meta.innerHTML = `<span class="bbl-time">${msg.timestamp || getTime()}</span>`;
+      b.appendChild(meta);
       msgsEl.appendChild(b);
     }
     else if (msg.role === 'assistant' && msg.type === 'pix') {
@@ -1912,66 +1922,43 @@ async function rebuildUI() {
         wrap.style.cssText = 'align-self:flex-start;margin-left:6px;max-width:88%';
 
         const card = document.createElement('div');
-        card.className = 'pix-card-sutil';
+        card.className = 'pix-card';
 
-        const intro = document.createElement('div');
-        intro.style.cssText = 'font-size:13px;color:#111b21;margin-bottom:4px';
-        intro.textContent = pixData.desconto ? '👉 Te mandei um Pix com desconto especial:' : '👉 Segue a chave Pix:';
-        card.appendChild(intro);
+        const header = document.createElement('div');
+        header.className = 'pix-header';
+        header.innerHTML = `
+          <div class="icon-badge">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          </div>
+          <div class="pix-title">
+            Pagamento via Pix
+            <small>Instantâneo e seguro</small>
+          </div>
+        `;
+        card.appendChild(header);
 
-        const valorDiv = document.createElement('div');
-        valorDiv.className = 'pix-destaque';
-        valorDiv.textContent = pixData.valorFmt;
-        card.appendChild(valorDiv);
+        const valueDiv = document.createElement('div');
+        valueDiv.className = 'pix-value';
+        valueDiv.innerHTML = `
+          <span class="currency">R$</span> ${(pixData.valor/100).toFixed(2).replace('.',',')}
+        `;
+        card.appendChild(valueDiv);
 
-        const chaveDiv = document.createElement('div');
-        chaveDiv.className = 'pix-chave';
-        chaveDiv.textContent = pixData.chave || 'vanessa@email.com';
-        card.appendChild(chaveDiv);
-
-        const botoes = document.createElement('div');
-        botoes.className = 'pix-botoes';
-
-        const btnCopiar = document.createElement('button');
-        btnCopiar.className = 'copiar';
-        btnCopiar.innerHTML = '📋 Copiar chave';
-        btnCopiar.onclick = function(e) {
-          e.stopPropagation();
-          const chave = pixData.chave || 'vanessa@email.com';
-          if (navigator.clipboard) {
-            navigator.clipboard.writeText(chave).then(() => {
-              btnCopiar.textContent = '✅ Copiado!';
-              setTimeout(() => { btnCopiar.innerHTML = '📋 Copiar chave'; }, 2000);
-            }).catch(() => fallbackCopy(chave, () => {
-              btnCopiar.textContent = '✅ Copiado!';
-              setTimeout(() => { btnCopiar.innerHTML = '📋 Copiar chave'; }, 2000);
-            }));
-          } else {
-            fallbackCopy(chave, () => {
-              btnCopiar.textContent = '✅ Copiado!';
-              setTimeout(() => { btnCopiar.innerHTML = '📋 Copiar chave'; }, 2000);
-            });
-          }
-        };
-        botoes.appendChild(btnCopiar);
-
-        const btnPagar = document.createElement('button');
-        btnPagar.textContent = '💳 Abrir pagamento';
-        btnPagar.onclick = function() {
+        const btn = document.createElement('button');
+        btn.className = 'pix-btn';
+        btn.innerHTML = `
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>
+          Pagar com Pix
+        `;
+        btn.onclick = function() {
           abrirPaymentModal(pixData.valorFmt, pixData.chave, pixData.hash, pixData.valor, pixData.desconto);
         };
-        botoes.appendChild(btnPagar);
+        card.appendChild(btn);
 
-        card.appendChild(botoes);
-
-        const meta = document.createElement('div');
-        meta.className = 'bbl-meta';
-        meta.style.cssText = 'margin-top:6px;float:none;text-align:right';
-        const timeSpan = document.createElement('span');
-        timeSpan.className = 'bbl-time';
-        timeSpan.textContent = msg.timestamp || getTime();
-        meta.appendChild(timeSpan);
-        card.appendChild(meta);
+        const footer = document.createElement('div');
+        footer.className = 'pix-footer';
+        footer.textContent = msg.timestamp || getTime();
+        card.appendChild(footer);
 
         wrap.appendChild(card);
         msgsEl.appendChild(wrap);
@@ -2058,11 +2045,11 @@ function showBotaoEntregavel() {
   };
 }
 
-// ═══ TEMPO DE DIGITAÇÃO (ponto 1) ═══
+// ═══ TEMPO DE DIGITAÇÃO (original) ═══
 function typingDelay(text) {
   const chars = text.length;
-  const base = 600 + Math.random() * 400;  // 600~1000ms
-  return Math.min(base + (chars / 3) * 50, 5000); // máx 5s
+  const cps = 2.5 + Math.random();
+  return Math.min(Math.max((chars / cps) * 1000 + 600 + Math.random() * 900, 1800), 12000);
 }
 
 // ═══ FUNÇÃO ASKAI ═══
@@ -2832,8 +2819,7 @@ async function start() {
     updateSendMicButtons();
   } else {
     leadCityVal = await fetchLeadCity();
-    // ═══ REMOVIDA A MENSAGEM DE TEXTO INICIAL ═══
-    // Agora o áudio aparece imediatamente ao carregar a página
+    // ═══ ÁUDIO CARREGADO IMEDIATAMENTE ═══
     const now = getTime();
     aiHistory.push({role:'assistant', content:'[áudio]', type:'audio', src:AUDIO_SRC, timestamp: now});
     salvarLead();
