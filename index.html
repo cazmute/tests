@@ -192,108 +192,64 @@
     #active-call-overlay .ac-status{color:rgba(255,255,255,0.5);font-size:13px}
     #active-call-overlay .ac-end-btn{width:60px;height:60px;border-radius:50%;background:#e53935;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:30px}
 
-    /* ===== CARD PIX ===== */
-    .pix-card {
-      background: rgba(255,255,255,0.72);
-      backdrop-filter: blur(18px) saturate(1.2);
-      -webkit-backdrop-filter: blur(18px) saturate(1.2);
-      border: 1px solid rgba(255,255,255,0.35);
-      border-radius: 16px;
-      box-shadow: 0 6px 24px rgba(0,0,0,0.08);
-      padding: 14px 14px 12px;
+    /* ===== CARD PIX (versão sutil) ===== */
+    .pix-card-sutil {
+      background: var(--wa-msg-in);
+      border-radius: 8px;
+      padding: 10px 12px 6px;
+      box-shadow: 0 1px 0.5px rgba(11,20,26,.13);
       min-width: 200px;
-      max-width: 280px;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      max-width: 260px;
+      border-left: 3px solid #128c7e;
+      margin: 2px 0;
     }
-    .pix-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+    .pix-card-sutil .pix-destaque {
+      font-size: 18px;
+      font-weight: 600;
+      color: #111b21;
+      margin: 4px 0 2px;
     }
-    .pix-card .pix-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 6px;
-    }
-    .pix-card .pix-header .icon-badge {
-      width: 36px;
-      height: 36px;
-      border-radius: 12px;
-      background: linear-gradient(145deg, #00a884, #007a5e);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      box-shadow: 0 3px 10px rgba(0,168,132,0.25);
-    }
-    .pix-card .pix-header .icon-badge svg {
-      width: 18px;
-      height: 18px;
-      fill: white;
-    }
-    .pix-card .pix-header .pix-title {
+    .pix-card-sutil .pix-chave {
       font-size: 13px;
-      font-weight: 600;
-      color: #111b21;
-      letter-spacing: -0.2px;
-    }
-    .pix-card .pix-header .pix-title small {
-      display: block;
-      font-weight: 400;
-      font-size: 10.5px;
       color: #667781;
-      letter-spacing: 0px;
+      word-break: break-all;
+      margin-bottom: 6px;
+      font-family: monospace;
+      background: #f0f2f5;
+      padding: 4px 8px;
+      border-radius: 6px;
+      display: inline-block;
     }
-    .pix-card .pix-value {
-      font-size: 22px;
-      font-weight: 700;
-      color: #111b21;
-      margin: 4px 0 10px;
-      letter-spacing: -0.5px;
+    .pix-card-sutil .pix-botoes {
       display: flex;
-      align-items: baseline;
-      gap: 6px;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 6px;
     }
-    .pix-card .pix-value .currency {
-      font-size: 14px;
-      font-weight: 500;
-      color: #667781;
-    }
-    .pix-card .pix-btn {
-      width: 100%;
-      background: #00a884;
+    .pix-card-sutil .pix-botoes button {
+      background: #128c7e;
+      color: #fff;
       border: none;
-      border-radius: 12px;
-      padding: 10px 10px;
-      font-size: 14px;
-      font-weight: 600;
-      color: white;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 500;
       cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
       font-family: inherit;
-      box-shadow: 0 3px 12px rgba(0,168,132,0.25);
+      transition: background 0.15s;
     }
-    .pix-card .pix-btn:hover {
-      background: #007a5e;
-      transform: scale(1.02);
-      box-shadow: 0 4px 16px rgba(0,168,132,0.3);
+    .pix-card-sutil .pix-botoes button:hover {
+      background: #075e54;
     }
-    .pix-card .pix-btn:active {
-      transform: scale(0.97);
+    .pix-card-sutil .pix-botoes button.copiar {
+      background: #e9edef;
+      color: #111b21;
     }
-    .pix-card .pix-footer {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 4px;
-      font-size: 10px;
-      color: #8696a0;
+    .pix-card-sutil .pix-botoes button.copiar:hover {
+      background: #d1d7db;
     }
 
-    /* ===== MODAL DE PAGAMENTO ===== */
+    /* ===== MODAL DE PAGAMENTO (versão pessoal) ===== */
     .payment-modal-overlay {
       position: absolute;
       inset: 0;
@@ -314,7 +270,7 @@
       pointer-events: all;
     }
     .payment-modal {
-      background: rgba(255,255,255,0.88);
+      background: rgba(255,255,255,0.92);
       backdrop-filter: blur(30px) saturate(1.4);
       -webkit-backdrop-filter: blur(30px) saturate(1.4);
       border: 1px solid rgba(255,255,255,0.4);
@@ -335,18 +291,17 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .payment-modal .modal-header .modal-icon {
       width: 44px;
       height: 44px;
       border-radius: 14px;
-      background: linear-gradient(145deg, #00a884, #007a5e);
+      background: #128c7e;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      box-shadow: 0 4px 14px rgba(0,168,132,0.25);
     }
     .payment-modal .modal-header .modal-icon svg {
       width: 22px;
@@ -364,7 +319,6 @@
       font-weight: 400;
       font-size: 12px;
       color: #667781;
-      letter-spacing: 0px;
     }
     .payment-modal .modal-body {
       margin: 6px 0 16px;
@@ -380,7 +334,7 @@
       display: flex;
       align-items: flex-start;
       gap: 12px;
-      padding: 10px 0;
+      padding: 8px 0;
       border-bottom: 1px solid rgba(0,0,0,0.04);
     }
     .payment-modal .modal-body .step:last-child {
@@ -390,8 +344,8 @@
       width: 24px;
       height: 24px;
       border-radius: 50%;
-      background: rgba(0,168,132,0.12);
-      color: #00a884;
+      background: rgba(18,140,126,0.12);
+      color: #128c7e;
       font-size: 12px;
       font-weight: 700;
       display: flex;
@@ -406,12 +360,12 @@
       line-height: 1.5;
     }
     .payment-modal .modal-body .step .step-text strong {
-      color: #00a884;
+      color: #128c7e;
       font-weight: 600;
     }
     .payment-modal .modal-body .btn-copiar-chave {
       width: 100%;
-      background: #00a884;
+      background: #128c7e;
       border: none;
       border-radius: 14px;
       padding: 14px 10px;
@@ -425,18 +379,35 @@
       justify-content: center;
       gap: 8px;
       font-family: inherit;
-      box-shadow: 0 4px 16px rgba(0,168,132,0.3);
+      box-shadow: 0 4px 16px rgba(18,140,126,0.3);
       margin: 10px 0 6px;
     }
     .payment-modal .modal-body .btn-copiar-chave:hover {
-      background: #007a5e;
-      transform: scale(1.02);
+      background: #075e54;
     }
     .payment-modal .modal-body .btn-copiar-chave:active {
       transform: scale(0.97);
     }
     .payment-modal .modal-body .btn-copiar-chave.copiado {
-      background: #007a5e;
+      background: #075e54;
+    }
+    .payment-modal .modal-body .campo-nome {
+      margin: 8px 0 12px;
+    }
+    .payment-modal .modal-body .campo-nome input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #e9edef;
+      border-radius: 12px;
+      font-size: 14px;
+      font-family: inherit;
+      background: #f0f2f5;
+      outline: none;
+      transition: border 0.2s;
+    }
+    .payment-modal .modal-body .campo-nome input:focus {
+      border-color: #128c7e;
+      background: #fff;
     }
     .payment-modal .modal-footer {
       display: flex;
@@ -467,11 +438,8 @@
       color: #667781;
       margin: 6px 0 2px;
     }
-    .payment-modal .security-badge svg {
-      flex-shrink: 0;
-    }
 
-    /* ===== PERFIL ===== */
+    /* ===== PERFIL (sem badge no cabeçalho) ===== */
     .profile-overlay {
       position: absolute;
       inset: 0;
@@ -637,9 +605,8 @@
       background: rgba(255, 255, 255, 0.15);
     }
 
-    /* Responsividade */
     @media (max-width: 420px) {
-      .pix-card .pix-value { font-size: 20px; }
+      .pix-card-sutil { min-width: 160px; }
       .payment-modal { padding: 20px 16px 22px; }
       .payment-modal .modal-body .valor-destaque { font-size: 22px; }
       .profile-card { padding: 24px 16px 20px; }
@@ -760,10 +727,7 @@
           <img src="https://i.ibb.co/ksmzSzDM/perfilv2.png" style="width:100%;height:100%;object-fit:cover" alt="Vanessa">
         </div>
         <div style="color:#e9edef;font-size:16px;font-weight:600">Vanessa Macedo</div>
-        <div style="display:flex;align-items:center;justify-content:center;gap:5px;margin-top:4px">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="#00a884"><path d="M9 12l2 2 4-4m5 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          <span style="color:#00a884;font-size:12px;font-weight:500">Conta verificada</span>
-        </div>
+        <!-- Verificação removida do cabeçalho (ponto 16) -->
       </div>
       <div style="padding:18px 18px 22px;display:flex;flex-direction:column;gap:12px">
         <div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.04);border-radius:12px;padding:13px 14px">
@@ -852,7 +816,7 @@
     </button>
   </div>
 
-  <!-- ===== PAYMENT MODAL ===== -->
+  <!-- ===== PAYMENT MODAL (versão pessoal) ===== -->
   <div class="payment-modal-overlay" id="payment-modal">
     <div class="payment-modal">
       <div class="modal-header">
@@ -860,31 +824,35 @@
           <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
         </div>
         <div class="modal-title">
-          Pagar com Pix
-          <small>Confirme os dados e finalize</small>
+          Confirmar pagamento
+          <small>Pix copia e cola</small>
         </div>
       </div>
       <div class="modal-body">
         <div class="valor-destaque" id="modal-pix-value">R$ 30,00</div>
         <div class="step">
           <div class="step-num">1</div>
-          <div class="step-text">Clique no botão abaixo para copiar a chave Pix.</div>
+          <div class="step-text">Copia a chave abaixo e abre o app do seu <strong>banco</strong>.</div>
         </div>
         <button class="btn-copiar-chave" id="modal-copy-btn">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-          Copiar chave Pix
+          Copiar chave
         </button>
         <div class="step">
           <div class="step-num">2</div>
-          <div class="step-text">Abra o app do seu <strong>banco</strong> e selecione <strong>Pix Copia e Cola</strong>.</div>
+          <div class="step-text">Cole a chave, confere o valor e <strong>autoriza</strong> o Pix.</div>
         </div>
         <div class="step" style="border-bottom:none;padding-bottom:0;">
           <div class="step-num">3</div>
-          <div class="step-text">Cole a chave, confirme o valor e autorize o pagamento.</div>
+          <div class="step-text">Depois me avisa que já libero tudo pra você 😉</div>
+        </div>
+        <!-- Campo opcional de nome -->
+        <div class="campo-nome">
+          <input type="text" id="payer-name" placeholder="Seu nome (opcional)" maxlength="40">
         </div>
         <div class="security-badge">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00a884" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
-          Pagamento seguro com criptografia de ponta a ponta
+          Pagamento seguro com criptografia
         </div>
       </div>
       <div class="modal-footer">
@@ -894,7 +862,7 @@
   </div>
 
   <!-- ============================================================
-       PERFIL (sem botão WhatsApp)
+       PERFIL (com verificação apenas aqui – ponto 16)
        ============================================================ -->
   <div class="profile-overlay" id="profile-overlay" onclick="if(event.target===this) closeProfileSheet()">
     <div class="profile-card">
@@ -910,7 +878,7 @@
           <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
         </span>
       </div>
-      <div class="profile-status">online</div>
+      <div class="profile-status" id="profile-status">online</div>
 
       <div class="profile-divider"></div>
 
@@ -922,6 +890,17 @@
         <div class="info-content">
           <div class="info-label">Localização atual</div>
           <div class="info-value" id="profile-location">Carregando...</div>
+        </div>
+      </div>
+
+      <!-- Telefone fictício para dar credibilidade -->
+      <div class="profile-info-item">
+        <div class="info-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+        </div>
+        <div class="info-content">
+          <div class="info-label">Telefone</div>
+          <div class="info-value">(11) 9 9999-9999</div>
         </div>
       </div>
 
@@ -968,7 +947,7 @@ const AUDIO_SRC = 'https://res.cloudinary.com/do59kzkec/video/upload/v1781646818
 const AUDIO_PIX_SRC = 'https://res.cloudinary.com/do59kzkec/video/upload/v1781647915/depois_de_mandar_o_pix_kxclc4.mp3';
 const IMG_INICIAL_SRC = 'https://i.ibb.co/XZGMmjcV/0416-D21-A-71-A5-4-C50-A316-AB8-DEE7-F5641.jpg';
 const IMG_LEAD_SRC = 'https://i.ibb.co/B2ML9kzf/Img-jpg.jpg';
-const IMG_EXTRA_SRC = 'https://i.ibb.co/mr9LqY60/Prev-jpg.jpg';
+const IMG_EXTRA_SRC = 'https://i.ibb.co/JFx6BT4M/previav3.jpg';
 
 let audioPIxJaTocou = false;
 let aiHistory=[], leadId=null, clicouCta=false, leadCityVal=null;
@@ -1095,7 +1074,11 @@ function showTyping(){
 }
 function hideTyping(){
   if(typingEl){typingEl.remove();typingEl=null;}
-  hdrStatus.textContent='online';hdrStatus.className='hdr-status';
+  // Alterna status entre "online" e "visto por último"
+  const statuses = ['online', 'visto por último hoje às ' + getTime()];
+  const idx = Math.floor(Math.random() * statuses.length);
+  hdrStatus.textContent = statuses[idx];
+  hdrStatus.className = 'hdr-status';
 }
 
 // ═══ FUNÇÃO CENTRALIZADA PARA ALTERNAR BOTÕES DE ENVIO/MIC ═══
@@ -1291,7 +1274,7 @@ function pixelPurchase(v){
 }
 
 // ════════════════════════════════════════════════════
-// ═══ CARD PIX ═══
+// ═══ CARD PIX (versão sutil – ponto 6) ═══
 // ════════════════════════════════════════════════════
 
 let currentPixKey = '';
@@ -1321,48 +1304,75 @@ function criarCardPix(data, desconto, timestamp) {
   aiHistory.push(pixEntry);
   salvarLead(true);
 
+  // Cria bolha com card sutil
   const wrap = document.createElement('div');
   wrap.className = 'fade-in';
   wrap.style.cssText = 'align-self:flex-start;margin-left:6px;max-width:88%';
 
   const card = document.createElement('div');
-  card.className = 'pix-card';
+  card.className = 'pix-card-sutil';
 
-  const header = document.createElement('div');
-  header.className = 'pix-header';
-  header.innerHTML = `
-    <div class="icon-badge">
-      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-    </div>
-    <div class="pix-title">
-      Pagamento via Pix
-      <small>Instantâneo e seguro</small>
-    </div>
-  `;
-  card.appendChild(header);
+  // Texto introdutório
+  const intro = document.createElement('div');
+  intro.style.cssText = 'font-size:13px;color:#111b21;margin-bottom:4px';
+  intro.textContent = desconto ? '👉 Te mandei um Pix com desconto especial:' : '👉 Segue a chave Pix:';
+  card.appendChild(intro);
 
-  const valueDiv = document.createElement('div');
-  valueDiv.className = 'pix-value';
-  valueDiv.innerHTML = `
-    <span class="currency">R$</span> ${(valor/100).toFixed(2).replace('.',',')}
-  `;
-  card.appendChild(valueDiv);
+  const valorDiv = document.createElement('div');
+  valorDiv.className = 'pix-destaque';
+  valorDiv.textContent = valorFmt;
+  card.appendChild(valorDiv);
 
-  const btn = document.createElement('button');
-  btn.className = 'pix-btn';
-  btn.innerHTML = `
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>
-    Pagar com Pix
-  `;
-  btn.onclick = function() {
+  const chaveDiv = document.createElement('div');
+  chaveDiv.className = 'pix-chave';
+  chaveDiv.textContent = pixCopia || 'vanessa@email.com';
+  card.appendChild(chaveDiv);
+
+  // Botões: copiar e abrir modal
+  const botoes = document.createElement('div');
+  botoes.className = 'pix-botoes';
+
+  const btnCopiar = document.createElement('button');
+  btnCopiar.className = 'copiar';
+  btnCopiar.innerHTML = '📋 Copiar chave';
+  btnCopiar.onclick = function(e) {
+    e.stopPropagation();
+    const chave = pixCopia || 'vanessa@email.com';
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(chave).then(() => {
+        btnCopiar.textContent = '✅ Copiado!';
+        setTimeout(() => { btnCopiar.innerHTML = '📋 Copiar chave'; }, 2000);
+      }).catch(() => fallbackCopy(chave, () => {
+        btnCopiar.textContent = '✅ Copiado!';
+        setTimeout(() => { btnCopiar.innerHTML = '📋 Copiar chave'; }, 2000);
+      }));
+    } else {
+      fallbackCopy(chave, () => {
+        btnCopiar.textContent = '✅ Copiado!';
+        setTimeout(() => { btnCopiar.innerHTML = '📋 Copiar chave'; }, 2000);
+      });
+    }
+  };
+  botoes.appendChild(btnCopiar);
+
+  const btnPagar = document.createElement('button');
+  btnPagar.textContent = '💳 Abrir pagamento';
+  btnPagar.onclick = function() {
     abrirPaymentModal(valorFmt, pixCopia, txHash, valor, desconto);
   };
-  card.appendChild(btn);
+  botoes.appendChild(btnPagar);
 
-  const footer = document.createElement('div');
-  footer.className = 'pix-footer';
-  footer.textContent = timestamp || getTime();
-  card.appendChild(footer);
+  card.appendChild(botoes);
+
+  // Meta com horário
+  const meta = document.createElement('div');
+  meta.className = 'bbl-meta';
+  meta.style.cssText = 'margin-top:6px;float:none;text-align:right';
+  const timeSpan = document.createElement('span');
+  timeSpan.className = 'bbl-time';
+  timeSpan.textContent = timestamp || getTime();
+  meta.appendChild(timeSpan);
+  card.appendChild(meta);
 
   wrap.appendChild(card);
   msgsEl.appendChild(wrap);
@@ -1385,9 +1395,12 @@ function abrirPaymentModal(valorFmt, chave, hash, valor, desconto) {
 
   copyBtn.innerHTML = `
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-    Copiar chave Pix
+    Copiar chave
   `;
   copyBtn.classList.remove('copiado');
+
+  // Limpa campo nome
+  document.getElementById('payer-name').value = '';
 
   modal.classList.add('open');
 }
@@ -1396,11 +1409,12 @@ function closePaymentModal() {
   document.getElementById('payment-modal').classList.remove('open');
 }
 
-// Eventos do modal
+// Eventos do modal (ponto 10)
 document.addEventListener('DOMContentLoaded', function() {
   const modal = document.getElementById('payment-modal');
   const closeBtn = document.getElementById('modal-close-btn');
   const copyBtn = document.getElementById('modal-copy-btn');
+  const nomeInput = document.getElementById('payer-name');
 
   closeBtn.addEventListener('click', closePaymentModal);
   modal.addEventListener('click', function(e) {
@@ -1420,7 +1434,7 @@ document.addEventListener('DOMContentLoaded', function() {
       setTimeout(() => {
         copyBtn.innerHTML = `
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-          Copiar chave Pix
+          Copiar chave
         `;
         copyBtn.classList.remove('copiado');
       }, 2000);
@@ -1431,6 +1445,13 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
       fallbackCopy(chave, copiar);
     }
+
+    // Salva nome (opcional)
+    const nome = nomeInput.value.trim();
+    if (nome) {
+      aiHistory.push({ role: 'user', content: `Meu nome: ${nome}`, type: 'text', timestamp: getTime() });
+      salvarLead();
+    }
   });
 });
 
@@ -1439,7 +1460,7 @@ async function showCta(desconto) {
   if (desconto) { if (pixDescontoGerado) return; pixDescontoGerado = true; }
   else { if (pixNormalGerado) return; pixNormalGerado = true; }
 
-  showTyping(); await sleep(1000); hideTyping();
+  showTyping(); await sleep(800); hideTyping();
   const data = await gerarPix(desconto);
   if (!data) { addBubble('Ops, tive um probleminha 😅 Tenta de novo!','in'); return; }
 
@@ -1891,43 +1912,66 @@ async function rebuildUI() {
         wrap.style.cssText = 'align-self:flex-start;margin-left:6px;max-width:88%';
 
         const card = document.createElement('div');
-        card.className = 'pix-card';
+        card.className = 'pix-card-sutil';
 
-        const header = document.createElement('div');
-        header.className = 'pix-header';
-        header.innerHTML = `
-          <div class="icon-badge">
-            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-          </div>
-          <div class="pix-title">
-            Pagamento via Pix
-            <small>Instantâneo e seguro</small>
-          </div>
-        `;
-        card.appendChild(header);
+        const intro = document.createElement('div');
+        intro.style.cssText = 'font-size:13px;color:#111b21;margin-bottom:4px';
+        intro.textContent = pixData.desconto ? '👉 Te mandei um Pix com desconto especial:' : '👉 Segue a chave Pix:';
+        card.appendChild(intro);
 
-        const valueDiv = document.createElement('div');
-        valueDiv.className = 'pix-value';
-        valueDiv.innerHTML = `
-          <span class="currency">R$</span> ${(pixData.valor/100).toFixed(2).replace('.',',')}
-        `;
-        card.appendChild(valueDiv);
+        const valorDiv = document.createElement('div');
+        valorDiv.className = 'pix-destaque';
+        valorDiv.textContent = pixData.valorFmt;
+        card.appendChild(valorDiv);
 
-        const btn = document.createElement('button');
-        btn.className = 'pix-btn';
-        btn.innerHTML = `
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>
-          Pagar com Pix
-        `;
-        btn.onclick = function() {
+        const chaveDiv = document.createElement('div');
+        chaveDiv.className = 'pix-chave';
+        chaveDiv.textContent = pixData.chave || 'vanessa@email.com';
+        card.appendChild(chaveDiv);
+
+        const botoes = document.createElement('div');
+        botoes.className = 'pix-botoes';
+
+        const btnCopiar = document.createElement('button');
+        btnCopiar.className = 'copiar';
+        btnCopiar.innerHTML = '📋 Copiar chave';
+        btnCopiar.onclick = function(e) {
+          e.stopPropagation();
+          const chave = pixData.chave || 'vanessa@email.com';
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(chave).then(() => {
+              btnCopiar.textContent = '✅ Copiado!';
+              setTimeout(() => { btnCopiar.innerHTML = '📋 Copiar chave'; }, 2000);
+            }).catch(() => fallbackCopy(chave, () => {
+              btnCopiar.textContent = '✅ Copiado!';
+              setTimeout(() => { btnCopiar.innerHTML = '📋 Copiar chave'; }, 2000);
+            }));
+          } else {
+            fallbackCopy(chave, () => {
+              btnCopiar.textContent = '✅ Copiado!';
+              setTimeout(() => { btnCopiar.innerHTML = '📋 Copiar chave'; }, 2000);
+            });
+          }
+        };
+        botoes.appendChild(btnCopiar);
+
+        const btnPagar = document.createElement('button');
+        btnPagar.textContent = '💳 Abrir pagamento';
+        btnPagar.onclick = function() {
           abrirPaymentModal(pixData.valorFmt, pixData.chave, pixData.hash, pixData.valor, pixData.desconto);
         };
-        card.appendChild(btn);
+        botoes.appendChild(btnPagar);
 
-        const footer = document.createElement('div');
-        footer.className = 'pix-footer';
-        footer.textContent = msg.timestamp || getTime();
-        card.appendChild(footer);
+        card.appendChild(botoes);
+
+        const meta = document.createElement('div');
+        meta.className = 'bbl-meta';
+        meta.style.cssText = 'margin-top:6px;float:none;text-align:right';
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'bbl-time';
+        timeSpan.textContent = msg.timestamp || getTime();
+        meta.appendChild(timeSpan);
+        card.appendChild(meta);
 
         wrap.appendChild(card);
         msgsEl.appendChild(wrap);
@@ -2014,9 +2058,11 @@ function showBotaoEntregavel() {
   };
 }
 
+// ═══ TEMPO DE DIGITAÇÃO (ponto 1) ═══
 function typingDelay(text) {
-  const chars = text.length, cps = 2.5 + Math.random();
-  return Math.min(Math.max((chars/cps)*1000+600+Math.random()*900, 1800), 12000);
+  const chars = text.length;
+  const base = 600 + Math.random() * 400;  // 600~1000ms
+  return Math.min(base + (chars / 3) * 50, 5000); // máx 5s
 }
 
 // ═══ FUNÇÃO ASKAI ═══
@@ -2705,7 +2751,8 @@ function openProfileSheet() {
   const overlay = document.getElementById('profile-overlay');
   overlay.classList.add('open');
   
-  // Atualiza a localização usando a API
+  // Atualiza status e localização
+  atualizarStatusPerfil();
   atualizarLocalizacaoPerfil();
 }
 
@@ -2713,11 +2760,18 @@ function closeProfileSheet() {
   document.getElementById('profile-overlay').classList.remove('open');
 }
 
+function atualizarStatusPerfil() {
+  const statusEl = document.getElementById('profile-status');
+  if (!statusEl) return;
+  const statuses = ['online', 'visto por último hoje às ' + getTime()];
+  const idx = Math.floor(Math.random() * statuses.length);
+  statusEl.textContent = statuses[idx];
+}
+
 async function atualizarLocalizacaoPerfil() {
   const locationEl = document.getElementById('profile-location');
   if (!locationEl) return;
 
-  // Tenta buscar via API /api/city (ip geolocation)
   let cidade = leadCityVal;
   if (!cidade) {
     try {
@@ -2732,7 +2786,6 @@ async function atualizarLocalizacaoPerfil() {
   if (cidade) {
     locationEl.textContent = `📍 ${cidade}`;
   } else {
-    // Fallback: tenta geolocalização do navegador
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
@@ -2779,8 +2832,8 @@ async function start() {
     updateSendMicButtons();
   } else {
     leadCityVal = await fetchLeadCity();
-    await sleep(700); showTyping();
-    await sleep(1100); hideTyping();
+    // ═══ REMOVIDA A MENSAGEM DE TEXTO INICIAL ═══
+    // Agora o áudio aparece imediatamente ao carregar a página
     const now = getTime();
     aiHistory.push({role:'assistant', content:'[áudio]', type:'audio', src:AUDIO_SRC, timestamp: now});
     salvarLead();
