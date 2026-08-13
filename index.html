@@ -473,7 +473,7 @@
             color: #1da851;
         }
 
-        /* ===== PAYMENT OVERLAY ===== */
+        /* ===== PAYMENT OVERLAY (paywall) ===== */
         #payment-overlay {
             position: absolute;
             inset: 0;
@@ -589,7 +589,7 @@
             color: rgba(255, 255, 255, 0.5);
         }
 
-        /* ===== PIX MODAL ===== */
+        /* ===== PIX CARD (copiar chave) ===== */
         #pix-modal {
             position: absolute;
             inset: 0;
@@ -608,13 +608,16 @@
             display: flex;
         }
         #pix-modal .pix-card {
-            background: linear-gradient(145deg, #1a1a2e, #16213e);
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            border-radius: 28px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(18px) saturate(1.2);
+            -webkit-backdrop-filter: blur(18px) saturate(1.2);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 24px;
             max-width: 380px;
             width: 100%;
             padding: 28px 22px 24px;
             text-align: center;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
         }
         #pix-modal .pix-card .pix-header {
             display: flex;
@@ -623,7 +626,7 @@
             justify-content: center;
             margin-bottom: 10px;
         }
-        #pix-modal .pix-card .pix-header .icon {
+        #pix-modal .pix-card .pix-header .icon-badge {
             width: 40px;
             height: 40px;
             border-radius: 12px;
@@ -631,19 +634,23 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
-            color: #fff;
             flex-shrink: 0;
+            box-shadow: 0 3px 10px rgba(0, 168, 132, 0.25);
         }
-        #pix-modal .pix-card .pix-header h4 {
-            font-size: 16px;
+        #pix-modal .pix-card .pix-header .icon-badge svg {
+            width: 18px;
+            height: 18px;
+            fill: white;
+        }
+        #pix-modal .pix-card .pix-header .pix-title {
+            font-size: 15px;
             font-weight: 600;
             color: #fff;
         }
-        #pix-modal .pix-card .pix-header h4 small {
+        #pix-modal .pix-card .pix-header .pix-title small {
             display: block;
             font-weight: 400;
-            font-size: 12px;
+            font-size: 11px;
             color: rgba(255, 255, 255, 0.4);
         }
         #pix-modal .pix-card .pix-value {
@@ -657,45 +664,40 @@
             font-weight: 500;
             color: rgba(255, 255, 255, 0.3);
         }
-        #pix-modal .pix-card .pix-key-wrap {
-            background: rgba(255, 255, 255, 0.04);
-            border-radius: 12px;
-            padding: 16px 14px;
-            margin: 8px 0 16px;
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.6);
-            border: 1px dashed rgba(255, 255, 255, 0.06);
-            font-family: inherit;
-        }
-        #pix-modal .pix-card .copy-btn {
+        #pix-modal .pix-card .pix-btn {
             width: 100%;
-            padding: 14px;
-            border-radius: 14px;
+            background: #00a884;
             border: none;
+            border-radius: 14px;
+            padding: 14px;
             font-size: 15px;
             font-weight: 600;
+            color: white;
             cursor: pointer;
-            font-family: inherit;
-            background: rgba(255, 255, 255, 0.06);
-            color: #fff;
-            transition: background 0.15s, transform 0.1s;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
+            font-family: inherit;
+            box-shadow: 0 3px 12px rgba(0, 168, 132, 0.25);
         }
-        #pix-modal .pix-card .copy-btn:active {
+        #pix-modal .pix-card .pix-btn:hover {
+            background: #007a5e;
+            transform: scale(1.02);
+        }
+        #pix-modal .pix-card .pix-btn:active {
             transform: scale(0.97);
         }
-        #pix-modal .pix-card .copy-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-        #pix-modal .pix-card .copy-btn.copied {
-            background: #25d366;
-            color: #fff;
+        #pix-modal .pix-card .pix-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 6px;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.25);
         }
         #pix-modal .pix-card .pix-status {
-            margin-top: 12px;
+            margin-top: 10px;
             font-size: 13px;
             color: rgba(255, 255, 255, 0.4);
         }
@@ -874,7 +876,7 @@
                 </div>
             </div>
 
-            <!-- ===== PAYMENT OVERLAY ===== -->
+            <!-- ===== PAYMENT OVERLAY (paywall) ===== -->
             <div id="payment-overlay">
                 <div class="pay-card">
                     <div class="pay-icon">🔒</div>
@@ -900,24 +902,26 @@
                 </div>
             </div>
 
-            <!-- ===== PIX MODAL ===== -->
+            <!-- ===== PIX CARD (copiar chave) ===== -->
             <div id="pix-modal">
                 <div class="pix-card">
                     <div class="pix-header">
-                        <div class="icon"><i class="ti ti-qrcode"></i></div>
-                        <h4>Copiar chave Pix <small>Clique no botão abaixo</small></h4>
+                        <div class="icon-badge">
+                            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                        </div>
+                        <div class="pix-title">
+                            Pagamento via Pix
+                            <small>Instantâneo e seguro</small>
+                        </div>
                     </div>
 
                     <div class="pix-value">
                         <span class="currency">R$</span> <span id="pix-amount">30,00</span>
                     </div>
 
-                    <div class="pix-key-wrap" id="pix-key-display">
-                        Aguardando chave...
-                    </div>
-
-                    <button class="copy-btn" id="pix-copy-btn" onclick="copyPixKey()">
-                        <i class="ti ti-copy"></i> Copiar chave Pix
+                    <button class="pix-btn" id="pix-copy-btn" onclick="copyPixKey()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                        Copiar chave Pix
                     </button>
 
                     <div class="pix-status" id="pix-status">
@@ -937,7 +941,7 @@
 
     <script>
         // ============================================================
-        //  CONFIG
+        //  CONFIG (idêntico ao index.html)
         // ============================================================
         const PRODUCT_HASH = "7p8h95hghd";
         const PRICE_NORMAL = 3000;
@@ -946,10 +950,24 @@
         let isUnlocked = false;
         let isReturning = false;
         let paymentInProgress = false;
-        let pollingTimer = null;
-        let currentPixHash = null;
+        let pollingTimeoutId = null;
+        let pollingTentativas = 0;
+        let pollingHashAtual = null;
+        let pollingValorAtual = 0;
+        let pollingPausado = false;
+        let pollingIntervaloAtual = 5000;
+        const MAX_TENTATIVAS = 720;
+        const INTERVALO_INICIAL = 5000;
+        const INTERVALO_MAXIMO = 30000;
+        const BACKOFF_MULTIPLICADOR = 1.2;
+        const POLL_STATE_KEY = 'poll_state_live';
+
         let currentPixKey = '';
-        let currentPixAmount = PRICE_NORMAL;
+        let currentPixHash = '';
+        let currentPixValor = 0;
+        let currentPixDesconto = false;
+        let initiateCheckoutFired = false;
+
         let paymentTriggered = false;
 
         // ============================================================
@@ -1088,7 +1106,6 @@
         const payOriginal = document.getElementById('pay-original');
         const payDiscountBadge = document.getElementById('pay-discount-badge');
         const pixAmount = document.getElementById('pix-amount');
-        const pixKeyDisplay = document.getElementById('pix-key-display');
         const pixCopyBtn = document.getElementById('pix-copy-btn');
         const pixStatus = document.getElementById('pix-status');
         const viewerCount = document.getElementById('viewer-count');
@@ -1102,154 +1119,195 @@
         }
 
         // ============================================================
-        //  STATE MANAGEMENT
+        //  META PIXEL (idêntico ao index.html)
         // ============================================================
-        function checkReturningUser() {
-            if (localStorage.getItem('live_visited') === 'true') { isReturning = true; return true; }
-            return false;
+        function pixelIniCheckout(v) {
+            if (initiateCheckoutFired) return;
+            initiateCheckoutFired = true;
+            if (typeof fbq !== 'undefined') {
+                fbq('track', 'InitiateCheckout', {
+                    value: (v / 100).toFixed(2),
+                    currency: 'BRL',
+                    num_items: 1,
+                    content_ids: [PRODUCT_HASH],
+                    content_type: 'product'
+                });
+            }
         }
 
-        function markVisited() { localStorage.setItem('live_visited', 'true'); }
-
-        function saveLeadState(state) {
-            try { localStorage.setItem('lead_state', JSON.stringify(state)); } catch (e) {}
+        function pixelPurchase(v) {
+            if (typeof fbq !== 'undefined') {
+                fbq('track', 'Purchase', {
+                    value: (v / 100).toFixed(2),
+                    currency: 'BRL',
+                    num_items: 1,
+                    content_ids: [PRODUCT_HASH],
+                    content_type: 'product'
+                });
+            }
         }
 
-        function loadLeadState() {
+        // ============================================================
+        //  POLLING - IDÊNTICO AO INDEX.HTML
+        // ============================================================
+        function salvarEstadoPolling(hash, tentativas, valor) {
             try {
-                const raw = localStorage.getItem('lead_state');
-                return raw ? JSON.parse(raw) : null;
+                localStorage.setItem(POLL_STATE_KEY, JSON.stringify({ hash, tentativas, valor, timestamp: Date.now() }));
+            } catch (e) {}
+        }
+
+        function carregarEstadoPolling() {
+            try {
+                const raw = localStorage.getItem(POLL_STATE_KEY);
+                if (!raw) return null;
+                return JSON.parse(raw);
             } catch (e) { return null; }
         }
 
-        // ============================================================
-        //  ENTRY
-        // ============================================================
-        function enterLive() {
-            entryModal.style.display = 'none';
-            liveContainer.classList.add('active');
+        function limparEstadoPolling() {
+            try { localStorage.removeItem(POLL_STATE_KEY); } catch (e) {}
+        }
 
-            const leadState = loadLeadState();
+        async function checarStatus(txHash) {
+            try {
+                const r = await fetch('/api/status?hash=' + txHash);
+                const d = await r.json();
+                return d.payment_status || null;
+            } catch (e) { return null; }
+        }
 
-            // Já pagou
-            if (leadState && leadState.unlocked === true) {
-                isUnlocked = true;
-                liveContainer.classList.add('unlocked');
-                paymentOverlay.classList.remove('show');
-                payBtn.innerHTML = '<i class="ti ti-check"></i> Acesso liberado';
-                payBtn.style.background = '#00a884';
-                payBtn.style.cursor = 'default';
-                payBtn.disabled = true;
-                video.muted = false;
-                video.play().catch(() => {});
-                startFakeComments();
-                showToast('✅ Bem-vindo de volta! Transmissão liberada.', 3000);
-                const returning = checkReturningUser();
-                if (returning) {
-                    isReturning = true;
-                    payPrice.textContent = '20';
-                    payOriginal.style.display = 'block';
-                    payDiscountBadge.style.display = 'inline-block';
-                    currentPixAmount = PRICE_DISCOUNT;
-                } else {
-                    payPrice.textContent = '30';
-                    payOriginal.style.display = 'none';
-                    payDiscountBadge.style.display = 'none';
-                    currentPixAmount = PRICE_NORMAL;
-                }
-                markVisited();
-                commentWrap.classList.remove('disabled');
-                return;
+        async function checarStatusComTimeout(txHash, timeout = 10000) {
+            return Promise.race([
+                checarStatus(txHash),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeout))
+            ]);
+        }
+
+        function iniciarPollRobusto(txHash, valorPago, tentativasIniciais = 0) {
+            if (pollingTimeoutId) {
+                clearTimeout(pollingTimeoutId);
+                pollingTimeoutId = null;
             }
 
-            // Já mostrou paywall
-            if (leadState && leadState.paymentTriggered === true) {
-                paymentTriggered = true;
-                paymentOverlay.classList.add('show');
-                video.muted = true;
-                commentWrap.classList.add('disabled');
-                showToast('🔒 Transmissão privada — pague para continuar', 3000);
-                video.play().catch(() => {});
-                startFakeComments();
-                const returning = checkReturningUser();
-                if (returning) {
-                    isReturning = true;
-                    payPrice.textContent = '20';
-                    payOriginal.style.display = 'block';
-                    payDiscountBadge.style.display = 'inline-block';
-                    currentPixAmount = PRICE_DISCOUNT;
-                } else {
-                    payPrice.textContent = '30';
-                    payOriginal.style.display = 'none';
-                    payDiscountBadge.style.display = 'none';
-                    currentPixAmount = PRICE_NORMAL;
+            pollingHashAtual = txHash;
+            pollingValorAtual = valorPago;
+            pollingTentativas = tentativasIniciais;
+            pollingPausado = false;
+            pollingIntervaloAtual = INTERVALO_INICIAL;
+
+            salvarEstadoPolling(txHash, pollingTentativas, pollingValorAtual);
+
+            function tentar() {
+                if (pollingPausado) {
+                    pollingTimeoutId = setTimeout(tentar, 20000);
+                    return;
                 }
-                markVisited();
-                return;
+
+                if (pollingTentativas >= MAX_TENTATIVAS) {
+                    limparEstadoPolling();
+                    return;
+                }
+
+                pollingTentativas++;
+                salvarEstadoPolling(pollingHashAtual, pollingTentativas, pollingValorAtual);
+
+                checarStatusComTimeout(pollingHashAtual)
+                    .then(status => {
+                        if (status === 'paid' || status === 'approved' || status === 'completed') {
+                            limparEstadoPolling();
+                            pixelPurchase(pollingValorAtual);
+                            unlockStream(); // libera a live
+                            return;
+                        }
+
+                        pollingIntervaloAtual = Math.min(pollingIntervaloAtual * BACKOFF_MULTIPLICADOR,
+                        INTERVALO_MAXIMO);
+                        pollingTimeoutId = setTimeout(tentar, pollingIntervaloAtual);
+                    })
+                    .catch(() => {
+                        pollingTimeoutId = setTimeout(tentar, 10000);
+                    });
             }
 
-            // Primeira vez
-            const returning = checkReturningUser();
-            if (returning) {
-                isReturning = true;
-                payPrice.textContent = '20';
-                payOriginal.style.display = 'block';
-                payDiscountBadge.style.display = 'inline-block';
-                currentPixAmount = PRICE_DISCOUNT;
+            tentar();
+        }
+
+        function retomarPollingSeNecessario() {
+            const estado = carregarEstadoPolling();
+            if (estado && estado.hash && estado.tentativas < MAX_TENTATIVAS) {
+                if (Date.now() - estado.timestamp < 3600000) {
+                    iniciarPollRobusto(estado.hash, estado.valor, estado.tentativas);
+                } else {
+                    limparEstadoPolling();
+                }
+            }
+        }
+
+        // ============================================================
+        //  FUNÇÃO PARA COPIAR TEXTO (fallback)
+        // ============================================================
+        function fallbackCopy(texto, cb) {
+            const ta = document.createElement('textarea');
+            ta.value = texto;
+            ta.style.cssText = 'position:fixed;opacity:0';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            try { document.execCommand('copy'); } catch (e) {}
+            document.body.removeChild(ta);
+            cb();
+        }
+
+        // ============================================================
+        //  COPY PIX KEY
+        // ============================================================
+        function copyPixKey() {
+            if (!currentPixKey) return;
+            const sucesso = () => {
+                pixCopyBtn.innerHTML = `
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>
+              Copiado!
+            `;
+                pixCopyBtn.style.background = '#007a5e';
+                setTimeout(() => {
+                    pixCopyBtn.innerHTML = `
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                Copiar chave Pix
+              `;
+                    pixCopyBtn.style.background = '';
+                }, 2000);
+                showToast('Chave Pix copiada! ✅');
+            };
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(currentPixKey).then(sucesso).catch(() => fallbackCopy(currentPixKey,
+                sucesso));
             } else {
-                payPrice.textContent = '30';
-                payOriginal.style.display = 'none';
-                payDiscountBadge.style.display = 'none';
-                currentPixAmount = PRICE_NORMAL;
+                fallbackCopy(currentPixKey, sucesso);
             }
-            markVisited();
-
-            video.muted = false;
-            video.volume = 1.0;
-            video.play().catch(() => {});
-            commentWrap.classList.remove('disabled');
-
-            let viewers = 1200;
-            setInterval(() => {
-                const delta = Math.floor(Math.random() * 30) - 10;
-                viewers = Math.max(800, viewers + delta);
-                viewerCount.textContent = (viewers >= 1000 ? (viewers / 1000).toFixed(1) + 'k' : viewers) + ' assistindo';
-            }, 4000);
-
-            startFakeComments();
-
-            setTimeout(() => {
-                if (isUnlocked) return;
-                paymentTriggered = true;
-                paymentOverlay.classList.add('show');
-                video.muted = true;
-                commentWrap.classList.add('disabled');
-                saveLeadState({ paymentTriggered: true, unlocked: false });
-                showToast('🔒 Transmissão privada — pague para continuar', 3000);
-            }, 7000);
-        }
-
-        function declineLive() {
-            entryModal.innerHTML = `
-            <div class="card" style="padding:36px 24px 28px;">
-              <div style="font-size:48px;margin-bottom:12px;">😔</div>
-              <h2 style="font-size:18px;">Que pena!</h2>
-              <p style="color:rgba(255,255,255,0.5);font-size:14px;margin:6px 0 16px;line-height:1.6;">
-                Vanessa ficará triste em saber que você não pôde participar.<br>
-                <span style="color:rgba(255,255,255,0.3);font-size:12px;">Você pode fechar esta página.</span>
-              </p>
-              <button onclick="window.close()" style="background:rgba(255,255,255,0.06);border:none;border-radius:16px;padding:12px 24px;color:#fff;font-size:14px;cursor:pointer;font-family:inherit;">
-                Fechar
-              </button>
-            </div>
-          `;
         }
 
         // ============================================================
-        //  PAYMENT - CHAMA /api/pix
+        //  GERAR PIX (chama /api/pix) - IDÊNTICO AO INDEX
+        // ============================================================
+        async function gerarPix(desconto) {
+            try {
+                const res = await fetch('/api/pix', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ desconto })
+                });
+                return await res.json();
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // ============================================================
+        //  INICIAR PAGAMENTO (chamado pelo botão)
         // ============================================================
         async function startPayment() {
-            if (paymentInProgress || isUnlocked) return;
+            if (paymentInProgress) return;
+            if (isUnlocked) return;
 
             paymentInProgress = true;
             payBtn.disabled = true;
@@ -1257,54 +1315,45 @@
                 '<span class="spinner" style="display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,0.2);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite;margin-right:8px;"></span> Gerando Pix...';
 
             try {
-                const res = await fetch('/api/pix', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ desconto: isReturning })
-                });
-
-                if (!res.ok) {
-                    const errText = await res.text();
-                    throw new Error(`Erro ${res.status}: ${errText}`);
+                const data = await gerarPix(isReturning);
+                if (!data) {
+                    throw new Error('Erro ao gerar Pix');
                 }
 
-                const data = await res.json();
+                const pixCopia = (data.pix && data.pix.pix_qr_code) || '';
+                const txHash = data.hash || ('tx' + Date.now());
 
-                // Espera-se: { pix: { pix_qr_code: "..." }, hash: "..." }
-                if (!data || !data.pix || !data.pix.pix_qr_code) {
-                    throw new Error('Resposta da API não contém chave Pix');
+                if (!pixCopia) {
+                    throw new Error('Chave Pix não gerada');
                 }
 
-                currentPixKey = data.pix.pix_qr_code;
-                currentPixHash = data.hash || ('tx_' + Date.now());
+                currentPixKey = pixCopia;
+                currentPixHash = txHash;
+                currentPixValor = isReturning ? PRICE_DISCOUNT : PRICE_NORMAL;
 
                 // Atualiza modal Pix
-                const valorExibido = (currentPixAmount / 100).toFixed(2).replace('.', ',');
+                const valorExibido = (currentPixValor / 100).toFixed(2).replace('.', ',');
                 pixAmount.textContent = valorExibido;
-                pixKeyDisplay.textContent = '🔑 Chave Pix gerada com sucesso!';
                 pixStatus.innerHTML = '<span class="spinner"></span> Aguardando pagamento...';
-                pixCopyBtn.classList.remove('copied');
-                pixCopyBtn.innerHTML = '<i class="ti ti-copy"></i> Copiar chave Pix';
+                pixCopyBtn.innerHTML = `
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+              Copiar chave Pix
+            `;
+                pixCopyBtn.style.background = '';
 
+                // Fecha paywall e abre modal Pix
                 paymentOverlay.classList.remove('show');
                 pixModal.classList.add('show');
 
-                if (typeof fbq !== 'undefined') {
-                    fbq('track', 'InitiateCheckout', {
-                        value: (currentPixAmount / 100).toFixed(2),
-                        currency: 'BRL',
-                        num_items: 1,
-                        content_ids: [PRODUCT_HASH],
-                        content_type: 'product'
-                    });
-                }
+                // Dispara evento de checkout
+                pixelIniCheckout(currentPixValor);
 
                 // Inicia polling
-                startPolling(currentPixHash);
+                iniciarPollRobusto(txHash, currentPixValor);
 
             } catch (err) {
-                console.error('Erro ao gerar Pix:', err);
-                showToast('❌ Erro ao gerar Pix: ' + err.message, 4000);
+                console.error(err);
+                showToast('❌ Erro ao gerar Pix. Tente novamente.', 4000);
                 payBtn.disabled = false;
                 payBtn.innerHTML = '<i class="ti ti-qrcode"></i> Pagar via Pix';
                 paymentInProgress = false;
@@ -1312,70 +1361,7 @@
         }
 
         // ============================================================
-        //  POLLING - /api/status
-        // ============================================================
-        function startPolling(hash) {
-            let attempts = 0;
-            const maxAttempts = 120;
-            let delay = 3000;
-
-            if (pollingTimer) clearTimeout(pollingTimer);
-
-            function poll() {
-                attempts++;
-                fetch(`/api/status?hash=${hash}`)
-                    .then(r => {
-                        if (!r.ok) throw new Error('Erro na consulta de status');
-                        return r.json();
-                    })
-                    .then(data => {
-                        const status = data.payment_status;
-                        if (status === 'paid' || status === 'approved' || status === 'completed') {
-                            if (typeof fbq !== 'undefined') {
-                                fbq('track', 'Purchase', {
-                                    value: (currentPixAmount / 100).toFixed(2),
-                                    currency: 'BRL',
-                                    num_items: 1,
-                                    content_ids: [PRODUCT_HASH],
-                                    content_type: 'product'
-                                });
-                            }
-                            unlockStream();
-                            return;
-                        }
-
-                        pixStatus.innerHTML =
-                            `<span class="spinner"></span> Aguardando confirmação do pagamento... (${attempts})`;
-
-                        if (attempts >= maxAttempts) {
-                            pixStatus.innerHTML = '⏳ Tempo esgotado. O pagamento ainda pode ser confirmado em breve.';
-                            paymentInProgress = false;
-                            payBtn.disabled = false;
-                            payBtn.innerHTML = '<i class="ti ti-qrcode"></i> Pagar via Pix';
-                            return;
-                        }
-
-                        delay = Math.min(delay * 1.2, 15000);
-                        pollingTimer = setTimeout(poll, delay);
-                    })
-                    .catch(() => {
-                        if (attempts < maxAttempts) {
-                            delay = Math.min(delay * 1.5, 20000);
-                            pollingTimer = setTimeout(poll, delay);
-                        } else {
-                            pixStatus.innerHTML = '⏳ Erro ao verificar pagamento. Tente novamente.';
-                            paymentInProgress = false;
-                            payBtn.disabled = false;
-                            payBtn.innerHTML = '<i class="ti ti-qrcode"></i> Pagar via Pix';
-                        }
-                    });
-            }
-
-            poll();
-        }
-
-        // ============================================================
-        //  UNLOCK STREAM
+        //  UNLOCK STREAM (após pagamento confirmado)
         // ============================================================
         function unlockStream() {
             isUnlocked = true;
@@ -1396,50 +1382,17 @@
 
             commentWrap.classList.remove('disabled');
 
-            if (pollingTimer) {
-                clearTimeout(pollingTimer);
-                pollingTimer = null;
-            }
+            // Limpa estado de polling
+            limparEstadoPolling();
 
-            saveLeadState({ paymentTriggered: true, unlocked: true });
+            // Salva estado de desbloqueado no localStorage
+            try {
+                localStorage.setItem('live_unlocked', 'true');
+            } catch (e) {}
 
             setTimeout(() => {
                 addComment('Vanessa', '🎉 Obrigada pelo apoio! ❤️', false, '👑');
             }, 1000);
-        }
-
-        // ============================================================
-        //  COPY PIX KEY
-        // ============================================================
-        function copyPixKey() {
-            if (!currentPixKey) return;
-            const success = () => {
-                pixCopyBtn.classList.add('copied');
-                pixCopyBtn.innerHTML = '<i class="ti ti-check"></i> Copiado!';
-                setTimeout(() => {
-                    pixCopyBtn.classList.remove('copied');
-                    pixCopyBtn.innerHTML = '<i class="ti ti-copy"></i> Copiar chave Pix';
-                }, 2500);
-                showToast('✅ Chave Pix copiada!', 2000);
-            };
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(currentPixKey).then(success).catch(() => fallbackCopy(currentPixKey,
-                success));
-            } else {
-                fallbackCopy(currentPixKey, success);
-            }
-        }
-
-        function fallbackCopy(text, cb) {
-            const ta = document.createElement('textarea');
-            ta.value = text;
-            ta.style.cssText = 'position:fixed;opacity:0';
-            document.body.appendChild(ta);
-            ta.focus();
-            ta.select();
-            try { document.execCommand('copy'); } catch (e) {}
-            document.body.removeChild(ta);
-            cb();
         }
 
         // ============================================================
@@ -1451,12 +1404,144 @@
             paymentInProgress = false;
             payBtn.disabled = false;
             payBtn.innerHTML = '<i class="ti ti-qrcode"></i> Pagar via Pix';
-            if (pollingTimer) {
-                clearTimeout(pollingTimer);
-                pollingTimer = null;
+            if (pollingTimeoutId) {
+                clearTimeout(pollingTimeoutId);
+                pollingTimeoutId = null;
             }
             pixStatus.innerHTML = '⏳ Pagamento cancelado';
-            setTimeout(() => { pixStatus.innerHTML = 'Aguardando pagamento...'; }, 1500);
+            setTimeout(() => {
+                pixStatus.innerHTML = 'Aguardando pagamento...';
+            }, 1500);
+        }
+
+        // ============================================================
+        //  ENTRY
+        // ============================================================
+        function enterLive() {
+            entryModal.style.display = 'none';
+            liveContainer.classList.add('active');
+
+            // Verifica se já desbloqueou anteriormente
+            try {
+                const unlocked = localStorage.getItem('live_unlocked');
+                if (unlocked === 'true') {
+                    isUnlocked = true;
+                    liveContainer.classList.add('unlocked');
+                    paymentOverlay.classList.remove('show');
+                    payBtn.innerHTML = '<i class="ti ti-check"></i> Acesso liberado';
+                    payBtn.style.background = '#00a884';
+                    payBtn.style.cursor = 'default';
+                    payBtn.disabled = true;
+                    video.muted = false;
+                    video.play().catch(() => {});
+                    startFakeComments();
+                    showToast('✅ Bem-vindo de volta! Transmissão liberada.', 3000);
+                    // Ajusta preço se for returning
+                    const returning = checkReturningUser();
+                    if (returning) {
+                        isReturning = true;
+                        payPrice.textContent = '20';
+                        payOriginal.style.display = 'block';
+                        payDiscountBadge.style.display = 'inline-block';
+                    } else {
+                        payPrice.textContent = '30';
+                        payOriginal.style.display = 'none';
+                        payDiscountBadge.style.display = 'none';
+                    }
+                    commentWrap.classList.remove('disabled');
+                    return;
+                }
+            } catch (e) {}
+
+            // Se já mostrou o paywall antes (mas não pagou), reexibe
+            try {
+                const state = JSON.parse(localStorage.getItem('live_payment_state') || '{}');
+                if (state.paymentTriggered === true) {
+                    paymentTriggered = true;
+                    paymentOverlay.classList.add('show');
+                    video.muted = true;
+                    commentWrap.classList.add('disabled');
+                    showToast('🔒 Transmissão privada — pague para continuar', 3000);
+                    video.play().catch(() => {});
+                    startFakeComments();
+                    const returning = checkReturningUser();
+                    if (returning) {
+                        isReturning = true;
+                        payPrice.textContent = '20';
+                        payOriginal.style.display = 'block';
+                        payDiscountBadge.style.display = 'inline-block';
+                    } else {
+                        payPrice.textContent = '30';
+                        payOriginal.style.display = 'none';
+                        payDiscountBadge.style.display = 'none';
+                    }
+                    return;
+                }
+            } catch (e) {}
+
+            // Primeira vez: configura preço e inicia temporizador de 7 segundos
+            const returning = checkReturningUser();
+            if (returning) {
+                isReturning = true;
+                payPrice.textContent = '20';
+                payOriginal.style.display = 'block';
+                payDiscountBadge.style.display = 'inline-block';
+            } else {
+                payPrice.textContent = '30';
+                payOriginal.style.display = 'none';
+                payDiscountBadge.style.display = 'none';
+            }
+
+            video.muted = false;
+            video.volume = 1.0;
+            video.play().catch(() => {});
+            commentWrap.classList.remove('disabled');
+
+            // Viewer count fake
+            let viewers = 1200;
+            setInterval(() => {
+                const delta = Math.floor(Math.random() * 30) - 10;
+                viewers = Math.max(800, viewers + delta);
+                viewerCount.textContent = (viewers >= 1000 ? (viewers / 1000).toFixed(1) + 'k' : viewers) + ' assistindo';
+            }, 4000);
+
+            startFakeComments();
+
+            // Após 7 segundos, mostra paywall
+            setTimeout(() => {
+                if (isUnlocked) return;
+                paymentTriggered = true;
+                paymentOverlay.classList.add('show');
+                video.muted = true;
+                commentWrap.classList.add('disabled');
+                try {
+                    localStorage.setItem('live_payment_state', JSON.stringify({ paymentTriggered: true }));
+                } catch (e) {}
+                showToast('🔒 Transmissão privada — pague para continuar', 3000);
+            }, 7000);
+        }
+
+        function declineLive() {
+            entryModal.innerHTML = `
+            <div class="card" style="padding:36px 24px 28px;">
+              <div style="font-size:48px;margin-bottom:12px;">😔</div>
+              <h2 style="font-size:18px;">Que pena!</h2>
+              <p style="color:rgba(255,255,255,0.5);font-size:14px;margin:6px 0 16px;line-height:1.6;">
+                Vanessa ficará triste em saber que você não pôde participar.<br>
+                <span style="color:rgba(255,255,255,0.3);font-size:12px;">Você pode fechar esta página.</span>
+              </p>
+              <button onclick="window.close()" style="background:rgba(255,255,255,0.06);border:none;border-radius:16px;padding:12px 24px;color:#fff;font-size:14px;cursor:pointer;font-family:inherit;">
+                Fechar
+              </button>
+            </div>
+          `;
+        }
+
+        function checkReturningUser() {
+            const visited = localStorage.getItem('live_visited');
+            if (visited === 'true') return true;
+            localStorage.setItem('live_visited', 'true');
+            return false;
         }
 
         // ============================================================
@@ -1514,8 +1599,14 @@
         });
         video.addEventListener('contextmenu', e => e.preventDefault());
 
+        // ============================================================
+        //  INICIALIZAÇÃO: tenta retomar polling se houver estado salvo
+        // ============================================================
+        retomarPollingSeNecessario();
+
         console.log('🎥 Vanessa Macedo · Transmissão ao Vivo');
-        console.log('✅ Pix gerado via /api/pix, monitorado por /api/status');
+        console.log('✅ Lógica de pagamento idêntica ao index.html (polling, persistência, Meta Pixel)');
+        console.log('✅ Endpoints: /api/pix e /api/status');
     </script>
 
 </body>
