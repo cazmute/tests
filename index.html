@@ -36,18 +36,26 @@
     <!-- Tabler Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
 
+    <!-- Font Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+
     <style>
-        /* ===== RESET ===== */
+        /* ============================================================
+               RESET & BASE
+            ============================================================ */
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
+
         html,
         body {
             height: 100%;
             height: 100dvh;
-            background: #0b0b0b;
+            background: #0a0a0f;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             overflow: hidden;
             position: fixed;
@@ -60,42 +68,67 @@
             -webkit-user-select: none;
         }
 
-        /* ===== ENTRY MODAL ===== */
+        /* ============================================================
+               ENTRY MODAL — Liquid Glass
+            ============================================================ */
         #entry-modal {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.88);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            background: rgba(10, 10, 15, 0.75);
+            backdrop-filter: blur(32px) saturate(1.4);
+            -webkit-backdrop-filter: blur(32px) saturate(1.4);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
             padding: 24px;
-            animation: fadeIn 0.4s ease;
+            animation: fadeIn 0.6s cubic-bezier(0.23, 1, 0.32, 1);
         }
+
         #entry-modal .card {
-            background: linear-gradient(145deg, #1a1a2e, #16213e);
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            border-radius: 32px;
+            position: relative;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(24px) saturate(1.6);
+            -webkit-backdrop-filter: blur(24px) saturate(1.6);
+            border-radius: 40px;
             max-width: 400px;
             width: 100%;
-            padding: 40px 28px 32px;
+            padding: 44px 32px 36px;
             text-align: center;
-            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow:
+                0 40px 80px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
             transform: translateY(0);
-            animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            animation: slideUp 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
         }
+
+        #entry-modal .card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 40px;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent 60%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
         @keyframes slideUp {
             from {
                 opacity: 0;
-                transform: translateY(30px) scale(0.96);
+                transform: translateY(40px) scale(0.96);
             }
             to {
                 opacity: 1;
                 transform: translateY(0) scale(1);
             }
         }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -107,65 +140,88 @@
 
         #entry-modal .avatar-wrap {
             position: relative;
-            width: 100px;
-            height: 100px;
-            margin: 0 auto 16px;
+            width: 104px;
+            height: 104px;
+            margin: 0 auto 18px;
         }
+
         #entry-modal .avatar-ring {
             position: absolute;
             inset: -6px;
             border-radius: 50%;
-            border: 2.5px solid rgba(37, 211, 102, 0.35);
-            animation: pulseRing 2.4s ease-out infinite;
+            background: conic-gradient(from 0deg, #25d366, #00a884, #25d366);
+            animation: spinRing 4s linear infinite;
+            opacity: 0.5;
         }
-        @keyframes pulseRing {
-            0% {
-                transform: scale(0.9);
-                opacity: 1;
-            }
-            100% {
-                transform: scale(1.4);
-                opacity: 0;
+
+        @keyframes spinRing {
+            to {
+                transform: rotate(360deg);
             }
         }
+
+        #entry-modal .avatar-ring::after {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            border-radius: 50%;
+            background: #0a0a0f;
+        }
+
         #entry-modal .avatar {
-            width: 100px;
-            height: 100px;
+            position: relative;
+            width: 104px;
+            height: 104px;
             border-radius: 50%;
             overflow: hidden;
-            border: 3px solid #25d366;
-            background: #1f2c34;
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            background: #1a1a2e;
+            z-index: 2;
         }
+
         #entry-modal .avatar img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             display: block;
         }
+
         #entry-modal h2 {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 600;
-            color: #fff;
-            margin-bottom: 4px;
+            letter-spacing: -0.3px;
+            background: linear-gradient(135deg, #fff 60%, rgba(255, 255, 255, 0.6));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 2px;
         }
+
         #entry-modal .sub {
-            color: rgba(255, 255, 255, 0.55);
+            color: rgba(255, 255, 255, 0.45);
             font-size: 14px;
-            margin-bottom: 6px;
+            font-weight: 400;
+            letter-spacing: 0.2px;
+            margin-bottom: 8px;
         }
+
         #entry-modal .badge-live {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            background: rgba(229, 57, 53, 0.2);
-            border: 1px solid rgba(229, 57, 53, 0.25);
+            gap: 8px;
+            background: rgba(229, 57, 53, 0.12);
+            border: 1px solid rgba(229, 57, 53, 0.15);
             border-radius: 100px;
-            padding: 4px 14px 4px 10px;
+            padding: 5px 16px 5px 12px;
             font-size: 12px;
             font-weight: 600;
             color: #ff6b6b;
-            margin: 6px 0 18px;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            margin: 6px 0 20px;
+            backdrop-filter: blur(4px);
         }
+
         #entry-modal .badge-live .dot {
             width: 7px;
             height: 7px;
@@ -173,72 +229,93 @@
             background: #e53935;
             animation: blink 1.2s ease-in-out infinite;
         }
+
         @keyframes blink {
             0%,
             100% {
                 opacity: 1;
             }
             50% {
-                opacity: 0.2;
+                opacity: 0.15;
             }
+        }
+
+        #entry-modal .card p {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 10px;
+            font-weight: 400;
         }
 
         #entry-modal .btn-group {
             display: flex;
             gap: 12px;
-            margin-top: 18px;
+            margin-top: 16px;
         }
+
         #entry-modal .btn-group button {
             flex: 1;
-            padding: 14px 10px;
-            border-radius: 16px;
+            padding: 15px 10px;
+            border-radius: 20px;
             font-size: 15px;
             font-weight: 600;
             border: none;
             cursor: pointer;
             font-family: inherit;
-            transition: transform 0.15s, background 0.15s;
+            transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+            letter-spacing: 0.2px;
         }
+
         #entry-modal .btn-group button:active {
             transform: scale(0.96);
         }
+
         #entry-modal .btn-yes {
-            background: #25d366;
+            background: linear-gradient(135deg, #25d366, #00a884);
             color: #fff;
-            box-shadow: 0 4px 20px rgba(37, 211, 102, 0.3);
-        }
-        #entry-modal .btn-yes:hover {
-            background: #1da851;
-        }
-        #entry-modal .btn-no {
-            background: rgba(255, 255, 255, 0.08);
-            color: rgba(255, 255, 255, 0.7);
-        }
-        #entry-modal .btn-no:hover {
-            background: rgba(255, 255, 255, 0.14);
+            box-shadow: 0 6px 24px rgba(37, 211, 102, 0.25);
         }
 
-        /* ===== LIVE STREAM ===== */
+        #entry-modal .btn-yes:hover {
+            box-shadow: 0 8px 32px rgba(37, 211, 102, 0.35);
+            transform: translateY(-1px);
+        }
+
+        #entry-modal .btn-no {
+            background: rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        #entry-modal .btn-no:hover {
+            background: rgba(255, 255, 255, 0.10);
+        }
+
+        /* ============================================================
+               LIVE CONTAINER
+            ============================================================ */
         #live-container {
             position: fixed;
             inset: 0;
-            background: #0b0b0b;
+            background: #0a0a0f;
             z-index: 10;
             display: none;
             flex-direction: column;
         }
+
         #live-container.active {
             display: flex;
         }
 
-        /* Video wrapper */
         #video-wrap {
             position: relative;
             flex: 1;
-            background: #0b0b0b;
+            background: #0a0a0f;
             overflow: hidden;
             min-height: 0;
         }
+
         #live-video {
             position: absolute;
             inset: 0;
@@ -246,40 +323,48 @@
             height: 100%;
             object-fit: cover;
             object-position: center;
-            background: #0b0b0b;
+            background: #0a0a0f;
         }
 
-        /* Overlay top (live badge + info) */
+        /* ============================================================
+               OVERLAY TOP — Liquid Glass
+            ============================================================ */
         #live-overlay-top {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            padding: 16px 18px;
+            padding: 20px 20px 16px;
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
             pointer-events: none;
             z-index: 20;
-            background: linear-gradient(180deg, rgba(0, 0, 0, 0.55) 0%, transparent 100%);
+            background: linear-gradient(180deg, rgba(10, 10, 15, 0.7) 0%, transparent 100%);
         }
+
         #live-overlay-top .left {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
+
         #live-overlay-top .live-badge {
             display: flex;
             align-items: center;
-            gap: 6px;
-            background: rgba(229, 57, 53, 0.85);
+            gap: 8px;
+            background: rgba(229, 57, 53, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border-radius: 100px;
-            padding: 4px 12px 4px 8px;
+            padding: 5px 14px 5px 10px;
             font-size: 12px;
             font-weight: 700;
-            letter-spacing: 0.3px;
-            backdrop-filter: blur(4px);
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            border: 1px solid rgba(255, 255, 255, 0.06);
         }
+
         #live-overlay-top .live-badge .dot {
             width: 7px;
             height: 7px;
@@ -287,85 +372,115 @@
             background: #fff;
             animation: blink 1.2s ease-in-out infinite;
         }
-        #live-overlay-top .viewer-count {
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.85);
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(4px);
-            padding: 4px 12px;
-            border-radius: 100px;
-            font-weight: 500;
-        }
+
         #live-overlay-top .host-name {
             color: #fff;
             font-size: 14px;
             font-weight: 500;
-            text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+            letter-spacing: 0.2px;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(8px);
+            padding: 4px 14px;
+            border-radius: 100px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
         }
 
-        /* Overlay bottom (actions + comments input) */
+        #live-overlay-top .viewer-count {
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 5px 16px;
+            border-radius: 100px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            letter-spacing: 0.2px;
+        }
+
+        /* ============================================================
+               OVERLAY BOTTOM — Liquid Glass
+            ============================================================ */
         #live-overlay-bottom {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
-            padding: 14px 16px 24px;
+            padding: 16px 20px 28px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
+            gap: 14px;
             pointer-events: none;
             z-index: 20;
-            background: linear-gradient(0deg, rgba(0, 0, 0, 0.55) 0%, transparent 100%);
+            background: linear-gradient(0deg, rgba(10, 10, 15, 0.7) 0%, transparent 100%);
         }
+
         #live-overlay-bottom .left-actions {
             display: flex;
             align-items: center;
             gap: 12px;
             pointer-events: auto;
         }
+
         #live-overlay-bottom .action-btn {
             pointer-events: auto;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 50%;
-            width: 44px;
-            height: 44px;
+            width: 46px;
+            height: 46px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #fff;
             cursor: pointer;
-            transition: background 0.15s, transform 0.1s;
+            transition: all 0.2s ease;
             font-size: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
         }
+
+        #live-overlay-bottom .action-btn:hover {
+            background: rgba(255, 255, 255, 0.10);
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
         #live-overlay-bottom .action-btn:active {
             transform: scale(0.88);
         }
-        #live-overlay-bottom .action-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
 
-        /* Comment input */
+        /* Comment input — Liquid Glass */
         #comment-input-wrap {
             flex: 1;
             pointer-events: auto;
             display: flex;
             align-items: center;
-            background: rgba(255, 255, 255, 0.06);
-            backdrop-filter: blur(8px);
-            border-radius: 30px;
-            padding: 2px 4px 2px 16px;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(16px) saturate(1.4);
+            -webkit-backdrop-filter: blur(16px) saturate(1.4);
+            border-radius: 40px;
+            padding: 2px 4px 2px 20px;
             border: 1px solid rgba(255, 255, 255, 0.05);
-            max-width: 300px;
+            max-width: 320px;
             margin-left: auto;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.3s ease, border-color 0.2s ease;
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2);
         }
+
+        #comment-input-wrap:focus-within {
+            border-color: rgba(37, 211, 102, 0.2);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
         #comment-input-wrap.disabled {
-            opacity: 0.3;
+            opacity: 0.25;
             pointer-events: none;
         }
+
         #comment-input-wrap input {
             flex: 1;
             background: transparent;
@@ -373,303 +488,407 @@
             outline: none;
             color: #fff;
             font-size: 13px;
-            padding: 10px 0;
+            padding: 11px 0;
             font-family: inherit;
             min-width: 0;
+            font-weight: 400;
         }
+
         #comment-input-wrap input::placeholder {
-            color: rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.25);
+            font-weight: 400;
         }
+
         #comment-input-wrap button {
             background: rgba(255, 255, 255, 0.06);
             border: none;
-            border-radius: 30px;
-            padding: 8px 14px;
+            border-radius: 40px;
+            padding: 8px 18px;
             color: #fff;
             font-size: 13px;
-            cursor: pointer;
-            transition: background 0.15s;
-            font-family: inherit;
             font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
             white-space: nowrap;
+            letter-spacing: 0.2px;
         }
+
         #comment-input-wrap button:hover {
             background: rgba(255, 255, 255, 0.12);
         }
+
         #comment-input-wrap button:active {
             transform: scale(0.95);
         }
 
-        /* ===== COMMENTS FEED ===== */
+        /* ============================================================
+               COMMENTS FEED — Liquid Glass
+            ============================================================ */
         #comments-feed {
             position: absolute;
-            bottom: 80px;
-            left: 16px;
-            right: 16px;
+            bottom: 88px;
+            left: 18px;
+            right: 18px;
             z-index: 15;
             pointer-events: none;
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            max-height: 60vh;
+            gap: 8px;
+            max-height: 55vh;
             overflow: hidden;
             justify-content: flex-end;
         }
+
         .comment-item {
-            background: rgba(0, 0, 0, 0.55);
-            backdrop-filter: blur(6px);
-            border-radius: 16px;
-            padding: 6px 14px 6px 12px;
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(12px) saturate(1.2);
+            -webkit-backdrop-filter: blur(12px) saturate(1.2);
+            border-radius: 20px;
+            padding: 8px 18px 8px 14px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            animation: commentIn 0.4s ease forwards;
+            gap: 10px;
+            animation: commentIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
             transform-origin: bottom left;
             max-width: 85%;
             width: fit-content;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
             border-left: 3px solid #25d366;
             pointer-events: all;
             font-size: 13px;
             line-height: 1.4;
             color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.04);
         }
+
         .comment-item .username {
             font-weight: 600;
             color: #25d366;
             white-space: nowrap;
             margin-right: 2px;
+            font-size: 13px;
         }
+
         .comment-item .username i {
             font-style: normal;
             margin-right: 4px;
         }
+
         .comment-item .text {
             word-break: break-word;
+            font-weight: 400;
         }
+
         .comment-item .time {
             font-size: 10px;
-            color: rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.25);
             margin-left: auto;
-            padding-left: 8px;
+            padding-left: 10px;
             flex-shrink: 0;
+            font-weight: 400;
         }
+
         @keyframes commentIn {
             from {
                 opacity: 0;
-                transform: translateX(-20px) scale(0.9);
+                transform: translateX(-24px) scale(0.92);
             }
             to {
                 opacity: 1;
                 transform: translateX(0) scale(1);
             }
         }
+
         .comment-item.out {
             border-left-color: #1da851;
             align-self: flex-end;
-            background: rgba(29, 168, 81, 0.2);
+            background: rgba(29, 168, 81, 0.12);
+            backdrop-filter: blur(12px) saturate(1.2);
+            border: 1px solid rgba(29, 168, 81, 0.08);
         }
+
         .comment-item.out .username {
             color: #1da851;
         }
 
-        /* ===== PAYMENT OVERLAY (paywall) ===== */
+        /* ============================================================
+               PAYMENT OVERLAY — Liquid Glass
+            ============================================================ */
         #payment-overlay {
             position: absolute;
             inset: 0;
-            background: rgba(0, 0, 0, 0.72);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(10, 10, 15, 0.65);
+            backdrop-filter: blur(28px) saturate(1.6);
+            -webkit-backdrop-filter: blur(28px) saturate(1.6);
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 24px 20px;
             z-index: 30;
-            animation: fadeIn 0.4s ease;
+            animation: fadeIn 0.5s ease;
         }
+
         #payment-overlay.show {
             display: flex;
         }
+
         #payment-overlay .pay-card {
-            background: linear-gradient(145deg, #1a1a2e, #16213e);
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            border-radius: 28px;
+            position: relative;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(24px) saturate(1.6);
+            -webkit-backdrop-filter: blur(24px) saturate(1.6);
+            border-radius: 36px;
             max-width: 380px;
             width: 100%;
-            padding: 32px 24px 28px;
+            padding: 36px 28px 32px;
             text-align: center;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow:
+                0 40px 80px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
+            overflow: hidden;
         }
+
+        #payment-overlay .pay-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 36px;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), transparent 60%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
         #payment-overlay .pay-icon {
-            width: 60px;
-            height: 60px;
+            width: 64px;
+            height: 64px;
             border-radius: 50%;
-            background: rgba(37, 211, 102, 0.12);
+            background: rgba(37, 211, 102, 0.08);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 12px;
-            font-size: 28px;
+            margin: 0 auto 14px;
+            font-size: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
         }
+
         #payment-overlay h3 {
             font-size: 20px;
             font-weight: 600;
+            letter-spacing: -0.2px;
             margin-bottom: 4px;
+            color: #fff;
         }
+
         #payment-overlay .pay-sub {
-            color: rgba(255, 255, 255, 0.55);
+            color: rgba(255, 255, 255, 0.4);
             font-size: 14px;
-            margin-bottom: 12px;
-            line-height: 1.5;
+            margin-bottom: 16px;
+            line-height: 1.6;
+            font-weight: 400;
         }
+
         #payment-overlay .price-tag {
-            font-size: 32px;
+            font-size: 36px;
             font-weight: 700;
             color: #25d366;
-            margin: 8px 0 4px;
+            margin: 6px 0 2px;
+            letter-spacing: -0.5px;
         }
+
         #payment-overlay .price-tag .currency {
             font-size: 18px;
             font-weight: 500;
-            color: rgba(255, 255, 255, 0.4);
+            color: rgba(255, 255, 255, 0.3);
         }
+
         #payment-overlay .price-original {
             font-size: 14px;
-            color: rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.2);
             text-decoration: line-through;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
+
         #payment-overlay .discount-badge {
             display: inline-block;
-            background: rgba(229, 57, 53, 0.15);
-            border: 1px solid rgba(229, 57, 53, 0.2);
+            background: rgba(229, 57, 53, 0.08);
+            border: 1px solid rgba(229, 57, 53, 0.12);
             color: #ff6b6b;
             font-size: 12px;
             font-weight: 600;
-            padding: 2px 12px;
+            padding: 3px 16px;
             border-radius: 100px;
-            margin-bottom: 14px;
+            margin-bottom: 16px;
+            letter-spacing: 0.3px;
         }
+
         #payment-overlay .pay-btn {
             width: 100%;
-            padding: 16px;
-            border-radius: 16px;
+            padding: 17px;
+            border-radius: 20px;
             border: none;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             font-family: inherit;
-            background: #25d366;
+            background: linear-gradient(135deg, #25d366, #00a884);
             color: #fff;
-            box-shadow: 0 4px 24px rgba(37, 211, 102, 0.25);
-            transition: background 0.15s, transform 0.1s;
+            box-shadow: 0 6px 28px rgba(37, 211, 102, 0.2);
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-        }
-        #payment-overlay .pay-btn:active {
-            transform: scale(0.97);
-        }
-        #payment-overlay .pay-btn:hover {
-            background: #1da851;
-        }
-        #payment-overlay .pay-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-        #payment-overlay .pay-footer {
-            margin-top: 14px;
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.25);
-        }
-        #payment-overlay .pay-footer strong {
-            color: rgba(255, 255, 255, 0.5);
+            gap: 10px;
+            letter-spacing: 0.2px;
         }
 
-        /* ===== PIX CARD (copiar chave) ===== */
+        #payment-overlay .pay-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 36px rgba(37, 211, 102, 0.3);
+        }
+
+        #payment-overlay .pay-btn:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        #payment-overlay .pay-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        #payment-overlay .pay-footer {
+            margin-top: 16px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.2);
+            font-weight: 400;
+        }
+
+        #payment-overlay .pay-footer strong {
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 600;
+        }
+
+        /* ============================================================
+               PIX MODAL — Liquid Glass
+            ============================================================ */
         #pix-modal {
             position: absolute;
             inset: 0;
-            background: rgba(0, 0, 0, 0.78);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            background: rgba(10, 10, 15, 0.7);
+            backdrop-filter: blur(32px) saturate(1.6);
+            -webkit-backdrop-filter: blur(32px) saturate(1.6);
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 24px;
             z-index: 40;
-            animation: fadeIn 0.35s ease;
+            animation: fadeIn 0.4s ease;
         }
+
         #pix-modal.show {
             display: flex;
         }
+
         #pix-modal .pix-card {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(18px) saturate(1.2);
-            -webkit-backdrop-filter: blur(18px) saturate(1.2);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 24px;
+            position: relative;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(28px) saturate(1.6);
+            -webkit-backdrop-filter: blur(28px) saturate(1.6);
+            border-radius: 32px;
             max-width: 380px;
             width: 100%;
-            padding: 28px 22px 24px;
+            padding: 32px 24px 28px;
             text-align: center;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow:
+                0 40px 80px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
+            overflow: hidden;
         }
+
+        #pix-modal .pix-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 32px;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), transparent 60%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
         #pix-modal .pix-card .pix-header {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             justify-content: center;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
+
         #pix-modal .pix-card .pix-header .icon-badge {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: linear-gradient(145deg, #00a884, #007a5e);
+            width: 44px;
+            height: 44px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #00a884, #007a5e);
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            box-shadow: 0 3px 10px rgba(0, 168, 132, 0.25);
+            box-shadow: 0 4px 16px rgba(0, 168, 132, 0.2);
         }
+
         #pix-modal .pix-card .pix-header .icon-badge svg {
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             fill: white;
         }
+
         #pix-modal .pix-card .pix-header .pix-title {
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 600;
             color: #fff;
+            letter-spacing: -0.2px;
         }
+
         #pix-modal .pix-card .pix-header .pix-title small {
             display: block;
             font-weight: 400;
             font-size: 11px;
-            color: rgba(255, 255, 255, 0.4);
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 0.2px;
         }
+
         #pix-modal .pix-card .pix-value {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 700;
             color: #25d366;
-            margin: 6px 0 14px;
+            margin: 8px 0 18px;
+            letter-spacing: -0.5px;
         }
+
         #pix-modal .pix-card .pix-value .currency {
             font-size: 16px;
             font-weight: 500;
             color: rgba(255, 255, 255, 0.3);
         }
+
         #pix-modal .pix-card .pix-btn {
             width: 100%;
-            background: #00a884;
+            background: linear-gradient(135deg, #00a884, #007a5e);
             border: none;
-            border-radius: 14px;
-            padding: 14px;
+            border-radius: 18px;
+            padding: 15px;
             font-size: 15px;
             font-weight: 600;
             color: white;
@@ -678,60 +897,73 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
             font-family: inherit;
-            box-shadow: 0 3px 12px rgba(0, 168, 132, 0.25);
+            box-shadow: 0 4px 20px rgba(0, 168, 132, 0.15);
+            letter-spacing: 0.2px;
         }
+
         #pix-modal .pix-card .pix-btn:hover {
-            background: #007a5e;
-            transform: scale(1.02);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 28px rgba(0, 168, 132, 0.25);
         }
+
         #pix-modal .pix-card .pix-btn:active {
             transform: scale(0.97);
         }
+
         #pix-modal .pix-card .pix-footer {
             display: flex;
             justify-content: flex-end;
             margin-top: 6px;
             font-size: 10px;
-            color: rgba(255, 255, 255, 0.25);
+            color: rgba(255, 255, 255, 0.15);
         }
+
         #pix-modal .pix-card .pix-status {
-            margin-top: 10px;
+            margin-top: 12px;
             font-size: 13px;
-            color: rgba(255, 255, 255, 0.4);
+            color: rgba(255, 255, 255, 0.35);
+            font-weight: 400;
         }
+
         #pix-modal .pix-card .pix-status .spinner {
             display: inline-block;
             width: 16px;
             height: 16px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.08);
             border-top-color: #25d366;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
             vertical-align: middle;
-            margin-right: 6px;
+            margin-right: 8px;
         }
+
         @keyframes spin {
             to {
                 transform: rotate(360deg);
             }
         }
+
         #pix-modal .pix-card .close-pix {
-            margin-top: 14px;
+            margin-top: 16px;
             background: transparent;
             border: none;
-            color: rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.2);
             font-size: 13px;
             cursor: pointer;
             font-family: inherit;
-            transition: color 0.15s;
-        }
-        #pix-modal .pix-card .close-pix:hover {
-            color: rgba(255, 255, 255, 0.6);
+            transition: color 0.2s ease;
+            padding: 4px 8px;
         }
 
-        /* ===== UNLOCKED STATE ===== */
+        #pix-modal .pix-card .close-pix:hover {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* ============================================================
+               UNLOCKED STATE
+            ============================================================ */
         #live-container.unlocked #payment-overlay {
             display: none !important;
         }
@@ -739,70 +971,130 @@
             display: none !important;
         }
 
-        /* ===== RESPONSIVE ===== */
+        /* ============================================================
+               TOAST — Liquid Glass
+            ============================================================ */
+        #toast {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(20px) saturate(1.4);
+            -webkit-backdrop-filter: blur(20px) saturate(1.4);
+            color: #fff;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 500;
+            z-index: 999;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            font-family: inherit;
+            white-space: nowrap;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            letter-spacing: 0.2px;
+        }
+
+        #toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ============================================================
+               RESPONSIVE
+            ============================================================ */
         @media (max-width: 480px) {
             #entry-modal .card {
-                padding: 28px 20px 24px;
+                padding: 32px 20px 28px;
+                border-radius: 32px;
             }
+
             #entry-modal .avatar-wrap {
-                width: 80px;
-                height: 80px;
+                width: 84px;
+                height: 84px;
             }
+
             #entry-modal .avatar {
-                width: 80px;
-                height: 80px;
+                width: 84px;
+                height: 84px;
             }
+
             #entry-modal h2 {
-                font-size: 18px;
+                font-size: 19px;
             }
+
             #payment-overlay .pay-card {
-                padding: 24px 18px 20px;
+                padding: 28px 20px 24px;
+                border-radius: 28px;
             }
+
             #payment-overlay .price-tag {
-                font-size: 28px;
+                font-size: 30px;
             }
+
             #live-overlay-top {
-                padding: 12px 14px;
+                padding: 14px 14px 12px;
             }
+
             #live-overlay-bottom {
-                padding: 10px 12px 16px;
-                gap: 8px;
+                padding: 12px 14px 20px;
+                gap: 10px;
                 flex-wrap: wrap;
             }
+
             #live-overlay-bottom .action-btn {
-                width: 38px;
-                height: 38px;
+                width: 40px;
+                height: 40px;
                 font-size: 17px;
             }
+
             #pix-modal .pix-card {
-                padding: 22px 16px 18px;
+                padding: 24px 18px 20px;
+                border-radius: 28px;
             }
+
             #comment-input-wrap {
-                max-width: 180px;
-                padding-left: 12px;
+                max-width: 200px;
+                padding-left: 14px;
             }
+
             #comment-input-wrap input {
                 font-size: 12px;
-                padding: 8px 0;
+                padding: 9px 0;
             }
+
             #comment-input-wrap button {
                 font-size: 12px;
-                padding: 6px 10px;
+                padding: 6px 12px;
             }
+
             #comments-feed {
-                bottom: 72px;
-                left: 10px;
-                right: 10px;
-                gap: 4px;
+                bottom: 76px;
+                left: 12px;
+                right: 12px;
+                gap: 6px;
             }
+
             .comment-item {
                 font-size: 12px;
-                padding: 4px 10px 4px 8px;
+                padding: 6px 12px 6px 10px;
+                max-width: 90%;
+                border-radius: 16px;
+            }
+
+            #toast {
+                bottom: 28px;
+                padding: 10px 20px;
+                font-size: 12px;
+                white-space: normal;
                 max-width: 90%;
             }
         }
 
-        /* Scrollbar hide */
+        /* Hide scrollbar */
         ::-webkit-scrollbar {
             display: none;
         }
@@ -824,8 +1116,8 @@
             <div class="badge-live">
                 <span class="dot"></span> AO VIVO AGORA
             </div>
-            <p style="color:rgba(255,255,255,0.45);font-size:13px;line-height:1.6;margin-bottom:6px;">
-                Conteúdo exclusivo e interativo. <br>Deseja continuar?
+            <p>
+                Conteúdo exclusivo e interativo.<br>Deseja continuar?
             </p>
             <div class="btn-group">
                 <button class="btn-yes" onclick="enterLive()">Sim, quero assistir</button>
@@ -887,9 +1179,9 @@
 
                     <div id="pay-price-block">
                         <div class="price-tag">
-                            <span class="currency">R$</span> <span id="pay-price">30</span><span style="font-size:18px;font-weight:500;color:rgba(255,255,255,0.4)">,00</span>
+                            <span class="currency">R$</span> <span id="pay-price">19</span><span style="font-size:18px;font-weight:500;color:rgba(255,255,255,0.3)">,90</span>
                         </div>
-                        <div id="pay-original" class="price-original" style="display:none;">R$ 30,00</div>
+                        <div id="pay-original" class="price-original" style="display:none;">R$ 19,90</div>
                         <div id="pay-discount-badge" class="discount-badge" style="display:none;">🎯 Oferta especial</div>
                     </div>
 
@@ -916,7 +1208,7 @@
                     </div>
 
                     <div class="pix-value">
-                        <span class="currency">R$</span> <span id="pix-amount">30,00</span>
+                        <span class="currency">R$</span> <span id="pix-amount">19,90</span>
                     </div>
 
                     <button class="pix-btn" id="pix-copy-btn" onclick="copyPixKey()">
@@ -936,16 +1228,15 @@
     </div>
 
     <!-- ===== TOAST ===== -->
-    <div id="toast" style="position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);color:#fff;padding:10px 20px;border-radius:30px;font-size:13px;font-weight:500;z-index:999;pointer-events:none;opacity:0;transition:opacity 0.3s ease;font-family:inherit;white-space:nowrap;">
-    </div>
+    <div id="toast"></div>
 
     <script>
         // ============================================================
-        //  CONFIG (idêntico ao index.html)
+        //  CONFIG - PREÇOS ATUALIZADOS
         // ============================================================
         const PRODUCT_HASH = "7p8h95hghd";
-        const PRICE_NORMAL = 3000;
-        const PRICE_DISCOUNT = 2000;
+        const PRICE_NORMAL = 1990; // R$ 19,90
+        const PRICE_DISCOUNT = 990; // R$ 9,90
 
         let isUnlocked = false;
         let isReturning = false;
@@ -1035,10 +1326,10 @@
             el.className = 'comment-item' + (isOut ? ' out' : '');
             const displayName = emoji ? emoji + ' ' + username : username;
             el.innerHTML = `
-            <span class="username">${displayName}</span>
-            <span class="text">${text}</span>
-            <span class="time">${getRandomTime()}</span>
-          `;
+                <span class="username">${displayName}</span>
+                <span class="text">${text}</span>
+                <span class="time">${getRandomTime()}</span>
+              `;
             commentsFeed.appendChild(el);
             while (commentsFeed.children.length > 50) commentsFeed.removeChild(commentsFeed.firstChild);
             commentsFeed.scrollTop = commentsFeed.scrollHeight;
@@ -1113,13 +1404,13 @@
 
         function showToast(msg, duration = 2500) {
             toast.textContent = msg;
-            toast.style.opacity = '1';
+            toast.classList.add('show');
             clearTimeout(toast._timer);
-            toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, duration);
+            toast._timer = setTimeout(() => { toast.classList.remove('show'); }, duration);
         }
 
         // ============================================================
-        //  META PIXEL (idêntico ao index.html)
+        //  META PIXEL
         // ============================================================
         function pixelIniCheckout(v) {
             if (initiateCheckoutFired) return;
@@ -1148,7 +1439,7 @@
         }
 
         // ============================================================
-        //  POLLING - IDÊNTICO AO INDEX.HTML
+        //  POLLING
         // ============================================================
         function salvarEstadoPolling(hash, tentativas, valor) {
             try {
@@ -1216,12 +1507,12 @@
                         if (status === 'paid' || status === 'approved' || status === 'completed') {
                             limparEstadoPolling();
                             pixelPurchase(pollingValorAtual);
-                            unlockStream(); // libera a live
+                            unlockStream();
                             return;
                         }
 
                         pollingIntervaloAtual = Math.min(pollingIntervaloAtual * BACKOFF_MULTIPLICADOR,
-                        INTERVALO_MAXIMO);
+                            INTERVALO_MAXIMO);
                         pollingTimeoutId = setTimeout(tentar, pollingIntervaloAtual);
                     })
                     .catch(() => {
@@ -1265,29 +1556,29 @@
             if (!currentPixKey) return;
             const sucesso = () => {
                 pixCopyBtn.innerHTML = `
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>
-              Copiado!
-            `;
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>
+                      Copiado!
+                    `;
                 pixCopyBtn.style.background = '#007a5e';
                 setTimeout(() => {
                     pixCopyBtn.innerHTML = `
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-                Copiar chave Pix
-              `;
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                          Copiar chave Pix
+                        `;
                     pixCopyBtn.style.background = '';
                 }, 2000);
                 showToast('Chave Pix copiada! ✅');
             };
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(currentPixKey).then(sucesso).catch(() => fallbackCopy(currentPixKey,
-                sucesso));
+                    sucesso));
             } else {
                 fallbackCopy(currentPixKey, sucesso);
             }
         }
 
         // ============================================================
-        //  GERAR PIX (chama /api/pix) - IDÊNTICO AO INDEX
+        //  GERAR PIX (chama /api/pix)
         // ============================================================
         async function gerarPix(desconto) {
             try {
@@ -1303,7 +1594,7 @@
         }
 
         // ============================================================
-        //  INICIAR PAGAMENTO (chamado pelo botão)
+        //  INICIAR PAGAMENTO
         // ============================================================
         async function startPayment() {
             if (paymentInProgress) return;
@@ -1312,7 +1603,7 @@
             paymentInProgress = true;
             payBtn.disabled = true;
             payBtn.innerHTML =
-                '<span class="spinner" style="display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,0.2);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite;margin-right:8px;"></span> Gerando Pix...';
+                '<span class="spinner" style="display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,0.15);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite;margin-right:10px;"></span> Gerando Pix...';
 
             try {
                 const data = await gerarPix(isReturning);
@@ -1331,24 +1622,19 @@
                 currentPixHash = txHash;
                 currentPixValor = isReturning ? PRICE_DISCOUNT : PRICE_NORMAL;
 
-                // Atualiza modal Pix
                 const valorExibido = (currentPixValor / 100).toFixed(2).replace('.', ',');
                 pixAmount.textContent = valorExibido;
                 pixStatus.innerHTML = '<span class="spinner"></span> Aguardando pagamento...';
                 pixCopyBtn.innerHTML = `
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-              Copiar chave Pix
-            `;
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                      Copiar chave Pix
+                    `;
                 pixCopyBtn.style.background = '';
 
-                // Fecha paywall e abre modal Pix
                 paymentOverlay.classList.remove('show');
                 pixModal.classList.add('show');
 
-                // Dispara evento de checkout
                 pixelIniCheckout(currentPixValor);
-
-                // Inicia polling
                 iniciarPollRobusto(txHash, currentPixValor);
 
             } catch (err) {
@@ -1361,7 +1647,7 @@
         }
 
         // ============================================================
-        //  UNLOCK STREAM (após pagamento confirmado)
+        //  UNLOCK STREAM
         // ============================================================
         function unlockStream() {
             isUnlocked = true;
@@ -1377,15 +1663,13 @@
 
             payBtn.disabled = false;
             payBtn.innerHTML = '<i class="ti ti-check"></i> Acesso liberado';
-            payBtn.style.background = '#00a884';
+            payBtn.style.background = 'linear-gradient(135deg, #00a884, #007a5e)';
             payBtn.style.cursor = 'default';
 
             commentWrap.classList.remove('disabled');
 
-            // Limpa estado de polling
             limparEstadoPolling();
 
-            // Salva estado de desbloqueado no localStorage
             try {
                 localStorage.setItem('live_unlocked', 'true');
             } catch (e) {}
@@ -1429,7 +1713,7 @@
                     liveContainer.classList.add('unlocked');
                     paymentOverlay.classList.remove('show');
                     payBtn.innerHTML = '<i class="ti ti-check"></i> Acesso liberado';
-                    payBtn.style.background = '#00a884';
+                    payBtn.style.background = 'linear-gradient(135deg, #00a884, #007a5e)';
                     payBtn.style.cursor = 'default';
                     payBtn.disabled = true;
                     video.muted = false;
@@ -1440,11 +1724,11 @@
                     const returning = checkReturningUser();
                     if (returning) {
                         isReturning = true;
-                        payPrice.textContent = '20';
+                        payPrice.textContent = '9';
                         payOriginal.style.display = 'block';
                         payDiscountBadge.style.display = 'inline-block';
                     } else {
-                        payPrice.textContent = '30';
+                        payPrice.textContent = '19';
                         payOriginal.style.display = 'none';
                         payDiscountBadge.style.display = 'none';
                     }
@@ -1467,11 +1751,11 @@
                     const returning = checkReturningUser();
                     if (returning) {
                         isReturning = true;
-                        payPrice.textContent = '20';
+                        payPrice.textContent = '9';
                         payOriginal.style.display = 'block';
                         payDiscountBadge.style.display = 'inline-block';
                     } else {
-                        payPrice.textContent = '30';
+                        payPrice.textContent = '19';
                         payOriginal.style.display = 'none';
                         payDiscountBadge.style.display = 'none';
                     }
@@ -1483,11 +1767,11 @@
             const returning = checkReturningUser();
             if (returning) {
                 isReturning = true;
-                payPrice.textContent = '20';
+                payPrice.textContent = '9';
                 payOriginal.style.display = 'block';
                 payDiscountBadge.style.display = 'inline-block';
             } else {
-                payPrice.textContent = '30';
+                payPrice.textContent = '19';
                 payOriginal.style.display = 'none';
                 payDiscountBadge.style.display = 'none';
             }
@@ -1497,7 +1781,6 @@
             video.play().catch(() => {});
             commentWrap.classList.remove('disabled');
 
-            // Viewer count fake
             let viewers = 1200;
             setInterval(() => {
                 const delta = Math.floor(Math.random() * 30) - 10;
@@ -1507,7 +1790,6 @@
 
             startFakeComments();
 
-            // Após 7 segundos, mostra paywall
             setTimeout(() => {
                 if (isUnlocked) return;
                 paymentTriggered = true;
@@ -1523,18 +1805,18 @@
 
         function declineLive() {
             entryModal.innerHTML = `
-            <div class="card" style="padding:36px 24px 28px;">
-              <div style="font-size:48px;margin-bottom:12px;">😔</div>
-              <h2 style="font-size:18px;">Que pena!</h2>
-              <p style="color:rgba(255,255,255,0.5);font-size:14px;margin:6px 0 16px;line-height:1.6;">
-                Vanessa ficará triste em saber que você não pôde participar.<br>
-                <span style="color:rgba(255,255,255,0.3);font-size:12px;">Você pode fechar esta página.</span>
-              </p>
-              <button onclick="window.close()" style="background:rgba(255,255,255,0.06);border:none;border-radius:16px;padding:12px 24px;color:#fff;font-size:14px;cursor:pointer;font-family:inherit;">
-                Fechar
-              </button>
-            </div>
-          `;
+                <div class="card" style="padding:40px 24px 32px;">
+                  <div style="font-size:52px;margin-bottom:14px;">😔</div>
+                  <h2 style="font-size:19px;font-weight:600;">Que pena!</h2>
+                  <p style="color:rgba(255,255,255,0.4);font-size:14px;margin:6px 0 18px;line-height:1.6;">
+                    Vanessa ficará triste em saber que você não pôde participar.<br>
+                    <span style="color:rgba(255,255,255,0.2);font-size:12px;">Você pode fechar esta página.</span>
+                  </p>
+                  <button onclick="window.close()" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.04);border-radius:20px;padding:14px 28px;color:#fff;font-size:14px;cursor:pointer;font-family:inherit;transition:background 0.2s;">
+                    Fechar
+                  </button>
+                </div>
+              `;
         }
 
         function checkReturningUser() {
@@ -1605,6 +1887,7 @@
         retomarPollingSeNecessario();
 
         console.log('🎥 Vanessa Macedo · Transmissão ao Vivo');
+        console.log('💰 Preços: Normal R$ 19,90 | Desconto R$ 9,90');
         console.log('✅ Lógica de pagamento idêntica ao index.html (polling, persistência, Meta Pixel)');
         console.log('✅ Endpoints: /api/pix e /api/status');
     </script>
