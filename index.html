@@ -694,7 +694,7 @@
             font-weight: 400;
         }
 
-        /* ——— PREÇO TODO VERDE ——— */
+        /* ——— PREÇO: "R$" e ",90" pequenos | "19" grande ——— */
         #payment-overlay .price-wrapper {
             display: flex;
             align-items: baseline;
@@ -703,7 +703,8 @@
             margin: 8px 0 4px;
         }
 
-        #payment-overlay .price-wrapper .currency {
+        #payment-overlay .price-wrapper .currency,
+        #payment-overlay .price-wrapper .price-decimal {
             font-size: 20px;
             font-weight: 600;
             color: #25d366;
@@ -711,7 +712,7 @@
             letter-spacing: -0.5px;
         }
 
-        #payment-overlay .price-wrapper .price-value {
+        #payment-overlay .price-wrapper .price-integer {
             font-size: 44px;
             font-weight: 700;
             color: #25d366;
@@ -1052,11 +1053,12 @@
                 border-radius: 28px;
             }
 
-            #payment-overlay .price-wrapper .price-value {
+            #payment-overlay .price-wrapper .price-integer {
                 font-size: 36px;
             }
 
-            #payment-overlay .price-wrapper .currency {
+            #payment-overlay .price-wrapper .currency,
+            #payment-overlay .price-wrapper .price-decimal {
                 font-size: 18px;
             }
 
@@ -1205,7 +1207,8 @@
                     <div id="pay-price-block">
                         <div class="price-wrapper">
                             <span class="currency">R$</span>
-                            <span class="price-value" id="pay-price">19,90</span>
+                            <span class="price-integer" id="pay-integer">19</span>
+                            <span class="price-decimal" id="pay-decimal">,90</span>
                         </div>
                         <div id="pay-original" class="price-original" style="display:none;">R$ 19,90</div>
                         <div id="pay-discount-badge" class="discount-badge" style="display:none;">🎯 Oferta especial</div>
@@ -1419,7 +1422,8 @@
         const paymentOverlay = document.getElementById('payment-overlay');
         const pixModal = document.getElementById('pix-modal');
         const payBtn = document.getElementById('pay-btn');
-        const payPrice = document.getElementById('pay-price');
+        const payInteger = document.getElementById('pay-integer');
+        const payDecimal = document.getElementById('pay-decimal');
         const payOriginal = document.getElementById('pay-original');
         const payDiscountBadge = document.getElementById('pay-discount-badge');
         const pixAmount = document.getElementById('pix-amount');
@@ -1427,6 +1431,13 @@
         const pixStatus = document.getElementById('pix-status');
         const viewerCount = document.getElementById('viewer-count');
         const toast = document.getElementById('toast');
+
+        // Helper para atualizar o preço no paywall
+        function updatePayPrice(value) {
+            const parts = value.split(',');
+            payInteger.textContent = parts[0] || '0';
+            payDecimal.textContent = (parts.length > 1) ? ',' + parts[1] : ',00';
+        }
 
         function showToast(msg, duration = 2500) {
             toast.textContent = msg;
@@ -1750,11 +1761,11 @@
                     const returning = checkReturningUser();
                     if (returning) {
                         isReturning = true;
-                        payPrice.textContent = '9,90';
+                        updatePayPrice('9,90');
                         payOriginal.style.display = 'block';
                         payDiscountBadge.style.display = 'inline-block';
                     } else {
-                        payPrice.textContent = '19,90';
+                        updatePayPrice('19,90');
                         payOriginal.style.display = 'none';
                         payDiscountBadge.style.display = 'none';
                     }
@@ -1777,11 +1788,11 @@
                     const returning = checkReturningUser();
                     if (returning) {
                         isReturning = true;
-                        payPrice.textContent = '9,90';
+                        updatePayPrice('9,90');
                         payOriginal.style.display = 'block';
                         payDiscountBadge.style.display = 'inline-block';
                     } else {
-                        payPrice.textContent = '19,90';
+                        updatePayPrice('19,90');
                         payOriginal.style.display = 'none';
                         payDiscountBadge.style.display = 'none';
                     }
@@ -1793,11 +1804,11 @@
             const returning = checkReturningUser();
             if (returning) {
                 isReturning = true;
-                payPrice.textContent = '9,90';
+                updatePayPrice('9,90');
                 payOriginal.style.display = 'block';
                 payDiscountBadge.style.display = 'inline-block';
             } else {
-                payPrice.textContent = '19,90';
+                updatePayPrice('19,90');
                 payOriginal.style.display = 'none';
                 payDiscountBadge.style.display = 'none';
             }
