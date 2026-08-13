@@ -613,7 +613,7 @@
         }
 
         /* ============================================================
-               PAYMENT OVERLAY — Liquid Glass
+               PAYMENT OVERLAY — Liquid Glass (MELHORADO)
             ============================================================ */
         #payment-overlay {
             position: absolute;
@@ -642,7 +642,7 @@
             border-radius: 36px;
             max-width: 380px;
             width: 100%;
-            padding: 36px 28px 32px;
+            padding: 38px 28px 32px;
             text-align: center;
             border: 1px solid rgba(255, 255, 255, 0.05);
             box-shadow:
@@ -694,18 +694,29 @@
             font-weight: 400;
         }
 
-        #payment-overlay .price-tag {
-            font-size: 36px;
-            font-weight: 700;
+        /* ——— PREÇO TODO VERDE ——— */
+        #payment-overlay .price-wrapper {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 2px;
+            margin: 8px 0 4px;
+        }
+
+        #payment-overlay .price-wrapper .currency {
+            font-size: 20px;
+            font-weight: 600;
             color: #25d366;
-            margin: 6px 0 2px;
+            opacity: 0.8;
             letter-spacing: -0.5px;
         }
 
-        #payment-overlay .price-tag .currency {
-            font-size: 18px;
-            font-weight: 500;
-            color: rgba(255, 255, 255, 0.3);
+        #payment-overlay .price-wrapper .price-value {
+            font-size: 44px;
+            font-weight: 700;
+            color: #25d366;
+            letter-spacing: -1px;
+            line-height: 1.1;
         }
 
         #payment-overlay .price-original {
@@ -713,6 +724,7 @@
             color: rgba(255, 255, 255, 0.2);
             text-decoration: line-through;
             margin-bottom: 14px;
+            margin-top: -4px;
         }
 
         #payment-overlay .discount-badge {
@@ -764,10 +776,19 @@
         }
 
         #payment-overlay .pay-footer {
-            margin-top: 16px;
+            margin-top: 18px;
             font-size: 12px;
-            color: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.25);
             font-weight: 400;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        #payment-overlay .pay-footer i {
+            font-size: 14px;
+            color: rgba(37, 211, 102, 0.5);
         }
 
         #payment-overlay .pay-footer strong {
@@ -1031,8 +1052,12 @@
                 border-radius: 28px;
             }
 
-            #payment-overlay .price-tag {
-                font-size: 30px;
+            #payment-overlay .price-wrapper .price-value {
+                font-size: 36px;
+            }
+
+            #payment-overlay .price-wrapper .currency {
+                font-size: 18px;
             }
 
             #live-overlay-top {
@@ -1168,7 +1193,7 @@
                 </div>
             </div>
 
-            <!-- ===== PAYMENT OVERLAY (paywall) ===== -->
+            <!-- ===== PAYMENT OVERLAY (paywall) — MELHORADO ===== -->
             <div id="payment-overlay">
                 <div class="pay-card">
                     <div class="pay-icon">🔒</div>
@@ -1178,8 +1203,9 @@
                     </p>
 
                     <div id="pay-price-block">
-                        <div class="price-tag">
-                            <span class="currency">R$</span> <span id="pay-price">19</span><span style="font-size:18px;font-weight:500;color:rgba(255,255,255,0.3)">,90</span>
+                        <div class="price-wrapper">
+                            <span class="currency">R$</span>
+                            <span class="price-value" id="pay-price">19,90</span>
                         </div>
                         <div id="pay-original" class="price-original" style="display:none;">R$ 19,90</div>
                         <div id="pay-discount-badge" class="discount-badge" style="display:none;">🎯 Oferta especial</div>
@@ -1189,7 +1215,7 @@
                         <i class="ti ti-qrcode"></i> Pagar via Pix
                     </button>
                     <div class="pay-footer">
-                        Pagamento seguro via <strong>Pix</strong> · Acesso imediato
+                        <i class="ti ti-shield-check"></i> Pagamento seguro via <strong>Pix</strong> · Acesso imediato
                     </div>
                 </div>
             </div>
@@ -1724,11 +1750,11 @@
                     const returning = checkReturningUser();
                     if (returning) {
                         isReturning = true;
-                        payPrice.textContent = '9';
+                        payPrice.textContent = '9,90';
                         payOriginal.style.display = 'block';
                         payDiscountBadge.style.display = 'inline-block';
                     } else {
-                        payPrice.textContent = '19';
+                        payPrice.textContent = '19,90';
                         payOriginal.style.display = 'none';
                         payDiscountBadge.style.display = 'none';
                     }
@@ -1751,11 +1777,11 @@
                     const returning = checkReturningUser();
                     if (returning) {
                         isReturning = true;
-                        payPrice.textContent = '9';
+                        payPrice.textContent = '9,90';
                         payOriginal.style.display = 'block';
                         payDiscountBadge.style.display = 'inline-block';
                     } else {
-                        payPrice.textContent = '19';
+                        payPrice.textContent = '19,90';
                         payOriginal.style.display = 'none';
                         payDiscountBadge.style.display = 'none';
                     }
@@ -1767,11 +1793,11 @@
             const returning = checkReturningUser();
             if (returning) {
                 isReturning = true;
-                payPrice.textContent = '9';
+                payPrice.textContent = '9,90';
                 payOriginal.style.display = 'block';
                 payDiscountBadge.style.display = 'inline-block';
             } else {
-                payPrice.textContent = '19';
+                payPrice.textContent = '19,90';
                 payOriginal.style.display = 'none';
                 payDiscountBadge.style.display = 'none';
             }
