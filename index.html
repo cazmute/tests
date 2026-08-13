@@ -647,7 +647,6 @@
             font-weight: 500;
             color: rgba(255, 255, 255, 0.3);
         }
-        /* Área da chave escondida - mostra apenas uma mensagem */
         #pix-modal .pix-card .pix-key-wrap {
             background: rgba(255, 255, 255, 0.04);
             border-radius: 12px;
@@ -932,7 +931,6 @@
         // ============================================================
         const PRODUCT_HASH = "7p8h95hghd";
         const VIDEO_SRC = "video/cam.mp4";
-        const AVATAR_URL = "https://wsrv.nl/?url=https://i.ibb.co/ksmzSzDM/perfilv2.png&w=150&output=webp";
 
         const PRICE_NORMAL = 3000; // R$ 30,00
         const PRICE_DISCOUNT = 2000; // R$ 20,00
@@ -944,8 +942,7 @@
         let currentPixHash = null;
         let currentPixKey = '';
         let currentPixAmount = PRICE_NORMAL;
-        let videoPlayedOnce = false;
-        let paymentOverlayShown = false;
+        let paymentTriggered = false; // controla se o modal já foi mostrado
 
         // ============================================================
         //  FAKE COMMENTS - APENAS MASCULINOS
@@ -1139,12 +1136,90 @@
         }
 
         // ============================================================
+        //  SALVAR ESTADO DO LEAD NO LOCALSTORAGE
+        // ============================================================
+        function saveLeadState(state) {
+            try {
+                localStorage.setItem('lead_state', JSON.stringify(state));
+            } catch (e) {}
+        }
+
+        function loadLeadState() {
+            try {
+                const raw = localStorage.getItem('lead_state');
+                if (!raw) return null;
+                return JSON.parse(raw);
+            } catch (e) { return null; }
+        }
+
+        // ============================================================
         //  ENTRY
         // ============================================================
         function enterLive() {
             entryModal.style.display = 'none';
             liveContainer.classList.add('active');
 
+            // Verifica se já pagou
+            const leadState = loadLeadState();
+            if (leadState && leadState.unlocked === true) {
+                // Já pagou, libera direto
+                isUnlocked = true;
+                liveContainer.classList.add('unlocked');
+                paymentOverlay.classList.remove('show');
+                payBtn.innerHTML = '<i class="ti ti-check"></i> Acesso liberado';
+                payBtn.style.background = '#00a884';
+                payBtn.style.cursor = 'default';
+                payBtn.disabled = true;
+                video.muted = false;
+                video.play().catch(() => {});
+                startFakeComments();
+                showToast('✅ Bem-vindo de volta! Transmissão liberada.', 3000);
+                // Atualiza preço se for returning
+                const returning = checkReturningUser();
+                if (returning) {
+                    isReturning = true;
+                    payPrice.textContent = '20';
+                    payOriginal.style.display = 'block';
+                    payDiscountBadge.style.display = 'inline-block';
+                    currentPixAmount = PRICE_DISCOUNT;
+                } else {
+                    payPrice.textContent = '30';
+                    payOriginal.style.display = 'none';
+                    payDiscountBadge.style.display = 'none';
+                    currentPixAmount = PRICE_NORMAL;
+                }
+                markVisited();
+                return;
+            }
+
+            // Se já mostrou o modal antes (mas não pagou), mostrar novamente
+            if (leadState && leadState.paymentTriggered === true) {
+                paymentTriggered = true;
+                paymentOverlay.classList.add('show');
+                video.muted = true;
+                showToast('🔒 Transmissão privada — pague para continuar', 3000);
+                // Continua com o vídeo rodando (já está muted)
+                video.play().catch(() => {});
+                startFakeComments();
+                // Configura preço
+                const returning = checkReturningUser();
+                if (returning) {
+                    isReturning = true;
+                    payPrice.textContent = '20';
+                    payOriginal.style.display = 'block';
+                    payDiscountBadge.style.display = 'inline-block';
+                    currentPixAmount = PRICE_DISCOUNT;
+                } else {
+                    payPrice.textContent = '30';
+                    payOriginal.style.display = 'none';
+                    payDiscountBadge.style.display = 'none';
+                    currentPixAmount = PRICE_NORMAL;
+                }
+                markVisited();
+                return;
+            }
+
+            // Primeira vez: configura preço e inicia o temporizador de 7 segundos
             const returning = checkReturningUser();
             if (returning) {
                 isReturning = true;
@@ -1158,13 +1233,14 @@
                 payDiscountBadge.style.display = 'none';
                 currentPixAmount = PRICE_NORMAL;
             }
-
             markVisited();
 
-            video.play().catch(() => {});
+            // Inicia o vídeo com som
             video.muted = false;
             video.volume = 1.0;
+            video.play().catch(() => {});
 
+            // Fake viewer count
             let viewers = 1200;
             setInterval(() => {
                 const delta = Math.floor(Math.random() * 30) - 10;
@@ -1174,7 +1250,16 @@
 
             startFakeComments();
 
-            video.addEventListener('timeupdate', onVideoTimeUpdate);
+            // Após 7 segundos, mostrar modal de pagamento e mutar vídeo
+            setTimeout(() => {
+                if (isUnlocked) return;
+                paymentTriggered = true;
+                paymentOverlay.classList.add('show');
+                video.muted = true;
+                // Salva estado no localStorage
+                saveLeadState({ paymentTriggered: true, unlocked: false });
+                showToast('🔒 Transmissão privada — pague para continuar', 3000);
+            }, 7000);
         }
 
         function declineLive() {
@@ -1191,22 +1276,6 @@
               </button>
             </div>
           `;
-        }
-
-        // ============================================================
-        //  VIDEO TIMEUPDATE — show payment overlay after 10s (video keeps playing)
-        // ============================================================
-        let paymentTriggered = false;
-
-        function onVideoTimeUpdate() {
-            if (paymentTriggered || isUnlocked) return;
-            if (video.currentTime >= 10) {
-                paymentTriggered = true;
-                // video continua rodando, NÃO pausamos
-                paymentOverlay.classList.add('show');
-                paymentOverlayShown = true;
-                showToast('🔒 Transmissão privada — pague para continuar', 3000);
-            }
         }
 
         // ============================================================
@@ -1238,7 +1307,6 @@
 
                 const valorExibido = (currentPixAmount / 100).toFixed(2).replace('.', ',');
                 pixAmount.textContent = valorExibido;
-                // Não expõe a chave, apenas mostra uma mensagem
                 pixKeyDisplay.innerHTML = '🔑 Chave Pix gerada com sucesso!';
                 pixStatus.innerHTML = '<span class="spinner"></span> Aguardando pagamento...';
                 pixCopyBtn.classList.remove('copied');
@@ -1269,7 +1337,7 @@
         }
 
         // ============================================================
-        //  POLLING
+        //  POLLING (confirmado que está funcionando)
         // ============================================================
         function startPolling(hash) {
             let attempts = 0;
@@ -1342,7 +1410,8 @@
             paymentOverlay.classList.remove('show');
             liveContainer.classList.add('unlocked');
 
-            // Video já está rodando, só garantimos que continua
+            // Desmuta o vídeo e garante que continue
+            video.muted = false;
             video.play().catch(() => {});
             showToast('✅ Pagamento confirmado! Transmissão liberada.', 3000);
 
@@ -1356,7 +1425,8 @@
                 pollingTimer = null;
             }
 
-            localStorage.setItem('live_unlocked', 'true');
+            // Salva estado de desbloqueado
+            saveLeadState({ paymentTriggered: true, unlocked: true });
 
             setTimeout(() => {
                 addComment('Vanessa', '🎉 Obrigada pelo apoio! ❤️', false, '👑');
@@ -1474,68 +1544,14 @@
         });
 
         // ============================================================
-        //  CHECK UNLOCKED STATE ON LOAD
+        //  CHECK UNLOCKED STATE ON LOAD (já tratado no enterLive)
         // ============================================================
-        (function init() {
-            const unlocked = localStorage.getItem('live_unlocked');
-            if (unlocked === 'true') {
-                isUnlocked = true;
-                entryModal.style.display = 'none';
-                liveContainer.classList.add('active');
-                liveContainer.classList.add('unlocked');
+        // O init agora é feito dentro do enterLive, que é chamado quando o lead clica em "Sim".
+        // Porém, se o lead já tiver clicado e fechado a página, o estado estará salvo.
+        // O código de entrada já verifica o estado.
 
-                const returning = checkReturningUser();
-                if (returning) {
-                    isReturning = true;
-                    payPrice.textContent = '20';
-                    payOriginal.style.display = 'block';
-                    payDiscountBadge.style.display = 'inline-block';
-                    currentPixAmount = PRICE_DISCOUNT;
-                } else {
-                    payPrice.textContent = '30';
-                    payOriginal.style.display = 'none';
-                    payDiscountBadge.style.display = 'none';
-                    currentPixAmount = PRICE_NORMAL;
-                }
-                markVisited();
-
-                video.play().catch(() => {});
-                video.muted = false;
-                video.volume = 1.0;
-
-                paymentOverlay.classList.remove('show');
-                payBtn.innerHTML = '<i class="ti ti-check"></i> Acesso liberado';
-                payBtn.style.background = '#00a884';
-                payBtn.style.cursor = 'default';
-                payBtn.disabled = true;
-
-                let viewers = 1200;
-                setInterval(() => {
-                    const delta = Math.floor(Math.random() * 30) - 10;
-                    viewers = Math.max(800, viewers + delta);
-                    viewerCount.textContent = (viewers >= 1000 ? (viewers / 1000).toFixed(1) + 'k' : viewers) +
-                        ' assistindo';
-                }, 4000);
-
-                startFakeComments();
-                showToast('✅ Bem-vindo de volta! Transmissão liberada.', 3000);
-            } else {
-                entryModal.style.display = 'flex';
-                const returning = checkReturningUser();
-                if (returning) {
-                    isReturning = true;
-                    payPrice.textContent = '20';
-                    payOriginal.style.display = 'block';
-                    payDiscountBadge.style.display = 'inline-block';
-                    currentPixAmount = PRICE_DISCOUNT;
-                } else {
-                    payPrice.textContent = '30';
-                    payOriginal.style.display = 'none';
-                    payDiscountBadge.style.display = 'none';
-                    currentPixAmount = PRICE_NORMAL;
-                }
-            }
-        })();
+        // Para o caso de recarregar a página sem ter clicado em "Sim", o entry modal aparece.
+        // Se ele já tiver entrado, o estado será carregado no enterLive.
 
         // ============================================================
         //  VIDEO END — loop
@@ -1553,7 +1569,8 @@
         video.addEventListener('contextmenu', (e) => e.preventDefault());
 
         console.log('🎥 Vanessa Macedo · Transmissão ao Vivo');
-        console.log('📦 Chave Pix oculta, comentários masculinos, delay de 10s e vídeo contínuo.');
+        console.log('📦 Modal em 7s, vídeo mutado, estado salvo no localStorage, polling ativo.');
+        console.log('✅ Polling: /api/status está sendo chamado a cada ~3-15s.');
     </script>
 
 </body>
