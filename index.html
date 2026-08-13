@@ -579,7 +579,7 @@
             color: rgba(255, 255, 255, 0.5);
         }
 
-        /* ===== PIX MODAL ===== */
+        /* ===== PIX MODAL (sem chave exposta) ===== */
         #pix-modal {
             position: absolute;
             inset: 0;
@@ -647,17 +647,16 @@
             font-weight: 500;
             color: rgba(255, 255, 255, 0.3);
         }
+        /* Área da chave escondida - mostra apenas uma mensagem */
         #pix-modal .pix-card .pix-key-wrap {
             background: rgba(255, 255, 255, 0.04);
             border-radius: 12px;
-            padding: 12px 14px;
+            padding: 16px 14px;
             margin: 8px 0 16px;
-            word-break: break-all;
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.7);
-            font-family: monospace;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
             border: 1px dashed rgba(255, 255, 255, 0.06);
-            position: relative;
+            font-family: inherit;
         }
         #pix-modal .pix-card .copy-btn {
             width: 100%;
@@ -892,12 +891,12 @@
                 </div>
             </div>
 
-            <!-- ===== PIX MODAL ===== -->
+            <!-- ===== PIX MODAL (sem chave exposta) ===== -->
             <div id="pix-modal">
                 <div class="pix-card">
                     <div class="pix-header">
                         <div class="icon"><i class="ti ti-qrcode"></i></div>
-                        <h4>Pagar via Pix <small>Escaneie ou copie a chave</small></h4>
+                        <h4>Copiar chave Pix <small>Clique no botão abaixo</small></h4>
                     </div>
 
                     <div class="pix-value">
@@ -905,7 +904,7 @@
                     </div>
 
                     <div class="pix-key-wrap" id="pix-key-display">
-                        Aguardando chave...
+                        🔑 Chave Pix gerada com sucesso!
                     </div>
 
                     <button class="copy-btn" id="pix-copy-btn" onclick="copyPixKey()">
@@ -949,21 +948,21 @@
         let paymentOverlayShown = false;
 
         // ============================================================
-        //  FAKE COMMENTS
+        //  FAKE COMMENTS - APENAS MASCULINOS
         // ============================================================
         const fakeUsers = [
             { name: 'Carlos', emoji: '🔥' },
-            { name: 'Mariana', emoji: '❤️' },
             { name: 'Rafael', emoji: '👏' },
-            { name: 'Beatriz', emoji: '😍' },
             { name: 'Lucas', emoji: '✨' },
-            { name: 'Jéssica', emoji: '💕' },
             { name: 'Pedro', emoji: '🤩' },
-            { name: 'Camila', emoji: '🥰' },
             { name: 'Gustavo', emoji: '💪' },
-            { name: 'Fernanda', emoji: '🌟' },
             { name: 'Thiago', emoji: '👊' },
-            { name: 'Larissa', emoji: '💖' },
+            { name: 'Rodrigo', emoji: '💯' },
+            { name: 'Felipe', emoji: '⚡' },
+            { name: 'Marcelo', emoji: '🔥' },
+            { name: 'André', emoji: '👑' },
+            { name: 'Bruno', emoji: '😎' },
+            { name: 'Paulo', emoji: '🚀' }
         ];
 
         const complimentPhrases = [
@@ -986,7 +985,8 @@
             "Gata, você é um espetáculo!",
             "Que mulherão!",
             "Você é radiante!",
-            "Vanessa, você é incrível!"
+            "Vanessa, você é incrível!",
+            "Linda maravilhosa!"
         ];
 
         let commentInterval = null;
@@ -1018,13 +1018,10 @@
             <span class="time">${getRandomTime()}</span>
           `;
             commentsFeed.appendChild(el);
-            // limit feed to 50 comments to avoid memory issues
             while (commentsFeed.children.length > 50) {
                 commentsFeed.removeChild(commentsFeed.firstChild);
             }
-            // auto scroll to bottom
             commentsFeed.scrollTop = commentsFeed.scrollHeight;
-            // remove after 15 seconds
             setTimeout(() => {
                 if (el.parentNode) el.remove();
             }, 15000);
@@ -1039,12 +1036,10 @@
 
         function startFakeComments() {
             if (commentInterval) clearInterval(commentInterval);
-            // spawn first comment after 1s
             setTimeout(() => {
                 spawnFakeComment();
             }, 1000);
             commentInterval = setInterval(() => {
-                // sometimes spawn 2 at once
                 spawnFakeComment();
                 if (Math.random() > 0.7) {
                     setTimeout(spawnFakeComment, 300 + Math.random() * 800);
@@ -1075,18 +1070,16 @@
             }
             addComment('Você', text, true);
             commentInput.value = '';
-            // Simulate a reply from another user sometimes
             if (Math.random() > 0.6) {
                 setTimeout(() => {
                     const user = getRandomUser();
                     const replies = [
-                        "Ela é mesmo!",
+                        "Ela é linda!",
                         "Concordo!",
-                        "Linda demais!",
-                        "Vanessa é top!",
-                        "Demais!",
-                        "Também acho!",
-                        "Perfeita!"
+                        "Perfeita!",
+                        "Maravilhosa!",
+                        "Deusa!",
+                        "Muito gata!"
                     ];
                     addComment(user.name, replies[Math.floor(Math.random() * replies.length)], false, user.emoji);
                 }, 1500 + Math.random() * 2000);
@@ -1152,7 +1145,6 @@
             entryModal.style.display = 'none';
             liveContainer.classList.add('active');
 
-            // Check if returning
             const returning = checkReturningUser();
             if (returning) {
                 isReturning = true;
@@ -1169,12 +1161,10 @@
 
             markVisited();
 
-            // Start video
             video.play().catch(() => {});
             video.muted = false;
             video.volume = 1.0;
 
-            // Fake viewer count animation
             let viewers = 1200;
             setInterval(() => {
                 const delta = Math.floor(Math.random() * 30) - 10;
@@ -1182,10 +1172,8 @@
                 viewerCount.textContent = (viewers >= 1000 ? (viewers / 1000).toFixed(1) + 'k' : viewers) + ' assistindo';
             }, 4000);
 
-            // Start fake comments
             startFakeComments();
 
-            // Listen for video timeupdate to show payment overlay after 2-3 seconds
             video.addEventListener('timeupdate', onVideoTimeUpdate);
         }
 
@@ -1206,15 +1194,15 @@
         }
 
         // ============================================================
-        //  VIDEO TIMEUPDATE — show payment overlay after 2-3s
+        //  VIDEO TIMEUPDATE — show payment overlay after 10s (video keeps playing)
         // ============================================================
         let paymentTriggered = false;
 
         function onVideoTimeUpdate() {
             if (paymentTriggered || isUnlocked) return;
-            if (video.currentTime >= 2.5) {
+            if (video.currentTime >= 10) {
                 paymentTriggered = true;
-                video.pause();
+                // video continua rodando, NÃO pausamos
                 paymentOverlay.classList.add('show');
                 paymentOverlayShown = true;
                 showToast('🔒 Transmissão privada — pague para continuar', 3000);
@@ -1248,10 +1236,10 @@
                 currentPixKey = data.pix.pix_qr_code;
                 currentPixHash = data.hash || ('tx' + Date.now());
 
-                // Show Pix modal
                 const valorExibido = (currentPixAmount / 100).toFixed(2).replace('.', ',');
                 pixAmount.textContent = valorExibido;
-                pixKeyDisplay.textContent = currentPixKey;
+                // Não expõe a chave, apenas mostra uma mensagem
+                pixKeyDisplay.innerHTML = '🔑 Chave Pix gerada com sucesso!';
                 pixStatus.innerHTML = '<span class="spinner"></span> Aguardando pagamento...';
                 pixCopyBtn.classList.remove('copied');
                 pixCopyBtn.innerHTML = '<i class="ti ti-copy"></i> Copiar chave Pix';
@@ -1259,7 +1247,6 @@
                 paymentOverlay.classList.remove('show');
                 pixModal.classList.add('show');
 
-                // Track InitiateCheckout
                 if (typeof fbq !== 'undefined') {
                     fbq('track', 'InitiateCheckout', {
                         value: (currentPixAmount / 100).toFixed(2),
@@ -1270,7 +1257,6 @@
                     });
                 }
 
-                // Start polling
                 startPolling(currentPixHash);
 
             } catch (err) {
@@ -1356,6 +1342,7 @@
             paymentOverlay.classList.remove('show');
             liveContainer.classList.add('unlocked');
 
+            // Video já está rodando, só garantimos que continua
             video.play().catch(() => {});
             showToast('✅ Pagamento confirmado! Transmissão liberada.', 3000);
 
@@ -1371,14 +1358,13 @@
 
             localStorage.setItem('live_unlocked', 'true');
 
-            // Spawn a special comment
             setTimeout(() => {
                 addComment('Vanessa', '🎉 Obrigada pelo apoio! ❤️', false, '👑');
             }, 1000);
         }
 
         // ============================================================
-        //  COPY PIX KEY
+        //  COPY PIX KEY (usa a chave armazenada, não exposta)
         // ============================================================
         function copyPixKey() {
             if (!currentPixKey) return;
@@ -1445,7 +1431,6 @@
             setTimeout(() => {
                 btn.style.transform = 'scale(1)';
             }, 300);
-            // Fake comment about like
             if (likeCount % 3 === 0) {
                 const user = getRandomUser();
                 addComment(user.name, 'Vanessa, você é demais! 🔥', false, user.emoji);
@@ -1568,7 +1553,7 @@
         video.addEventListener('contextmenu', (e) => e.preventDefault());
 
         console.log('🎥 Vanessa Macedo · Transmissão ao Vivo');
-        console.log('📦 Com comentários falsos e elogios à Vanessa!');
+        console.log('📦 Chave Pix oculta, comentários masculinos, delay de 10s e vídeo contínuo.');
     </script>
 
 </body>
