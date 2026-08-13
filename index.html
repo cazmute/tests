@@ -913,7 +913,7 @@
                     </div>
 
                     <div class="pix-key-wrap" id="pix-key-display">
-                        🔑 Chave Pix gerada com sucesso!
+                        Aguardando chave...
                     </div>
 
                     <button class="copy-btn" id="pix-copy-btn" onclick="copyPixKey()">
@@ -940,8 +940,8 @@
         //  CONFIG
         // ============================================================
         const PRODUCT_HASH = "7p8h95hghd";
-        const PRICE_NORMAL = 3000; // R$ 30,00
-        const PRICE_DISCOUNT = 2000; // R$ 20,00
+        const PRICE_NORMAL = 3000;
+        const PRICE_DISCOUNT = 2000;
 
         let isUnlocked = false;
         let isReturning = false;
@@ -953,7 +953,7 @@
         let paymentTriggered = false;
 
         // ============================================================
-        //  FAKE COMMENTS - APENAS MASCULINOS
+        //  FAKE COMMENTS - MASCULINOS
         // ============================================================
         const fakeUsers = [
             { name: 'Carlos', emoji: '🔥' },
@@ -995,9 +995,9 @@
         ];
 
         let commentInterval = null;
-        let commentsFeed = document.getElementById('comments-feed');
-        let commentInput = document.getElementById('comment-input');
-        let commentWrap = document.getElementById('comment-input-wrap');
+        const commentsFeed = document.getElementById('comments-feed');
+        const commentInput = document.getElementById('comment-input');
+        const commentWrap = document.getElementById('comment-input-wrap');
 
         function getRandomUser() {
             return fakeUsers[Math.floor(Math.random() * fakeUsers.length)];
@@ -1009,9 +1009,7 @@
 
         function getRandomTime() {
             const now = new Date();
-            const h = String(now.getHours()).padStart(2, '0');
-            const m = String(now.getMinutes()).padStart(2, '0');
-            return h + ':' + m;
+            return String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
         }
 
         function addComment(username, text, isOut = false, emoji = '') {
@@ -1024,40 +1022,29 @@
             <span class="time">${getRandomTime()}</span>
           `;
             commentsFeed.appendChild(el);
-            while (commentsFeed.children.length > 50) {
-                commentsFeed.removeChild(commentsFeed.firstChild);
-            }
+            while (commentsFeed.children.length > 50) commentsFeed.removeChild(commentsFeed.firstChild);
             commentsFeed.scrollTop = commentsFeed.scrollHeight;
-            setTimeout(() => {
-                if (el.parentNode) el.remove();
-            }, 15000);
+            setTimeout(() => { if (el.parentNode) el.remove(); }, 15000);
         }
 
         function spawnFakeComment() {
             if (!document.getElementById('live-container').classList.contains('active')) return;
             const user = getRandomUser();
-            const phrase = getRandomPhrase();
-            addComment(user.name, phrase, false, user.emoji);
+            addComment(user.name, getRandomPhrase(), false, user.emoji);
         }
 
         function startFakeComments() {
             if (commentInterval) clearInterval(commentInterval);
-            setTimeout(() => {
-                spawnFakeComment();
-            }, 1000);
+            setTimeout(spawnFakeComment, 1000);
             commentInterval = setInterval(() => {
                 spawnFakeComment();
-                if (Math.random() > 0.7) {
-                    setTimeout(spawnFakeComment, 300 + Math.random() * 800);
-                }
+                if (Math.random() > 0.7) setTimeout(spawnFakeComment, 300 + Math.random() * 800);
             }, 4000 + Math.random() * 4000);
         }
 
         function stopFakeComments() {
-            if (commentInterval) {
-                clearInterval(commentInterval);
-                commentInterval = null;
-            }
+            if (commentInterval) { clearInterval(commentInterval);
+                commentInterval = null; }
         }
 
         // ============================================================
@@ -1072,35 +1059,21 @@
             if (commentWrap.classList.contains('disabled')) return;
             const text = commentInput.value.trim();
             if (!text) return;
-            if (text.length > 120) {
-                showToast('Máximo 120 caracteres.', 2000);
-                return;
-            }
+            if (text.length > 120) { showToast('Máximo 120 caracteres.', 2000); return; }
             addComment('Você', text, true);
             commentInput.value = '';
             commentInput.focus();
             if (Math.random() > 0.6) {
                 setTimeout(() => {
                     const user = getRandomUser();
-                    const replies = [
-                        "Ela é linda!",
-                        "Concordo!",
-                        "Perfeita!",
-                        "Maravilhosa!",
-                        "Deusa!",
-                        "Muito gata!"
-                    ];
+                    const replies = ["Ela é linda!", "Concordo!", "Perfeita!", "Maravilhosa!", "Deusa!", "Muito gata!"];
                     addComment(user.name, replies[Math.floor(Math.random() * replies.length)], false, user.emoji);
                 }, 1500 + Math.random() * 2000);
             }
         }
 
-        commentInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                sendUserComment();
-            }
-        });
+        commentInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault();
+                sendUserComment(); } });
 
         // ============================================================
         //  DOM REFS
@@ -1121,9 +1094,6 @@
         const viewerCount = document.getElementById('viewer-count');
         const toast = document.getElementById('toast');
 
-        // ============================================================
-        //  TOAST
-        // ============================================================
         function showToast(msg, duration = 2500) {
             toast.textContent = msg;
             toast.style.opacity = '1';
@@ -1132,35 +1102,23 @@
         }
 
         // ============================================================
-        //  RETURNING USER CHECK
+        //  STATE MANAGEMENT
         // ============================================================
         function checkReturningUser() {
-            const visited = localStorage.getItem('live_visited');
-            if (visited === 'true') {
-                isReturning = true;
-                return true;
-            }
+            if (localStorage.getItem('live_visited') === 'true') { isReturning = true; return true; }
             return false;
         }
 
-        function markVisited() {
-            localStorage.setItem('live_visited', 'true');
-        }
+        function markVisited() { localStorage.setItem('live_visited', 'true'); }
 
-        // ============================================================
-        //  SALVAR ESTADO DO LEAD NO LOCALSTORAGE
-        // ============================================================
         function saveLeadState(state) {
-            try {
-                localStorage.setItem('lead_state', JSON.stringify(state));
-            } catch (e) {}
+            try { localStorage.setItem('lead_state', JSON.stringify(state)); } catch (e) {}
         }
 
         function loadLeadState() {
             try {
                 const raw = localStorage.getItem('lead_state');
-                if (!raw) return null;
-                return JSON.parse(raw);
+                return raw ? JSON.parse(raw) : null;
             } catch (e) { return null; }
         }
 
@@ -1173,7 +1131,7 @@
 
             const leadState = loadLeadState();
 
-            // Se já pagou, libera direto
+            // Já pagou
             if (leadState && leadState.unlocked === true) {
                 isUnlocked = true;
                 liveContainer.classList.add('unlocked');
@@ -1204,7 +1162,7 @@
                 return;
             }
 
-            // Se já mostrou o modal antes (mas não pagou), mostrar novamente
+            // Já mostrou paywall
             if (leadState && leadState.paymentTriggered === true) {
                 paymentTriggered = true;
                 paymentOverlay.classList.add('show');
@@ -1288,15 +1246,15 @@
         }
 
         // ============================================================
-        //  PAYMENT FLOW - INTEGRAÇÃO COM /api/pix
+        //  PAYMENT - CHAMA /api/pix
         // ============================================================
         async function startPayment() {
-            if (paymentInProgress) return;
-            if (isUnlocked) return;
+            if (paymentInProgress || isUnlocked) return;
 
             paymentInProgress = true;
             payBtn.disabled = true;
-            payBtn.innerHTML = '<span class="spinner" style="display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,0.2);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite;margin-right:8px;"></span> Gerando Pix...';
+            payBtn.innerHTML =
+                '<span class="spinner" style="display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,0.2);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite;margin-right:8px;"></span> Gerando Pix...';
 
             try {
                 const res = await fetch('/api/pix', {
@@ -1307,12 +1265,12 @@
 
                 if (!res.ok) {
                     const errText = await res.text();
-                    throw new Error(`Erro da API (${res.status}): ${errText}`);
+                    throw new Error(`Erro ${res.status}: ${errText}`);
                 }
 
                 const data = await res.json();
 
-                // Estrutura esperada: { pix: { pix_qr_code: '...' }, hash: '...' }
+                // Espera-se: { pix: { pix_qr_code: "..." }, hash: "..." }
                 if (!data || !data.pix || !data.pix.pix_qr_code) {
                     throw new Error('Resposta da API não contém chave Pix');
                 }
@@ -1320,9 +1278,10 @@
                 currentPixKey = data.pix.pix_qr_code;
                 currentPixHash = data.hash || ('tx_' + Date.now());
 
+                // Atualiza modal Pix
                 const valorExibido = (currentPixAmount / 100).toFixed(2).replace('.', ',');
                 pixAmount.textContent = valorExibido;
-                pixKeyDisplay.innerHTML = '🔑 Chave Pix gerada com sucesso!';
+                pixKeyDisplay.textContent = '🔑 Chave Pix gerada com sucesso!';
                 pixStatus.innerHTML = '<span class="spinner"></span> Aguardando pagamento...';
                 pixCopyBtn.classList.remove('copied');
                 pixCopyBtn.innerHTML = '<i class="ti ti-copy"></i> Copiar chave Pix';
@@ -1340,6 +1299,7 @@
                     });
                 }
 
+                // Inicia polling
                 startPolling(currentPixHash);
 
             } catch (err) {
@@ -1384,12 +1344,8 @@
                             return;
                         }
 
-                        if (status === 'pending' || status === 'processing' || status === '') {
-                            pixStatus.innerHTML =
-                                `<span class="spinner"></span> Aguardando confirmação do pagamento... (${attempts})`;
-                        } else {
-                            pixStatus.innerHTML = `<span class="spinner"></span> Status: ${status} (${attempts})`;
-                        }
+                        pixStatus.innerHTML =
+                            `<span class="spinner"></span> Aguardando confirmação do pagamento... (${attempts})`;
 
                         if (attempts >= maxAttempts) {
                             pixStatus.innerHTML = '⏳ Tempo esgotado. O pagamento ainda pode ser confirmado em breve.';
@@ -1402,8 +1358,7 @@
                         delay = Math.min(delay * 1.2, 15000);
                         pollingTimer = setTimeout(poll, delay);
                     })
-                    .catch((err) => {
-                        console.warn('Polling error:', err);
+                    .catch(() => {
                         if (attempts < maxAttempts) {
                             delay = Math.min(delay * 1.5, 20000);
                             pollingTimer = setTimeout(poll, delay);
@@ -1467,7 +1422,6 @@
                 }, 2500);
                 showToast('✅ Chave Pix copiada!', 2000);
             };
-
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(currentPixKey).then(success).catch(() => fallbackCopy(currentPixKey,
                 success));
@@ -1502,9 +1456,7 @@
                 pollingTimer = null;
             }
             pixStatus.innerHTML = '⏳ Pagamento cancelado';
-            setTimeout(() => {
-                pixStatus.innerHTML = 'Aguardando pagamento...';
-            }, 1500);
+            setTimeout(() => { pixStatus.innerHTML = 'Aguardando pagamento...'; }, 1500);
         }
 
         // ============================================================
@@ -1518,9 +1470,7 @@
             const btn = document.querySelector('#live-overlay-bottom .action-btn:first-child');
             btn.style.color = '#e53935';
             btn.style.transform = 'scale(1.2)';
-            setTimeout(() => {
-                btn.style.transform = 'scale(1)';
-            }, 300);
+            setTimeout(() => { btn.style.transform = 'scale(1)'; }, 300);
             if (likeCount % 3 === 0) {
                 const user = getRandomUser();
                 addComment(user.name, 'Vanessa, você é demais! 🔥', false, user.emoji);
@@ -1528,30 +1478,25 @@
         }
 
         function handleShare() {
+            const url = window.location.href;
             if (navigator.share) {
                 navigator.share({
                     title: 'Vanessa Macedo - Transmissão ao Vivo',
                     text: 'Estou assistindo a transmissão ao vivo da Vanessa Macedo!',
-                    url: window.location.href
+                    url: url
                 }).catch(() => {});
+            } else if (navigator.clipboard) {
+                navigator.clipboard.writeText(url).then(() => showToast('🔗 Link copiado!', 2000))
+                    .catch(() => fallbackCopy(url, () => showToast('🔗 Link copiado!', 2000)));
             } else {
-                const url = window.location.href;
-                if (navigator.clipboard) {
-                    navigator.clipboard.writeText(url).then(() => {
-                        showToast('🔗 Link copiado!', 2000);
-                    }).catch(() => {
-                        fallbackCopy(url, () => showToast('🔗 Link copiado!', 2000));
-                    });
-                } else {
-                    fallbackCopy(url, () => showToast('🔗 Link copiado!', 2000));
-                }
+                fallbackCopy(url, () => showToast('🔗 Link copiado!', 2000));
             }
         }
 
         // ============================================================
-        //  PROTECTION
+        //  PROTECTION & LOOP
         // ============================================================
-        document.addEventListener('contextmenu', (e) => e.preventDefault());
+        document.addEventListener('contextmenu', e => e.preventDefault());
         document.addEventListener('keydown', function(e) {
             if (e.key === 'F12') { e.preventDefault();
                 return false; }
@@ -1563,20 +1508,14 @@
                 return false; }
         });
 
-        // ============================================================
-        //  VIDEO LOOP
-        // ============================================================
         video.addEventListener('ended', function() {
-            if (isUnlocked) {
-                video.currentTime = 0;
-                video.play().catch(() => {});
-            }
+            if (isUnlocked) { video.currentTime = 0;
+                video.play().catch(() => {}); }
         });
-
-        video.addEventListener('contextmenu', (e) => e.preventDefault());
+        video.addEventListener('contextmenu', e => e.preventDefault());
 
         console.log('🎥 Vanessa Macedo · Transmissão ao Vivo');
-        console.log('✅ Integração com /api/pix e /api/status ativa.');
+        console.log('✅ Pix gerado via /api/pix, monitorado por /api/status');
     </script>
 
 </body>
