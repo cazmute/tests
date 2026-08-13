@@ -21,7 +21,6 @@
     <img height="1" width="1" style="display:none"
     src="https://www.facebook.com/tr?id=981136621185086&ev=PageView&noscript=1" />
   </noscript>
-  <!-- Ícones (Tabler) para os controles da chamada -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
   <style>
     /* ===== RESET E BASE ===== */
@@ -40,7 +39,10 @@
       --radius-card: 16px;
       --radius-modal: 24px;
     }
-    html, body {
+    html {
+      font-size: 18px; /* Aumentando a base para melhor legibilidade */
+    }
+    body {
       height: 100%; height: 100dvh; background: #111b21; overflow: hidden;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       position: fixed; width: 100%; top: 0; left: 0;
@@ -56,28 +58,31 @@
       border-left: 1px solid #2a3942; border-right: 1px solid #2a3942;
       user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
       font-family: inherit;
+      font-size: 1rem;
     }
     .phone img { -webkit-user-drag: none; user-drag: none; }
 
     /* ===== HEADER ===== */
     .hdr {
       background: var(--wa-header); display: flex; align-items: center;
-      padding: 10px 4px 10px 8px; gap: 10px; flex-shrink: 0; min-height: 58px;
+      padding: 12px 8px 12px 12px; gap: 12px; flex-shrink: 0; min-height: 68px;
     }
-    .hdr-back { background: none; border: none; cursor: pointer; padding: 4px 2px; color: #e9edef; display: flex; align-items: center; flex-shrink: 0; }
-    .hdr-avatar { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; flex-shrink: 0; cursor: pointer; background: #374248; }
+    .hdr-back { background: none; border: none; cursor: pointer; padding: 6px 4px; color: #e9edef; display: flex; align-items: center; flex-shrink: 0; }
+    .hdr-back svg { width: 28px; height: 28px; }
+    .hdr-avatar { width: 48px; height: 48px; border-radius: 50%; overflow: hidden; flex-shrink: 0; cursor: pointer; background: #374248; }
     .hdr-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .hdr-info { flex: 1; min-width: 0; cursor: pointer; }
-    .hdr-name { color: #e9edef; font-size: 16px; font-weight: 500; letter-spacing: 0.1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .hdr-status { color: #8696a0; font-size: 13px; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hdr-name { color: #e9edef; font-size: 1.2rem; font-weight: 500; letter-spacing: 0.1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hdr-status { color: #8696a0; font-size: 0.9rem; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .hdr-actions { display: flex; gap: 0; align-items: center; flex-shrink: 0; }
-    .hdr-btn { background: none; border: none; cursor: pointer; color: #e9edef; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background 0.15s; }
+    .hdr-btn { background: none; border: none; cursor: pointer; color: #e9edef; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background 0.15s; }
     .hdr-btn:hover { background: rgba(255,255,255,0.08); }
     .hdr-btn:active { background: rgba(255,255,255,0.15); }
+    .hdr-btn svg { width: 26px; height: 26px; }
 
     /* ===== MESSAGES ===== */
     .msgs {
-      flex: 1; overflow-y: auto; padding: 6px 8px 8px; display: flex; flex-direction: column; gap: 2px;
+      flex: 1; overflow-y: auto; padding: 8px 12px 12px; display: flex; flex-direction: column; gap: 3px;
       background-color: #e5ddd5;
       background-image: url("https://wsrv.nl/?url=https://i.ibb.co/Q7VZsqqZ/papel-de-parede.png&w=480&output=webp");
       background-size: cover;
@@ -85,51 +90,53 @@
       background-repeat: no-repeat;
       scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
     }
-    .msgs::-webkit-scrollbar { width: 3px; }
+    .msgs::-webkit-scrollbar { width: 4px; }
     .msgs::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.18); border-radius: 2px; }
-    .date-pill { align-self: center; background: rgba(11,20,26,0.25); color: rgba(255,255,255,0.65); font-size: 12px; padding: 4px 10px; border-radius: 100px; margin: 6px 0 4px; letter-spacing: 0.2px; }
-    .bbl { max-width: 75%; padding: 6px 10px 4px; border-radius: 8px; font-size: 14.5px; line-height: 1.5; position: relative; word-break: break-word; color: var(--wa-text); }
-    .bbl.in { background: var(--wa-msg-in); align-self: flex-start; border-top-left-radius: 0; box-shadow: 0 1px 0.5px rgba(11,20,26,.13); margin-left: 6px; }
-    .bbl.in::before { content: ''; position: absolute; top: 0; left: -6px; width: 0; height: 0; border-top: 6px solid var(--wa-msg-in); border-left: 6px solid transparent; }
-    .bbl.out { background: var(--wa-msg-out); align-self: flex-end; border-top-right-radius: 0; box-shadow: 0 1px 0.5px rgba(11,20,26,.13); margin-right: 6px; }
-    .bbl.out::before { content: ''; position: absolute; top: 0; right: -6px; width: 0; height: 0; border-top: 6px solid var(--wa-msg-out); border-right: 6px solid transparent; }
-    .bbl-meta { display: flex; align-items: center; justify-content: flex-end; gap: 3px; margin-top: 2px; float: right; margin-left: 10px; margin-bottom: -2px; }
-    .bbl-time { font-size: 11px; color: var(--wa-text2); white-space: nowrap; }
+    .date-pill { align-self: center; background: rgba(11,20,26,0.25); color: rgba(255,255,255,0.65); font-size: 0.85rem; padding: 5px 14px; border-radius: 100px; margin: 6px 0 4px; letter-spacing: 0.2px; }
+    .bbl { max-width: 80%; padding: 8px 14px 6px; border-radius: 10px; font-size: 1.1rem; line-height: 1.5; position: relative; word-break: break-word; color: var(--wa-text); }
+    .bbl.in { background: var(--wa-msg-in); align-self: flex-start; border-top-left-radius: 0; box-shadow: 0 1px 0.5px rgba(11,20,26,.13); margin-left: 8px; }
+    .bbl.in::before { content: ''; position: absolute; top: 0; left: -8px; width: 0; height: 0; border-top: 8px solid var(--wa-msg-in); border-left: 8px solid transparent; }
+    .bbl.out { background: var(--wa-msg-out); align-self: flex-end; border-top-right-radius: 0; box-shadow: 0 1px 0.5px rgba(11,20,26,.13); margin-right: 8px; }
+    .bbl.out::before { content: ''; position: absolute; top: 0; right: -8px; width: 0; height: 0; border-top: 8px solid var(--wa-msg-out); border-right: 8px solid transparent; }
+    .bbl-meta { display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 4px; float: right; margin-left: 12px; margin-bottom: -3px; }
+    .bbl-time { font-size: 0.8rem; color: var(--wa-text2); white-space: nowrap; }
     .bbl.out .bbl-time { color: #667781; }
     .ticks { display: flex; align-items: center; }
-    .typing-bbl { background: var(--wa-msg-in); align-self: flex-start; border-radius: 8px; border-bottom-left-radius: 2px; padding: 10px 14px; box-shadow: 0 1px 0.5px rgba(11,20,26,.13); display: none; }
+    .typing-bbl { background: var(--wa-msg-in); align-self: flex-start; border-radius: 10px; border-bottom-left-radius: 2px; padding: 12px 16px; box-shadow: 0 1px 0.5px rgba(11,20,26,.13); display: none; }
     .typing-bbl.show { display: flex; align-items: center; gap: 4px; }
-    .dot { width: 5px; height: 5px; border-radius: 50%; background: #8696a0; animation: bop 1.4s ease-in-out infinite; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #8696a0; animation: bop 1.4s ease-in-out infinite; }
     .dot:nth-child(2) { animation-delay: .2s; }
     .dot:nth-child(3) { animation-delay: .4s; }
-    @keyframes bop { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+    @keyframes bop { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-8px); } }
     .fade-in { animation: fi .2s ease; }
     @keyframes fi { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; } }
-    .cta-btn { display: block; background: var(--wa-teal2); color: #fff; border: none; border-radius: 8px; padding: 9px 14px; font-size: 14px; font-weight: 500; cursor: pointer; text-align: center; text-decoration: none; margin-top: 6px; letter-spacing: 0.1px; transition: background 0.15s; }
+    .cta-btn { display: block; background: var(--wa-teal2); color: #fff; border: none; border-radius: 10px; padding: 12px 20px; font-size: 1.1rem; font-weight: 500; cursor: pointer; text-align: center; text-decoration: none; margin-top: 8px; letter-spacing: 0.1px; transition: background 0.15s; }
     .cta-btn:hover { background: var(--wa-teal); }
 
     /* ===== INPUT ===== */
-    .input-wrap { flex-shrink: 0; background: var(--wa-input); padding: 6px 8px; padding-bottom: max(6px, env(safe-area-inset-bottom)); display: flex; align-items: flex-end; gap: 8px; }
-    .input-pill { flex: 1; display: flex; align-items: center; background: #fff; border-radius: 24px; padding: 0 14px; gap: 8px; min-height: 44px; position: relative; }
-    .input-pill input { flex: 1; border: none; outline: none; font-size: 16px; color: var(--wa-text); background: transparent; padding: 10px 0; font-family: inherit; }
-    .input-pill input::placeholder { color: #8696a0; }
+    .input-wrap { flex-shrink: 0; background: var(--wa-input); padding: 8px 12px; padding-bottom: max(8px, env(safe-area-inset-bottom)); display: flex; align-items: flex-end; gap: 10px; }
+    .input-pill { flex: 1; display: flex; align-items: center; background: #fff; border-radius: 28px; padding: 0 18px; gap: 10px; min-height: 54px; position: relative; }
+    .input-pill input { flex: 1; border: none; outline: none; font-size: 1.1rem; color: var(--wa-text); background: transparent; padding: 12px 0; font-family: inherit; }
+    .input-pill input::placeholder { color: #8696a0; font-size: 1rem; }
     .input-pill input:disabled { opacity: 0.7; cursor: not-allowed; }
     .send-btn, .mic-btn {
-      width: 48px; height: 48px; border-radius: 50%; border: none; cursor: pointer;
+      width: 56px; height: 56px; border-radius: 50%; border: none; cursor: pointer;
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
       transition: background 0.15s, transform 0.1s;
     }
     .send-btn { background: var(--wa-teal2); box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
     .send-btn:hover { background: var(--wa-teal); }
     .send-btn:active { transform: scale(0.94); }
+    .send-btn svg { width: 26px; height: 26px; }
     .mic-btn { background: var(--wa-green); color: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
     .mic-btn:hover { background: var(--wa-teal2); }
     .mic-btn:active { transform: scale(0.92); }
     .mic-btn.recording { background: var(--wa-green); animation: pulse-mic 1.2s ease-in-out infinite; }
     .mic-btn.cancel { background: #e53935; animation: none; }
+    .mic-btn svg { width: 26px; height: 26px; }
     @keyframes pulse-mic {
       0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37,211,102,0.4); }
-      50% { transform: scale(1.08); box-shadow: 0 0 0 8px rgba(37,211,102,0); }
+      50% { transform: scale(1.08); box-shadow: 0 0 0 10px rgba(37,211,102,0); }
       100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37,211,102,0); }
     }
     .hidden { display: none !important; }
@@ -138,84 +145,58 @@
     /* ===== SHEETS ===== */
     .sheet-overlay { position: absolute; inset: 0; background: rgba(11,20,26,0.55); z-index: 200; display: flex; flex-direction: column; justify-content: flex-end; opacity: 0; pointer-events: none; transition: opacity .2s; }
     .sheet-overlay.open { opacity: 1; pointer-events: all; }
-    .sheet { background: #1f2c34; border-radius: 16px 16px 0 0; transform: translateY(40px); transition: transform .22s cubic-bezier(.4,0,.2,1); }
+    .sheet { background: #1f2c34; border-radius: 20px 20px 0 0; transform: translateY(40px); transition: transform .22s cubic-bezier(.4,0,.2,1); }
     .sheet-overlay.open .sheet { transform: translateY(0); }
-    .sheet-handle { width: 36px; height: 4px; background: rgba(255,255,255,0.18); border-radius: 2px; margin: 12px auto 0; }
-    .sheet-hdr { display: flex; align-items: center; gap: 12px; padding: 16px 18px 14px; border-bottom: 0.5px solid rgba(255,255,255,0.08); }
-    .sheet-av-wrap { position: relative; width: 48px; height: 48px; flex-shrink: 0; }
-    .sheet-av-ring { position: absolute; inset: -5px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.14); animation: pulse 2.4s ease-out infinite; }
+    .sheet-handle { width: 40px; height: 5px; background: rgba(255,255,255,0.18); border-radius: 2px; margin: 14px auto 0; }
+    .sheet-hdr { display: flex; align-items: center; gap: 14px; padding: 18px 20px 16px; border-bottom: 0.5px solid rgba(255,255,255,0.08); }
+    .sheet-av-wrap { position: relative; width: 56px; height: 56px; flex-shrink: 0; }
+    .sheet-av-ring { position: absolute; inset: -6px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.14); animation: pulse 2.4s ease-out infinite; }
     @keyframes pulse { 0% { transform: scale(.88); opacity: 1; } 100% { transform: scale(1.42); opacity: 0; } }
-    .sheet-av { width: 48px; height: 48px; border-radius: 50%; overflow: hidden; position: relative; z-index: 1; }
+    .sheet-av { width: 56px; height: 56px; border-radius: 50%; overflow: hidden; position: relative; z-index: 1; }
     .sheet-av img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .sheet-name { color: #e9edef; font-size: 15px; font-weight: 500; margin-bottom: 2px; }
-    .sheet-sub { color: #8696a0; font-size: 12.5px; display: flex; align-items: center; gap: 5px; }
-    .sheet-body { padding: 16px 18px 20px; }
-    .sheet-notice { display: flex; align-items: flex-start; gap: 12px; background: rgba(255,255,255,0.05); border-left: 3px solid #128c7e; border-radius: 0 8px 8px 0; padding: 13px 14px; margin-bottom: 18px; }
-    .sheet-notice-icon { width: 30px; height: 30px; border-radius: 50%; background: rgba(18,140,126,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .sheet-notice p { color: #e9edef; font-size: 13.5px; line-height: 1.55; margin-bottom: 3px; }
-    .sheet-notice small { color: rgba(255,255,255,0.38); font-size: 11.5px; }
-    .sheet-ok { width: 100%; background: #00a884; color: #fff; border: none; border-radius: 10px; padding: 13px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; transition: background .15s; letter-spacing: 0.1px; }
+    .sheet-name { color: #e9edef; font-size: 1.1rem; font-weight: 500; margin-bottom: 2px; }
+    .sheet-sub { color: #8696a0; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
+    .sheet-body { padding: 18px 20px 24px; }
+    .sheet-notice { display: flex; align-items: flex-start; gap: 14px; background: rgba(255,255,255,0.05); border-left: 4px solid #128c7e; border-radius: 0 8px 8px 0; padding: 14px 16px; margin-bottom: 20px; }
+    .sheet-notice-icon { width: 36px; height: 36px; border-radius: 50%; background: rgba(18,140,126,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .sheet-notice p { color: #e9edef; font-size: 1rem; line-height: 1.55; margin-bottom: 3px; }
+    .sheet-notice small { color: rgba(255,255,255,0.38); font-size: 0.85rem; }
+    .sheet-ok { width: 100%; background: #00a884; color: #fff; border: none; border-radius: 12px; padding: 16px; font-size: 1.1rem; font-weight: 500; cursor: pointer; font-family: inherit; transition: background .15s; letter-spacing: 0.1px; }
     .sheet-ok:hover { background: #017f64; }
     @keyframes ringShake { from { transform: rotate(-10deg); } to { transform: rotate(10deg); } }
 
     /* ===== MIC TOAST ===== */
     .mic-toast {
-      position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
-      background: rgba(0,0,0,0.85); color: #fff; padding: 10px 18px; border-radius: 30px;
-      font-size: 14px; font-weight: 500; z-index: 500; white-space: nowrap;
+      position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
+      background: rgba(0,0,0,0.85); color: #fff; padding: 12px 22px; border-radius: 30px;
+      font-size: 1rem; font-weight: 500; z-index: 500; white-space: nowrap;
       pointer-events: none; opacity: 0;
       transition: opacity 0.25s ease, transform 0.25s ease;
       transform: translateX(-50%) translateY(10px);
     }
     .mic-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-    .mic-toast svg { display: inline-block; vertical-align: middle; margin-right: 8px; }
+    .mic-toast svg { display: inline-block; vertical-align: middle; margin-right: 10px; width: 22px; height: 22px; }
 
-    /* ===== UNIQUE VIEW ===== */
-    .bbl-unique-placeholder { display: flex; align-items: center; gap: 10px; padding: 8px 0; cursor: pointer; }
-    .bbl-unique-placeholder .icon { width: 36px; height: 36px; border-radius: 50%; background: rgba(0,168,132,0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .bbl-unique-placeholder .label { font-size: 13px; color: var(--wa-text2); }
-    .bbl-unique-placeholder .label strong { color: var(--wa-text); }
-    .bbl-unique-placeholder .viewed-label { color: #8696a0; font-size: 12px; }
-    .unique-viewer { position: absolute; inset: 0; background: rgba(0,0,0,0.92); z-index: 400; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; animation: fi .25s ease; }
-    .unique-viewer img { max-width: 100%; max-height: 70vh; border-radius: 8px; box-shadow: 0 8px 40px rgba(0,0,0,0.6); object-fit: contain; }
-    .unique-viewer .close-btn { margin-top: 24px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.18); color: #fff; padding: 12px 32px; border-radius: 30px; font-size: 15px; font-weight: 500; cursor: pointer; font-family: inherit; transition: background .15s; }
-    .unique-viewer .close-btn:hover { background: rgba(255,255,255,0.2); }
-
-    /* ===== CARD PIX ===== */
-    .pix-card {
-      background: rgba(255,255,255,0.72);
-      backdrop-filter: blur(18px) saturate(1.2);
-      -webkit-backdrop-filter: blur(18px) saturate(1.2);
-      border: 1px solid rgba(255,255,255,0.35);
-      border-radius: 16px;
-      box-shadow: 0 6px 24px rgba(0,0,0,0.08);
-      padding: 14px 14px 12px;
-      min-width: 200px;
-      max-width: 280px;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    /* ===== LIGHTBOX (clique na imagem) ===== */
+    .image-lightbox {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.92); z-index: 400;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 24px; animation: fi .25s ease;
+      cursor: pointer;
     }
-    .pix-card:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,0.12); }
-    .pix-card .pix-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-    .pix-card .pix-header .icon-badge {
-      width: 36px; height: 36px; border-radius: 12px;
-      background: linear-gradient(145deg, #00a884, #007a5e);
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-      box-shadow: 0 3px 10px rgba(0,168,132,0.25);
+    .image-lightbox img {
+      max-width: 100%; max-height: 80vh; border-radius: 8px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6); object-fit: contain;
+      cursor: default;
     }
-    .pix-card .pix-header .icon-badge svg { width: 18px; height: 18px; fill: white; }
-    .pix-card .pix-header .pix-title { font-size: 13px; font-weight: 600; color: #111b21; letter-spacing: -0.2px; }
-    .pix-card .pix-header .pix-title small { display: block; font-weight: 400; font-size: 10.5px; color: #667781; letter-spacing: 0px; }
-    .pix-card .pix-value { font-size: 22px; font-weight: 700; color: #111b21; margin: 4px 0 10px; letter-spacing: -0.5px; display: flex; align-items: baseline; gap: 6px; }
-    .pix-card .pix-value .currency { font-size: 14px; font-weight: 500; color: #667781; }
-    .pix-card .pix-btn {
-      width: 100%; background: #00a884; border: none; border-radius: 12px; padding: 10px 10px;
-      font-size: 14px; font-weight: 600; color: white; cursor: pointer; transition: all 0.2s ease;
-      display: flex; align-items: center; justify-content: center; gap: 6px;
-      font-family: inherit; box-shadow: 0 3px 12px rgba(0,168,132,0.25);
+    .image-lightbox .close-lb {
+      margin-top: 28px; background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.18); color: #fff;
+      padding: 14px 40px; border-radius: 30px; font-size: 1.1rem;
+      font-weight: 500; cursor: pointer; font-family: inherit;
+      transition: background .15s;
     }
-    .pix-card .pix-btn:hover { background: #007a5e; transform: scale(1.02); box-shadow: 0 4px 16px rgba(0,168,132,0.3); }
-    .pix-card .pix-btn:active { transform: scale(0.97); }
-    .pix-card .pix-footer { display: flex; justify-content: flex-end; margin-top: 4px; font-size: 10px; color: #8696a0; }
+    .image-lightbox .close-lb:hover { background: rgba(255,255,255,0.2); }
 
     /* ===== PERFIL ===== */
     .profile-overlay {
@@ -227,36 +208,35 @@
     .profile-overlay.open { opacity: 1; pointer-events: all; }
     .profile-card {
       background: rgba(30,34,42,0.92); border: 1px solid rgba(255,255,255,0.08); border-radius: 28px;
-      max-width: 380px; width: 100%; padding: 32px 24px 28px; text-align: center;
+      max-width: 400px; width: 100%; padding: 36px 28px 32px; text-align: center;
       box-shadow: 0 24px 64px rgba(0,0,0,0.5);
       transform: scale(0.92) translateY(12px);
       transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease;
       opacity: 0;
     }
     .profile-overlay.open .profile-card { transform: scale(1) translateY(0); opacity: 1; }
-    .profile-avatar-wrap { position: relative; width: 110px; height: 110px; margin: 0 auto 14px; }
-    .profile-avatar-ring { position: absolute; inset: -4px; border-radius: 50%; border: 2.5px solid rgba(37,211,102,0.4); animation: pulse 2.4s ease-out infinite; }
-    .profile-avatar { width: 100%; height: 100%; border-radius: 50%; overflow: hidden; border: 3px solid #25d366; background: #374248; }
+    .profile-avatar-wrap { position: relative; width: 130px; height: 130px; margin: 0 auto 16px; }
+    .profile-avatar-ring { position: absolute; inset: -6px; border-radius: 50%; border: 3px solid rgba(37,211,102,0.4); animation: pulse 2.4s ease-out infinite; }
+    .profile-avatar { width: 100%; height: 100%; border-radius: 50%; overflow: hidden; border: 4px solid #25d366; background: #374248; }
     .profile-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .profile-name { color: #e9edef; font-size: 21px; font-weight: 600; letter-spacing: -0.2px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .profile-name .verified-badge { background: #00a884; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .profile-name .verified-badge svg { width: 11px; height: 11px; fill: white; }
-    .profile-status { color: #8696a0; font-size: 13px; margin-top: 2px; margin-bottom: 20px; }
-    .profile-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 8px 0 16px; }
-    .profile-info-item { display: flex; align-items: center; gap: 14px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); text-align: left; }
+    .profile-name { color: #e9edef; font-size: 1.5rem; font-weight: 600; letter-spacing: -0.2px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .profile-name .verified-badge { background: #00a884; border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .profile-name .verified-badge svg { width: 14px; height: 14px; fill: white; }
+    .profile-status { color: #8696a0; font-size: 1rem; margin-top: 4px; margin-bottom: 24px; }
+    .profile-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 10px 0 18px; }
+    .profile-info-item { display: flex; align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04); text-align: left; }
     .profile-info-item:last-child { border-bottom: none; }
-    .profile-info-item .info-icon { width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #8696a0; }
-    .profile-info-item .info-icon svg { width: 16px; height: 16px; stroke: currentColor; fill: none; }
+    .profile-info-item .info-icon { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #8696a0; }
+    .profile-info-item .info-icon svg { width: 20px; height: 20px; stroke: currentColor; fill: none; }
     .profile-info-item .info-content { flex: 1; min-width: 0; }
-    .profile-info-item .info-label { font-size: 11px; color: #8696a0; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; }
-    .profile-info-item .info-value { font-size: 15px; color: #e9edef; font-weight: 500; margin-top: 1px; word-break: break-word; }
-    .profile-close-btn { margin-top: 20px; background: rgba(255,255,255,0.08); border: none; border-radius: 30px; padding: 12px 28px; color: #e9edef; font-size: 15px; font-weight: 500; cursor: pointer; transition: background 0.15s; font-family: inherit; width: fit-content; margin-left: auto; margin-right: auto; }
+    .profile-info-item .info-label { font-size: 0.8rem; color: #8696a0; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; }
+    .profile-info-item .info-value { font-size: 1.1rem; color: #e9edef; font-weight: 500; margin-top: 2px; word-break: break-word; }
+    .profile-close-btn { margin-top: 24px; background: rgba(255,255,255,0.08); border: none; border-radius: 30px; padding: 14px 32px; color: #e9edef; font-size: 1.1rem; font-weight: 500; cursor: pointer; transition: background 0.15s; font-family: inherit; width: fit-content; margin-left: auto; margin-right: auto; }
     .profile-close-btn:hover { background: rgba(255,255,255,0.15); }
 
     /* ============================================================
-       CHAMADA ISCA — OVERLAY, CONECTANDO E INTERFACE
+       CHAMADA ISCA — OVERLAY
        ============================================================ */
-    /* Incoming call overlay */
     #incoming-call-overlay {
       position: absolute; inset: 0; background: #1a1a2e; z-index: 400;
       display: flex; flex-direction: column; align-items: center; justify-content: space-between;
@@ -265,87 +245,55 @@
       transition: opacity 0.3s ease;
     }
     #incoming-call-overlay.show { opacity: 1; pointer-events: all; }
-    #incoming-call-overlay .call-avatar-wrap { position: relative; width: 100px; height: 100px; margin: 0 auto; }
-    #incoming-call-overlay .ring1 { position: absolute; inset: -14px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.12); animation: pulse 2s ease-out infinite; }
-    #incoming-call-overlay .ring2 { position: absolute; inset: -7px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.08); animation: pulse 2s ease-out infinite 1s; }
-    #incoming-call-overlay .call-avatar { width: 100px; height: 100px; border-radius: 50%; overflow: hidden; border: 3px solid rgba(255,255,255,0.18); }
+    #incoming-call-overlay .call-avatar-wrap { position: relative; width: 120px; height: 120px; margin: 0 auto; }
+    #incoming-call-overlay .ring1 { position: absolute; inset: -16px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.12); animation: pulse 2s ease-out infinite; }
+    #incoming-call-overlay .ring2 { position: absolute; inset: -8px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.08); animation: pulse 2s ease-out infinite 1s; }
+    #incoming-call-overlay .call-avatar { width: 120px; height: 120px; border-radius: 50%; overflow: hidden; border: 3px solid rgba(255,255,255,0.18); }
     #incoming-call-overlay .call-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    #incoming-call-overlay .call-name { color: #fff; font-size: 22px; font-weight: 500; margin-top: 22px; text-align: center; }
-    #incoming-call-overlay .call-sub { color: rgba(255,255,255,0.55); font-size: 14px; margin-top: 6px; text-align: center; }
-    #incoming-call-overlay .call-actions { display: flex; gap: 52px; align-items: center; }
-    .call-btn-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; color: rgba(255,255,255,0.8); font-size: 12.5px; font-family: inherit; }
-    .call-btn-circle { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; }
+    #incoming-call-overlay .call-name { color: #fff; font-size: 1.6rem; font-weight: 500; margin-top: 24px; text-align: center; }
+    #incoming-call-overlay .call-sub { color: rgba(255,255,255,0.55); font-size: 1.1rem; margin-top: 8px; text-align: center; }
+    #incoming-call-overlay .call-actions { display: flex; gap: 60px; align-items: center; }
+    .call-btn-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; color: rgba(255,255,255,0.8); font-size: 1rem; font-family: inherit; }
+    .call-btn-circle { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; }
     .call-btn-circle.decline { background: #e53935; }
     .call-btn-circle.answer { background: #25d366; animation: ringShake .6s ease infinite alternate; }
+    .call-btn-circle svg { width: 32px; height: 32px; }
 
-    /* Tela de conectando */
-    #connecting-overlay {
-      display: none; position: absolute; inset: 0; background: #0d0d0d; z-index: 450;
-      flex-direction: column; align-items: center; justify-content: center; gap: 24px;
-      color: #fff; font-family: system-ui, sans-serif;
+    /* Active call (brief flash) */
+    #active-call-overlay {
+      position: absolute; inset: 0; background: #0b1015; z-index: 401;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px;
+      opacity: 0; pointer-events: none;
+      transition: opacity .3s ease;
     }
-    #connecting-overlay.active { display: flex; }
-    #connecting-overlay .spinner {
-      width: 56px; height: 56px; border-radius: 50%;
-      border: 4px solid rgba(255,255,255,0.1);
-      border-top-color: #25d366;
-      animation: spin 0.9s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    #connecting-overlay .conn-label { font-size: 18px; font-weight: 500; letter-spacing: 0.2px; }
-    #connecting-overlay .conn-sub { font-size: 13px; color: rgba(255,255,255,0.5); }
+    #active-call-overlay.show { opacity: 1; pointer-events: all; }
+    #active-call-overlay .ac-avatar { width: 100px; height: 100px; border-radius: 50%; overflow: hidden; border: 3px solid rgba(255,255,255,0.2); }
+    #active-call-overlay .ac-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    #active-call-overlay .ac-name { color: #fff; font-size: 1.5rem; font-weight: 500; }
+    #active-call-overlay .ac-status { color: rgba(255,255,255,0.5); font-size: 1rem; }
+    #active-call-overlay .ac-end-btn { width: 68px; height: 68px; border-radius: 50%; background: #e53935; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-top: 30px; }
+    #active-call-overlay .ac-end-btn svg { width: 32px; height: 32px; }
 
-    /* Interface de chamada de vídeo */
-    #call-interface {
-      display: none; position: absolute; inset: 0; background: #0d0d0d;
-      flex-direction: column; z-index: 500; color: #fff; font-family: system-ui, sans-serif;
+    /* ===== CARD PIX (ampliado) ===== */
+    .pix-card { 
+      background: #fff; border-radius: 12px; overflow: hidden; min-width: 260px; 
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15); 
     }
-    #call-interface.active { display: flex; }
-    #remote-wrap { position: relative; flex: 1; background: #111; overflow: hidden; min-height: 0; }
-    #remote-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
-    #call-info { position: absolute; top: 14px; left: 14px; z-index: 10; }
-    #caller-name { color: #fff; font-size: 16px; font-weight: 500; text-shadow: 0 1px 6px rgba(0,0,0,.8); }
-    #call-timer { color: rgba(255,255,255,.7); font-size: 12px; font-variant-numeric: tabular-nums; }
-    #signal { position: absolute; top: 18px; right: 12px; display: flex; gap: 2px; align-items: flex-end; z-index: 10; }
-    #signal span { width: 4px; border-radius: 1px; background: rgba(255,255,255,.55); }
-    #local-wrap { position: absolute; bottom: 12px; right: 10px; width: 72px; height: 128px; border-radius: 10px; overflow: hidden; border: 2px solid rgba(255,255,255,.2); background: #1a1a1a; z-index: 10; }
-    #local-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; transform: scaleX(-1); }
-    #cam-off-icon { display: none; position: absolute; inset: 0; align-items: center; justify-content: center; background: #1a1a1a; }
-    #cam-off-icon i { font-size: 22px; color: #555; }
-    #controls { background: #0a0a0a; padding: 12px 8px 28px; flex-shrink: 0; }
-    .ctrl-row { display: flex; align-items: center; justify-content: space-around; }
-    .btn-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-    .ctrl-btn {
-      width: 52px; height: 52px; border-radius: 50%; border: none; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; font-size: 21px;
-      color: #fff; background: rgba(255,255,255,.12);
-      -webkit-tap-highlight-color: transparent;
-    }
-    .ctrl-btn:active { transform: scale(.88); }
-    .ctrl-btn.off { background: rgba(255,255,255,.06); color: #555; }
-    .ctrl-btn.danger { background: #e53935; width: 62px; height: 62px; font-size: 24px; }
-    .ctrl-btn.lit { background: rgba(255,255,255,.22); }
-    .ctrl-label { font-size: 10px; color: rgba(255,255,255,.45); text-align: center; }
-    #toast {
-      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
-      background: rgba(0,0,0,.8); color: #fff; font-size: 12px; padding: 7px 16px;
-      border-radius: 20px; pointer-events: none; opacity: 0; transition: opacity .3s;
-      z-index: 20; white-space: nowrap;
-    }
-    #ended {
-      display: none; position: absolute; inset: 0; background: rgba(0,0,0,.9);
-      flex-direction: column; align-items: center; justify-content: center; gap: 12px;
-      z-index: 30;
-    }
-    #ended i { font-size: 48px; color: #e53935; }
-    #ended p { color: #ccc; font-size: 15px; }
-    #ended small { color: #777; font-size: 13px; }
-    #ended button { margin-top: 4px; padding: 11px 26px; border-radius: 28px; border: none; background: rgba(255,255,255,.13); color: #fff; font-size: 14px; cursor: pointer; }
+    .pix-card .pix-header { background: #00a884; padding: 14px 18px; display: flex; align-items: center; gap: 12px; }
+    .pix-card .pix-header .icon-badge { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .pix-card .pix-header .icon-badge svg { width: 22px; height: 22px; stroke: #fff; }
+    .pix-card .pix-header .pix-title { color: #fff; font-size: 1rem; font-weight: 600; }
+    .pix-card .pix-header .pix-title small { display: block; font-weight: 400; font-size: 0.8rem; opacity: 0.85; }
+    .pix-card .pix-value { font-size: 1.8rem; font-weight: 700; color: #111b21; margin: 6px 0 12px; display: flex; align-items: baseline; gap: 6px; }
+    .pix-card .pix-value .currency { font-size: 1rem; font-weight: 500; color: #667781; }
+    .pix-card .pix-btn { width: 100%; background: #00a884; border: none; border-radius: 10px; padding: 14px; font-size: 1.1rem; font-weight: 600; color: white; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit; box-shadow: 0 3px 12px rgba(0,168,132,0.25); }
+    .pix-card .pix-btn:hover { background: #007a5e; transform: scale(1.02); box-shadow: 0 4px 16px rgba(0,168,132,0.3); }
+    .pix-card .pix-btn:active { transform: scale(0.97); }
+    .pix-card .pix-footer { padding: 6px 14px 8px; display: flex; justify-content: flex-end; font-size: 0.8rem; color: #8696a0; }
 
     @media (max-width: 420px) {
-      .pix-card { min-width: 160px; }
-      .profile-card { padding: 24px 16px 20px; }
-      .profile-avatar-wrap { width: 90px; height: 90px; }
+      .profile-card { padding: 28px 20px 24px; }
+      .profile-avatar-wrap { width: 110px; height: 110px; }
     }
   </style>
 </head>
@@ -355,7 +303,7 @@
   <!-- ===== HEADER ===== -->
   <div class="hdr">
     <button class="hdr-back" aria-label="Voltar" onclick="openExitSheet()">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M20 12H4M4 12L10 6M4 12L10 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M20 12H4M4 12L10 6M4 12L10 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
     <div class="hdr-avatar" onclick="openProfileSheet()">
       <img src="https://wsrv.nl/?url=https://i.ibb.co/ksmzSzDM/perfilv2.png&w=80&output=webp" alt="Vanessa Macedo" onerror="this.style.display='none'" loading="lazy" decoding="async">
@@ -366,13 +314,13 @@
     </div>
     <div class="hdr-actions">
       <button class="hdr-btn" onclick="openSheet()" aria-label="Chamada de vídeo">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
           <path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
           <rect x="3" y="7" width="12.5" height="10" rx="2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
       <button class="hdr-btn" aria-label="Mais opções" onclick="openInfoSheet()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
           <circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/>
         </svg>
       </button>
@@ -387,30 +335,30 @@
   <!-- ===== INPUT ===== -->
   <div class="input-wrap">
     <div class="input-pill" style="position:relative;">
-      <button type="button" id="emoji-btn" onclick="toggleEmoji()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#8696a0" stroke-width="1.75"/><path d="M8.5 14s.875 1.5 3.5 1.5 3.5-1.5 3.5-1.5" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round"/><circle cx="9" cy="10" r="1" fill="#8696a0"/><circle cx="15" cy="10" r="1" fill="#8696a0"/></svg>
+      <button type="button" id="emoji-btn" onclick="toggleEmoji()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:4px;flex-shrink:0;background:none;border:none">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#8696a0" stroke-width="1.75"/><path d="M8.5 14s.875 1.5 3.5 1.5 3.5-1.5 3.5-1.5" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round"/><circle cx="9" cy="10" r="1" fill="#8696a0"/><circle cx="15" cy="10" r="1" fill="#8696a0"/></svg>
       </button>
-      <div id="emoji-panel" style="display:none;position:absolute;bottom:70px;left:8px;right:8px;background:#1f2c34;border-radius:14px;padding:10px 8px;box-shadow:0 4px 24px rgba(0,0,0,0.4);z-index:100;max-height:200px;overflow-y:auto">
-        <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:2px"></div>
+      <div id="emoji-panel" style="display:none;position:absolute;bottom:80px;left:8px;right:8px;background:#1f2c34;border-radius:14px;padding:12px 10px;box-shadow:0 4px 24px rgba(0,0,0,0.4);z-index:100;max-height:220px;overflow-y:auto">
+        <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:4px"></div>
       </div>
       <input id="inp" type="text" placeholder="Mensagem">
       <!-- Botão de câmera -->
-      <button type="button" id="camera-btn" class="camera-btn" onclick="document.getElementById('img-input').click()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none" aria-label="Enviar foto">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <button type="button" id="camera-btn" class="camera-btn" onclick="document.getElementById('img-input').click()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:4px;flex-shrink:0;background:none;border:none" aria-label="Enviar foto">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
           <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
           <circle cx="12" cy="13" r="4" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
       <input type="file" accept="image/*" id="img-input" style="display:none" onchange="handleImageSelect(event)">
-      <div style="display:flex;gap:4px;align-items:center;flex-shrink:0;margin-left:auto;padding-left:4px;">
+      <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;margin-left:auto;padding-left:6px;">
         <button class="send-btn hidden" id="send-btn" onclick="submit()">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="display:block;margin:auto;position:relative;right:2px">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" style="display:block;margin:auto;position:relative;right:2px">
             <path d="M22 2L11 13" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
         <button class="mic-btn" id="mic-btn" title="Pressione e segure para gravar áudio">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
             <path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M19 10a7 7 0 0 1-14 0" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
             <line x1="12" y1="19" x2="12" y2="23" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
@@ -423,7 +371,7 @@
 
   <!-- ===== MIC TOAST ===== -->
   <div class="mic-toast" id="mic-toast">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
       <path d="M19 10a7 7 0 0 1-14 0"/>
       <line x1="12" y1="19" x2="12" y2="23"/>
@@ -437,19 +385,19 @@
   <div class="sheet-overlay" id="exit-sheet">
     <div class="sheet" style="border-radius:20px 20px 0 0">
       <div class="sheet-handle"></div>
-      <div style="padding:22px 18px 16px;text-align:center;border-bottom:0.5px solid rgba(255,255,255,0.08)">
-        <div style="width:52px;height:52px;border-radius:50%;background:rgba(229,57,53,0.12);display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <div style="padding:24px 20px 18px;text-align:center;border-bottom:0.5px solid rgba(255,255,255,0.08)">
+        <div style="width:60px;height:60px;border-radius:50%;background:rgba(229,57,53,0.12);display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
             <path d="M12 9v4M12 17h.01" stroke="#e53935" stroke-width="2" stroke-linecap="round"/>
             <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#e53935" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <div style="color:#e9edef;font-size:16px;font-weight:600;margin-bottom:6px">Você foi convidado(a)</div>
-        <div style="color:#8696a0;font-size:13px;line-height:1.6">Você está em uma <strong style="color:#e9edef">conversa privada</strong> com Vanessa Macedo. Ao sair, não será possível retornar sem uma nova solicitação dela.</div>
+        <div style="color:#e9edef;font-size:1.2rem;font-weight:600;margin-bottom:8px">Você foi convidado(a)</div>
+        <div style="color:#8696a0;font-size:1rem;line-height:1.6">Você está em uma <strong style="color:#e9edef">conversa privada</strong> com Vanessa Macedo. Ao sair, não será possível retornar sem uma nova solicitação dela.</div>
       </div>
-      <div style="padding:16px 18px 24px;display:flex;flex-direction:column;gap:10px">
+      <div style="padding:18px 20px 28px;display:flex;flex-direction:column;gap:12px">
         <button class="sheet-ok" onclick="closeExitSheet()">Ficar na conversa</button>
-        <button onclick="closeExitSheet()" style="width:100%;background:transparent;border:1px solid rgba(229,57,53,0.4);color:#e53935;border-radius:10px;padding:13px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:background .15s">Sair mesmo assim</button>
+        <button onclick="closeExitSheet()" style="width:100%;background:transparent;border:1px solid rgba(229,57,53,0.4);color:#e53935;border-radius:10px;padding:16px;font-size:1rem;font-weight:500;cursor:pointer;font-family:inherit;transition:background .15s">Sair mesmo assim</button>
       </div>
     </div>
   </div>
@@ -458,26 +406,26 @@
   <div class="sheet-overlay" id="info-sheet">
     <div class="sheet" style="border-radius:20px 20px 0 0">
       <div class="sheet-handle"></div>
-      <div style="padding:20px 18px 18px;text-align:center;border-bottom:0.5px solid rgba(255,255,255,0.08)">
-        <div style="width:64px;height:64px;border-radius:50%;overflow:hidden;margin:0 auto 10px;border:2.5px solid rgba(0,168,132,0.4)">
+      <div style="padding:24px 20px 20px;text-align:center;border-bottom:0.5px solid rgba(255,255,255,0.08)">
+        <div style="width:76px;height:76px;border-radius:50%;overflow:hidden;margin:0 auto 12px;border:2.5px solid rgba(0,168,132,0.4)">
           <img src="https://wsrv.nl/?url=https://i.ibb.co/ksmzSzDM/perfilv2.png&w=100&output=webp" style="width:100%;height:100%;object-fit:cover" alt="Vanessa" loading="lazy" decoding="async">
         </div>
-        <div style="color:#e9edef;font-size:16px;font-weight:600">Vanessa Macedo</div>
+        <div style="color:#e9edef;font-size:1.2rem;font-weight:600">Vanessa Macedo</div>
       </div>
-      <div style="padding:18px 18px 22px;display:flex;flex-direction:column;gap:12px">
-        <div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.04);border-radius:12px;padding:13px 14px">
-          <div style="width:36px;height:36px;border-radius:10px;background:rgba(0,168,132,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="#00a884" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke="#00a884" stroke-width="2" stroke-linecap="round"/></svg>
+      <div style="padding:20px 20px 26px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:16px;background:rgba(255,255,255,0.04);border-radius:12px;padding:14px 16px">
+          <div style="width:40px;height:40px;border-radius:10px;background:rgba(0,168,132,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="#00a884" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke="#00a884" stroke-width="2" stroke-linecap="round"/></svg>
           </div>
-          <div><div style="color:#8696a0;font-size:11.5px;margin-bottom:2px">Membro desde</div><div style="color:#e9edef;font-size:14px;font-weight:500">2019</div></div>
+          <div><div style="color:#8696a0;font-size:0.85rem;margin-bottom:2px">Membro desde</div><div style="color:#e9edef;font-size:1.1rem;font-weight:500">2019</div></div>
         </div>
-        <div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.04);border-radius:12px;padding:13px 14px">
-          <div style="width:36px;height:36px;border-radius:10px;background:rgba(0,168,132,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#00a884" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div style="display:flex;align-items:center;gap:16px;background:rgba(255,255,255,0.04);border-radius:12px;padding:14px 16px">
+          <div style="width:40px;height:40px;border-radius:10px;background:rgba(0,168,132,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#00a884" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
-          <div><div style="color:#8696a0;font-size:11.5px;margin-bottom:2px">Status</div><div style="color:#e9edef;font-size:14px;font-weight:500">Conta ativa e segura</div></div>
+          <div><div style="color:#8696a0;font-size:0.85rem;margin-bottom:2px">Status</div><div style="color:#e9edef;font-size:1.1rem;font-weight:500">Conta ativa e segura</div></div>
         </div>
-        <button class="sheet-ok" onclick="closeInfoSheet()" style="margin-top:4px">Fechar</button>
+        <button class="sheet-ok" onclick="closeInfoSheet()" style="margin-top:6px">Fechar</button>
       </div>
     </div>
   </div>
@@ -494,7 +442,7 @@
         <div>
           <div class="sheet-name">Vanessa Macedo</div>
           <div class="sheet-sub">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Videochamada
           </div>
         </div>
@@ -502,7 +450,7 @@
       <div class="sheet-body">
         <div class="sheet-notice">
           <div class="sheet-notice-icon">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="2" stroke="#00a884" stroke-width="2"/><path d="M8 11V7a4 4 0 018 0v4" stroke="#00a884" stroke-width="2" stroke-linecap="round"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="2" stroke="#00a884" stroke-width="2"/><path d="M8 11V7a4 4 0 018 0v4" stroke="#00a884" stroke-width="2" stroke-linecap="round"/></svg>
           </div>
           <div>
             <p>Apenas <strong>Vanessa</strong> pode iniciar chamadas de vídeo nesta conversa.</p>
@@ -550,9 +498,8 @@
   </div>
 
   <!-- ============================================================
-       CHAMADA ISCA — OVERLAY, CONECTANDO E INTERFACE
+       CHAMADA ISCA — OVERLAY
        ============================================================ -->
-  <!-- Incoming call overlay -->
   <div id="incoming-call-overlay">
     <div style="text-align:center">
       <div class="call-avatar-wrap">
@@ -563,93 +510,32 @@
         </div>
       </div>
       <div class="call-name">Vanessa Macedo</div>
-      <div class="call-sub">Videochamada WhatsApp…</div>
+      <div class="call-sub">Videochamada…</div>
     </div>
     <div class="call-actions">
       <div class="call-btn-wrap">
         <button class="call-btn-circle decline" id="auto-call-decline">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>
         </button>
         <span>Recusar</span>
       </div>
       <div class="call-btn-wrap">
         <button class="call-btn-circle answer" id="auto-call-answer">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
         <span>Atender</span>
       </div>
     </div>
   </div>
 
-  <!-- Tela de conectando -->
-  <div id="connecting-overlay">
-    <div class="spinner"></div>
-    <div class="conn-label">Conectando...</div>
-    <div class="conn-sub">Aguarde um momento</div>
-  </div>
-
-  <!-- Interface de chamada de vídeo -->
-  <div id="call-interface">
-    <div id="remote-wrap">
-      <video id="remote-video" muted playsinline preload="metadata">
-        <source src="video/cam.mp4" type="video/mp4">
-      </video>
-      <div id="call-info">
-        <div id="caller-name">Vanessa Macedo</div>
-        <div id="call-timer">00:00</div>
-      </div>
-      <div id="signal">
-        <span style="height:5px"></span>
-        <span style="height:9px"></span>
-        <span style="height:13px"></span>
-        <span style="height:17px"></span>
-      </div>
-      <div id="local-wrap">
-        <video id="local-video" autoplay muted playsinline></video>
-        <div id="cam-off-icon"><i class="ti ti-video-off"></i></div>
-      </div>
-      <div id="toast"></div>
-      <div id="ended">
-        <i class="ti ti-phone-off"></i>
-        <p id="ended-msg">Chamada encerrada</p>
-        <small id="dur-end"></small>
-      </div>
-    </div>
-
-    <div id="controls">
-      <div class="ctrl-row">
-        <div class="btn-wrap">
-          <button class="ctrl-btn" id="btn-mic" onclick="toggleMic()">
-            <i class="ti ti-microphone"></i>
-          </button>
-          <div class="ctrl-label">Mic</div>
-        </div>
-        <div class="btn-wrap">
-          <button class="ctrl-btn" id="btn-cam" onclick="toggleCam()">
-            <i class="ti ti-video"></i>
-          </button>
-          <div class="ctrl-label">Câmera</div>
-        </div>
-        <div class="btn-wrap">
-          <button class="ctrl-btn danger" id="btn-end" onclick="endCall()">
-            <i class="ti ti-phone-off"></i>
-          </button>
-          <div class="ctrl-label" style="color:rgba(255,100,100,.7)">Encerrar</div>
-        </div>
-        <div class="btn-wrap">
-          <button class="ctrl-btn" id="btn-spk" onclick="toggleSpeaker()">
-            <i class="ti ti-volume"></i>
-          </button>
-          <div class="ctrl-label">Viva-voz</div>
-        </div>
-        <div class="btn-wrap">
-          <button class="ctrl-btn" id="btn-flip" onclick="flipCamera()">
-            <i class="ti ti-camera-rotate"></i>
-          </button>
-          <div class="ctrl-label">Virar</div>
-        </div>
-      </div>
-    </div>
+  <!-- Active call (brief flash) -->
+  <div id="active-call-overlay">
+    <div class="ac-avatar"><img src="https://wsrv.nl/?url=https://i.ibb.co/ksmzSzDM/perfilv2.png&w=150&output=webp" alt="Vanessa"></div>
+    <div class="ac-name">Vanessa Macedo</div>
+    <div class="ac-status" id="ac-status-text">Conectando…</div>
+    <button class="ac-end-btn" id="ac-end-btn">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>
+    </button>
   </div>
 
 </div> <!-- fim .phone -->
@@ -663,13 +549,6 @@ document.addEventListener('keydown', function (e) {
   if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'J' || e.key === 'j')) { e.preventDefault(); return false; }
   if ((e.ctrlKey || e.metaKey) && (e.key === 'U' || e.key === 'u')) { e.preventDefault(); return false; }
 });
-
-// ═══ FUNÇÃO PARA COMPRIMIR IMAGENS (via wsrv.nl) ═══
-function compressImage(url, width = 400) {
-  if (!url) return url;
-  if (url.includes('wsrv.nl') || url.startsWith('data:')) return url;
-  return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=${width}&output=webp`;
-}
 
 // ═══ FUNÇÃO AUXILIAR PARA REMOVER [FIM] VISUALMENTE ═══
 function stripFim(text) {
@@ -692,26 +571,25 @@ const LINK_ENTREGAVEL = "https://chamadadevideo-wa.netlify.app";
 const CIDADES_FB = ['Fortaleza','Recife','Salvador','Belo Horizonte','Curitiba','Manaus','Belém','Porto Alegre','Campinas'];
 const TAIL_IN = '';
 const TAIL_OUT = '';
-const DOUBLE_TICK = `<svg class="ticks" width="16" height="11" viewBox="0 0 16 11" fill="none"><path d="M11.0714 1L4.5 7.57143L1 4.14286" stroke="#53bdeb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 1L8.42857 7.57143" stroke="#53bdeb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const DOUBLE_TICK = `<svg class="ticks" width="18" height="12" viewBox="0 0 16 11" fill="none"><path d="M11.0714 1L4.5 7.57143L1 4.14286" stroke="#53bdeb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 1L8.42857 7.57143" stroke="#53bdeb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
 const AUDIO_SRC = 'https://res.cloudinary.com/do59kzkec/video/upload/v1781646818/Apresenta%C3%A7%C3%A3o_kgfag3.mp3';
+const AUDIO_PIX_SRC = 'https://res.cloudinary.com/do59kzkec/video/upload/v1781647915/depois_de_mandar_o_pix_kxclc4.mp3';
 const IMG_INICIAL_SRC = 'https://i.ibb.co/XZGMmjcV/0416-D21-A-71-A5-4-C50-A316-AB8-DEE7-F5641.jpg';
 const IMG_LEAD_SRC = 'https://i.ibb.co/B2ML9kzf/Img-jpg.jpg';
 const IMG_EXTRA_SRC = 'https://i.ibb.co/mr9LqY60/Prev-jpg.jpg';
 
+let audioPIxJaTocou = false;
 let aiHistory = [], leadId = null, clicouCta = false, leadCityVal = null;
 let pixNormalGerado = false, pixDescontoGerado = false;
 let initiateCheckoutFired = false, typingEl = null;
 const SESSION_ID = Math.random().toString(36).slice(2);
 
 // ═══ FLAGS PARA CHAMADA ISCA ═══
+let userReplyCount = 0;
 let autoCallFired = false;
+let autoCallTimer = null;
 let autoCallRingInterval = null;
-let callInterfaceActive = false;
-let localStream = null;
-let facingMode = 'user';
-let callTimerIntervalCall = null;
-let callSecondsCall = 0;
 
 // ═══ FLAG: CONVERSA ENCERRADA ═══
 let conversaEncerrada = false;
@@ -740,10 +618,12 @@ function saveState() {
     leadCityVal,
     pixNormalGerado,
     pixDescontoGerado,
+    userReplyCount,
+    autoCallFired,
     initiateCheckoutFired,
+    audioPIxJaTocou,
     conversaEncerrada,
-    entregavelLiberado,
-    autoCallFired
+    entregavelLiberado
   };
   try {
     localStorage.setItem(STATE_KEY, JSON.stringify(state));
@@ -761,10 +641,12 @@ function loadState() {
     leadCityVal = state.leadCityVal || null;
     pixNormalGerado = state.pixNormalGerado || false;
     pixDescontoGerado = state.pixDescontoGerado || false;
+    userReplyCount = state.userReplyCount || 0;
+    autoCallFired = state.autoCallFired || false;
     initiateCheckoutFired = state.initiateCheckoutFired || false;
+    audioPIxJaTocou = state.audioPIxJaTocou || false;
     conversaEncerrada = state.conversaEncerrada || false;
     entregavelLiberado = state.entregavelLiberado || false;
-    autoCallFired = state.autoCallFired || false;
     return true;
   } catch(e) {
     return false;
@@ -827,10 +709,7 @@ function showTyping(){
 }
 function hideTyping(){
   if(typingEl){typingEl.remove();typingEl=null;}
-  const statuses = ['online', 'visto por último hoje às ' + getTime()];
-  const idx = Math.floor(Math.random() * statuses.length);
-  hdrStatus.textContent = statuses[idx];
-  hdrStatus.className = 'hdr-status';
+  hdrStatus.textContent='online';hdrStatus.className='hdr-status';
 }
 
 // ═══ FUNÇÃO CENTRALIZADA PARA ALTERNAR BOTÕES DE ENVIO/MIC ═══
@@ -1026,49 +905,34 @@ function pixelPurchase(v){
 }
 
 // ════════════════════════════════════════════════════
-// ═══ CARD PIX — AGORA COM BOTÃO DE COPIAR ═══
+// ═══ CARD PIX — NOVO ESTILO + TOAST ═══
 // ════════════════════════════════════════════════════
 
-let currentPixKey = '';
-let currentPixHash = '';
-let currentPixValor = 0;
-let currentPixDesconto = false;
-
-// Função que exibe o toast de confirmação
 function showToast(mensagem) {
-  const toast = document.getElementById('mic-toast');
-  toast.innerHTML = `<span style="display:flex;align-items:center;gap:8px;">✅ ${mensagem}</span>`;
-  toast.classList.add('show');
+  micToast.innerHTML = `<span style="display:flex;align-items:center;gap:10px;">✅ ${mensagem}</span>`;
+  micToast.classList.add('show');
   clearTimeout(window._toastTimeout);
   window._toastTimeout = setTimeout(() => {
-    toast.classList.remove('show');
+    micToast.classList.remove('show');
   }, 3000);
 }
 
-// Função que copia a chave Pix e altera o botão temporariamente
-function copiarChavePix(chave, botao) {
-  if (!chave) return;
-  const sucesso = () => {
-    if (botao) {
-      const originalHtml = botao.innerHTML;
-      botao.innerHTML = `
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>
-        Copiado!
-      `;
-      botao.style.background = '#007a5e';
-      setTimeout(() => {
-        botao.innerHTML = originalHtml;
-        botao.style.background = '';
-      }, 2000);
-    }
+window.copiarPix = function(btn, chave) {
+  const ok = function() {
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#00a884" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Copiado!';
+    btn.style.color = '#00a884';
     showToast('Chave Pix copiada! ✅');
+    setTimeout(function(){
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="#00a884" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="#00a884" stroke-width="2" stroke-linecap="round"/></svg> Copiar chave Pix';
+      btn.style.color = '#00a884';
+    }, 3000);
   };
   if (navigator.clipboard) {
-    navigator.clipboard.writeText(chave).then(sucesso).catch(() => fallbackCopy(chave, sucesso));
+    navigator.clipboard.writeText(chave).then(ok).catch(function(){ fallbackCopy(chave, ok); });
   } else {
-    fallbackCopy(chave, sucesso);
+    fallbackCopy(chave, ok);
   }
-}
+};
 
 function criarCardPix(data, desconto, timestamp) {
   const valor = desconto ? 2000 : 3000;
@@ -1092,15 +956,14 @@ function criarCardPix(data, desconto, timestamp) {
   aiHistory.push(pixEntry);
   salvarLead(true);
 
-  // Cria bolha com card
   const wrap = document.createElement('div');
   wrap.className = 'fade-in';
-  wrap.style.cssText = 'align-self:flex-start;margin-left:6px;max-width:88%';
+  wrap.style.cssText = 'align-self:flex-start;margin-left:8px;max-width:88%';
 
   const card = document.createElement('div');
   card.className = 'pix-card';
 
-  // Header
+  // Cabeçalho
   const header = document.createElement('div');
   header.className = 'pix-header';
   header.innerHTML = `
@@ -1130,11 +993,11 @@ function criarCardPix(data, desconto, timestamp) {
     Copiar chave Pix
   `;
   btn.onclick = function() {
-    copiarChavePix(pixCopia, btn);
+    window.copiarPix(btn, pixCopia);
   };
   card.appendChild(btn);
 
-  // Footer com horário
+  // Rodapé com horário
   const footer = document.createElement('div');
   footer.className = 'pix-footer';
   footer.textContent = timestamp || getTime();
@@ -1148,7 +1011,7 @@ function criarCardPix(data, desconto, timestamp) {
   pixelIniCheckout(valor);
 }
 
-// ═══ SHOW CTA ═══
+// ═══ showCta ═══
 async function showCta(desconto) {
   if (desconto) { if (pixDescontoGerado) return; pixDescontoGerado = true; }
   else { if (pixNormalGerado) return; pixNormalGerado = true; }
@@ -1159,161 +1022,63 @@ async function showCta(desconto) {
 
   const now = getTime();
   criarCardPix(data, desconto, now);
-}
 
-// ═══ FUNÇÃO PARA EXIBIR IMAGEM (NORMAL) ═══
-function showImage(src, timestamp, unique = false) {
-  const now = timestamp || getTime();
-  const compressedSrc = compressImage(src, 400);
-  if (unique) {
-    aiHistory.push({
-      role: 'assistant',
-      content: '[imagem]',
-      type: 'image_unique',
-      src: compressedSrc,
-      timestamp: now,
-      viewed: false
-    });
-    salvarLead();
-    criarBolhaImagemUnica(compressedSrc, now);
-  } else {
-    aiHistory.push({ role:'assistant', content:'[imagem]', type:'image', src: compressedSrc, timestamp: now });
-    salvarLead();
-    const b = document.createElement('div');
-    b.className = 'bbl in fade-in';
-    b.style.maxWidth = '85%';
-    b.style.padding = '4px';
-    b.innerHTML = TAIL_IN + '<img src="'+compressedSrc+'" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto" loading="lazy" decoding="async"><div class="bbl-meta"><span class="bbl-time">'+now+'</span></div>';
-    msgsEl.appendChild(b);
-    scroll();
+  if (!desconto && !audioPIxJaTocou) {
+    audioPIxJaTocou = true;
+    saveState();
+    await sleep(600);
+    aiHistory.push({role:'assistant', content:'[áudio]', type:'audio', src:AUDIO_PIX_SRC, timestamp: now});
+    salvarLead(true);
+    criarBolhaAudio(AUDIO_PIX_SRC, 'pix', function() {});
   }
 }
 
-// ═══ CRIA BOLHA DE VISUALIZAÇÃO ÚNICA ═══
-function criarBolhaImagemUnica(src, timestamp) {
+// ═══ FUNÇÃO PARA EXIBIR IMAGEM (NORMAL) com LIGHTBOX ═══
+function showImage(src, timestamp) {
   const now = timestamp || getTime();
+  const compressedSrc = src;
+
+  aiHistory.push({ role:'assistant', content:'[imagem]', type:'image', src: compressedSrc, timestamp: now });
+  salvarLead();
+
   const b = document.createElement('div');
   b.className = 'bbl in fade-in';
   b.style.maxWidth = '85%';
-  b.style.cursor = 'pointer';
-  b.style.padding = '8px 12px 6px';
-  b.dataset.uniqueSrc = src;
-  b.dataset.viewed = 'false';
-
-  const placeholder = document.createElement('div');
-  placeholder.className = 'bbl-unique-placeholder';
-  placeholder.innerHTML = `
-    <div class="icon">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00a884" stroke-width="2">
-        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-        <circle cx="12" cy="12" r="3"/>
-      </svg>
-    </div>
-    <div class="label"><strong>Visualização única</strong><br><span style="font-size:12px;color:#667781">Toque para abrir</span></div>
-  `;
-  const openFn = function(e) {
+  b.style.padding = '4px';
+  b.innerHTML = TAIL_IN + '<img src="'+compressedSrc+'" style="width:240px;display:block;border-radius:6px;max-width:100%;cursor:pointer" alt="foto" loading="lazy" decoding="async"><div class="bbl-meta"><span class="bbl-time">'+now+'</span></div>';
+  const img = b.querySelector('img');
+  img.addEventListener('click', function(e) {
     e.stopPropagation();
-    abrirVisualizacaoUnica(b);
-  };
-  placeholder.addEventListener('click', openFn);
-  b.addEventListener('click', function(e) {
-    if (!e.target.closest('.bbl-unique-placeholder')) {
-      abrirVisualizacaoUnica(b);
-    }
+    abrirLightbox(compressedSrc);
   });
-
-  b.appendChild(placeholder);
-
-  const meta = document.createElement('div');
-  meta.className = 'bbl-meta';
-  meta.innerHTML = `<span class="bbl-time">${now}</span>`;
-  b.appendChild(meta);
-
-  if (typingEl) { msgsEl.insertBefore(b, typingEl); } else { msgsEl.appendChild(b); }
+  msgsEl.appendChild(b);
   scroll();
 }
 
-window.abrirVisualizacaoUnica = function(bubble) {
-  if (!bubble) return;
-  if (bubble.dataset.viewed === 'true') {
-    const label = bubble.querySelector('.label');
-    if (label) {
-      label.innerHTML = '<span style="color:#8696a0;font-size:13px">⚠️ Visualização única expirada</span>';
-    }
-    return;
-  }
+function showFotoLead() {
+  showImage(IMG_LEAD_SRC);
+}
 
-  const src = bubble.dataset.uniqueSrc;
-  if (!src) return;
-
+// ═══ LIGHTBOX ═══
+function abrirLightbox(src) {
   const overlay = document.createElement('div');
-  overlay.className = 'unique-viewer';
+  overlay.className = 'image-lightbox';
   overlay.innerHTML = `
-    <img src="${src}" alt="Visualização única" loading="lazy" decoding="async">
-    <button class="close-btn" onclick="fecharVisualizacaoUnica(this.parentElement)">Fechar</button>
+    <img src="${src}" alt="Visualizar imagem" loading="lazy" decoding="async">
+    <button class="close-lb" onclick="fecharLightbox(this.parentElement)">Fechar</button>
   `;
   const phone = document.querySelector('.phone');
   phone.appendChild(overlay);
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) fecharLightbox(overlay);
+  });
   document.body.style.overflow = 'hidden';
-};
-
-window.fecharVisualizacaoUnica = function(overlay) {
-  if (!overlay) return;
-  const img = overlay.querySelector('img');
-  if (!img) { overlay.remove(); document.body.style.overflow = ''; return; }
-  const src = img.src;
-  const bubbles = document.querySelectorAll('.bbl[data-unique-src]');
-  let targetBubble = null;
-  for (const b of bubbles) {
-    if (b.dataset.uniqueSrc === src && b.dataset.viewed === 'false') {
-      targetBubble = b;
-      break;
-    }
-  }
-
-  if (targetBubble) {
-    targetBubble.dataset.viewed = 'true';
-    const placeholder = targetBubble.querySelector('.bbl-unique-placeholder');
-    if (placeholder) {
-      placeholder.innerHTML = `
-        <div class="icon" style="background:rgba(134,150,160,0.12)">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8696a0" stroke-width="2">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-            <circle cx="12" cy="12" r="3"/>
-          </svg>
-        </div>
-        <div class="viewed-label">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8696a0" stroke-width="2" style="vertical-align:middle;margin-right:4px;">
-            <circle cx="12" cy="12" r="10"/>
-            <polyline points="12 6 12 12 16 14"/>
-          </svg>
-          Visualização única<br><span style="font-size:11px;color:#8696a0">Aberto</span>
-        </div>
-      `;
-    }
-    targetBubble.style.cursor = 'default';
-    targetBubble.onclick = null;
-
-    for (let i = 0; i < aiHistory.length; i++) {
-      const msg = aiHistory[i];
-      if (msg.type === 'image_unique' && msg.src === src && msg.viewed === false) {
-        msg.viewed = true;
-        salvarLead();
-        break;
-      }
-    }
-  }
-
-  overlay.remove();
-  document.body.style.overflow = '';
-};
-
-function showUniqueImage(src, timestamp) {
-  showImage(src, timestamp, true);
 }
 
-function showFotoLead() {
-  showImage(IMG_LEAD_SRC, getTime(), false);
+function fecharLightbox(overlay) {
+  if (!overlay) return;
+  overlay.remove();
+  document.body.style.overflow = '';
 }
 
 // ═══ FUNÇÃO PARA CRIAR BOLHA DE ÁUDIO DO LEAD ═══
@@ -1322,23 +1087,23 @@ function criarBolhaAudio(src, id, onEnded) {
   const b = document.createElement('div');
   b.className = 'bbl in fade-in';
   b.style.maxWidth = '85%';
-  b.style.minWidth = '260px';
-  b.style.padding = '10px 12px 4px';
-  b.innerHTML = `${TAIL_IN}<div style="display:flex;align-items:center;gap:12px;width:100%">
-    <button onclick="toggleAudioById('${id}')" style="width:52px;height:52px;border-radius:50%;background:#00a884;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
-      <svg id="play-icon-${id}" width="22" height="22" viewBox="0 0 24 24" fill="white"><polygon points="6,3 20,12 6,21"/></svg>
-      <svg id="pause-icon-${id}" width="22" height="22" viewBox="0 0 24 24" fill="white" style="display:none"><rect x="5" y="4" width="4" height="16"/><rect x="15" y="4" width="4" height="16"/></svg>
+  b.style.minWidth = '280px';
+  b.style.padding = '12px 14px 6px';
+  b.innerHTML = `${TAIL_IN}<div style="display:flex;align-items:center;gap:14px;width:100%">
+    <button onclick="toggleAudioById('${id}')" style="width:60px;height:60px;border-radius:50%;background:#00a884;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
+      <svg id="play-icon-${id}" width="26" height="26" viewBox="0 0 24 24" fill="white"><polygon points="6,3 20,12 6,21"/></svg>
+      <svg id="pause-icon-${id}" width="26" height="26" viewBox="0 0 24 24" fill="white" style="display:none"><rect x="5" y="4" width="4" height="16"/><rect x="15" y="4" width="4" height="16"/></svg>
     </button>
     <div style="flex:1;min-width:0">
-      <div style="position:relative;height:36px;display:flex;align-items:center;cursor:pointer;padding:0 2px" onclick="seekAudioById(event,this,'${id}')">
-        <div style="position:absolute;left:0;right:0;height:4px;background:rgba(0,0,0,0.15);border-radius:4px">
+      <div style="position:relative;height:40px;display:flex;align-items:center;cursor:pointer;padding:0 2px" onclick="seekAudioById(event,this,'${id}')">
+        <div style="position:absolute;left:0;right:0;height:6px;background:rgba(0,0,0,0.15);border-radius:4px">
           <div id="audio-progress-${id}" style="height:100%;width:0%;background:#00a884;border-radius:4px;transition:width 0.1s linear"></div>
         </div>
-        <div id="audio-thumb-${id}" style="position:absolute;left:0%;width:14px;height:14px;border-radius:50%;background:#00a884;transform:translateX(-50%);box-shadow:0 1px 3px rgba(0,0,0,0.3);transition:left 0.1s linear"></div>
+        <div id="audio-thumb-${id}" style="position:absolute;left:0%;width:18px;height:18px;border-radius:50%;background:#00a884;transform:translateX(-50%);box-shadow:0 1px 3px rgba(0,0,0,0.3);transition:left 0.1s linear"></div>
       </div>
-      <div style="font-size:11.5px;color:#667781" id="audio-dur-${id}">0:00</div>
+      <div style="font-size:0.85rem;color:#667781" id="audio-dur-${id}">0:00</div>
     </div>
-    <img src="https://wsrv.nl/?url=https://i.ibb.co/ksmzSzDM/perfilv2.png&w=80&output=webp" style="width:42px;height:42px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(0,0,0,0.08)" alt="Vanessa" loading="lazy" decoding="async">
+    <img src="https://wsrv.nl/?url=https://i.ibb.co/ksmzSzDM/perfilv2.png&w=80&output=webp" style="width:48px;height:48px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(0,0,0,0.08)" alt="Vanessa" loading="lazy" decoding="async">
   </div><div class="bbl-meta"><span class="bbl-time">${now}</span></div>`;
   msgsEl.appendChild(b);
   scroll();
@@ -1402,21 +1167,21 @@ function criarBolhaAudioUsuario(url, id, timestamp) {
   const b = document.createElement('div');
   b.className = 'bbl out fade-in';
   b.style.maxWidth = '85%';
-  b.style.minWidth = '240px';
-  b.style.padding = '10px 12px 4px';
-  b.innerHTML = `${TAIL_OUT}<div style="display:flex;align-items:center;gap:12px;width:100%">
-    <button onclick="toggleAudioById('${id}')" style="width:48px;height:48px;border-radius:50%;background:#128c7e;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-      <svg id="play-icon-${id}" width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="6,3 20,12 6,21"/></svg>
-      <svg id="pause-icon-${id}" width="20" height="20" viewBox="0 0 24 24" fill="white" style="display:none"><rect x="5" y="4" width="4" height="16"/><rect x="15" y="4" width="4" height="16"/></svg>
+  b.style.minWidth = '260px';
+  b.style.padding = '12px 14px 6px';
+  b.innerHTML = `${TAIL_OUT}<div style="display:flex;align-items:center;gap:14px;width:100%">
+    <button onclick="toggleAudioById('${id}')" style="width:56px;height:56px;border-radius:50%;background:#128c7e;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <svg id="play-icon-${id}" width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="6,3 20,12 6,21"/></svg>
+      <svg id="pause-icon-${id}" width="24" height="24" viewBox="0 0 24 24" fill="white" style="display:none"><rect x="5" y="4" width="4" height="16"/><rect x="15" y="4" width="4" height="16"/></svg>
     </button>
     <div style="flex:1;min-width:0">
-      <div style="position:relative;height:32px;display:flex;align-items:center;cursor:pointer;padding:0 2px" onclick="seekAudioById(event,this,'${id}')">
-        <div style="position:absolute;left:0;right:0;height:4px;background:rgba(0,0,0,0.15);border-radius:4px">
+      <div style="position:relative;height:36px;display:flex;align-items:center;cursor:pointer;padding:0 2px" onclick="seekAudioById(event,this,'${id}')">
+        <div style="position:absolute;left:0;right:0;height:6px;background:rgba(0,0,0,0.15);border-radius:4px">
           <div id="audio-progress-${id}" style="height:100%;width:0%;background:#128c7e;border-radius:4px;transition:width 0.1s linear"></div>
         </div>
-        <div id="audio-thumb-${id}" style="position:absolute;left:0%;width:12px;height:12px;border-radius:50%;background:#128c7e;transform:translateX(-50%);transition:left 0.1s linear"></div>
+        <div id="audio-thumb-${id}" style="position:absolute;left:0%;width:16px;height:16px;border-radius:50%;background:#128c7e;transform:translateX(-50%);transition:left 0.1s linear"></div>
       </div>
-      <div style="font-size:11px;color:#667781" id="audio-dur-${id}">0:00</div>
+      <div style="font-size:0.8rem;color:#667781" id="audio-dur-${id}">0:00</div>
     </div>
   </div><div class="bbl-meta"><span class="bbl-time">${now}</span>${DOUBLE_TICK}</div>`;
   msgsEl.appendChild(b); scroll();
@@ -1516,7 +1281,9 @@ async function rebuildUI() {
         b.className = 'bbl out fade-in';
         b.style.maxWidth = '85%';
         b.style.padding = '4px';
-        b.innerHTML = TAIL_OUT + '<img src="'+msg.imageData+'" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto enviada" loading="lazy" decoding="async"><div class="bbl-meta"><span class="bbl-time">' + (msg.timestamp || getTime()) + '</span>' + DOUBLE_TICK + '</div>';
+        b.innerHTML = TAIL_OUT + '<img src="'+msg.imageData+'" style="width:240px;display:block;border-radius:6px;max-width:100%;cursor:pointer" alt="foto enviada" loading="lazy" decoding="async"><div class="bbl-meta"><span class="bbl-time">' + (msg.timestamp || getTime()) + '</span>' + DOUBLE_TICK + '</div>';
+        const img = b.querySelector('img');
+        if (img) img.addEventListener('click', function(e) { e.stopPropagation(); abrirLightbox(msg.imageData); });
         msgsEl.appendChild(b);
       } else {
         addBubble(msg.content, 'out', false, msg.timestamp || getTime());
@@ -1547,63 +1314,9 @@ async function rebuildUI() {
       b.className = 'bbl in fade-in';
       b.style.maxWidth = '85%';
       b.style.padding = '4px';
-      b.innerHTML = TAIL_IN + '<img src="' + msg.src + '" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto" loading="lazy" decoding="async"><div class="bbl-meta"><span class="bbl-time">' + (msg.timestamp || getTime()) + '</span></div>';
-      msgsEl.appendChild(b);
-    }
-    else if (msg.role === 'assistant' && msg.type === 'image_unique') {
-      const viewed = msg.viewed || false;
-      const b = document.createElement('div');
-      b.className = 'bbl in fade-in';
-      b.style.maxWidth = '85%';
-      b.style.cursor = viewed ? 'default' : 'pointer';
-      b.style.padding = '8px 12px 6px';
-      b.dataset.uniqueSrc = msg.src;
-      b.dataset.viewed = viewed ? 'true' : 'false';
-
-      const placeholder = document.createElement('div');
-      placeholder.className = 'bbl-unique-placeholder';
-      if (viewed) {
-        placeholder.innerHTML = `
-          <div class="icon" style="background:rgba(134,150,160,0.12)">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8696a0" stroke-width="2">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-              <circle cx="12" cy="12" r="3"/>
-            </svg>
-          </div>
-          <div class="viewed-label">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8696a0" stroke-width="2" style="vertical-align:middle;margin-right:4px;">
-              <circle cx="12" cy="12" r="10"/>
-              <polyline points="12 6 12 12 16 14"/>
-            </svg>
-            Visualização única<br><span style="font-size:11px;color:#8696a0">Aberto</span>
-          </div>
-        `;
-      } else {
-        placeholder.innerHTML = `
-          <div class="icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00a884" stroke-width="2">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-              <circle cx="12" cy="12" r="3"/>
-            </svg>
-          </div>
-          <div class="label"><strong>Visualização única</strong><br><span style="font-size:12px;color:#667781">Toque para abrir</span></div>
-        `;
-        placeholder.addEventListener('click', function(e) {
-          e.stopPropagation();
-          abrirVisualizacaoUnica(b);
-        });
-        b.addEventListener('click', function(e) {
-          if (!e.target.closest('.bbl-unique-placeholder')) {
-            abrirVisualizacaoUnica(b);
-          }
-        });
-      }
-      b.appendChild(placeholder);
-
-      const meta = document.createElement('div');
-      meta.className = 'bbl-meta';
-      meta.innerHTML = `<span class="bbl-time">${msg.timestamp || getTime()}</span>`;
-      b.appendChild(meta);
+      b.innerHTML = TAIL_IN + '<img src="' + msg.src + '" style="width:240px;display:block;border-radius:6px;max-width:100%;cursor:pointer" alt="foto" loading="lazy" decoding="async"><div class="bbl-meta"><span class="bbl-time">' + (msg.timestamp || getTime()) + '</span></div>';
+      const img = b.querySelector('img');
+      if (img) img.addEventListener('click', function(e) { e.stopPropagation(); abrirLightbox(msg.src); });
       msgsEl.appendChild(b);
     }
     else if (msg.role === 'assistant' && msg.type === 'pix') {
@@ -1611,7 +1324,7 @@ async function rebuildUI() {
       if (pixData) {
         const wrap = document.createElement('div');
         wrap.className = 'fade-in';
-        wrap.style.cssText = 'align-self:flex-start;margin-left:6px;max-width:88%';
+        wrap.style.cssText = 'align-self:flex-start;margin-left:8px;max-width:88%';
 
         const card = document.createElement('div');
         card.className = 'pix-card';
@@ -1632,7 +1345,7 @@ async function rebuildUI() {
         const valueDiv = document.createElement('div');
         valueDiv.className = 'pix-value';
         valueDiv.innerHTML = `
-          <span class="currency">R$</span> ${(pixData.valor/100).toFixed(2).replace('.',',')}
+          <span class="currency">R$</span> ${pixData.valorFmt.replace('R$ ','')}
         `;
         card.appendChild(valueDiv);
 
@@ -1643,7 +1356,7 @@ async function rebuildUI() {
           Copiar chave Pix
         `;
         btn.onclick = function() {
-          copiarChavePix(pixData.chave, btn);
+          window.copiarPix(btn, pixData.chave);
         };
         card.appendChild(btn);
 
@@ -1657,296 +1370,14 @@ async function rebuildUI() {
       }
     }
     else if (msg.role === 'system') {
-      // não exibe
+      continue;
     }
   }
   scroll();
   enableInput();
 }
 
-// ============================================================
-// ====== CHAMADA ISCA — FUNÇÕES DA INTERFACE DE VÍDEO =======
-// ============================================================
-
-/* Toque da chamada */
-function startAutoCallRing() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    function beep() {
-      const o = ctx.createOscillator(), g = ctx.createGain();
-      o.connect(g); g.connect(ctx.destination);
-      o.frequency.value = 480;
-      g.gain.setValueAtTime(0.25, ctx.currentTime);
-      o.start(); o.stop(ctx.currentTime + 0.4);
-    }
-    beep();
-    autoCallRingInterval = setInterval(beep, 1600);
-  } catch(e) {}
-}
-function stopAutoCallRing() {
-  if (autoCallRingInterval) {
-    clearInterval(autoCallRingInterval);
-    autoCallRingInterval = null;
-  }
-}
-
-/* Disparo da chamada isca */
-function triggerAutoCall() {
-  if (autoCallFired) return;
-  autoCallFired = true;
-  saveState();
-
-  const ov = document.getElementById('incoming-call-overlay');
-  ov.classList.add('show');
-  startAutoCallRing();
-
-  // Timeout para recusar automaticamente após 25s
-  const autoDismissTimer = setTimeout(function() {
-    if (ov.classList.contains('show')) {
-      dismissAutoCall('declined');
-    }
-  }, 25000);
-
-  document.getElementById('auto-call-decline').onclick = function() {
-    clearTimeout(autoDismissTimer);
-    dismissAutoCall('declined');
-  };
-
-  document.getElementById('auto-call-answer').onclick = function() {
-    clearTimeout(autoDismissTimer);
-    stopAutoCallRing();
-    ov.classList.remove('show');
-
-    aiHistory.push({ role: 'system', content: 'Ligação Isca - Aceita', type: 'system' });
-    salvarLead();
-
-    const b = document.createElement('div');
-    b.className = 'bbl in fade-in';
-    b.style.maxWidth = '85%';
-    b.innerHTML = TAIL_IN +
-      '<div style="display:flex;align-items:center;gap:8px;color:#25d366;font-size:13.5px">' +
-      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#25d366" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#25d366" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-      'Chamada de vídeo aceita</div>' +
-      '<div class="bbl-meta"><span class="bbl-time">' + getTime() + '</span></div>';
-    msgsEl.appendChild(b);
-    scroll();
-
-    const connOverlay = document.getElementById('connecting-overlay');
-    connOverlay.classList.add('active');
-
-    setTimeout(function() {
-      connOverlay.classList.remove('active');
-      showCallInterface();
-    }, 2500);
-  };
-}
-
-/* Recusa automática ou manual */
-function dismissAutoCall(reason) {
-  stopAutoCallRing();
-  const ov = document.getElementById('incoming-call-overlay');
-  ov.classList.remove('show');
-
-  if (reason === 'declined') {
-    setTimeout(function() {
-      const b = document.createElement('div');
-      b.className = 'bbl in fade-in';
-      b.innerHTML = TAIL_IN +
-        '<div style="display:flex;align-items:center;gap:8px;color:#e53935;font-size:13.5px">' +
-        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><line x1="3" y1="3" x2="21" y2="21" stroke="#e53935" stroke-width="1.75" stroke-linecap="round"/></svg>' +
-        'Chamada de vídeo perdida</div>' +
-        '<div class="bbl-meta"><span class="bbl-time">' + getTime() + '</span></div>';
-      msgsEl.appendChild(b);
-      scroll();
-      aiHistory.push({ role: 'system', content: 'Ligação Isca - Recusada', type: 'system' });
-      salvarLead();
-    }, 400);
-  }
-}
-
-/* Exibe a interface de chamada */
-function showCallInterface() {
-  const el = document.getElementById('call-interface');
-  el.classList.add('active');
-  callInterfaceActive = true;
-  startCallTimerUI();
-  startLocalCamera('user');
-
-  const rv = document.getElementById('remote-video');
-  rv.muted = false;
-  rv.play().catch(() => {});
-
-  const spkBtn = document.getElementById('btn-spk');
-  const spkIcon = spkBtn.querySelector('i');
-  spkBtn.classList.add('lit');
-  spkIcon.className = 'ti ti-volume-3';
-  toastUI('Viva-voz ativado');
-}
-
-/* Esconde a interface de chamada */
-function hideCallInterface() {
-  const el = document.getElementById('call-interface');
-  el.classList.remove('active');
-  callInterfaceActive = false;
-  stopCallTimerUI();
-  if (localStream) {
-    localStream.getTracks().forEach(t => t.stop());
-    localStream = null;
-  }
-  const rv = document.getElementById('remote-video');
-  rv.pause();
-  rv.currentTime = 0;
-}
-
-/* Timer da chamada */
-function startCallTimerUI() {
-  callSecondsCall = 0;
-  const timerEl = document.getElementById('call-timer');
-  if (callTimerIntervalCall) clearInterval(callTimerIntervalCall);
-  callTimerIntervalCall = setInterval(() => {
-    callSecondsCall++;
-    const mins = String(Math.floor(callSecondsCall / 60)).padStart(2, '0');
-    const secs = String(callSecondsCall % 60).padStart(2, '0');
-    timerEl.textContent = mins + ':' + secs;
-  }, 1000);
-}
-function stopCallTimerUI() {
-  if (callTimerIntervalCall) {
-    clearInterval(callTimerIntervalCall);
-    callTimerIntervalCall = null;
-  }
-  document.getElementById('call-timer').textContent = '00:00';
-}
-
-/* Câmera local */
-function startLocalCamera(facing) {
-  if (localStream) localStream.getTracks().forEach(t => t.stop());
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: facing || 'user' }, audio: false })
-    .then(s => {
-      localStream = s;
-      const v = document.getElementById('local-video');
-      v.srcObject = s;
-      v.style.display = 'block';
-      document.getElementById('cam-off-icon').style.display = 'none';
-      document.getElementById('btn-cam').querySelector('i').className = 'ti ti-video';
-      document.getElementById('btn-cam').classList.remove('off');
-    })
-    .catch(() => {
-      document.getElementById('local-video').style.display = 'none';
-      document.getElementById('cam-off-icon').style.display = 'flex';
-      toastUI('Câmera não disponível');
-      document.getElementById('btn-cam').querySelector('i').className = 'ti ti-video-off';
-      document.getElementById('btn-cam').classList.add('off');
-    });
-}
-
-/* Controles da chamada */
-function toggleMic() {
-  const btn = document.getElementById('btn-mic');
-  const icon = btn.querySelector('i');
-  if (!localStream) return;
-  const tracks = localStream.getAudioTracks();
-  if (tracks.length === 0) return;
-  const enabled = tracks[0].enabled;
-  tracks[0].enabled = !enabled;
-  icon.className = enabled ? 'ti ti-microphone-off' : 'ti ti-microphone';
-  btn.classList.toggle('off', enabled);
-  toastUI(enabled ? 'Microfone silenciado' : 'Microfone ativado');
-}
-function toggleCam() {
-  const btn = document.getElementById('btn-cam');
-  const icon = btn.querySelector('i');
-  if (!localStream) {
-    startLocalCamera(facingMode);
-    return;
-  }
-  const tracks = localStream.getVideoTracks();
-  if (tracks.length === 0) {
-    startLocalCamera(facingMode);
-    return;
-  }
-  const enabled = tracks[0].enabled;
-  tracks[0].enabled = !enabled;
-  icon.className = enabled ? 'ti ti-video-off' : 'ti ti-video';
-  btn.classList.toggle('off', enabled);
-  document.getElementById('local-video').style.display = enabled ? 'none' : 'block';
-  document.getElementById('cam-off-icon').style.display = enabled ? 'flex' : 'none';
-  toastUI(enabled ? 'Câmera desligada' : 'Câmera ativada');
-}
-function toggleSpeaker() {
-  const btn = document.getElementById('btn-spk');
-  const icon = btn.querySelector('i');
-  const rv = document.getElementById('remote-video');
-  rv.muted = !rv.muted;
-  icon.className = rv.muted ? 'ti ti-volume' : 'ti ti-volume-3';
-  btn.classList.toggle('lit', !rv.muted);
-  toastUI(rv.muted ? 'Viva-voz desligado' : 'Viva-voz ativado');
-}
-function flipCamera() {
-  facingMode = facingMode === 'user' ? 'environment' : 'user';
-  startLocalCamera(facingMode);
-  toastUI(facingMode === 'environment' ? 'Câmera traseira' : 'Câmera frontal');
-}
-function endCall() {
-  const endedDiv = document.getElementById('ended');
-  const endedMsg = document.getElementById('ended-msg');
-  const durEnd = document.getElementById('dur-end');
-  const timer = document.getElementById('call-timer');
-  endedMsg.textContent = 'Chamada encerrada';
-  durEnd.textContent = 'Duração: ' + timer.textContent;
-  endedDiv.style.display = 'flex';
-  hideCallInterface();
-
-  const b = document.createElement('div');
-  b.className = 'bbl in fade-in';
-  b.innerHTML = TAIL_IN +
-    '<div style="display:flex;align-items:center;gap:8px;color:#667781;font-size:13.5px">' +
-    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-    'Chamada encerrada</div>' +
-    '<div class="bbl-meta"><span class="bbl-time">' + getTime() + '</span></div>';
-  msgsEl.appendChild(b);
-  scroll();
-  aiHistory.push({ role: 'system', content: 'Ligação Isca - Encerrada manualmente', type: 'system' });
-  salvarLead();
-  autoCallFired = true;
-  saveState();
-}
-
-function toastUI(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.opacity = '1';
-  clearTimeout(t._t);
-  t._t = setTimeout(() => t.style.opacity = '0', 2000);
-}
-
-// Evento de fim do vídeo remoto (encerramento automático)
-document.getElementById('remote-video').addEventListener('ended', function() {
-  if (callInterfaceActive) {
-    const endedDiv = document.getElementById('ended');
-    document.getElementById('ended-msg').textContent = 'Vanessa Macedo encerrou a chamada';
-    document.getElementById('dur-end').textContent = 'Duração: ' + document.getElementById('call-timer').textContent;
-    endedDiv.style.display = 'flex';
-    hideCallInterface();
-
-    const b = document.createElement('div');
-    b.className = 'bbl in fade-in';
-    b.innerHTML = TAIL_IN +
-      '<div style="display:flex;align-items:center;gap:8px;color:#667781;font-size:13.5px">' +
-      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-      'Vanessa encerrou a chamada</div>' +
-      '<div class="bbl-meta"><span class="bbl-time">' + getTime() + '</span></div>';
-    msgsEl.appendChild(b);
-    scroll();
-    aiHistory.push({ role: 'system', content: 'Ligação Isca - Encerrada por Vanessa', type: 'system' });
-    salvarLead();
-    saveState();
-  }
-});
-
-// ============================================================
-// ====== ENTREGÁVEL (LINK) – acionado APENAS após pagamento ===
-// ============================================================
+// ═══ showBotaoEntregavel ═══
 function showBotaoEntregavel() {
   if (entregavelLiberado) return;
   entregavelLiberado = true;
@@ -1955,46 +1386,38 @@ function showBotaoEntregavel() {
   let ring = null;
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    function beep() {
-      const o = ctx.createOscillator(), g = ctx.createGain();
-      o.connect(g); g.connect(ctx.destination);
-      o.frequency.value = 480;
-      g.gain.setValueAtTime(0.28, ctx.currentTime);
-      o.start(); o.stop(ctx.currentTime + 0.35);
-    }
-    beep();
-    ring = setInterval(beep, 1400);
+    function beep(){ const o = ctx.createOscillator(), g = ctx.createGain(); o.connect(g); g.connect(ctx.destination); o.frequency.value = 480; g.gain.setValueAtTime(0.28, ctx.currentTime); o.start(); o.stop(ctx.currentTime + 0.35); }
+    beep(); ring = setInterval(beep, 1400);
   } catch(e) {}
 
   const ov = document.createElement('div');
   ov.style.cssText = 'position:absolute;inset:0;background:#1a1a2e;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:60px 20px;animation:fi .3s ease';
-  ov.innerHTML = `
-    <div style="text-align:center">
-      <div style="position:relative;width:100px;height:100px;margin:0 auto">
-        <div style="position:absolute;inset:-14px;border-radius:50%;border:2px solid rgba(255,255,255,0.12);animation:pulse 2s ease-out infinite"></div>
-        <div style="position:absolute;inset:-7px;border-radius:50%;border:2px solid rgba(255,255,255,0.08);animation:pulse 2s ease-out infinite 1s"></div>
-        <div style="width:100px;height:100px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,0.18)">
-          <img src="https://wsrv.nl/?url=https://i.ibb.co/ksmzSzDM/perfilv2.png&w=150&output=webp" style="width:100%;height:100%;object-fit:cover" alt="Vanessa" loading="lazy" decoding="async">
-        </div>
+  ov.innerHTML = `<div style="text-align:center">
+    <div style="position:relative;width:120px;height:120px;margin:0 auto">
+      <div style="position:absolute;inset:-16px;border-radius:50%;border:2px solid rgba(255,255,255,0.12);animation:pulse 2s ease-out infinite"></div>
+      <div style="position:absolute;inset:-8px;border-radius:50%;border:2px solid rgba(255,255,255,0.08);animation:pulse 2s ease-out infinite 1s"></div>
+      <div style="width:120px;height:120px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,0.18)">
+        <img src="https://wsrv.nl/?url=https://i.ibb.co/ksmzSzDM/perfilv2.png&w=150&output=webp" style="width:100%;height:100%;object-fit:cover" alt="Vanessa" loading="lazy" decoding="async">
       </div>
-      <div style="color:#fff;font-size:22px;font-weight:500;margin-top:22px">Vanessa Macedo</div>
-      <div style="color:rgba(255,255,255,0.55);font-size:14px;margin-top:6px">Chamada de vídeo WhatsApp…</div>
     </div>
-    <div style="display:flex;gap:52px;align-items:center">
-      <button id="vc-decline" style="display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.8);font-size:12.5px;font-family:inherit">
-        <div style="width:64px;height:64px;border-radius:50%;background:#e53935;display:flex;align-items:center;justify-content:center">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>
-        </div>
-        Recusar
-      </button>
-      <button id="vc-answer" style="display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.8);font-size:12.5px;font-family:inherit">
-        <div style="width:64px;height:64px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;animation:ringShake .6s ease infinite alternate">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        Atender
-      </button>
-    </div>
-  `;
+    <div style="color:#fff;font-size:1.6rem;font-weight:500;margin-top:24px">Vanessa Macedo</div>
+    <div style="color:rgba(255,255,255,0.55);font-size:1.1rem;margin-top:8px">Chamada de vídeo…</div>
+  </div>
+  <div style="display:flex;gap:60px;align-items:center">
+    <button id="vc-decline" style="display:flex;flex-direction:column;align-items:center;gap:12px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.8);font-size:1rem;font-family:inherit">
+      <div style="width:72px;height:72px;border-radius:50%;background:#e53935;display:flex;align-items:center;justify-content:center">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>
+      </div>
+      Recusar
+    </button>
+    <button id="vc-answer" style="display:flex;flex-direction:column;align-items:center;gap:12px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.8);font-size:1rem;font-family:inherit">
+      <div style="width:72px;height:72px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;animation:ringShake .6s ease infinite alternate">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      Atender
+    </button>
+  </div>`;
+
   document.querySelector('.phone').appendChild(ov);
 
   document.getElementById('vc-answer').onclick = function() {
@@ -2011,11 +1434,9 @@ function showBotaoEntregavel() {
     if (ring) clearInterval(ring);
     ov.remove();
     const now = getTime();
-    const b = document.createElement('div');
-    b.className = 'bbl in fade-in';
-    b.innerHTML = TAIL_IN + '<span style="color:#e53935;font-size:13px">📵 Chamada de vídeo perdida</span><div class="bbl-meta"><span class="bbl-time">' + now + '</span></div>';
-    msgsEl.appendChild(b);
-    scroll();
+    const b = document.createElement('div'); b.className = 'bbl in fade-in';
+    b.innerHTML = TAIL_IN + '<span style="color:#e53935;font-size:1rem">📵 Chamada de vídeo perdida</span><div class="bbl-meta"><span class="bbl-time">' + now + '</span></div>';
+    msgsEl.appendChild(b); scroll();
     aiHistory.push({ role: 'system', content: 'Entregável - Recusado', type: 'system' });
     salvarLead(true);
     await sleep(1400);
@@ -2061,11 +1482,9 @@ function showBotaoEntregavel() {
   };
 }
 
-// ═══ TEMPO DE DIGITAÇÃO ═══
 function typingDelay(text) {
-  const chars = text.length;
-  const cps = 2.5 + Math.random();
-  return Math.min(Math.max((chars / cps) * 1000 + 600 + Math.random() * 900, 1800), 12000);
+  const chars = text.length, cps = 2.5 + Math.random();
+  return Math.min(Math.max((chars/cps)*1000+600+Math.random()*900, 1800), 12000);
 }
 
 // ═══ FUNÇÃO ASKAI ═══
@@ -2089,10 +1508,6 @@ async function askAI(userMsg) {
     const { cleanContent, isFinal } = processarResposta(reply);
     aiHistory.push({ role: 'assistant', content: cleanContent, type: 'text', timestamp: getTime() });
     saveState();
-
-    if (!autoCallFired && /\bvou te ligar\b/i.test(cleanContent)) {
-      setTimeout(() => triggerAutoCall(), 5000);
-    }
 
     if (isFinal) {
       const displayContent = stripFim(cleanContent);
@@ -2121,19 +1536,14 @@ async function askAI(userMsg) {
     }
 
     const temPixNormal = /aqui o pix/i.test(cleanContent);
-    const temDesconto = /um desconto/i.test(cleanContent);
-    const temFoto = /olha eu aqui/i.test(cleanContent);
-    const temExtra = /tá pera/i.test(cleanContent);
+    const temDesconto  = /um desconto/i.test(cleanContent);
+    const temFoto     = /olha eu aqui/i.test(cleanContent);
+    const temExtra    = /tá pera/i.test(cleanContent);
 
     if (temPixNormal) { await sleep(600); showCta(false); }
-    if (temDesconto) { await sleep(600); showCta(true); }
-    if (temFoto) { await sleep(500); showFotoLead(); }
-    if (temExtra) {
-      showTyping();
-      await sleep(3000 + Math.random() * 2000);
-      hideTyping();
-      showUniqueImage(IMG_EXTRA_SRC);
-    }
+    if (temDesconto)  { await sleep(600); showCta(true); }
+    if (temFoto)      { await sleep(500); showFotoLead(); }
+    if (temExtra)     { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showImage(IMG_EXTRA_SRC); }
 
     const houveCta = temPixNormal || temDesconto;
     salvarLead(houveCta);
@@ -2145,7 +1555,7 @@ async function askAI(userMsg) {
   enableInput();
 }
 
-// ═══ FUNÇÃO DE ENVIO (texto) ═══
+// ═══ FUNÇÃO DE ENVIO (texto) - COM GATILHO DA CHAMADA ISCA ═══
 function submit() {
   if (conversaEncerrada) return;
   const text = inpEl.value.trim();
@@ -2155,7 +1565,13 @@ function submit() {
   const now = getTime();
   addBubble(text, 'out', false, now);
   if (!leadId) salvarLead();
+  userReplyCount++;
   saveState();
+
+  if (userReplyCount === 2 && !autoCallFired) {
+    const delay = 60000 + Math.random() * 60000;
+    scheduleAutoCall(delay);
+  }
 
   askAI(text);
 }
@@ -2170,7 +1586,7 @@ let _timerInterval = null;
 let _pressTimer = null;
 let _pressStartX = 0, _pressStartY = 0;
 const PRESS_THRESHOLD = 200;
-const MOVE_THRESHOLD = 15;
+const MOVE_THRESHOLD = 20;
 
 function showMicToast() {
   micToast.classList.add('show');
@@ -2409,7 +1825,7 @@ function handlePressMove(e) {
   if (_isRecording) {
     const rect = micBtn.getBoundingClientRect();
     const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-    if (clientX != null && clientX < rect.left - 30) {
+    if (clientX != null && clientX < rect.left - 40) {
       cancelRecord();
     }
   }
@@ -2452,7 +1868,7 @@ function showMicError(message) {
   scroll();
 }
 
-// ═══ ENVIO DE ÁUDIO (APÓS GRAVAÇÃO) ═══
+// ═══ ENVIO DE ÁUDIO (APÓS GRAVAÇÃO) - COM GATILHO DA CHAMADA ISCA ═══
 async function sendAudioMessage(mimeType) {
   if (conversaEncerrada) return;
   if (_audioChunks.length === 0) return;
@@ -2464,10 +1880,10 @@ async function sendAudioMessage(mimeType) {
   const now = getTime();
 
   const audioData = { url: url, id: audioId };
-  aiHistory.push({
-    role: 'user',
-    content: '[áudio enviado pelo usuário]',
-    type: 'audio-user',
+  aiHistory.push({ 
+    role: 'user', 
+    content: '[áudio enviado pelo usuário]', 
+    type: 'audio-user', 
     timestamp: now,
     audioData: audioData
   });
@@ -2478,7 +1894,13 @@ async function sendAudioMessage(mimeType) {
   const reader = new FileReader();
   reader.onload = async function() {
     const base64 = reader.result.split(',')[1];
+    userReplyCount++;
     if (!leadId) salvarLead();
+
+    if (userReplyCount === 2 && !autoCallFired) {
+      const delay = 60000 + Math.random() * 60000;
+      scheduleAutoCall(delay);
+    }
 
     showTyping();
     try {
@@ -2495,10 +1917,6 @@ async function sendAudioMessage(mimeType) {
       const { cleanContent, isFinal } = processarResposta(reply);
       aiHistory.push({ role: 'assistant', content: cleanContent, type: 'text', timestamp: getTime() });
       saveState();
-
-      if (!autoCallFired && /\bvou te ligar\b/i.test(cleanContent)) {
-        setTimeout(() => triggerAutoCall(), 5000);
-      }
 
       if (isFinal) {
         const displayContent = stripFim(cleanContent);
@@ -2521,19 +1939,14 @@ async function sendAudioMessage(mimeType) {
       }
 
       const temPixNormal = /aqui o pix/i.test(cleanContent);
-      const temDesconto = /um desconto/i.test(cleanContent);
-      const temFoto = /olha eu aqui/i.test(cleanContent);
-      const temExtra = /tá pera/i.test(cleanContent);
+      const temDesconto  = /um desconto/i.test(cleanContent);
+      const temFoto     = /olha eu aqui/i.test(cleanContent);
+      const temExtra    = /tá pera/i.test(cleanContent);
 
       if (temPixNormal) { await sleep(600); showCta(false); }
-      if (temDesconto) { await sleep(600); showCta(true); }
-      if (temFoto) { await sleep(500); showFotoLead(); }
-      if (temExtra) {
-        showTyping();
-        await sleep(3000 + Math.random() * 2000);
-        hideTyping();
-        showUniqueImage(IMG_EXTRA_SRC);
-      }
+      if (temDesconto)  { await sleep(600); showCta(true); }
+      if (temFoto)      { await sleep(500); showFotoLead(); }
+      if (temExtra)     { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showImage(IMG_EXTRA_SRC); }
 
       const houveCta = temPixNormal || temDesconto;
       salvarLead(houveCta);
@@ -2552,7 +1965,7 @@ inpEl.addEventListener('input', function() {
   updateSendMicButtons();
 });
 
-// ═══ ENVIO DE IMAGEM (com redimensionamento) ═══
+// ═══ ENVIO DE IMAGEM - COM GATILHO DA CHAMADA ISCA ═══
 async function handleImageSelect(event) {
   if (conversaEncerrada) return;
   const file = event.target.files && event.target.files[0];
@@ -2568,10 +1981,10 @@ async function handleImageSelect(event) {
   const now = getTime();
   const localUrl = resizedDataUrl;
 
-  aiHistory.push({
-    role: 'user',
-    content: '[imagem enviada pelo usuário]',
-    type: 'image-user',
+  aiHistory.push({ 
+    role: 'user', 
+    content: '[imagem enviada pelo usuário]', 
+    type: 'image-user', 
     timestamp: now,
     imageData: localUrl
   });
@@ -2581,12 +1994,19 @@ async function handleImageSelect(event) {
   b.className = 'bbl out fade-in';
   b.style.maxWidth = '85%';
   b.style.padding = '4px';
-  b.innerHTML = TAIL_OUT + '<img src="' + localUrl + '" style="width:220px;display:block;border-radius:6px;max-width:100%" alt="foto enviada" loading="lazy" decoding="async"><div class="bbl-meta"><span class="bbl-time">' + now + '</span>' + DOUBLE_TICK + '</div>';
-  msgsEl.appendChild(b);
-  scroll();
+  b.innerHTML = TAIL_OUT + '<img src="'+localUrl+'" style="width:240px;display:block;border-radius:6px;max-width:100%;cursor:pointer" alt="foto enviada" loading="lazy" decoding="async"><div class="bbl-meta"><span class="bbl-time">'+now+'</span>'+DOUBLE_TICK+'</div>';
+  const img = b.querySelector('img');
+  if (img) img.addEventListener('click', function(e) { e.stopPropagation(); abrirLightbox(localUrl); });
+  msgsEl.appendChild(b); scroll();
 
   const base64 = localUrl.split(',')[1];
+  userReplyCount++;
   if (!leadId) salvarLead();
+
+  if (userReplyCount === 2 && !autoCallFired) {
+    const delay = 60000 + Math.random() * 60000;
+    scheduleAutoCall(delay);
+  }
 
   showTyping();
   try {
@@ -2603,10 +2023,6 @@ async function handleImageSelect(event) {
     const { cleanContent, isFinal } = processarResposta(reply);
     aiHistory.push({ role: 'assistant', content: cleanContent, type: 'text', timestamp: getTime() });
     saveState();
-
-    if (!autoCallFired && /\bvou te ligar\b/i.test(cleanContent)) {
-      setTimeout(() => triggerAutoCall(), 5000);
-    }
 
     if (isFinal) {
       const displayContent = stripFim(cleanContent);
@@ -2629,19 +2045,14 @@ async function handleImageSelect(event) {
     }
 
     const temPixNormal = /aqui o pix/i.test(cleanContent);
-    const temDesconto = /um desconto/i.test(cleanContent);
-    const temFoto = /olha eu aqui/i.test(cleanContent);
-    const temExtra = /tá pera/i.test(cleanContent);
+    const temDesconto  = /um desconto/i.test(cleanContent);
+    const temFoto     = /olha eu aqui/i.test(cleanContent);
+    const temExtra    = /tá pera/i.test(cleanContent);
 
     if (temPixNormal) { await sleep(600); showCta(false); }
-    if (temDesconto) { await sleep(600); showCta(true); }
-    if (temFoto) { await sleep(500); showFotoLead(); }
-    if (temExtra) {
-      showTyping();
-      await sleep(3000 + Math.random() * 2000);
-      hideTyping();
-      showUniqueImage(IMG_EXTRA_SRC);
-    }
+    if (temDesconto)  { await sleep(600); showCta(true); }
+    if (temFoto)      { await sleep(500); showFotoLead(); }
+    if (temExtra)     { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showImage(IMG_EXTRA_SRC); }
 
     const houveCta = temPixNormal || temDesconto;
     salvarLead(houveCta);
@@ -2685,6 +2096,103 @@ function resizeImage(file, maxWidth, quality) {
   });
 }
 
+// ═══ AUTO CALL (CHAMADA ISCA) ═══
+function startAutoCallRing(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    function beep(){
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = 480;
+      g.gain.setValueAtTime(0.25, ctx.currentTime);
+      o.start(); o.stop(ctx.currentTime + 0.4);
+    }
+    beep();
+    autoCallRingInterval = setInterval(beep, 1600);
+  } catch(e){}
+}
+function stopAutoCallRing(){
+  if(autoCallRingInterval){ clearInterval(autoCallRingInterval); autoCallRingInterval = null; }
+}
+
+function dismissAutoCall(reason){
+  stopAutoCallRing();
+  const ov = document.getElementById('incoming-call-overlay');
+  const ac = document.getElementById('active-call-overlay');
+  ov.classList.remove('show');
+  ac.classList.remove('show');
+  setTimeout(function(){
+    const b = document.createElement('div');
+    b.className = 'bbl in fade-in';
+    if (reason === 'declined') {
+      b.innerHTML = TAIL_IN +
+        '<div style="display:flex;align-items:center;gap:10px;color:#e53935;font-size:1rem">' +
+        '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><line x1="3" y1="3" x2="21" y2="21" stroke="#e53935" stroke-width="1.75" stroke-linecap="round"/></svg>' +
+        'Chamada de vídeo perdida</div>' +
+        '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+      aiHistory.push({ role: 'system', content: 'Ligação Isca - Recusada', type: 'system' });
+    } else {
+      b.innerHTML = TAIL_IN +
+        '<div style="display:flex;align-items:center;gap:10px;color:#667781;font-size:1rem">' +
+        '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+        'Vanessa desligou · 0:02</div>' +
+        '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
+      aiHistory.push({ role: 'system', content: 'Ligação Isca - Aceita', type: 'system' });
+    }
+    msgsEl.appendChild(b);
+    scroll();
+    salvarLead();
+    saveState();
+  }, 400);
+}
+
+function triggerAutoCall(){
+  if (autoCallFired) return;
+  autoCallFired = true;
+  saveState();
+
+  const ov = document.getElementById('incoming-call-overlay');
+  ov.classList.add('show');
+  startAutoCallRing();
+
+  const autoDismissTimer = setTimeout(function(){
+    if (ov.classList.contains('show')) {
+      dismissAutoCall('declined');
+    }
+  }, 20000);
+
+  document.getElementById('auto-call-decline').onclick = function(){
+    clearTimeout(autoDismissTimer);
+    dismissAutoCall('declined');
+  };
+
+  document.getElementById('auto-call-answer').onclick = function(){
+    clearTimeout(autoDismissTimer);
+    stopAutoCallRing();
+    ov.classList.remove('show');
+
+    const ac = document.getElementById('active-call-overlay');
+    const statusTxt = document.getElementById('ac-status-text');
+    ac.classList.add('show');
+    statusTxt.textContent = 'Conectando…';
+    setTimeout(function(){ statusTxt.textContent = 'Chamada de vídeo'; }, 700);
+    setTimeout(function(){
+      ac.classList.remove('show');
+      dismissAutoCall('answered_and_hung');
+    }, 2000);
+
+    document.getElementById('ac-end-btn').onclick = function(){
+      ac.classList.remove('show');
+      dismissAutoCall('answered_and_hung');
+    };
+  };
+}
+
+function scheduleAutoCall(delay = 0) {
+  if (autoCallFired || autoCallTimer) return;
+  autoCallTimer = setTimeout(triggerAutoCall, delay);
+}
+
 // ═══ FUNÇÕES DO PERFIL ═══
 function openProfileSheet() {
   if (conversaEncerrada) return;
@@ -2702,9 +2210,7 @@ function closeProfileSheet() {
 function atualizarStatusPerfil() {
   const statusEl = document.getElementById('profile-status');
   if (!statusEl) return;
-  const statuses = ['online', 'visto por último hoje às ' + getTime()];
-  const idx = Math.floor(Math.random() * statuses.length);
-  statusEl.textContent = statuses[idx];
+  statusEl.textContent = 'online';
 }
 
 async function atualizarLocalizacaoPerfil() {
@@ -2770,6 +2276,8 @@ async function start() {
     updateSendMicButtons();
   } else {
     leadCityVal = await fetchLeadCity();
+    await sleep(700); showTyping();
+    await sleep(1100); hideTyping();
     const now = getTime();
     aiHistory.push({ role: 'assistant', content: '[áudio]', type: 'audio', src: AUDIO_SRC, timestamp: now });
     salvarLead();
@@ -2778,7 +2286,18 @@ async function start() {
       if (imgJaEnviada) return;
       imgJaEnviada = true;
       const imgNow = getTime();
-      showUniqueImage(IMG_INICIAL_SRC, imgNow);
+      aiHistory.push({ role: 'assistant', content: '[imagem]', type: 'image', src: IMG_INICIAL_SRC, timestamp: imgNow });
+      salvarLead();
+      setTimeout(function() {
+        const imgBbl = document.createElement('div');
+        imgBbl.className = 'bbl in fade-in';
+        imgBbl.style.maxWidth = '85%';
+        imgBbl.style.padding = '4px';
+        imgBbl.innerHTML = TAIL_IN + '<img src="' + IMG_INICIAL_SRC + '" style="width:240px;display:block;border-radius:6px;max-width:100%;cursor:pointer" alt="foto" loading="lazy" decoding="async"><div class="bbl-meta"><span class="bbl-time">' + imgNow + '</span></div>';
+        const imgElem = imgBbl.querySelector('img');
+        if (imgElem) imgElem.addEventListener('click', function(e) { e.stopPropagation(); abrirLightbox(IMG_INICIAL_SRC); });
+        msgsEl.appendChild(imgBbl); scroll();
+      }, 1200);
     });
 
     salvarAudioLead(AUDIO_SRC, now);
@@ -2797,11 +2316,11 @@ function toggleEmoji() {
   }
   const grid = panel.querySelector('div');
   if (grid.children.length === 0) {
-    const emojis = ['😀', '😂', '🤣', '😍', '🥰', '😘', '😊', '🥺', '😢', '😭', '😤', '😡', '🤔', '🤭', '😏', '😎', '🤩', '😴', '🥳', '😇', '❤️', '🔥', '💕', '💞', '👏', '🙌', '🤝', '👍', '🙏', '💪', '😈', '👀', '💋', '🫦', '😻', '🥵', '😜', '🤪', '😝', '💀', '🫣', '🤫', '🫶', '💘', '💝', '💖', '💗', '💓', '💟', '❣️', '🎉', '✨', '⭐', '🌹', '🍑', '🍆', '💦', '🌊', '😩', '🫠', '🥴', '😮‍💨', '😋'];
+    const emojis = ['😀','😂','🤣','😍','🥰','😘','😊','🥺','😢','😭','😤','😡','🤔','🤭','😏','😎','🤩','😴','🥳','😇','❤️','🔥','💕','💞','👏','🙌','🤝','👍','🙏','💪','😈','👀','💋','🫦','😻','🥵','😜','🤪','😝','💀','🫣','🤫','🫶','💘','💝','💖','💗','💓','💟','❣️','🎉','✨','⭐','🌹','🍑','🍆','💦','🌊','😩','🫠','🥴','😮‍💨','😋'];
     emojis.forEach(function(em) {
       const btn = document.createElement('button');
       btn.textContent = em;
-      btn.style.cssText = 'background:none;border:none;font-size:22px;cursor:pointer;padding:4px 5px;border-radius:8px;transition:background .1s;line-height:1';
+      btn.style.cssText = 'background:none;border:none;font-size:26px;cursor:pointer;padding:6px 8px;border-radius:8px;transition:background .1s;line-height:1';
       btn.onmouseover = function() { btn.style.background = 'rgba(255,255,255,0.08)'; };
       btn.onmouseout = function() { btn.style.background = 'none'; };
       btn.onclick = function() {
