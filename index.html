@@ -314,7 +314,7 @@
             align-items: center;
             justify-content: space-between;
             gap: 12px;
-            pointer-events: none; /* container não interage, filhos sim */
+            pointer-events: none;
             z-index: 20;
             background: linear-gradient(0deg, rgba(0, 0, 0, 0.55) 0%, transparent 100%);
         }
@@ -322,7 +322,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            pointer-events: auto; /* permite cliques */
+            pointer-events: auto;
         }
         #live-overlay-bottom .action-btn {
             pointer-events: auto;
@@ -350,7 +350,7 @@
         /* Comment input */
         #comment-input-wrap {
             flex: 1;
-            pointer-events: auto; /* permite interação */
+            pointer-events: auto;
             display: flex;
             align-items: center;
             background: rgba(255, 255, 255, 0.06);
@@ -589,7 +589,7 @@
             color: rgba(255, 255, 255, 0.5);
         }
 
-        /* ===== PIX MODAL (sem chave exposta) ===== */
+        /* ===== PIX MODAL ===== */
         #pix-modal {
             position: absolute;
             inset: 0;
@@ -900,7 +900,7 @@
                 </div>
             </div>
 
-            <!-- ===== PIX MODAL (sem chave exposta) ===== -->
+            <!-- ===== PIX MODAL ===== -->
             <div id="pix-modal">
                 <div class="pix-card">
                     <div class="pix-header">
@@ -940,8 +940,6 @@
         //  CONFIG
         // ============================================================
         const PRODUCT_HASH = "7p8h95hghd";
-        const VIDEO_SRC = "video/cam.mp4";
-
         const PRICE_NORMAL = 3000; // R$ 30,00
         const PRICE_DISCOUNT = 2000; // R$ 20,00
 
@@ -1188,7 +1186,6 @@
                 video.play().catch(() => {});
                 startFakeComments();
                 showToast('✅ Bem-vindo de volta! Transmissão liberada.', 3000);
-                // Atualiza preço se for returning
                 const returning = checkReturningUser();
                 if (returning) {
                     isReturning = true;
@@ -1203,7 +1200,6 @@
                     currentPixAmount = PRICE_NORMAL;
                 }
                 markVisited();
-                // Habilita comentários
                 commentWrap.classList.remove('disabled');
                 return;
             }
@@ -1213,12 +1209,10 @@
                 paymentTriggered = true;
                 paymentOverlay.classList.add('show');
                 video.muted = true;
-                // Desabilita comentários durante paywall
                 commentWrap.classList.add('disabled');
                 showToast('🔒 Transmissão privada — pague para continuar', 3000);
                 video.play().catch(() => {});
                 startFakeComments();
-                // Configura preço
                 const returning = checkReturningUser();
                 if (returning) {
                     isReturning = true;
@@ -1236,7 +1230,7 @@
                 return;
             }
 
-            // Primeira vez: configura preço e inicia o temporizador de 7 segundos
+            // Primeira vez
             const returning = checkReturningUser();
             if (returning) {
                 isReturning = true;
@@ -1252,15 +1246,11 @@
             }
             markVisited();
 
-            // Inicia o vídeo com som
             video.muted = false;
             video.volume = 1.0;
             video.play().catch(() => {});
-
-            // Habilita comentários inicialmente
             commentWrap.classList.remove('disabled');
 
-            // Fake viewer count
             let viewers = 1200;
             setInterval(() => {
                 const delta = Math.floor(Math.random() * 30) - 10;
@@ -1270,13 +1260,11 @@
 
             startFakeComments();
 
-            // Após 7 segundos, mostrar modal de pagamento e mutar vídeo
             setTimeout(() => {
                 if (isUnlocked) return;
                 paymentTriggered = true;
                 paymentOverlay.classList.add('show');
                 video.muted = true;
-                // Desabilita comentários durante paywall
                 commentWrap.classList.add('disabled');
                 saveLeadState({ paymentTriggered: true, unlocked: false });
                 showToast('🔒 Transmissão privada — pague para continuar', 3000);
@@ -1300,7 +1288,7 @@
         }
 
         // ============================================================
-        //  PAYMENT FLOW (com fallback mock)
+        //  PAYMENT FLOW - INTEGRAÇÃO COM /api/pix
         // ============================================================
         async function startPayment() {
             if (paymentInProgress) return;
@@ -1311,29 +1299,26 @@
             payBtn.innerHTML = '<span class="spinner" style="display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,0.2);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite;margin-right:8px;"></span> Gerando Pix...';
 
             try {
-                let data;
-                try {
-                    const res = await fetch('/api/pix', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ desconto: isReturning })
-                    });
-                    data = await res.json();
-                    if (!data || !data.pix || !data.pix.pix_qr_code) {
-                        throw new Error('API não retornou chave Pix');
-                    }
-                } catch (apiError) {
-                    console.warn('API Pix falhou, usando fallback mock.', apiError);
-                    // Fallback mock para testes
-                    data = {
-                        pix: { pix_qr_code: '00020101021226930014br.gov.bcb.pix2563qrcodes.banco.com/1234567890' },
-                        hash: 'mock_' + Date.now()
-                    };
-                    showToast('⚠️ Usando chave Pix de demonstração (modo teste)', 3000);
+                const res = await fetch('/api/pix', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ desconto: isReturning })
+                });
+
+                if (!res.ok) {
+                    const errText = await res.text();
+                    throw new Error(`Erro da API (${res.status}): ${errText}`);
+                }
+
+                const data = await res.json();
+
+                // Estrutura esperada: { pix: { pix_qr_code: '...' }, hash: '...' }
+                if (!data || !data.pix || !data.pix.pix_qr_code) {
+                    throw new Error('Resposta da API não contém chave Pix');
                 }
 
                 currentPixKey = data.pix.pix_qr_code;
-                currentPixHash = data.hash || ('tx' + Date.now());
+                currentPixHash = data.hash || ('tx_' + Date.now());
 
                 const valorExibido = (currentPixAmount / 100).toFixed(2).replace('.', ',');
                 pixAmount.textContent = valorExibido;
@@ -1358,8 +1343,8 @@
                 startPolling(currentPixHash);
 
             } catch (err) {
-                console.error(err);
-                showToast('❌ Erro ao gerar Pix. Tente novamente.', 4000);
+                console.error('Erro ao gerar Pix:', err);
+                showToast('❌ Erro ao gerar Pix: ' + err.message, 4000);
                 payBtn.disabled = false;
                 payBtn.innerHTML = '<i class="ti ti-qrcode"></i> Pagar via Pix';
                 paymentInProgress = false;
@@ -1367,7 +1352,7 @@
         }
 
         // ============================================================
-        //  POLLING (com fallback para simular pagamento)
+        //  POLLING - /api/status
         // ============================================================
         function startPolling(hash) {
             let attempts = 0;
@@ -1378,14 +1363,11 @@
 
             function poll() {
                 attempts++;
-                // Se for hash mock, simular pagamento após 5 tentativas
-                if (hash.startsWith('mock_') && attempts >= 5) {
-                    unlockStream();
-                    return;
-                }
-
                 fetch(`/api/status?hash=${hash}`)
-                    .then(r => r.json())
+                    .then(r => {
+                        if (!r.ok) throw new Error('Erro na consulta de status');
+                        return r.json();
+                    })
                     .then(data => {
                         const status = data.payment_status;
                         if (status === 'paid' || status === 'approved' || status === 'completed') {
@@ -1402,10 +1384,11 @@
                             return;
                         }
 
-                        if (status === 'pending' || status === 'processing') {
-                            pixStatus.innerHTML = `<span class="spinner"></span> Aguardando confirmação do pagamento... (${attempts})`;
+                        if (status === 'pending' || status === 'processing' || status === '') {
+                            pixStatus.innerHTML =
+                                `<span class="spinner"></span> Aguardando confirmação do pagamento... (${attempts})`;
                         } else {
-                            pixStatus.innerHTML = `<span class="spinner"></span> Processando... (${attempts})`;
+                            pixStatus.innerHTML = `<span class="spinner"></span> Status: ${status} (${attempts})`;
                         }
 
                         if (attempts >= maxAttempts) {
@@ -1419,7 +1402,8 @@
                         delay = Math.min(delay * 1.2, 15000);
                         pollingTimer = setTimeout(poll, delay);
                     })
-                    .catch(() => {
+                    .catch((err) => {
+                        console.warn('Polling error:', err);
                         if (attempts < maxAttempts) {
                             delay = Math.min(delay * 1.5, 20000);
                             pollingTimer = setTimeout(poll, delay);
@@ -1446,7 +1430,6 @@
             paymentOverlay.classList.remove('show');
             liveContainer.classList.add('unlocked');
 
-            // Reativa som e vídeo
             video.muted = false;
             video.play().catch(() => {});
             showToast('✅ Pagamento confirmado! Transmissão liberada.', 3000);
@@ -1456,7 +1439,6 @@
             payBtn.style.background = '#00a884';
             payBtn.style.cursor = 'default';
 
-            // Reabilita comentários
             commentWrap.classList.remove('disabled');
 
             if (pollingTimer) {
@@ -1567,7 +1549,7 @@
         }
 
         // ============================================================
-        //  KEYBOARD SHORTCUTS / PROTECTION
+        //  PROTECTION
         // ============================================================
         document.addEventListener('contextmenu', (e) => e.preventDefault());
         document.addEventListener('keydown', function(e) {
@@ -1582,7 +1564,7 @@
         });
 
         // ============================================================
-        //  VIDEO END — loop
+        //  VIDEO LOOP
         // ============================================================
         video.addEventListener('ended', function() {
             if (isUnlocked) {
@@ -1591,14 +1573,10 @@
             }
         });
 
-        // ============================================================
-        //  PREVENT VIDEO CONTEXT MENU
-        // ============================================================
         video.addEventListener('contextmenu', (e) => e.preventDefault());
 
         console.log('🎥 Vanessa Macedo · Transmissão ao Vivo');
-        console.log('📦 Interface corrigida, comentários funcionando, fallback Pix ativo.');
-        console.log('✅ Polling com fallback para demonstração.');
+        console.log('✅ Integração com /api/pix e /api/status ativa.');
     </script>
 
 </body>
