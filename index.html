@@ -21,7 +21,6 @@
     <img height="1" width="1" style="display:none"
     src="https://www.facebook.com/tr?id=981136621185086&ev=PageView&noscript=1" />
   </noscript>
-  <!-- Ícones (Tabler) para os controles da chamada -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
   <style>
     /* ===== RESET E BASE ===== */
@@ -32,13 +31,6 @@
       --wa-header: #1f2c34; --wa-text: #111b21; --wa-text2: #667781;
       --wa-tick: #53bdeb; --wa-border: #e9edef; --wa-input: #f0f2f5;
       --wa-surface: #ffffff; --wa-icon: #8696a0;
-      --glass-bg: rgba(255,255,255,0.65);
-      --glass-border: rgba(255,255,255,0.3);
-      --shadow-sm: 0 4px 20px rgba(0,0,0,0.08);
-      --shadow-md: 0 8px 40px rgba(0,0,0,0.12);
-      --shadow-lg: 0 20px 60px rgba(0,0,0,0.2);
-      --radius-card: 16px;
-      --radius-modal: 24px;
     }
     html, body {
       height: 100%; height: 100dvh; background: #111b21; overflow: hidden;
@@ -170,7 +162,7 @@
     .mic-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     .mic-toast svg { display: inline-block; vertical-align: middle; margin-right: 8px; }
 
-    /* ===== LIGHTBOX (clique na imagem) ===== */
+    /* ===== LIGHTBOX ===== */
     .image-lightbox {
       position: absolute; inset: 0; background: rgba(0,0,0,0.92); z-index: 400;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -228,47 +220,185 @@
     .profile-close-btn:hover { background: rgba(255,255,255,0.15); }
 
     /* ============================================================
-       CHAMADA ISCA — OVERLAY, CONECTANDO E INTERFACE (simplificada)
+       PRE-SELL REPAGINADO (TEMA CLARO)
        ============================================================ */
-    /* Incoming call overlay */
-    #incoming-call-overlay {
-      position: absolute; inset: 0; background: #1a1a2e; z-index: 400;
-      display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-      padding: 60px 20px;
-      opacity: 0; pointer-events: none;
-      transition: opacity 0.3s ease;
+    #pre-sell {
+      position: absolute; inset: 0; z-index: 600;
+      background: #f0f2f5;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 20px;
+      animation: fi .4s ease;
     }
-    #incoming-call-overlay.show { opacity: 1; pointer-events: all; }
-    #incoming-call-overlay .call-avatar-wrap { position: relative; width: 100px; height: 100px; margin: 0 auto; }
-    #incoming-call-overlay .ring1 { position: absolute; inset: -14px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.12); animation: pulse 2s ease-out infinite; }
-    #incoming-call-overlay .ring2 { position: absolute; inset: -7px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.08); animation: pulse 2s ease-out infinite 1s; }
-    #incoming-call-overlay .call-avatar { width: 100px; height: 100px; border-radius: 50%; overflow: hidden; border: 3px solid rgba(255,255,255,0.18); }
-    #incoming-call-overlay .call-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    #incoming-call-overlay .call-name { color: #fff; font-size: 22px; font-weight: 500; margin-top: 22px; text-align: center; }
-    #incoming-call-overlay .call-sub { color: rgba(255,255,255,0.55); font-size: 14px; margin-top: 6px; text-align: center; }
-    #incoming-call-overlay .call-actions { display: flex; gap: 52px; align-items: center; }
-    .call-btn-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; color: rgba(255,255,255,0.8); font-size: 12.5px; font-family: inherit; }
-    .call-btn-circle { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; }
-    .call-btn-circle.decline { background: #e53935; }
-    .call-btn-circle.answer { background: #25d366; animation: ringShake .6s ease infinite alternate; }
+    #pre-sell .step {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+      background: #ffffff;
+      border-radius: 28px;
+      padding: 32px 24px 28px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.03);
+      gap: 14px;
+      transition: all 0.2s;
+    }
+    #pre-sell .step.active {
+      display: flex;
+    }
 
-    /* Active call (brief flash) */
-    #active-call-overlay {
-      position: absolute; inset: 0; background: #0b1015; z-index: 401;
-      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
-      opacity: 0; pointer-events: none;
-      transition: opacity .3s ease;
+    /* Avatar e status na tela 1 */
+    .presell-avatar-wrap {
+      position: relative;
+      width: 72px;
+      height: 72px;
+      margin-bottom: 4px;
     }
-    #active-call-overlay.show { opacity: 1; pointer-events: all; }
-    #active-call-overlay .ac-avatar { width: 90px; height: 90px; border-radius: 50%; overflow: hidden; border: 3px solid rgba(255,255,255,0.2); }
-    #active-call-overlay .ac-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    #active-call-overlay .ac-name { color: #fff; font-size: 20px; font-weight: 500; }
-    #active-call-overlay .ac-status { color: rgba(255,255,255,0.5); font-size: 13px; }
-    #active-call-overlay .ac-end-btn { width: 60px; height: 60px; border-radius: 50%; background: #e53935; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-top: 30px; }
+    .presell-avatar-wrap img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #25d366;
+      display: block;
+    }
+    .presell-online-dot {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 18px;
+      height: 18px;
+      background: #25d366;
+      border-radius: 50%;
+      border: 3px solid #ffffff;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.05);
+    }
+
+    #pre-sell .step .icon-wrap {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: #e8f5e9;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 4px;
+      flex-shrink: 0;
+    }
+    #pre-sell .step .icon-wrap svg {
+      width: 34px; height: 34px;
+      stroke: #128c7e; stroke-width: 1.8;
+      fill: none;
+    }
+    #pre-sell .step h2 {
+      color: #111b21;
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+      margin: 0;
+    }
+    #pre-sell .step .sub-name {
+      color: #128c7e;
+      font-weight: 600;
+      font-size: 15px;
+      margin-top: -6px;
+    }
+    #pre-sell .step p {
+      color: #54656f;
+      font-size: 15px;
+      line-height: 1.6;
+      margin: 0;
+      max-width: 340px;
+    }
+    #pre-sell .step p strong {
+      color: #111b21;
+      font-weight: 600;
+    }
+    #pre-sell .step .highlight {
+      background: #f0faf8;
+      border-left: 4px solid #00a884;
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      text-align: left;
+      width: 100%;
+      font-size: 14px;
+      color: #1f2c34;
+      line-height: 1.5;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    #pre-sell .step .highlight svg {
+      flex-shrink: 0;
+      margin-top: 1px;
+      stroke: #00a884;
+    }
+    /* Depoimentos */
+    #pre-sell .step .depoimentos {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      margin-top: 2px;
+    }
+    #pre-sell .step .depoimento {
+      background: #f8f9fa;
+      border: 1px solid #e9edef;
+      border-radius: 12px;
+      padding: 12px 14px;
+      text-align: left;
+      font-size: 13.5px;
+      color: #1f2c34;
+      line-height: 1.5;
+    }
+    #pre-sell .step .depoimento .nome {
+      color: #128c7e;
+      font-weight: 600;
+      display: block;
+      margin-top: 6px;
+      font-size: 12px;
+      letter-spacing: 0.3px;
+    }
+    #pre-sell .step .btn-continue {
+      margin-top: 12px;
+      background: #00a884;
+      color: #fff;
+      border: none;
+      border-radius: 30px;
+      padding: 14px 32px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background .15s, transform .1s;
+      box-shadow: 0 4px 16px rgba(0,168,132,0.25);
+      width: 100%;
+      max-width: 240px;
+    }
+    #pre-sell .step .btn-continue:hover { background: #017f64; }
+    #pre-sell .step .btn-continue:active { transform: scale(0.96); }
+    #pre-sell .step .btn-continue:disabled { opacity: 0.5; cursor: not-allowed; }
+    #pre-sell .step-indicators {
+      display: flex;
+      gap: 8px;
+      margin-top: 20px;
+    }
+    #pre-sell .step-indicators .dot-ind {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #d1d7db;
+      transition: all .3s;
+    }
+    #pre-sell .step-indicators .dot-ind.active {
+      background: #00a884;
+      width: 24px;
+      border-radius: 4px;
+    }
 
     @media (max-width: 420px) {
       .profile-card { padding: 24px 16px 20px; }
       .profile-avatar-wrap { width: 90px; height: 90px; }
+      #pre-sell .step { padding: 24px 18px 20px; }
+      #pre-sell .step h2 { font-size: 18px; }
+      #pre-sell .step p { font-size: 14px; }
     }
   </style>
 </head>
@@ -289,16 +419,102 @@
     </div>
     <div class="hdr-actions">
       <button class="hdr-btn" onclick="openSheet()" aria-label="Chamada de vídeo">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-          <rect x="3" y="7" width="12.5" height="10" rx="2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
       <button class="hdr-btn" aria-label="Mais opções" onclick="openInfoSheet()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-          <circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/>
-        </svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
       </button>
+    </div>
+  </div>
+
+  <!-- ===== PRE-SELL REPAGINADO (4 telas) ===== -->
+  <div id="pre-sell">
+    <!-- Passo 1: Convite com Foto -->
+    <div class="step active" data-step="0">
+      <div class="presell-avatar-wrap">
+        <img src="https://wsrv.nl/?url=https://i.ibb.co/ksmzSzDM/perfilv2.png&w=150&output=webp" alt="Vanessa Macedo" loading="lazy" decoding="async">
+        <span class="presell-online-dot"></span>
+      </div>
+      <div class="sub-name">Vanessa Macedo</div>
+      <h2>Você foi convidado(a)</h2>
+      <p>
+        <strong>Vanessa</strong> enviou um convite para uma conversa privada. 
+        Ela está online e aguardando você.
+      </p>
+      <div class="highlight">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Ambiente 100% seguro e supervisionado por nossa equipe.</span>
+      </div>
+      <button class="btn-continue" onclick="nextStep()">Continuar</button>
+    </div>
+
+    <!-- Passo 2: Experiência -->
+    <div class="step" data-step="1">
+      <div class="icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h2>Experiência</h2>
+      <p>
+        <strong>Vanessa</strong> é uma criadora verificada com muita experiência na plataforma.
+        Já participou de centenas de conversas e tem avaliações positivas de usuários em todo o Brasil.
+      </p>
+      <!-- Depoimentos -->
+      <div class="depoimentos">
+        <div class="depoimento">
+          "A Vanessa é um amor de pessoa. Gostei demais de conversar com ela, troquei ideia com ela ontem, ela é muito gente fina."
+          <span class="nome">— Carlos, 34 anos</span>
+        </div>
+        <div class="depoimento">
+          "Gostei demais de conversar com ela, ela é uma delícia, realizou todos os meus desejos."
+          <span class="nome">— Rafael, 28 anos</span>
+        </div>
+        <div class="depoimento">
+          "Ela é muito atenciosa e divertida. Recomendo a todos!"
+          <span class="nome">— Bruno, 41 anos</span>
+        </div>
+      </div>
+      <button class="btn-continue" onclick="nextStep()">Continuar</button>
+    </div>
+
+    <!-- Passo 3: Criptografia (ATUALIZADO) -->
+    <div class="step" data-step="2">
+      <div class="icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </div>
+      <h2>Comunicação Criptografada</h2>
+      <p>
+        Todas as mensagens, áudios e videochamadas são protegidas por uma <strong>criptografia ainda mais avançada que a do WhatsApp</strong>, tornando inviável qualquer tentativa de acesso aos seus dados. Nem a plataforma tem acesso ao conteúdo. Sua privacidade é garantida.
+      </p>
+      <div class="highlight">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Criptografia superior à do WhatsApp, com camadas extras de segurança para seus dados.</span>
+      </div>
+      <button class="btn-continue" onclick="nextStep()">Continuar</button>
+    </div>
+
+    <!-- Passo 4: Pronto para conversar -->
+    <div class="step" data-step="3">
+      <div class="icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M20 12V8a4 4 0 00-4-4H8a4 4 0 00-4 4v8a4 4 0 004 4h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 2v2M4 10h2M18 10h2M12 14v2M8 20l4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="18" cy="18" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M21 21l-1.5-1.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </div>
+      <h2>Pronto para conversar?</h2>
+      <p>
+        Ao clicar em <strong>“Entrar na conversa”</strong>, você confirma que leu e concorda
+        com os termos de uso e política de privacidade.
+      </p>
+      <div class="highlight">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Vanessa está online e aguardando você.</span>
+      </div>
+      <button class="btn-continue" id="enter-chat-btn" onclick="enterChat()">Entrar na conversa</button>
+    </div>
+
+    <!-- Indicadores -->
+    <div class="step-indicators">
+      <span class="dot-ind active"></span>
+      <span class="dot-ind"></span>
+      <span class="dot-ind"></span>
+      <span class="dot-ind"></span>
     </div>
   </div>
 
@@ -317,28 +533,16 @@
         <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:2px"></div>
       </div>
       <input id="inp" type="text" placeholder="Mensagem">
-      <!-- Botão de câmera -->
       <button type="button" id="camera-btn" class="camera-btn" onclick="document.getElementById('img-input').click()" style="display:flex;align-items:center;cursor:pointer;color:#8696a0;padding:2px;flex-shrink:0;background:none;border:none" aria-label="Enviar foto">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="12" cy="13" r="4" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="13" r="4" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
       <input type="file" accept="image/*" id="img-input" style="display:none" onchange="handleImageSelect(event)">
       <div style="display:flex;gap:4px;align-items:center;flex-shrink:0;margin-left:auto;padding-left:4px;">
         <button class="send-btn hidden" id="send-btn" onclick="submit()">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="display:block;margin:auto;position:relative;right:2px">
-            <path d="M22 2L11 13" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="display:block;margin:auto;position:relative;right:2px"><path d="M22 2L11 13" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
         <button class="mic-btn" id="mic-btn" title="Pressione e segure para gravar áudio">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M19 10a7 7 0 0 1-14 0" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-            <line x1="12" y1="19" x2="12" y2="23" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
-            <line x1="8" y1="23" x2="16" y2="23" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
-          </svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 10a7 7 0 0 1-14 0" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="19" x2="12" y2="23" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/><line x1="8" y1="23" x2="16" y2="23" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
         </button>
       </div>
     </div>
@@ -346,12 +550,7 @@
 
   <!-- ===== MIC TOAST ===== -->
   <div class="mic-toast" id="mic-toast">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
-      <path d="M19 10a7 7 0 0 1-14 0"/>
-      <line x1="12" y1="19" x2="12" y2="23"/>
-      <line x1="8" y1="23" x2="16" y2="23"/>
-    </svg>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10a7 7 0 0 1-14 0"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
     Pressione e segure para gravar
   </div>
 
@@ -362,10 +561,7 @@
       <div class="sheet-handle"></div>
       <div style="padding:22px 18px 16px;text-align:center;border-bottom:0.5px solid rgba(255,255,255,0.08)">
         <div style="width:52px;height:52px;border-radius:50%;background:rgba(229,57,53,0.12);display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path d="M12 9v4M12 17h.01" stroke="#e53935" stroke-width="2" stroke-linecap="round"/>
-            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#e53935" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01" stroke="#e53935" stroke-width="2" stroke-linecap="round"/><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#e53935" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div style="color:#e9edef;font-size:16px;font-weight:600;margin-bottom:6px">Você foi convidado(a)</div>
         <div style="color:#8696a0;font-size:13px;line-height:1.6">Você está em uma <strong style="color:#e9edef">conversa privada</strong> com Vanessa Macedo. Ao sair, não será possível retornar sem uma nova solicitação dela.</div>
@@ -416,102 +612,32 @@
         </div>
         <div>
           <div class="sheet-name">Vanessa Macedo</div>
-          <div class="sheet-sub">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Videochamada
-          </div>
+          <div class="sheet-sub"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#8696a0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg> Videochamada</div>
         </div>
       </div>
       <div class="sheet-body">
         <div class="sheet-notice">
-          <div class="sheet-notice-icon">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="2" stroke="#00a884" stroke-width="2"/><path d="M8 11V7a4 4 0 018 0v4" stroke="#00a884" stroke-width="2" stroke-linecap="round"/></svg>
-          </div>
-          <div>
-            <p>Apenas <strong>Vanessa</strong> pode iniciar chamadas de vídeo nesta conversa.</p>
-            <small>Aguarde ela entrar em contato com você.</small>
-          </div>
+          <div class="sheet-notice-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="2" stroke="#00a884" stroke-width="2"/><path d="M8 11V7a4 4 0 018 0v4" stroke="#00a884" stroke-width="2" stroke-linecap="round"/></svg></div>
+          <div><p>Apenas <strong>Vanessa</strong> pode iniciar chamadas de vídeo nesta conversa.</p><small>Aguarde ela entrar em contato com você.</small></div>
         </div>
         <button class="sheet-ok" onclick="closeSheet()">OK</button>
       </div>
     </div>
   </div>
 
-  <!-- ============================================================
-       PERFIL
-       ============================================================ -->
+  <!-- ===== PERFIL ===== -->
   <div class="profile-overlay" id="profile-overlay" onclick="if(event.target===this) closeProfileSheet()">
     <div class="profile-card">
-      <div class="profile-avatar-wrap">
-        <div class="profile-avatar-ring"></div>
-        <div class="profile-avatar">
-          <img src="https://wsrv.nl/?url=https://i.ibb.co/ksmzSzDM/perfilv2.png&w=150&output=webp" alt="Vanessa Macedo" loading="lazy" decoding="async">
-        </div>
-      </div>
-      <div class="profile-name">
-        Vanessa Macedo
-        <span class="verified-badge">
-          <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-        </span>
-      </div>
+      <div class="profile-avatar-wrap"><div class="profile-avatar-ring"></div><div class="profile-avatar"><img src="https://wsrv.nl/?url=https://i.ibb.co/ksmzSzDM/perfilv2.png&w=150&output=webp" alt="Vanessa Macedo" loading="lazy" decoding="async"></div></div>
+      <div class="profile-name">Vanessa Macedo <span class="verified-badge"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
       <div class="profile-status" id="profile-status">online</div>
-
       <div class="profile-divider"></div>
-
       <div class="profile-info-item">
-        <div class="info-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        </div>
-        <div class="info-content">
-          <div class="info-label">Localização atual</div>
-          <div class="info-value" id="profile-location">Carregando...</div>
-        </div>
+        <div class="info-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+        <div class="info-content"><div class="info-label">Localização atual</div><div class="info-value" id="profile-location">Carregando...</div></div>
       </div>
-
       <button class="profile-close-btn" onclick="closeProfileSheet()">Fechar</button>
     </div>
-  </div>
-
-  <!-- ============================================================
-       CHAMADA ISCA — OVERLAY (incoming e active)
-       ============================================================ -->
-  <!-- Incoming call overlay -->
-  <div id="incoming-call-overlay">
-    <div style="text-align:center">
-      <div class="call-avatar-wrap">
-        <div class="ring1"></div>
-        <div class="ring2"></div>
-        <div class="call-avatar">
-          <img src="https://wsrv.nl/?url=https://i.ibb.co/ksmzSzDM/perfilv2.png&w=150&output=webp" alt="Vanessa" loading="lazy" decoding="async">
-        </div>
-      </div>
-      <div class="call-name">Vanessa Macedo</div>
-      <div class="call-sub">Videochamada…</div>
-    </div>
-    <div class="call-actions">
-      <div class="call-btn-wrap">
-        <button class="call-btn-circle decline" id="auto-call-decline">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>
-        </button>
-        <span>Recusar</span>
-      </div>
-      <div class="call-btn-wrap">
-        <button class="call-btn-circle answer" id="auto-call-answer">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-        <span>Atender</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Active call (brief flash) -->
-  <div id="active-call-overlay">
-    <div class="ac-avatar"><img src="https://wsrv.nl/?url=https://i.ibb.co/ksmzSzDM/perfilv2.png&w=150&output=webp" alt="Vanessa"></div>
-    <div class="ac-name">Vanessa Macedo</div>
-    <div class="ac-status" id="ac-status-text">Conectando…</div>
-    <button class="ac-end-btn" id="ac-end-btn">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>
-    </button>
   </div>
 
 </div> <!-- fim .phone -->
@@ -557,15 +683,8 @@ const IMG_EXTRA_SRC = 'https://i.ibb.co/mr9LqY60/Prev-jpg.jpg';
 
 let audioPIxJaTocou = false;
 let aiHistory = [], leadId = null, clicouCta = false, leadCityVal = null;
-let pixNormalGerado = false, pixDescontoGerado = false;
 let initiateCheckoutFired = false, typingEl = null;
 const SESSION_ID = Math.random().toString(36).slice(2);
-
-// ═══ FLAGS PARA CHAMADA ISCA (versão 2) ═══
-let userReplyCount = 0;
-let autoCallFired = false;
-let autoCallTimer = null;
-let autoCallRingInterval = null;
 
 // ═══ FLAG: CONVERSA ENCERRADA ═══
 let conversaEncerrada = false;
@@ -573,8 +692,12 @@ let conversaEncerrada = false;
 // ═══ FLAG: ENTREGÁVEL JÁ LIBERADO ═══
 let entregavelLiberado = false;
 
+// ═══ FLAG: PRE-SELL PASSADO ═══
+let preSellPassed = false;
+
 const STATE_KEY = 'wa-conversa-state';
 const AUDIO_LEAD_KEY = 'wa-audio-lead';
+const PRESELL_KEY = 'wa-presell-passed';
 
 // ═══ VERIFICA PERMISSÃO DO MICROFONE AO CARREGAR ═══
 if (navigator.permissions) {
@@ -592,14 +715,11 @@ function saveState() {
     leadId,
     clicouCta,
     leadCityVal,
-    pixNormalGerado,
-    pixDescontoGerado,
-    userReplyCount,
-    autoCallFired,
     initiateCheckoutFired,
     audioPIxJaTocou,
     conversaEncerrada,
-    entregavelLiberado
+    entregavelLiberado,
+    preSellPassed
   };
   try {
     localStorage.setItem(STATE_KEY, JSON.stringify(state));
@@ -615,14 +735,11 @@ function loadState() {
     leadId = state.leadId || null;
     clicouCta = state.clicouCta || false;
     leadCityVal = state.leadCityVal || null;
-    pixNormalGerado = state.pixNormalGerado || false;
-    pixDescontoGerado = state.pixDescontoGerado || false;
-    userReplyCount = state.userReplyCount || 0;
-    autoCallFired = state.autoCallFired || false;
     initiateCheckoutFired = state.initiateCheckoutFired || false;
     audioPIxJaTocou = state.audioPIxJaTocou || false;
     conversaEncerrada = state.conversaEncerrada || false;
     entregavelLiberado = state.entregavelLiberado || false;
+    preSellPassed = state.preSellPassed || false;
     return true;
   } catch(e) {
     return false;
@@ -745,22 +862,139 @@ async function salvarLead(clicou=false){
   saveState();
 }
 
-async function gerarPix(desconto){
-  try{const res=await fetch('/api/pix',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({desconto})});return await res.json();}
-  catch(e){return null;}
+// ═══ FUNÇÕES PARA PIX DINÂMICO ═══
+
+// Extrai valor (em centavos) da mensagem da IA
+function extrairValorDaMensagem(texto) {
+  // Padrão: R$ 30,00 | R$30,00 | 30,00 | 30 reais | 30reais
+  const regex = /R?\$?\s*(\d+)[,.](\d{2})\s*(?:reais)?/i;
+  const match = texto.match(regex);
+  if (match) {
+    const reais = parseInt(match[1].replace(/\./g, ''), 10);
+    const centavos = parseInt(match[2], 10);
+    return reais * 100 + centavos;
+  }
+  // Número inteiro + "reais"
+  const regex2 = /(\d+)\s*reais?/i;
+  const match2 = texto.match(regex2);
+  if (match2) {
+    return parseInt(match2[1], 10) * 100;
+  }
+  // Número decimal sem "R$" (ex: 15.50)
+  const regex3 = /(\d+)\.(\d{2})/;
+  const match3 = texto.match(regex3);
+  if (match3) {
+    return parseInt(match3[1], 10) * 100 + parseInt(match3[2], 10);
+  }
+  return null;
 }
+
+// Chama a API /api/pix com o valor em centavos
+async function gerarPix(payload) {
+  try {
+    const res = await fetch('/api/pix', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    return await res.json();
+  } catch (e) {
+    return null;
+  }
+}
+
+// Cria o card PIX na interface
+function criarCardPix(data, valorCentavos, timestamp) {
+  const valorFmt = 'R$ ' + (valorCentavos/100).toFixed(2).replace('.',',');
+  const pixCopia = (data.pix && data.pix.pix_qr_code) || '';
+  const txHash = data.hash || ('tx'+Date.now());
+
+  const pixEntry = {
+    role: 'assistant',
+    content: 'Solicitação de pagamento',
+    type: 'pix',
+    timestamp: timestamp || getTime(),
+    pixData: {
+      valor: valorCentavos,
+      valorFmt: valorFmt,
+      chave: pixCopia,
+      hash: txHash
+    }
+  };
+  aiHistory.push(pixEntry);
+  salvarLead(true);
+
+  const wrap = document.createElement('div');
+  wrap.className = 'fade-in';
+  wrap.style.cssText = 'align-self:flex-start;margin-left:6px;max-width:88%';
+
+  const card = document.createElement('div');
+  card.style.cssText = 'background:#fff;border-radius:12px;overflow:hidden;min-width:220px;box-shadow:0 1px 3px rgba(0,0,0,0.15)';
+
+  const head = document.createElement('div');
+  head.style.cssText = 'background:#00a884;padding:12px 14px;display:flex;align-items:center;gap:10px';
+  head.innerHTML = '<div style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div style="color:rgba(255,255,255,0.85);font-size:11px;margin-bottom:1px">Solicitação de pagamento</div><div style="color:#fff;font-size:19px;font-weight:700;line-height:1.2">'+valorFmt+'</div></div>';
+  card.appendChild(head);
+
+  const info = document.createElement('div');
+  info.style.cssText = 'padding:10px 14px;border-bottom:1px solid #f0f2f5';
+  info.innerHTML = '<div style="font-size:11px;color:#8696a0;margin-bottom:2px">Para</div><div style="font-size:14px;color:#111b21;font-weight:500">Vanessa Macedo</div><div style="font-size:11.5px;color:#8696a0;margin-top:1px">via Pix</div>';
+  card.appendChild(info);
+
+  if (pixCopia) {
+    const btnWrap = document.createElement('div');
+    btnWrap.style.cssText = 'border-bottom:1px solid #f0f2f5';
+    const btn = document.createElement('button');
+    btn.style.cssText = 'width:100%;background:none;border:none;padding:10px 14px;color:#00a884;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px';
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="#00a884" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="#00a884" stroke-width="2" stroke-linecap="round"/></svg> Copiar chave Pix';
+    btn.onclick = function(){ window.copiarPix(btn, pixCopia); };
+    btnWrap.appendChild(btn);
+    card.appendChild(btnWrap);
+  }
+
+  const footer = document.createElement('div');
+  footer.style.cssText = 'padding:6px 14px 8px;display:flex;justify-content:flex-end';
+  const time = document.createElement('span');
+  time.style.cssText = 'font-size:11px;color:#8696a0';
+  time.textContent = timestamp || getTime();
+  footer.appendChild(time);
+  card.appendChild(footer);
+
+  wrap.appendChild(card);
+  msgsEl.appendChild(wrap);
+  scroll();
+
+  iniciarPollRobusto(txHash, valorCentavos);
+  pixelIniCheckout(valorCentavos);
+}
+
+// Função principal para gerar PIX com valor extraído
+async function gerarPixComValor(valorCentavos) {
+  if (valorCentavos <= 0) return;
+  showTyping();
+  await sleep(1000);
+  hideTyping();
+
+  const data = await gerarPix({ amount: valorCentavos });
+  if (!data) {
+    addBubble('Ops, tive um probleminha 😅 Tenta de novo!', 'in');
+    return;
+  }
+
+  const now = getTime();
+  criarCardPix(data, valorCentavos, now);
+}
+
+// ═══ FUNÇÕES DE POLLING (mesmas de antes, sem alterações) ═══
 async function checarStatus(txHash){
   try{const r=await fetch('/api/status?hash='+txHash);const d=await r.json();return d.payment_status||null;}catch(e){return null;}
 }
-
-// ═══ POLLING COM TIMEOUT E PERSISTÊNCIA ═══
 async function checarStatusComTimeout(txHash, timeout = 10000) {
   return Promise.race([
     checarStatus(txHash),
     new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeout))
   ]);
 }
-
 let pollingTimeoutId = null;
 let pollingTentativas = 0;
 let pollingHashAtual = null;
@@ -772,13 +1006,11 @@ const INTERVALO_INICIAL = 5000;
 const INTERVALO_MAXIMO = 30000;
 const BACKOFF_MULTIPLICADOR = 1.2;
 const POLL_STATE_KEY = 'poll_state';
-
 function salvarEstadoPolling(hash, tentativas, valor) {
   try {
     localStorage.setItem(POLL_STATE_KEY, JSON.stringify({ hash, tentativas, valor, timestamp: Date.now() }));
   } catch(e) {}
 }
-
 function carregarEstadoPolling() {
   try {
     const raw = localStorage.getItem(POLL_STATE_KEY);
@@ -786,39 +1018,31 @@ function carregarEstadoPolling() {
     return JSON.parse(raw);
   } catch(e) { return null; }
 }
-
 function limparEstadoPolling() {
   try { localStorage.removeItem(POLL_STATE_KEY); } catch(e) {}
 }
-
 function iniciarPollRobusto(txHash, valorPago, tentativasIniciais = 0) {
   if (pollingTimeoutId) {
     clearTimeout(pollingTimeoutId);
     pollingTimeoutId = null;
   }
-
   pollingHashAtual = txHash;
   pollingValorAtual = valorPago;
   pollingTentativas = tentativasIniciais;
   pollingPausado = false;
   pollingIntervaloAtual = INTERVALO_INICIAL;
-
   salvarEstadoPolling(txHash, pollingTentativas, pollingValorAtual);
-
   function tentar() {
     if (pollingPausado) {
       pollingTimeoutId = setTimeout(tentar, 20000);
       return;
     }
-
     if (pollingTentativas >= MAX_TENTATIVAS) {
       limparEstadoPolling();
       return;
     }
-
     pollingTentativas++;
     salvarEstadoPolling(pollingHashAtual, pollingTentativas, pollingValorAtual);
-
     checarStatusComTimeout(pollingHashAtual)
       .then(status => {
         if (status === 'paid' || status === 'approved' || status === 'completed') {
@@ -827,7 +1051,6 @@ function iniciarPollRobusto(txHash, valorPago, tentativasIniciais = 0) {
           showBotaoEntregavel();
           return;
         }
-
         pollingIntervaloAtual = Math.min(pollingIntervaloAtual * BACKOFF_MULTIPLICADOR, INTERVALO_MAXIMO);
         pollingTimeoutId = setTimeout(tentar, pollingIntervaloAtual);
       })
@@ -835,10 +1058,8 @@ function iniciarPollRobusto(txHash, valorPago, tentativasIniciais = 0) {
         pollingTimeoutId = setTimeout(tentar, 10000);
       });
   }
-
   tentar();
 }
-
 function retomarPollingSeNecessario() {
   const estado = carregarEstadoPolling();
   if (estado && estado.hash && estado.tentativas < MAX_TENTATIVAS) {
@@ -849,8 +1070,6 @@ function retomarPollingSeNecessario() {
     }
   }
 }
-
-// ═══ VISIBILIDADE DA ABA ═══
 document.addEventListener('visibilitychange', function() {
   if (document.hidden) {
     pollingPausado = true;
@@ -858,10 +1077,6 @@ document.addEventListener('visibilitychange', function() {
     pollingPausado = false;
   }
 });
-
-function iniciarPoll(txHash, valorPago) {
-  iniciarPollRobusto(txHash, valorPago);
-}
 
 // ═══ FUNÇÃO PARA COPIAR TEXTO (fallback) ═══
 function fallbackCopy(texto,cb){
@@ -880,11 +1095,7 @@ function pixelPurchase(v){
   if(typeof fbq!=='undefined')fbq('track','Purchase',{value:(v/100).toFixed(2),currency:'BRL',num_items:1,content_ids:[PRODUCT_HASH],content_type:'product'});
 }
 
-// ════════════════════════════════════════════════════
-// ═══ CARD PIX — NOVO ESTILO (segundo index) + TOAST ═══
-// ════════════════════════════════════════════════════
-
-// Função que exibe o toast de confirmação (já existente no primeiro index)
+// ═══ TOAST E COPIA PIX ═══
 function showToast(mensagem) {
   micToast.innerHTML = `<span style="display:flex;align-items:center;gap:8px;">✅ ${mensagem}</span>`;
   micToast.classList.add('show');
@@ -893,8 +1104,6 @@ function showToast(mensagem) {
     micToast.classList.remove('show');
   }, 3000);
 }
-
-// Função de copiar Pix adaptada (combina feedback no botão + toast)
 window.copiarPix = function(btn, chave) {
   const ok = function() {
     btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#00a884" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Copiado!';
@@ -912,115 +1121,17 @@ window.copiarPix = function(btn, chave) {
   }
 };
 
-function criarCardPix(data, desconto, timestamp) {
-  const valor = desconto ? 2000 : 3000;
-  const valorFmt = 'R$ ' + (valor/100).toFixed(2).replace('.',',');
-  const pixCopia = (data.pix && data.pix.pix_qr_code) || '';
-  const txHash = data.hash || ('tx'+Date.now());
-
-  const pixEntry = {
-    role: 'assistant',
-    content: 'Solicitação de pagamento',
-    type: 'pix',
-    timestamp: timestamp || getTime(),
-    pixData: {
-      valor: valor,
-      valorFmt: valorFmt,
-      chave: pixCopia,
-      hash: txHash,
-      desconto: desconto
-    }
-  };
-  aiHistory.push(pixEntry);
-  salvarLead(true);
-
-  const wrap = document.createElement('div');
-  wrap.className = 'fade-in';
-  wrap.style.cssText = 'align-self:flex-start;margin-left:6px;max-width:88%';
-
-  const card = document.createElement('div');
-  card.style.cssText = 'background:#fff;border-radius:12px;overflow:hidden;min-width:220px;box-shadow:0 1px 3px rgba(0,0,0,0.15)';
-
-  // Cabeçalho verde com valor
-  const head = document.createElement('div');
-  head.style.cssText = 'background:#00a884;padding:12px 14px;display:flex;align-items:center;gap:10px';
-  head.innerHTML = '<div style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div style="color:rgba(255,255,255,0.85);font-size:11px;margin-bottom:1px">Solicitação de pagamento</div><div style="color:#fff;font-size:19px;font-weight:700;line-height:1.2">'+valorFmt+'</div></div>';
-  card.appendChild(head);
-
-  // Informações
-  const info = document.createElement('div');
-  info.style.cssText = 'padding:10px 14px;border-bottom:1px solid #f0f2f5';
-  info.innerHTML = '<div style="font-size:11px;color:#8696a0;margin-bottom:2px">Para</div><div style="font-size:14px;color:#111b21;font-weight:500">Vanessa Macedo</div><div style="font-size:11.5px;color:#8696a0;margin-top:1px">via Pix</div>';
-  card.appendChild(info);
-
-  // Botão copiar (se houver chave)
-  if (pixCopia) {
-    const btnWrap = document.createElement('div');
-    btnWrap.style.cssText = 'border-bottom:1px solid #f0f2f5';
-    const btn = document.createElement('button');
-    btn.style.cssText = 'width:100%;background:none;border:none;padding:10px 14px;color:#00a884;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px';
-    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="#00a884" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="#00a884" stroke-width="2" stroke-linecap="round"/></svg> Copiar chave Pix';
-    btn.onclick = function(){ window.copiarPix(btn, pixCopia); };
-    btnWrap.appendChild(btn);
-    card.appendChild(btnWrap);
-  }
-
-  // Rodapé com horário
-  const footer = document.createElement('div');
-  footer.style.cssText = 'padding:6px 14px 8px;display:flex;justify-content:flex-end';
-  const time = document.createElement('span');
-  time.style.cssText = 'font-size:11px;color:#8696a0';
-  time.textContent = timestamp || getTime();
-  footer.appendChild(time);
-  card.appendChild(footer);
-
-  wrap.appendChild(card);
-  msgsEl.appendChild(wrap);
-  scroll();
-
-  iniciarPollRobusto(txHash, valor);
-  pixelIniCheckout(valor);
-}
-
-// ═══ showCta (agora com áudio Pix separado e sem gatilho de chamada) ═══
-async function showCta(desconto) {
-  if (desconto) { if (pixDescontoGerado) return; pixDescontoGerado = true; }
-  else { if (pixNormalGerado) return; pixNormalGerado = true; }
-
-  showTyping(); await sleep(1000); hideTyping();
-  const data = await gerarPix(desconto);
-  if (!data) { addBubble('Ops, tive um probleminha 😅 Tenta de novo!','in'); return; }
-
-  const now = getTime();
-  criarCardPix(data, desconto, now);
-
-  // Toca áudio do Pix apenas uma vez (para Pix normal)
-  if (!desconto && !audioPIxJaTocou) {
-    audioPIxJaTocou = true;
-    saveState();
-    await sleep(600);
-    aiHistory.push({role:'assistant', content:'[áudio]', type:'audio', src:AUDIO_PIX_SRC, timestamp: now});
-    salvarLead(true);
-    criarBolhaAudio(AUDIO_PIX_SRC, 'pix', function() {
-      // sem gatilho
-    });
-  }
-}
-
-// ═══ FUNÇÃO PARA EXIBIR IMAGEM (NORMAL) com LIGHTBOX ═══
+// ═══ EXIBIÇÃO DE IMAGEM E ÁUDIO (mantido) ═══
 function showImage(src, timestamp) {
   const now = timestamp || getTime();
-  const compressedSrc = src; // já usamos wsrv ou URLs externas
-
+  const compressedSrc = src;
   aiHistory.push({ role:'assistant', content:'[imagem]', type:'image', src: compressedSrc, timestamp: now });
   salvarLead();
-
   const b = document.createElement('div');
   b.className = 'bbl in fade-in';
   b.style.maxWidth = '85%';
   b.style.padding = '4px';
   b.innerHTML = TAIL_IN + '<img src="'+compressedSrc+'" style="width:220px;display:block;border-radius:6px;max-width:100%;cursor:pointer" alt="foto" loading="lazy" decoding="async"><div class="bbl-meta"><span class="bbl-time">'+now+'</span></div>';
-  // Adiciona clique para abrir lightbox
   const img = b.querySelector('img');
   img.addEventListener('click', function(e) {
     e.stopPropagation();
@@ -1029,12 +1140,9 @@ function showImage(src, timestamp) {
   msgsEl.appendChild(b);
   scroll();
 }
-
 function showFotoLead() {
   showImage(IMG_LEAD_SRC);
 }
-
-// ═══ LIGHTBOX (clique na imagem) ═══
 function abrirLightbox(src) {
   const overlay = document.createElement('div');
   overlay.className = 'image-lightbox';
@@ -1044,20 +1152,16 @@ function abrirLightbox(src) {
   `;
   const phone = document.querySelector('.phone');
   phone.appendChild(overlay);
-  // Clicar fora da imagem também fecha
   overlay.addEventListener('click', function(e) {
     if (e.target === overlay) fecharLightbox(overlay);
   });
   document.body.style.overflow = 'hidden';
 }
-
 function fecharLightbox(overlay) {
   if (!overlay) return;
   overlay.remove();
   document.body.style.overflow = '';
 }
-
-// ═══ FUNÇÃO PARA CRIAR BOLHA DE ÁUDIO DO LEAD ═══
 function criarBolhaAudio(src, id, onEnded) {
   const now = getTime();
   const b = document.createElement('div');
@@ -1083,13 +1187,11 @@ function criarBolhaAudio(src, id, onEnded) {
   </div><div class="bbl-meta"><span class="bbl-time">${now}</span></div>`;
   msgsEl.appendChild(b);
   scroll();
-
   const audio = new Audio(src);
   const audioKey = 'audio_' + id + '_' + Date.now();
   _audioInstances[audioKey] = audio;
   audio._audioId = id;
   audio._audioKey = audioKey;
-
   audio.addEventListener('timeupdate', function() {
     const pct = (this.currentTime / this.duration) * 100 || 0;
     const prog = document.getElementById('audio-progress-'+id);
@@ -1102,21 +1204,18 @@ function criarBolhaAudio(src, id, onEnded) {
       dur.textContent = Math.floor(t/60) + ':' + String(t%60).padStart(2,'0');
     }
   });
-
   audio.addEventListener('play', function() {
     const pi = document.getElementById('play-icon-'+id);
     const pau = document.getElementById('pause-icon-'+id);
     if(pi) pi.style.display = 'none';
     if(pau) pau.style.display = '';
   });
-
   audio.addEventListener('pause', function() {
     const pi = document.getElementById('play-icon-'+id);
     const pau = document.getElementById('pause-icon-'+id);
     if(pi) pi.style.display = '';
     if(pau) pau.style.display = 'none';
   });
-
   audio.addEventListener('ended', function() {
     const pi = document.getElementById('play-icon-'+id);
     const pau = document.getElementById('pause-icon-'+id);
@@ -1131,13 +1230,10 @@ function criarBolhaAudio(src, id, onEnded) {
     this.currentTime = 0;
     if (onEnded) onEnded();
   });
-
   if (id === 'lead-audio' || id === '0') {
     salvarAudioLead(src, now);
   }
 }
-
-// ═══ FUNÇÃO PARA CRIAR BOLHA DE ÁUDIO DO USUÁRIO ═══
 function criarBolhaAudioUsuario(url, id, timestamp) {
   const now = timestamp || getTime();
   const b = document.createElement('div');
@@ -1161,13 +1257,11 @@ function criarBolhaAudioUsuario(url, id, timestamp) {
     </div>
   </div><div class="bbl-meta"><span class="bbl-time">${now}</span>${DOUBLE_TICK}</div>`;
   msgsEl.appendChild(b); scroll();
-
   const audio = new Audio(url);
   const audioKey = 'user_audio_' + id + '_' + Date.now();
   _audioInstances[audioKey] = audio;
   audio._audioId = id;
   audio._audioKey = audioKey;
-
   audio.addEventListener('timeupdate', function() {
     const pct = (this.currentTime / this.duration) * 100 || 0;
     const prog = document.getElementById('audio-progress-'+id);
@@ -1180,21 +1274,18 @@ function criarBolhaAudioUsuario(url, id, timestamp) {
       dur.textContent = Math.floor(t/60)+':'+String(t%60).padStart(2,'0'); 
     }
   });
-
   audio.addEventListener('play', function() {
     const pi = document.getElementById('play-icon-'+id);
     const pau = document.getElementById('pause-icon-'+id);
     if(pi) pi.style.display = 'none';
     if(pau) pau.style.display = '';
   });
-
   audio.addEventListener('pause', function() {
     const pi = document.getElementById('play-icon-'+id);
     const pau = document.getElementById('pause-icon-'+id);
     if(pi) pi.style.display = '';
     if(pau) pau.style.display = 'none';
   });
-
   audio.addEventListener('ended', function() {
     const pi = document.getElementById('play-icon-'+id);
     const pau = document.getElementById('pause-icon-'+id);
@@ -1209,8 +1300,6 @@ function criarBolhaAudioUsuario(url, id, timestamp) {
     this.currentTime = 0;
   });
 }
-
-// ═══ FUNÇÃO GLOBAL PARA CONTROLAR ÁUDIO ═══
 let _audioInstances = {};
 window.toggleAudioById = function(id) {
   let foundAudio = null;
@@ -1230,7 +1319,6 @@ window.toggleAudioById = function(id) {
     foundAudio.pause();
   }
 };
-
 window.seekAudioById = function(e, bar, id) {
   let foundAudio = null;
   for (const key in _audioInstances) {
@@ -1245,7 +1333,7 @@ window.seekAudioById = function(e, bar, id) {
   foundAudio.currentTime = pct * foundAudio.duration;
 };
 
-// ═══ REBUILD UI ═══
+// ═══ REBUILD UI (mantido, sem flags de pix) ═══
 async function rebuildUI() {
   msgsEl.innerHTML = '<div class="date-pill">Hoje</div>';
   for (const msg of aiHistory) {
@@ -1301,20 +1389,16 @@ async function rebuildUI() {
         const wrap = document.createElement('div');
         wrap.className = 'fade-in';
         wrap.style.cssText = 'align-self:flex-start;margin-left:6px;max-width:88%';
-
         const card = document.createElement('div');
         card.style.cssText = 'background:#fff;border-radius:12px;overflow:hidden;min-width:220px;box-shadow:0 1px 3px rgba(0,0,0,0.15)';
-
         const head = document.createElement('div');
         head.style.cssText = 'background:#00a884;padding:12px 14px;display:flex;align-items:center;gap:10px';
         head.innerHTML = '<div style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div style="color:rgba(255,255,255,0.85);font-size:11px;margin-bottom:1px">Solicitação de pagamento</div><div style="color:#fff;font-size:19px;font-weight:700;line-height:1.2">'+pixData.valorFmt+'</div></div>';
         card.appendChild(head);
-
         const info = document.createElement('div');
         info.style.cssText = 'padding:10px 14px;border-bottom:1px solid #f0f2f5';
         info.innerHTML = '<div style="font-size:11px;color:#8696a0;margin-bottom:2px">Para</div><div style="font-size:14px;color:#111b21;font-weight:500">Vanessa Macedo</div><div style="font-size:11.5px;color:#8696a0;margin-top:1px">via Pix</div>';
         card.appendChild(info);
-
         if (pixData.chave) {
           const btnWrap = document.createElement('div');
           btnWrap.style.cssText = 'border-bottom:1px solid #f0f2f5';
@@ -1325,7 +1409,6 @@ async function rebuildUI() {
           btnWrap.appendChild(btn);
           card.appendChild(btnWrap);
         }
-
         const footer = document.createElement('div');
         footer.style.cssText = 'padding:6px 14px 8px;display:flex;justify-content:flex-end';
         const time = document.createElement('span');
@@ -1333,7 +1416,6 @@ async function rebuildUI() {
         time.textContent = msg.timestamp || getTime();
         footer.appendChild(time);
         card.appendChild(footer);
-
         wrap.appendChild(card);
         msgsEl.appendChild(wrap);
       }
@@ -1346,19 +1428,17 @@ async function rebuildUI() {
   enableInput();
 }
 
-// ═══ showBotaoEntregavel (com link e botão de retorno) ═══
+// ═══ showBotaoEntregavel (mantido) ═══
 function showBotaoEntregavel() {
   if (entregavelLiberado) return;
   entregavelLiberado = true;
   saveState();
-
   let ring = null;
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     function beep(){ const o = ctx.createOscillator(), g = ctx.createGain(); o.connect(g); g.connect(ctx.destination); o.frequency.value = 480; g.gain.setValueAtTime(0.28, ctx.currentTime); o.start(); o.stop(ctx.currentTime + 0.35); }
     beep(); ring = setInterval(beep, 1400);
   } catch(e) {}
-
   const ov = document.createElement('div');
   ov.style.cssText = 'position:absolute;inset:0;background:#1a1a2e;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:60px 20px;animation:fi .3s ease';
   ov.innerHTML = `<div style="text-align:center">
@@ -1386,9 +1466,7 @@ function showBotaoEntregavel() {
       Atender
     </button>
   </div>`;
-
   document.querySelector('.phone').appendChild(ov);
-
   document.getElementById('vc-answer').onclick = function() {
     if (ring) clearInterval(ring);
     ov.remove();
@@ -1398,7 +1476,6 @@ function showBotaoEntregavel() {
     finalizarConversa();
     saveState();
   };
-
   document.getElementById('vc-decline').onclick = async function() {
     if (ring) clearInterval(ring);
     ov.remove();
@@ -1409,11 +1486,9 @@ function showBotaoEntregavel() {
     aiHistory.push({ role: 'system', content: 'Entregável - Recusado', type: 'system' });
     salvarLead(true);
     await sleep(1400);
-
     const br = document.createElement('div');
     br.className = 'bbl in fade-in';
     br.style.maxWidth = '88%';
-
     const link = document.createElement('a');
     link.href = LINK_ENTREGAVEL;
     link.target = '_blank';
@@ -1421,7 +1496,6 @@ function showBotaoEntregavel() {
     link.style.margin = '0';
     link.id = 'btn-retornar';
     link.textContent = '📹 Retornar chamada';
-
     let retornarChamadaClicado = false;
     link.addEventListener('click', function(e) {
       if (retornarChamadaClicado) {
@@ -1435,7 +1509,6 @@ function showBotaoEntregavel() {
       link.style.pointerEvents = 'none';
       link.style.cursor = 'default';
     });
-
     br.innerHTML = TAIL_IN;
     br.appendChild(link);
     const meta = document.createElement('div');
@@ -1456,7 +1529,7 @@ function typingDelay(text) {
   return Math.min(Math.max((chars/cps)*1000+600+Math.random()*900, 1800), 12000);
 }
 
-// ═══ FUNÇÃO ASKAI ═══
+// ═══ FUNÇÃO ASKAI (com extração de valor) ═══
 async function askAI(userMsg) {
   if (conversaEncerrada) return;
 
@@ -1504,18 +1577,20 @@ async function askAI(userMsg) {
       addBubble(part, 'in', false, now);
     }
 
-    const temPixNormal = /aqui o pix/i.test(cleanContent);
-    const temDesconto  = /um desconto/i.test(cleanContent);
+    // Extração do valor para PIX
+    const valorExtraido = extrairValorDaMensagem(cleanContent);
+    if (valorExtraido) {
+      await sleep(600);
+      await gerarPixComValor(valorExtraido);
+    }
+
+    // Gatilhos extras (foto, áudio, etc)
     const temFoto     = /olha eu aqui/i.test(cleanContent);
     const temExtra    = /tá pera/i.test(cleanContent);
-
-    if (temPixNormal) { await sleep(600); showCta(false); }
-    if (temDesconto)  { await sleep(600); showCta(true); }
     if (temFoto)      { await sleep(500); showFotoLead(); }
     if (temExtra)     { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showImage(IMG_EXTRA_SRC); }
 
-    const houveCta = temPixNormal || temDesconto;
-    salvarLead(houveCta);
+    salvarLead(!!valorExtraido || temFoto || temExtra);
   } catch (e) {
     hideTyping();
     addBubble('Ops, tive um probleminha. Pode repetir? 😊', 'in');
@@ -1524,7 +1599,7 @@ async function askAI(userMsg) {
   enableInput();
 }
 
-// ═══ FUNÇÃO DE ENVIO (texto) - COM GATILHO DA CHAMADA ISCA ═══
+// ═══ FUNÇÃO DE ENVIO (texto) ═══
 function submit() {
   if (conversaEncerrada) return;
   const text = inpEl.value.trim();
@@ -1534,25 +1609,15 @@ function submit() {
   const now = getTime();
   addBubble(text, 'out', false, now);
   if (!leadId) salvarLead();
-  userReplyCount++;
-  saveState();
-
-  // ═══ GATILHO DA CHAMADA ISCA APÓS A SEGUNDA MENSAGEM DO LEAD ═══
-  if (userReplyCount === 2 && !autoCallFired) {
-    const delay = 60000 + Math.random() * 60000; // 60 a 120 segundos
-    scheduleAutoCall(delay);
-  }
-
   askAI(text);
 }
 
-// ═══ GRAVAÇÃO DE ÁUDIO (pressione e segure) ═══
+// ═══ GRAVAÇÃO DE ÁUDIO (pressione e segure) - mantido ═══
 let _mediaRecorder = null, _audioChunks = [], _isRecording = false, _recordTimer = null;
 let _isMicPressed = false;
 let _cancelRecording = false;
 let _recordStartTime = null;
 let _timerInterval = null;
-
 let _pressTimer = null;
 let _pressStartX = 0, _pressStartY = 0;
 const PRESS_THRESHOLD = 200;
@@ -1838,7 +1903,7 @@ function showMicError(message) {
   scroll();
 }
 
-// ═══ ENVIO DE ÁUDIO (APÓS GRAVAÇÃO) - COM GATILHO DA CHAMADA ISCA ═══
+// ═══ ENVIO DE ÁUDIO (APÓS GRAVAÇÃO) - com extração ═══
 async function sendAudioMessage(mimeType) {
   if (conversaEncerrada) return;
   if (_audioChunks.length === 0) return;
@@ -1864,14 +1929,7 @@ async function sendAudioMessage(mimeType) {
   const reader = new FileReader();
   reader.onload = async function() {
     const base64 = reader.result.split(',')[1];
-    userReplyCount++;
     if (!leadId) salvarLead();
-
-    // ═══ GATILHO DA CHAMADA ISCA APÓS A SEGUNDA MENSAGEM DO LEAD ═══
-    if (userReplyCount === 2 && !autoCallFired) {
-      const delay = 60000 + Math.random() * 60000;
-      scheduleAutoCall(delay);
-    }
 
     showTyping();
     try {
@@ -1909,18 +1967,18 @@ async function sendAudioMessage(mimeType) {
         showTyping(); await sleep(typingDelay(parts[i])); hideTyping(); addBubble(parts[i], 'in', false, getTime());
       }
 
-      const temPixNormal = /aqui o pix/i.test(cleanContent);
-      const temDesconto  = /um desconto/i.test(cleanContent);
+      const valorExtraido = extrairValorDaMensagem(cleanContent);
+      if (valorExtraido) {
+        await sleep(600);
+        await gerarPixComValor(valorExtraido);
+      }
+
       const temFoto     = /olha eu aqui/i.test(cleanContent);
       const temExtra    = /tá pera/i.test(cleanContent);
-
-      if (temPixNormal) { await sleep(600); showCta(false); }
-      if (temDesconto)  { await sleep(600); showCta(true); }
       if (temFoto)      { await sleep(500); showFotoLead(); }
       if (temExtra)     { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showImage(IMG_EXTRA_SRC); }
 
-      const houveCta = temPixNormal || temDesconto;
-      salvarLead(houveCta);
+      salvarLead(!!valorExtraido || temFoto || temExtra);
     } catch(e) {
       hideTyping();
       addBubble('Ops, não consegui ouvir o áudio. Pode escrever? 😊', 'in');
@@ -1936,7 +1994,7 @@ inpEl.addEventListener('input', function() {
   updateSendMicButtons();
 });
 
-// ═══ ENVIO DE IMAGEM - COM GATILHO DA CHAMADA ISCA ═══
+// ═══ ENVIO DE IMAGEM - com extração ═══
 async function handleImageSelect(event) {
   if (conversaEncerrada) return;
   const file = event.target.files && event.target.files[0];
@@ -1971,14 +2029,7 @@ async function handleImageSelect(event) {
   msgsEl.appendChild(b); scroll();
 
   const base64 = localUrl.split(',')[1];
-  userReplyCount++;
   if (!leadId) salvarLead();
-
-  // ═══ GATILHO DA CHAMADA ISCA APÓS A SEGUNDA MENSAGEM DO LEAD ═══
-  if (userReplyCount === 2 && !autoCallFired) {
-    const delay = 60000 + Math.random() * 60000;
-    scheduleAutoCall(delay);
-  }
 
   showTyping();
   try {
@@ -2016,18 +2067,18 @@ async function handleImageSelect(event) {
       showTyping(); await sleep(typingDelay(parts[i])); hideTyping(); addBubble(parts[i], 'in', false, getTime());
     }
 
-    const temPixNormal = /aqui o pix/i.test(cleanContent);
-    const temDesconto  = /um desconto/i.test(cleanContent);
+    const valorExtraido = extrairValorDaMensagem(cleanContent);
+    if (valorExtraido) {
+      await sleep(600);
+      await gerarPixComValor(valorExtraido);
+    }
+
     const temFoto     = /olha eu aqui/i.test(cleanContent);
     const temExtra    = /tá pera/i.test(cleanContent);
-
-    if (temPixNormal) { await sleep(600); showCta(false); }
-    if (temDesconto)  { await sleep(600); showCta(true); }
     if (temFoto)      { await sleep(500); showFotoLead(); }
     if (temExtra)     { showTyping(); await sleep(3000 + Math.random() * 2000); hideTyping(); showImage(IMG_EXTRA_SRC); }
 
-    const houveCta = temPixNormal || temDesconto;
-    salvarLead(houveCta);
+    salvarLead(!!valorExtraido || temFoto || temExtra);
   } catch(e) {
     hideTyping();
     addBubble('Ops, não consegui ver a foto. Pode escrever? 😊', 'in');
@@ -2036,7 +2087,7 @@ async function handleImageSelect(event) {
   enableInput();
 }
 
-// ═══ FUNÇÃO PARA REDIMENSIONAR IMAGEM (canvas) ═══
+// ═══ FUNÇÃO PARA REDIMENSIONAR IMAGEM ═══
 function resizeImage(file, maxWidth, quality) {
   return new Promise((resolve) => {
     const reader = new FileReader();
@@ -2068,127 +2119,25 @@ function resizeImage(file, maxWidth, quality) {
   });
 }
 
-// ═══ AUTO CALL (CHAMADA ISCA) - VERSÃO DO SEGUNDO INDEX ═══
-function startAutoCallRing(){
-  try{
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    function beep(){
-      const o = ctx.createOscillator(), g = ctx.createGain();
-      o.connect(g); g.connect(ctx.destination);
-      o.frequency.value = 480;
-      g.gain.setValueAtTime(0.25, ctx.currentTime);
-      o.start(); o.stop(ctx.currentTime + 0.4);
-    }
-    beep();
-    autoCallRingInterval = setInterval(beep, 1600);
-  } catch(e){}
-}
-function stopAutoCallRing(){
-  if(autoCallRingInterval){ clearInterval(autoCallRingInterval); autoCallRingInterval = null; }
-}
-
-function dismissAutoCall(reason){
-  stopAutoCallRing();
-  const ov = document.getElementById('incoming-call-overlay');
-  const ac = document.getElementById('active-call-overlay');
-  ov.classList.remove('show');
-  ac.classList.remove('show');
-  setTimeout(function(){
-    const b = document.createElement('div');
-    b.className = 'bbl in fade-in';
-    if (reason === 'declined') {
-      b.innerHTML = TAIL_IN +
-        '<div style="display:flex;align-items:center;gap:8px;color:#e53935;font-size:13.5px">' +
-        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#e53935" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><line x1="3" y1="3" x2="21" y2="21" stroke="#e53935" stroke-width="1.75" stroke-linecap="round"/></svg>' +
-        'Chamada de vídeo perdida</div>' +
-        '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
-      aiHistory.push({ role: 'system', content: 'Ligação Isca - Recusada', type: 'system' });
-    } else {
-      b.innerHTML = TAIL_IN +
-        '<div style="display:flex;align-items:center;gap:8px;color:#667781;font-size:13.5px">' +
-        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 10.5L19.4 7.9A1 1 0 0121 8.7V15.3A1 1 0 0119.4 16.1L15.5 13.5" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="7" width="12.5" height="10" rx="2" stroke="#667781" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-        'Vanessa desligou · 0:02</div>' +
-        '<div class="bbl-meta"><span class="bbl-time">'+getTime()+'</span></div>';
-      aiHistory.push({ role: 'system', content: 'Ligação Isca - Aceita', type: 'system' });
-    }
-    msgsEl.appendChild(b);
-    scroll();
-    salvarLead();
-    saveState();
-  }, 400);
-}
-
-function triggerAutoCall(){
-  if (autoCallFired) return;
-  autoCallFired = true;
-  saveState();
-
-  const ov = document.getElementById('incoming-call-overlay');
-  ov.classList.add('show');
-  startAutoCallRing();
-
-  const autoDismissTimer = setTimeout(function(){
-    if (ov.classList.contains('show')) {
-      dismissAutoCall('declined');
-    }
-  }, 20000);
-
-  document.getElementById('auto-call-decline').onclick = function(){
-    clearTimeout(autoDismissTimer);
-    dismissAutoCall('declined');
-  };
-
-  document.getElementById('auto-call-answer').onclick = function(){
-    clearTimeout(autoDismissTimer);
-    stopAutoCallRing();
-    ov.classList.remove('show');
-
-    const ac = document.getElementById('active-call-overlay');
-    const statusTxt = document.getElementById('ac-status-text');
-    ac.classList.add('show');
-    statusTxt.textContent = 'Conectando…';
-    setTimeout(function(){ statusTxt.textContent = 'Chamada de vídeo'; }, 700);
-    setTimeout(function(){
-      ac.classList.remove('show');
-      dismissAutoCall('answered_and_hung');
-    }, 2000);
-
-    document.getElementById('ac-end-btn').onclick = function(){
-      ac.classList.remove('show');
-      dismissAutoCall('answered_and_hung');
-    };
-  };
-}
-
-function scheduleAutoCall(delay = 0) {
-  if (autoCallFired || autoCallTimer) return;
-  autoCallTimer = setTimeout(triggerAutoCall, delay);
-}
-
 // ═══ FUNÇÕES DO PERFIL ═══
 function openProfileSheet() {
   if (conversaEncerrada) return;
   const overlay = document.getElementById('profile-overlay');
   overlay.classList.add('open');
-
   atualizarStatusPerfil();
   atualizarLocalizacaoPerfil();
 }
-
 function closeProfileSheet() {
   document.getElementById('profile-overlay').classList.remove('open');
 }
-
 function atualizarStatusPerfil() {
   const statusEl = document.getElementById('profile-status');
   if (!statusEl) return;
   statusEl.textContent = 'online';
 }
-
 async function atualizarLocalizacaoPerfil() {
   const locationEl = document.getElementById('profile-location');
   if (!locationEl) return;
-
   let cidade = leadCityVal;
   if (!cidade) {
     try {
@@ -2199,7 +2148,6 @@ async function atualizarLocalizacaoPerfil() {
       console.warn('Erro ao buscar cidade via API');
     }
   }
-
   if (cidade) {
     locationEl.textContent = `📍 ${cidade}`;
   } else {
@@ -2226,13 +2174,43 @@ async function atualizarLocalizacaoPerfil() {
   }
 }
 
-// ═══ INÍCIO ═══
-async function start() {
+// ═══ PRE-SELL ═══
+let currentStep = 0;
+const totalSteps = 4;
+function nextStep() {
+  if (currentStep < totalSteps - 1) {
+    const steps = document.querySelectorAll('#pre-sell .step');
+    steps.forEach((s, i) => {
+      s.classList.toggle('active', i === currentStep + 1);
+    });
+    const dots = document.querySelectorAll('#pre-sell .dot-ind');
+    dots.forEach((d, i) => {
+      d.classList.toggle('active', i === currentStep + 1);
+    });
+    currentStep++;
+  }
+}
+function enterChat() {
+  preSellPassed = true;
+  saveState();
+  document.getElementById('pre-sell').style.display = 'none';
+  iniciarConversa();
+}
+function showPreSell() {
+  document.getElementById('pre-sell').style.display = 'flex';
+  currentStep = 0;
+  const steps = document.querySelectorAll('#pre-sell .step');
+  steps.forEach((s, i) => s.classList.toggle('active', i === 0));
+  const dots = document.querySelectorAll('#pre-sell .dot-ind');
+  dots.forEach((d, i) => d.classList.toggle('active', i === 0));
+}
+
+// ═══ INÍCIO DA CONVERSA ═══
+async function iniciarConversa() {
   const restored = loadState();
   if (restored && aiHistory.length > 0) {
     leadCityVal = leadCityVal || await fetchLeadCity();
     await rebuildUI();
-
     const audioLeadSalvo = carregarAudioLead();
     if (audioLeadSalvo && audioLeadSalvo.src) {
       const audioExistente = aiHistory.some(msg => msg.type === 'audio' && msg.src === audioLeadSalvo.src);
@@ -2242,7 +2220,6 @@ async function start() {
         criarBolhaAudio(audioLeadSalvo.src, 'lead-audio', null);
       }
     }
-
     retomarPollingSeNecessario();
     enableInput();
     updateSendMicButtons();
@@ -2271,8 +2248,20 @@ async function start() {
         msgsEl.appendChild(imgBbl); scroll();
       }, 1200);
     });
-
     salvarAudioLead(AUDIO_SRC, now);
+  }
+}
+
+// ═══ INÍCIO PRINCIPAL ═══
+async function start() {
+  loadState();
+  if (preSellPassed) {
+    document.getElementById('pre-sell').style.display = 'none';
+    await iniciarConversa();
+  } else {
+    showPreSell();
+    leadCityVal = await fetchLeadCity();
+    saveState();
   }
 }
 start();
@@ -2310,7 +2299,6 @@ function toggleEmoji() {
   }
   panel.style.display = 'block';
 }
-
 function openExitSheet() {
   if (conversaEncerrada) return;
   document.getElementById('exit-sheet').classList.add('open');
