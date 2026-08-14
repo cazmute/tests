@@ -1,12 +1,17 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { desconto } = req.body;
+  const { desconto, amount } = req.body;
 
-  // VALORES ALTERADOS: 1990 → 2000 (R$20,00) e 990 → 1000 (R$10,00)
-  const VALOR_NORMAL   = 3000;
-  const VALOR_DESCONTO = 2000;
-  const valor = desconto ? VALOR_DESCONTO : VALOR_NORMAL;
+  let valor;
+  if (amount !== undefined && !isNaN(amount) && amount > 0) {
+    valor = parseInt(amount, 10);
+  } else {
+    // Fallback para compatibilidade com chamadas antigas (desconto true/false)
+    const VALOR_NORMAL = 3000;
+    const VALOR_DESCONTO = 2000;
+    valor = desconto ? VALOR_DESCONTO : VALOR_NORMAL;
+  }
 
   const payload = {
     api_token: process.env.INVICTUSPAY_KEY,
